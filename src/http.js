@@ -52,6 +52,13 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
 
     return response.status(201).end();
   });
+  router.get('/mob/remove/:name', authMiddleware, (request, response) => {
+    const { name } = request.params;
+
+    dispatch(action.RemoveUser(name));
+
+    return response.status(201).end();
+  });
   router.get('/mob/cycle', authMiddleware, (_request, response) => {
     dispatch(action.CycleMob());
 
