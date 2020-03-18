@@ -2,6 +2,7 @@ import express from 'express';
 import ws from 'ws';
 import http from 'http';
 import path from 'path';
+import ngrok from 'ngrok';
 
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (dispatch) => {
   const app = express();
@@ -35,6 +36,11 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     return response
       .status(200)
       .json(storage.read().data)
+      .end();
+  });
+  router.get('/status', (_request, response) => {
+    return response
+      .status(201)
       .end();
   });
   router.get('/mob/add/:name', authMiddleware, (request, response) => {
@@ -110,12 +116,15 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   app.use(express.static(path.resolve(__dirname, '..', 'public')));
 
   server.listen(port, host, () => {
-    console.log(`>> Server running on http://${host}:${port}/`);
+    ngrok.connect({ proto: 'http', port })
+      .then((url) => {
+        console.log(`>> Server at: ${url} (share this one!)`);
+        console.log(`>> Local at : http://${host}:${port}/`);
+      });
   });
 
   wss.on('connection', (client) => {
     const token = Math.random().toString(36).slice(2);
-    console.log('websocket', token, 'connected');
     dispatch(action.AddToken(token));
     client.send(JSON.stringify({
       type: 'token',
@@ -124,7 +133,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     }));
 
     client.on('close', () => {
-      console.log('websocket', token, 'disconnected');
       dispatch(action.RemoveToken(token));
     });
   });

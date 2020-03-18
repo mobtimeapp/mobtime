@@ -1,185 +1,13 @@
 import { app, h } from 'https://unpkg.com/hyperapp?module=1';
+import * as actions from '/actions.js';
+import timerRemainingDisplay from '/formatTime.js';
 
-const timerRemainingDisplay = milliseconds => {
-  if (!milliseconds) {
-    return '00:00';
-  }
-  const minutes = Math.floor(milliseconds / 60000);
-  const remainingMilliseconds = milliseconds - (minutes * 60000);
-  const seconds = Math.floor(remainingMilliseconds / 1000);
-
-  return [minutes, seconds]
-    .map(t => `${t}`.padStart(2, '0'))
-    .join(':');
-};
-
-const ApiEffectFX = (dispatch, { endpoint, token, OnOK, OnERR }) => {
-  const authHeaders = token
-    ? { Authorization: `token ${token}` }
-    : {};
-
-  const headers = {
-    Accept: 'application/json',
-    ...authHeaders,
-  };
-    
-  return fetch(endpoint, { headers })
-    .then(r => {
-      if (!r.ok) {
-        const error = new Error(`Status ${r.status}: ${r.statusText}`);
-        error.response = r;
-        throw error;
-      }
-      return r.json();
-    })
-    .then(data => dispatch(OnOK, data))
-    .catch(err => dispatch(OnERR, err));
-};
-const ApiEffect = props => [ApiEffectFX, props];
-
-const NotificationPermissionFX = (dispatch, { SetAllowNotification }) => {
-  Notification.requestPermission()
-    .then((value) => {
-      dispatch(SetAllowNotification, value === 'granted');
-    })
-    .catch((err) => {
-      console.warn('Unable to ask for notification permission', err);
-      dispatch(SetAllowNotification, false);
-    });
-};
-const NotificationPermission = props => [NotificationPermissionFX, props];
-
-const DisplayNotificationFx = (dispatch, { title, text }) => {
-  new Notification(title, {
-    body: text,
-    vibrate: true,
-  })
-};
-const DisplayNotification = props => [DisplayNotificationFx, props];
-
-const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
-
-const Init = () => [
-  {
-    serverState: {
-      timerRunning: false,
-      timerRemaining: 0,
-      mob: [],
-    },
-    token: '',
-    name: '',
-    timeInMinutes: '5',
-    allowNotification: Notification.permission == 'granted',
-  },
-];
-
-const SetToken = (state, token) => ({
-  ...state,
-  token,
-});
-
-const Tick = (state, serverState) => {
-  return {
-    ...state,
-    serverState,
-  };
-};
-
-const Completed = state => [
-  state,
-  DisplayNotification({
-    title: 'Mob Timer',
-    text: 'The time is up, cycle and start a new timer',
-  }),
-]
-
-const UpdateName = (state, name) => ({
-  ...state,
-  name,
-});
-
-const ShuffleMob = state => [
-  state,
-  ApiEffect({
-    endpoint: '/api/mob/shuffle',
-    token: state.token,
-    OnOK: Noop,
-    OnERR: Noop,
-  }),
-];
-const CycleMob = state => [
-  state,
-  ApiEffect({
-    endpoint: '/api/mob/cycle',
-    token: state.token,
-    OnOK: Noop,
-    OnERR: Noop,
-  }),
-];
-
-const AddNameToMob = state => [
-  {
-    ...state,
-    name: '',
-  },
-  ApiEffect({
-    endpoint: `/api/mob/add/${encodeURIComponent(state.name)}`,
-    token: state.token,
-    OnOK: Noop,
-    OnERR: Noop,
-  }),
-];
-
-const RemoveNameFromMob = (state, name) => [
-  state,
-  ApiEffect({
-    endpoint: `/api/mob/remove/${encodeURIComponent(name)}`,
-    token: state.token,
-    OnOK: Noop,
-    OnERR: Noop,
-  }),
-];
-
-const UpdateTimeInMinutes = (state, timeInMinutes) => ({
-  ...state,
-  timeInMinutes,
-});
-
-const Noop = state => state;
-
-const PauseTimer = state => [
-  state,
-  ApiEffect({
-    endpoint: `/api/timer/pause`,
-    token: state.token,
-    OnOK: Noop,
-    OnERR: Noop,
-  }),
-];
-const ResumeTimer = state => [
-  state,
-  ApiEffect({
-    endpoint: `/api/timer/resume`,
-    token: state.token,
-    OnOK: Noop,
-    OnERR: Noop,
-  }),
-];
-const StartTimer = state => {
-  const milliseconds = (Number(state.timeInMinutes) * 60000) + 999;
-
-  return [
-    state,
-    ApiEffect({
-      endpoint: `/api/timer/start/${milliseconds}`,
-      token: state.token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-  ];
-};
-
-const RequestNotificationPermission = state => [state, NotificationPermission({ SetAllowNotification })];
+import { card } from '/components/card.js';
+import { button } from '/components/button.js';
+import { fullButton } from '/components/fullButton.js';
+import { mobber } from '/components/mobber.js';
+import { section } from '/components/section.js';
+import { input } from '/components/input.js';
 
 const WebsocketFX = (dispatch) => {
   const protocol = window.location.protocol === 'https:'
@@ -188,25 +16,58 @@ const WebsocketFX = (dispatch) => {
   const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}`;
 
   let socket = null;
+  let handle = null;
+  let cancel = false;
+
+  const checkConnection = () => {
+    return cancel
+      ? null
+      : fetch('/api/status')
+        .then(r => {
+          if (!r.ok) {
+            socket.close();
+          }
+          handle = setTimeout(checkConnection, 10000);
+        })
+        .catch((err) => {
+          if (socket) {
+            socket.close();
+          }
+        });
+  };
 
   const connect = () => {
+    if (cancel) {
+      return;
+    }
+
     socket = new WebSocket(websocketAddress);
 
-    socket.addEventListener('open', () => {
-    });
+    dispatch(actions.SetWebsocketState, 'connecting');
+    let connectionAttempt = setTimeout(() => {
+      socket.close();
+    }, 10000);
 
-    socket.addEventListener('close', () => {
-      setTimeout(connect, 250);
+    socket.addEventListener('open', () => {
+      clearTimeout(connectionAttempt);
+
+      dispatch(actions.SetWebsocketState, 'connected');
+
+      socket.addEventListener('close', () => {
+        dispatch(actions.SetWebsocketState, 'disconnected');
+        socket = null;
+        setTimeout(connect, 10000);
+      });
     });
 
     socket.addEventListener('message', (event) => {
       const message = JSON.parse(event.data);
 
       if (message.token) {
-        dispatch(SetToken, message.token);
+        dispatch(actions.SetToken, message.token);
       }
 
-      dispatch(Tick, message.state);
+      dispatch(actions.Tick, message.state);
       if (message.state.timerRunning) {
         document.title = `${timerRemainingDisplay(message.state.timerRemaining)} - mobtime`;
       } else {
@@ -214,71 +75,22 @@ const WebsocketFX = (dispatch) => {
       }
 
       if (message.type === 'complete') {
-        dispatch(Completed);
+        dispatch(actions.Completed);
       }
     });
   };
 
-  connect();
+  setTimeout(connect, 0);
+  checkConnection();
 
   return () => {
+    cancel = true;
+    clearTimeout(handle);
     socket.close();
     socket = null;
   };
 };
 const Websocket = props => [WebsocketFX, props];
-
-const renderPosition = (name, position) => h('div', {
-  class: {
-    'rounded': true,
-    'overflow-hidden': true,
-    'shadow': true,
-    'pt-2': true,
-    'pb-1': true,
-    'px-1': true,
-    'mx-1': true,
-    'mb-1': true,
-    'flex': true,
-    'flex-row': true,
-    'items-center': true,
-    'justify-between': true,
-  },
-}, [
-  h('div', null, [
-    h('div', {
-      class: {
-        'text-gray-500': !name,
-      },
-    }, name || 'Empty'),
-    h('div', {
-      class: {
-        'uppercase': true,
-        'text-xs': true,
-        'text-gray-300': true,
-      },
-    }, position),
-  ]),
-  h('button', {
-    class: {
-      'rounded-full': true,
-      'border': true,
-      'flex': true,
-      'items-center': true,
-      'justify-center': true,
-      'text-center': true,
-      'border-blue-500': true,
-      'hover:text-white': true,
-      'hover:bg-blue-500': true,
-      'hover:border-transparent': true,
-      'text-blue-700': true,
-    },
-    style: {
-      width: '32px',
-      height: '32px',
-    },
-    onclick: [RemoveNameFromMob, name],
-  }, 'X'),
-]);
 
 const renderMob = mob => {
   const [mobNavigator, mobDriver, ...rest] = mob;
@@ -296,79 +108,53 @@ const renderMob = mob => {
       'w-full': true,
     },
   }, items.map(({ name, position }) => h('li', null, [
-    renderPosition(name, position)
+    h(mobber, {
+      position,
+      name,
+      onRemove: actions.RemoveNameFromMob,
+    })
   ])));
 };
 
-const standardButton = (props, children) => h(
-  'button',
-  {
-    type: 'button',
-    ...props,
-    class: {
-      'py-2': true,
-      'px-4': true,
-      'font-semibold': true,
-      'border-blue-500': true,
-      'border': true,
-      'hover:text-white': !props.disabled,
-      'hover:bg-blue-500': !props.disabled,
-      'hover:border-transparent': !props.disabled,
-      'rounded': true,
-
-      'text-blue-700': !props.disabled,
-      'border-blue-500': !props.disabled,
-      'text-blue-500': !props.disabled,
-      'border-blue-300': !props.disabled,
-      ...(props.class || {}),
-    },
-  },
-  children,
-);
-
 app({
-  init: Init,
+  init: actions.Init,
 
   view: state => h('div', {
     class: {
       'flex': true,
       'items-start': true,
       'justify-center': true,
+      'pb-3': true,
     },
-  }, h('div', {
+  }, h(card, {
     class: {
-      'w-11/12': true,
+      'h-full': true,
+      'sm:h-auto': true,
+      'w-full': true,
       'sm:w-8/12': true,
       'lg:w-6/12': true,
       'xl:w-4/12': true,
-      'rounded': true,
-      'overflow-hidden': true,
-      'shadow-lg': true,
+      'shadow': false,
+      'sm:shadow-lg': true,
+      'pt-2': false,
+      'pt-0': true,
+      'pb-0': true,
+      'pb-1': false,
+      'sm:mt-2': true,
+      'rounded': false,
+      'sm:rounded': true,
     },
   }, [
-    !state.allowNotification && h('div', null, [
-      h('button', {
-        class: {
-          'w-full': true,
-          'bg-blue-500': true,
-          'hover:bg-blue-700': true,
-          'text-white': true,
-          'font-bold': true,
-          'py-2': true,
-          'px-4': true,
-        },
-        onclick: RequestNotificationPermission,
-      }, 'Enable Notifications'),
-    ]),
-    h('div', {
+    !state.allowNotification && h(fullButton, {
+      onclick: actions.RequestNotificationPermission,
+    }, 'Enable Notifications'),
+    h(section, {
       class: {
         'flex': true,
         'flex-row': true,
         'px-2': true,
         'align-center': true,
         'justify-between': true,
-        'pt-3': true,
-        'pb-2': true,
       },
     }, [
       h('h1', {
@@ -380,31 +166,28 @@ app({
       h('div', {
         class: {},
       }, [
-        h(standardButton, {
+        h(button, {
           class: {
             'block': true,
             'w-full': true,
             'mb-1': true,
           },
           disabled: !state.serverState.timerRunning,
-          onclick: PauseTimer,
+          onclick: actions.PauseTimer,
         }, 'Pause'),
-        h(standardButton, {
+        h(button, {
           class: {
             'block': true,
             'w-full': true,
           },
           disabled: state.serverState.timerRunning || state.serverState.timerRemaining === 0,
-          onclick: ResumeTimer,
+          onclick: actions.ResumeTimer,
         }, 'Resume'),
       ]),
     ]),
     h('hr'),
-    h('div', {
+    h(section, {
       class: {
-        'px-2': true,
-        'pt-3': true,
-        'pb-2': true,
         'flex': true,
         'flex-row': true,
         'items-center': true,
@@ -414,18 +197,13 @@ app({
       h('span', null, [
         h('span', null, 'Start timer for'),
         h('label', null, [
-          h('input', {
+          h(input, {
             type: 'number',
             value: state.timeInMinutes,
             min: 1,
             max: 60,
             step: 1,
-            oninput: [UpdateTimeInMinutes, e => e.target.value],
-            class: {
-              'border-b': true,
-              'border-dotted': true,
-              'mx-1': true,
-            },
+            oninput: [actions.UpdateTimeInMinutes, e => e.target.value],
             style: {
               width: '50px',
               textAlign: 'center',
@@ -435,21 +213,15 @@ app({
           h('span', null, `minute${state.timeInMinutes != 1 ? 's' : ''}`),
         ]),
       ]),
-      h(standardButton, {
+      h(button, {
         disabled: !state.timeInMinutes,
-        onclick: StartTimer,
+        onclick: actions.StartTimer,
       }, 'Go!'),
     ]),
 
     h('hr'),
 
-    h('div', {
-      class: {
-        'pt-3': true,
-        'pb-2': true,
-        'px-2': true,
-      },
-    }, [
+    h(section, null, [
       h('div', {
         class: {
           'flex': true,
@@ -457,19 +229,16 @@ app({
           'justify-between': true,
         },
       }, [
-        h(standardButton, { onclick: CycleMob }, 'Cycle Mob'),
-        h(standardButton, { onclick: ShuffleMob }, 'Shuffle'),
+        h(button, { onclick: actions.CycleMob }, 'Cycle Mob'),
+        h(button, { onclick: actions.ShuffleMob }, 'Shuffle'),
       ]),
       renderMob(state.serverState.mob),
     ]),
 
     h('hr'),
 
-    h('div', {
+    h(section, {
       class: {
-        'pt-3': true,
-        'pb-2': true,
-        'px-2': true,
         'flex': true,
         'flex-row': true,
         'items-center': true,
@@ -478,22 +247,61 @@ app({
     }, [
       h('label', null, [
         h('span', null, 'Add'),
-        h('input', {
+        h(input, {
           value: state.name,
-          oninput: [UpdateName, e => e.target.value],
+          oninput: [actions.UpdateName, e => e.target.value],
           placeholder: 'Name here...',
-          class: {
-            'border-b': true,
-            'border-dotted': true,
-            'mx-1': true,
-          },
           style: {
-            width: '120px',
+            minWidth: '160px',
+            fontWeight: 'bold',
           },
         }),
+        h('span', {
+          class: {
+            'hidden': true,
+            'sm:inline': true,
+          },
+        }, 'to the mob'),
       ]),
-      h(standardButton, { disabled: !state.name, onclick: AddNameToMob }, 'Go!'),
+      h(button, { disabled: !state.name, onclick: actions.AddNameToMob }, 'Go!'),
     ]),
+    h('hr'),
+    h(section, {
+      class: {
+        'sm:flex': true,
+        'flex-col': true,
+        'items-center': true,
+        'justify-center': true,
+        'hidden': true,
+      },
+    }, [
+      h('div', {
+        class: {
+          'text-md': true,
+          'text-gray-600': true,
+          'mb-3': true,
+        },
+      }, 'Scan this code to get the timer on your phone'),
+      h('img', {
+        src: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${window.location}`,
+        class: {
+          'mb-3': true,
+        },
+      }),
+    ]),
+    h('div', {
+      class: {
+        'w-full': true,
+        'bg-red-500': state.websocketState === 'disconnected',
+        'bg-transparent': state.websocketState !== 'disconnected',
+        'text-white': state.websocketState === 'disconnected',
+        'text-gray-400': state.websocketState !== 'disconnected',
+        'text-center': true,
+        'py-1': true,
+        'px-2': true,
+        'text-xs': true,
+      },
+    }, `Websocket ${state.websocketState}`),
   ])),
 
   subscriptions: () => [
