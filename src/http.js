@@ -13,7 +13,12 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     const message = JSON.stringify(payload);
     let client;
     for(client of wss.clients) {
-      client.send(message);
+      try {
+        client.send(message);
+      } catch (err) {
+        console.log('Error sending message to client, disconnecting', client._token);
+        client.close();
+      }
     }
   };
 
@@ -125,7 +130,9 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
 
   wss.on('connection', (client) => {
     const token = Math.random().toString(36).slice(2);
+    client._token = token;
     dispatch(action.AddToken(token));
+
     client.send(JSON.stringify({
       type: 'token',
       token,

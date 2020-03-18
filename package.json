@@ -1,11 +1,12 @@
 {
   "name": "mobtime",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon --ignore public ./index.js",
-    "live": "concurrently \"node ./index.js\" \"sleep 1 && node ./httpForward.js\""
+    "dev": "nodemon --ignore public ./index.js",
+    "start": "node ./index.js",
+    "live": "echo 'This is deprecated, use yarn start now'; yarn start'"
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
