@@ -147,7 +147,7 @@ app({
   }, [
     !state.allowNotification && h(fullButton, {
       onclick: actions.RequestNotificationPermission,
-    }, 'Enable Notifications'),
+    }, 'Click Here to Enable Notifications'),
     h(section, {
       class: {
         'flex': true,

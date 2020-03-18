@@ -5,6 +5,8 @@ import { section } from '/components/section.js';
 export const mobber = (props) => h(card, {
   class: {
     'mb-3': true,
+    'bg-transparent': props.position === 'mob',
+    'bg-blue-100': props.position !== 'mob',
   },
 }, [
   h(section, {
@@ -25,7 +27,8 @@ export const mobber = (props) => h(card, {
         class: {
           'uppercase': true,
           'text-xs': true,
-          'text-gray-300': true,
+          'text-gray-400': props.position === 'mob',
+          'text-gray-600': props.position !== 'mob',
         },
       }, props.position),
     ]),
