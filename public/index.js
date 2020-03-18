@@ -289,6 +289,14 @@ app({
         },
       }),
     ]),
+
+    h('hr', {
+      class: {
+        'hidden': true,
+        'sm:block': true,
+      },
+    }),
+
     h('div', {
       class: {
         'w-full': true,
