@@ -1,5 +1,18 @@
 import { app, h } from 'https://unpkg.com/hyperapp?module=1';
 
+const timerRemainingDisplay = milliseconds => {
+  if (!milliseconds) {
+    return '00:00';
+  }
+  const minutes = Math.floor(milliseconds / 60000);
+  const remainingMilliseconds = milliseconds - (minutes * 60000);
+  const seconds = Math.floor(remainingMilliseconds / 1000);
+
+  return [minutes, seconds]
+    .map(t => `${t}`.padStart(2, '0'))
+    .join(':');
+};
+
 const ApiEffectFX = (dispatch, { endpoint, token, OnOK, OnERR }) => {
   const authHeaders = token
     ? { Authorization: `token ${token}` }
@@ -194,6 +207,11 @@ const WebsocketFX = (dispatch) => {
       }
 
       dispatch(Tick, message.state);
+      if (message.state.timerRunning) {
+        document.title = `${timerRemainingDisplay(message.state.timerRemaining)} - mobtime`;
+      } else {
+        document.title = 'mobtime';
+      }
 
       if (message.type === 'complete') {
         dispatch(Completed);
@@ -209,19 +227,6 @@ const WebsocketFX = (dispatch) => {
   };
 };
 const Websocket = props => [WebsocketFX, props];
-
-const timerRemainingDisplay = milliseconds => {
-  if (!milliseconds) {
-    return '00:00';
-  }
-  const minutes = Math.floor(milliseconds / 60000);
-  const remainingMilliseconds = milliseconds - (minutes * 60000);
-  const seconds = Math.floor(remainingMilliseconds / 1000);
-
-  return [minutes, seconds]
-    .map(t => `${t}`.padStart(2, '0'))
-    .join(':');
-};
 
 const renderPosition = (name, position) => h('div', {
   class: {
