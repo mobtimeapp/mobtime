@@ -6,5 +6,4 @@ ngrok.connect({
 })
   .then((url) => {
     console.log('>>> ngrok tunnel: ', url);
-    console.log('                : ', url.replace(/^https/, 'http'));
   });

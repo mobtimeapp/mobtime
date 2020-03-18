@@ -169,7 +169,10 @@ const StartTimer = state => {
 const RequestNotificationPermission = state => [state, NotificationPermission({ SetAllowNotification })];
 
 const WebsocketFX = (dispatch) => {
-  const socket = new WebSocket(`ws://${window.location.hostname}:${window.location.port}`);
+  const protocol = window.location.protocol === 'https:'
+    ? 'wss'
+    : 'ws';
+  const socket = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}`);
 
   socket.addEventListener('open', () => {
   });
