@@ -1,5 +1,5 @@
 {
-  "name": "mob-api",
+  "name": "mobtime",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -9,14 +9,13 @@
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
+    "concurrently": "^5.1.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "ferp": "^1.1.5",
     "ngrok": "^3.2.7",
+    "nodemon": "^2.0.2",
     "ws": "^7.2.3"
   },
-  "devDependencies": {
-    "concurrently": "^5.1.0",
-    "nodemon": "^2.0.2"
-  }
+  "private": true
 }
