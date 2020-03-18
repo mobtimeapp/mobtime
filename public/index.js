@@ -172,27 +172,36 @@ const WebsocketFX = (dispatch) => {
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
-  const socket = new WebSocket(`${protocol}://${window.location.hostname}:${window.location.port}`);
+  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}`;
 
-  socket.addEventListener('open', () => {
-  });
+  let socket = null;
 
-  socket.addEventListener('close', () => {
-  });
+  const connect = () => {
+    socket = new WebSocket(websocketAddress);
 
-  socket.addEventListener('message', (event) => {
-    const message = JSON.parse(event.data);
+    socket.addEventListener('open', () => {
+    });
 
-    if (message.token) {
-      dispatch(SetToken, message.token);
-    }
+    socket.addEventListener('close', () => {
+      setTimeout(connect, 250);
+    });
 
-    dispatch(Tick, message.state);
+    socket.addEventListener('message', (event) => {
+      const message = JSON.parse(event.data);
 
-    if (message.type === 'complete') {
-      dispatch(Completed);
-    }
-  });
+      if (message.token) {
+        dispatch(SetToken, message.token);
+      }
+
+      dispatch(Tick, message.state);
+
+      if (message.type === 'complete') {
+        dispatch(Completed);
+      }
+    });
+  };
+
+  connect();
 
   return () => {
     socket.close();
