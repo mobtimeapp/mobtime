@@ -5,6 +5,8 @@ import Action from './actions';
 import { Http } from './http';
 import { Timer } from './timer';
 
+const port = process.env.PORT || 4321;
+
 const MessageBus = bus.make();
 const Storage = storage.make();
 
@@ -188,6 +190,8 @@ app({
         MessageBus,
         Storage,
         Action,
+        'localhost',
+        port,
       ),
     ];
   },
