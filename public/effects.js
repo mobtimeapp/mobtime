@@ -26,6 +26,9 @@ export const ApiEffect = props => [ApiEffectFX, props];
 
 
 const NotificationPermissionFX = (dispatch, { SetAllowNotification }) => {
+  if (!('Notification' in window)) {
+    return;
+  }
   Notification.requestPermission()
     .then((value) => {
       dispatch(SetAllowNotification, value === 'granted');
@@ -39,6 +42,9 @@ export const NotificationPermission = props => [NotificationPermissionFX, props]
 
 
 const DisplayNotificationFx = (_dispatch, { title, text }) => {
+  if (!('Notification' in window)) {
+    return;
+  }
   new Notification(title, {
     body: text,
     vibrate: true,

@@ -85,15 +85,6 @@ const WebsocketFX = (dispatch, { actions }) => {
       }
 
       dispatch(actions.Tick, message.state);
-      if (message.state.timerRunning) {
-        document.title = `${timerRemainingDisplay(message.state.timerRemaining)} - mobtime`;
-      } else {
-        document.title = 'mobtime';
-      }
-
-      if (message.type === 'complete') {
-        dispatch(actions.Completed);
-      }
     });
   };
 

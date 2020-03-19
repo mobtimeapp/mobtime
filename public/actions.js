@@ -1,5 +1,10 @@
 import * as effects from '/effects.js';
 
+let initialAllowNotification = false;
+if ('Notification' in window) {
+  initialAllowNotification = Notification.permission === 'granted';
+}
+
 export const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
 
 export const Init = () => [
@@ -13,7 +18,7 @@ export const Init = () => [
     token: '',
     name: '',
     timeInMinutes: '5',
-    allowNotification: Notification.permission == 'granted',
+    allowNotification: initialAllowNotification,
     websocketState: 'connecting',
   },
 ];
