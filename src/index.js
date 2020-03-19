@@ -3,6 +3,7 @@ import * as bus from './bus';
 import * as storage from './storage';
 import Action from './actions';
 import { Http } from './http';
+import { CheckVersion } from './checkVersion';
 
 const port = process.env.PORT || 4321;
 
@@ -26,7 +27,7 @@ const update = (action, state) => {
         tokens: [],
         lastTick: null,
       },
-      effects.none(),
+      CheckVersion(Action),
     ],
 
     AddToken: (token) => [
@@ -111,8 +112,7 @@ const update = (action, state) => {
     },
 
     AddUser: (name) => [
-      {
-        ...state,
+      { ...state,
         data: {
           ...state.data,
           mob: state.data.mob.concat(name),
@@ -166,6 +166,8 @@ const update = (action, state) => {
         TickEffect,
       ];
     },
+
+    _: () => [state, effects.none()],
   }, action);
 };
 

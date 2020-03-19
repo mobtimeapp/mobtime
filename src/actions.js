@@ -11,4 +11,5 @@ export default enumerize({
   RemoveUser: [String],
   ShuffleMob: [],
   CycleMob: [],
+  Noop: [],
 });
