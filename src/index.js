@@ -3,7 +3,6 @@ import * as bus from './bus';
 import * as storage from './storage';
 import Action from './actions';
 import { Http } from './http';
-import { Timer } from './timer';
 
 const port = process.env.PORT || 4321;
 
@@ -15,19 +14,14 @@ const TickEffect = effects.thunk(() => {
   return effects.none();
 });
 
-const CompleteEffect = effects.thunk(() => {
-  MessageBus.emit({ type: 'complete' });
-  return effects.none();
-});
-
 const update = (action, state) => {
   return Action.caseOf({
     Init: () => [
       {
         data: {
           mob: [],
-          timerRemaining: 0,
-          timerRunning: false,
+          timerStartedAt: null,
+          timerDuration: 0,
         },
         tokens: [],
         lastTick: null,
@@ -51,72 +45,46 @@ const update = (action, state) => {
     ],
 
     StartTimer: (milliseconds) => {
-      const timerRemaining = Math.max(0, milliseconds);
-      const nextState = {
-        ...state,
-        data: {
-          ...state.data,
-          timerRemaining,
-          timerRunning: timerRemaining > 0,
-        },
-        lastTick: Date.now(),
-      };
-      return [
-        nextState,
-        effects.batch([
-          TickEffect,
-          Timer(Action.TickTimer),
-        ]),
-      ];
-    },
-
-    TickTimer: () => {
-      const now = Date.now();
-      const diff = state.lastTick
-        ? now - state.lastTick
-        : 0;
-      const timerRemaining = Math.max(0, state.data.timerRemaining - diff);
-      const timerRunning = state.data.timerRunning
-        ? timerRemaining > 0
-        : false;
-
-      const isComplete = state.data.timerRunning && timerRemaining === 0;
+      const timerDuration = Math.max(0, milliseconds);
+      const timerStartedAt = timerDuration > 0
+        ? Date.now()
+        : null;
 
       const nextState = {
         ...state,
         data: {
           ...state.data,
-          timerRemaining,
-          timerRunning,
+          timerStartedAt,
+          timerDuration,
         },
-        lastTick: now,
       };
-
       return [
         nextState,
         effects.batch([
           TickEffect,
-          ...(timerRunning ? [Timer(() => Action.TickTimer())] : []),
-          ...(isComplete ? [Action.DoneTimer()] : []),
         ]),
       ];
     },
 
-    PauseTimer: () => [
-      {
-        ...state,
-        data: {
-          ...state.data,
-          timerRunning: false,
-        },
-      },
-      TickEffect,
-    ],
+    PauseTimer: () => {
+      let timerDuration = state.data.timerDuration;
+      if (state.data.timerStartedAt !== null) {
+        const elapsed = Date.now() - state.data.timerStartedAt;
+        timerDuration = Math.max(0, state.data.timerDuration - elapsed);
+      }
 
-    DoneTimer: () => [
-      state,
-      CompleteEffect,
-    ],
+      return [
+        {
+          ...state,
+          data: {
+            ...state.data,
+            timerStartedAt: null,
+            timerDuration,
+          },
+        },
+        TickEffect,
+      ];
+    },
 
     AddUser: (name) => [
       {
