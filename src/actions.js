@@ -5,6 +5,7 @@ export default enumerize({
   AddToken: [String],
   RemoveToken: [String],
   StartTimer: [Number],
+  SyncTimer: [],
   PauseTimer: [],
   AddUser: [String],
   RemoveUser: [String],

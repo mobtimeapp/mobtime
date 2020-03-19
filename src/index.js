@@ -86,6 +86,30 @@ const update = (action, state) => {
       ];
     },
 
+    SyncTimer: () => {
+      let timerStartedAt = state.data.timerStartedAt;
+      let timerDuration = state.data.timerDuration;
+      if (state.data.timerStartedAt !== null) {
+        const elapsed = Date.now() - state.data.timerStartedAt;
+        timerDuration = Math.max(0, state.data.timerDuration - elapsed);
+      }
+      if (timerDuration === 0) {
+        timerStartedAt = null;
+      }
+
+      return [
+        {
+          ...state,
+          data: {
+            ...state.data,
+            timerStartedAt,
+            timerDuration,
+          },
+        },
+        TickEffect,
+      ];
+    },
+
     AddUser: (name) => [
       {
         ...state,

@@ -136,11 +136,12 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     };
   };
 
-  wss.on('connection', (client) => {
+  wss.on('connection', async (client) => {
     const token = Math.random().toString(36).slice(2);
     client._token = token;
 
-    dispatch(action.AddToken(token));
+    await dispatch(action.AddToken(token));
+    await dispatch(action.SyncTimer());
 
     client.send(JSON.stringify({
       type: 'token',
