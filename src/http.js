@@ -2,7 +2,6 @@ import express from 'express';
 import ws from 'ws';
 import http from 'http';
 import path from 'path';
-import ngrok from 'ngrok';
 
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (dispatch) => {
   const app = express();
@@ -121,11 +120,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   app.use(express.static(path.resolve(__dirname, '..', 'public')));
 
   server.listen(port, host, () => {
-    ngrok.connect({ proto: 'http', port })
-      .then((url) => {
-        console.log(`>> Server at: ${url} (share this one!)`);
-        console.log(`>>  Local at: http://${host}:${port}/`);
-      });
+    console.log(`Local server up: http://${host}:${port}`);
   });
 
   const getState = () => {
@@ -167,6 +162,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   return () => {
     cancelBusSubscription();
     http.close();
+    wss.close();
   };
 };
 export const Http = (...props) => [HttpSub, ...props];
