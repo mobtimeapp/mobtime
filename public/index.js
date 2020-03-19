@@ -1,5 +1,6 @@
 import { app, h } from 'https://unpkg.com/hyperapp?module=1';
 import * as actions from '/actions.js';
+import * as subscriptions from '/subscriptions.js';
 import timerRemainingDisplay from '/formatTime.js';
 
 import { card } from '/components/card.js';
@@ -8,89 +9,6 @@ import { fullButton } from '/components/fullButton.js';
 import { mobber } from '/components/mobber.js';
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
-
-const WebsocketFX = (dispatch) => {
-  const protocol = window.location.protocol === 'https:'
-    ? 'wss'
-    : 'ws';
-  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}`;
-
-  let socket = null;
-  let handle = null;
-  let cancel = false;
-
-  const checkConnection = () => {
-    return cancel
-      ? null
-      : fetch('/api/status')
-        .then(r => {
-          if (!r.ok) {
-            socket.close();
-          }
-          handle = setTimeout(checkConnection, 10000);
-        })
-        .catch((err) => {
-          if (socket) {
-            socket.close();
-          }
-        });
-  };
-
-  const connect = () => {
-    if (cancel) {
-      return;
-    }
-
-    socket = new WebSocket(websocketAddress);
-
-    dispatch(actions.SetWebsocketState, 'connecting');
-    let connectionAttempt = setTimeout(() => {
-      socket.close();
-    }, 10000);
-
-    socket.addEventListener('open', () => {
-      clearTimeout(connectionAttempt);
-
-      dispatch(actions.SetWebsocketState, 'connected');
-
-      socket.addEventListener('close', () => {
-        dispatch(actions.SetWebsocketState, 'disconnected');
-        socket = null;
-        setTimeout(connect, 10000);
-      });
-    });
-
-    socket.addEventListener('message', (event) => {
-      const message = JSON.parse(event.data);
-
-      if (message.token) {
-        dispatch(actions.SetToken, message.token);
-      }
-
-      dispatch(actions.Tick, message.state);
-      if (message.state.timerRunning) {
-        document.title = `${timerRemainingDisplay(message.state.timerRemaining)} - mobtime`;
-      } else {
-        document.title = 'mobtime';
-      }
-
-      if (message.type === 'complete') {
-        dispatch(actions.Completed);
-      }
-    });
-  };
-
-  setTimeout(connect, 0);
-  checkConnection();
-
-  return () => {
-    cancel = true;
-    clearTimeout(handle);
-    socket.close();
-    socket = null;
-  };
-};
-const Websocket = props => [WebsocketFX, props];
 
 const renderMob = mob => {
   const [mobNavigator, mobDriver, ...rest] = mob;
@@ -163,7 +81,7 @@ app({
           'p-0': true,
           'm-0': true,
         },
-      }, timerRemainingDisplay(state.serverState.timerRemaining)),
+      }, timerRemainingDisplay(state.remainingTime)),
       h('div', {
         class: {},
       }, [
@@ -173,7 +91,7 @@ app({
             'w-full': true,
             'mb-1': true,
           },
-          disabled: !state.serverState.timerRunning,
+          disabled: state.serverState.timerStartedAt === null,
           onclick: actions.PauseTimer,
         }, 'Pause'),
         h(button, {
@@ -181,7 +99,7 @@ app({
             'block': true,
             'w-full': true,
           },
-          disabled: state.serverState.timerRunning || state.serverState.timerRemaining === 0,
+          disabled: state.serverState.timerDuration === 0 || (state.serverState.timerStartedAt !== null),
           onclick: actions.ResumeTimer,
         }, 'Resume'),
       ]),
@@ -311,8 +229,13 @@ app({
     }, `Websocket ${state.websocketState}`),
   ])),
 
-  subscriptions: () => [
-    Websocket(),
+  subscriptions: state => [
+    subscriptions.Websocket({ actions }),
+    (state.serverState.timerStartedAt !== null) && subscriptions.Timer({
+      timerStartedAt: state.serverState.timerStartedAt,
+      timerDuration: state.serverState.timerDuration,
+      actions,
+    }),
   ],
 
   node: document.querySelector('#app'),
