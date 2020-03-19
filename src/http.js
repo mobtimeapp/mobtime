@@ -97,8 +97,8 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     return response.status(201).end();
   });
   router.get('/timer/resume', authMiddleware, (_request, response) => {
-    const { timerRemaining } = storage.read().data;
-    dispatch(action.StartTimer(timerRemaining));
+    const { timerDuration } = storage.read().data;
+    dispatch(action.StartTimer(timerDuration));
 
     return response.status(201).end();
   });
@@ -124,19 +124,28 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     ngrok.connect({ proto: 'http', port })
       .then((url) => {
         console.log(`>> Server at: ${url} (share this one!)`);
-        console.log(`>> Local at : http://${host}:${port}/`);
+        console.log(`>>  Local at: http://${host}:${port}/`);
       });
   });
+
+  const getState = () => {
+    const { data } = storage.read();
+
+    return {
+      ...data,
+    };
+  };
 
   wss.on('connection', (client) => {
     const token = Math.random().toString(36).slice(2);
     client._token = token;
+
     dispatch(action.AddToken(token));
 
     client.send(JSON.stringify({
       type: 'token',
       token,
-      state: storage.read().data,
+      state: getState(),
     }));
 
     client.on('close', () => {
@@ -147,10 +156,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   const cancelBusSubscription = bus.subscribe((data) => {
     switch (data.type) {
     case 'tick':
-      return broadcast({ type: 'tick', state: storage.read().data });
-
-    case 'complete':
-      return broadcast({ type: 'complete', state: storage.read().data });
+      return broadcast({ type: 'tick', state: getState() });
 
     default:
       break;
