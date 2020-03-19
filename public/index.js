@@ -63,7 +63,7 @@ app({
       'sm:rounded': true,
     },
   }, [
-    !state.allowNotification && h(fullButton, {
+    !state.allowNotification && ('Notification' in window) && h(fullButton, {
       onclick: actions.RequestNotificationPermission,
     }, 'Click Here to Enable Notifications'),
     h(section, {
