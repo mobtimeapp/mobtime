@@ -5,16 +5,25 @@ export const SetAllowNotification = (state, allowNotification) => ({ ...state, a
 export const Init = () => [
   {
     serverState: {
-      timerRunning: false,
-      timerRemaining: 0,
+      timerStartedAt: null,
+      timerDuration: 0,
       mob: [],
     },
+    remainingTime: 0,
     token: '',
     name: '',
     timeInMinutes: '5',
     allowNotification: Notification.permission == 'granted',
     websocketState: 'connecting',
   },
+];
+
+export const SetRemainingTime = (state, remainingTime) => [
+  {
+    ...state,
+    remainingTime,
+  },
+  effects.UpdateTitleWithTime({ remainingTime }),
 ];
 
 export const SetWebsocketState= (state, websocketState) => ({
@@ -31,15 +40,28 @@ export const Tick = (state, serverState) => {
   return {
     ...state,
     serverState,
+    remainingTime: serverState.timerStartedAt !== null
+      ? Math.max(0, serverState.timerDuration - (Date.now() - serverState.timerStartedAt))
+      : serverState.timerDuration,
   };
 };
 
 export const Completed = state => [
-  state,
-  effects.DisplayNotification({
-    title: 'Mob Timer',
-    text: 'The time is up, cycle and start a new timer',
-  }),
+  {
+    ...state,
+    serverState: {
+      ...state.serverState,
+      timerStartedAt: null,
+    },
+    remainingTime: 0,
+  },
+  [
+    effects.DisplayNotification({
+      title: 'Mob Timer',
+      text: 'The time is up, cycle and start a new timer',
+    }),
+    effects.UpdateTitleWithTime({ remainingTime: 0 }),
+  ]
 ]
 
 export const UpdateName = (state, name) => ({

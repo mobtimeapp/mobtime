@@ -1,3 +1,5 @@
+import formatTime from '/formatTime.js';
+
 const ApiEffectFX = (dispatch, { endpoint, token, OnOK, OnERR }) => {
   const authHeaders = token
     ? { Authorization: `token ${token}` }
@@ -43,3 +45,10 @@ const DisplayNotificationFx = (_dispatch, { title, text }) => {
   });
 };
 export const DisplayNotification = props => [DisplayNotificationFx, props];
+
+const UpdateTitleWithTimeFX = (_dispatch, { remainingTime }) => {
+  document.title = remainingTime > 0
+    ? `${formatTime(remainingTime)} - mobtime`
+    : 'mobtime';
+};
+export const UpdateTitleWithTime = props => [UpdateTitleWithTimeFX, props];
