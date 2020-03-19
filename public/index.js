@@ -152,7 +152,6 @@ app({
       class: {
         'flex': true,
         'flex-row': true,
-        'px-2': true,
         'align-center': true,
         'justify-between': true,
       },
@@ -161,6 +160,8 @@ app({
         class: {
           'text-6xl': true,
           'flex': true,
+          'p-0': true,
+          'm-0': true,
         },
       }, timerRemainingDisplay(state.serverState.timerRemaining)),
       h('div', {
@@ -297,7 +298,7 @@ app({
       },
     }),
 
-    h('div', {
+    h(section, {
       class: {
         'w-full': true,
         'bg-red-500': state.websocketState === 'disconnected',
@@ -305,8 +306,6 @@ app({
         'text-white': state.websocketState === 'disconnected',
         'text-gray-400': state.websocketState !== 'disconnected',
         'text-center': true,
-        'py-1': true,
-        'px-2': true,
         'text-xs': true,
       },
     }, `Websocket ${state.websocketState}`),
