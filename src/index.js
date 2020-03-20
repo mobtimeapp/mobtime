@@ -4,95 +4,150 @@ import * as storage from './storage';
 import Action from './actions';
 import { Http } from './http';
 import { CheckVersion } from './checkVersion';
+import { Cleanup } from './cleanup';
 
 const port = process.env.PORT || 4321;
+
+const EXPIRE_TIMER = 30 * 60 * 1000; // 30 minutes
 
 const MessageBus = bus.make();
 const Storage = storage.make();
 
-const TickEffect = effects.thunk(() => {
-  MessageBus.emit({ type: 'tick' });
+const TickEffect = timerId => effects.thunk(() => {
+  MessageBus.emit({ type: 'tick', timerId });
   return effects.none();
 });
 
 const update = (action, state) => {
   return Action.caseOf({
     Init: () => [
-      {
-        data: {
-          mob: [],
-          timerStartedAt: null,
-          timerDuration: 0,
-        },
-        tokens: [],
-        lastTick: null,
-      },
+      {},
       CheckVersion(Action),
     ],
 
-    AddToken: (token) => [
-      {
-        ...state,
-        tokens: state.tokens.concat(token),
-      },
-      effects.none(),
-    ],
-    RemoveToken: (token) => [
-      {
-        ...state,
-        tokens: state.tokens.filter(t => t !== token),
-      },
-      effects.none(),
-    ],
-
-    StartTimer: (milliseconds) => {
-      const timerDuration = Math.max(0, milliseconds);
-      const timerStartedAt = timerDuration > 0
-        ? Date.now()
-        : null;
-
-      const nextState = {
-        ...state,
-        data: {
-          ...state.data,
-          timerStartedAt,
-          timerDuration,
-        },
+    AddTimer: (timerId) => {
+      const timer = state[timerId] || {
+        mob: [],
+        timerStartedAt: null,
+        timerDuration: 0,
+        tokens: [],
+        expiresAt: Date.now() + EXPIRE_TIMER,
       };
+
+      const thing = state[timerId]
+        ? 'Reusing'
+        : 'Adding';
+
       return [
-        nextState,
-        effects.batch([
-          TickEffect,
-        ]),
+        {
+          ...state,
+          [timerId]: timer,
+        },
+        effects.none(),
       ];
     },
 
-    PauseTimer: () => {
-      let timerDuration = state.data.timerDuration;
-      if (state.data.timerStartedAt !== null) {
-        const elapsed = Date.now() - state.data.timerStartedAt;
-        timerDuration = Math.max(0, state.data.timerDuration - elapsed);
+    PingTimer: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
       }
 
       return [
         {
           ...state,
-          data: {
-            ...state.data,
-            timerStartedAt: null,
-            timerDuration,
+          [timerId]: {
+            ...timer,
+            expiresAt: Date.now() + EXPIRE_TIMER,
           },
         },
-        TickEffect,
+        TickEffect(timerId),
       ];
     },
 
-    SyncTimer: () => {
-      let timerStartedAt = state.data.timerStartedAt;
-      let timerDuration = state.data.timerDuration;
-      if (state.data.timerStartedAt !== null) {
-        const elapsed = Date.now() - state.data.timerStartedAt;
-        timerDuration = Math.max(0, state.data.timerDuration - elapsed);
+    RemoveTimer: (timerId) => {
+      return [
+        {
+          ...state,
+          [timerId]: undefined,
+          },
+          effects.none(),
+      ];
+    },
+
+    AddToken: (token, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            tokens: timer.tokens.concat(token),
+          },
+        },
+        effects.none(),
+      ];
+    },
+
+    RemoveToken: (token, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            tokens: timer.tokens.filter(t => t !== token),
+          },
+        },
+        effects.none(),
+      ];
+    },
+
+    StartTimer: (milliseconds, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const timerDuration = Math.max(0, milliseconds);
+      const timerStartedAt = timerDuration > 0
+        ? Date.now()
+        : null;
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            timerDuration,
+            timerStartedAt,
+          },
+        },
+        effects.batch([
+          TickEffect(timerId),
+        ]),
+      ];
+    },
+
+    SyncTimer: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      let timerStartedAt = timer.timerStartedAt;
+      let timerDuration = timer.timerDuration;
+      if (timer.timerStartedAt !== null) {
+        const elapsed = Date.now() - timer.timerStartedAt;
+        timerDuration = Math.max(0, timer.timerDuration - elapsed);
       }
       if (timerDuration === 0) {
         timerStartedAt = null;
@@ -101,38 +156,84 @@ const update = (action, state) => {
       return [
         {
           ...state,
-          data: {
-            ...state.data,
+          [timerId]: {
+            ...timer,
             timerStartedAt,
             timerDuration,
           },
         },
-        TickEffect,
+        TickEffect(timerId),
       ];
     },
 
-    AddUser: (name) => [
-      { ...state,
-        data: {
-          ...state.data,
-          mob: state.data.mob.concat(name),
-        },
-      },
-      TickEffect,
-    ],
-    RemoveUser: (name) => [
-      {
-        ...state,
-        data: {
-          ...state.data,
-          mob: state.data.mob.filter(n => n !== name),
-        },
-      },
-      TickEffect,
-    ],
+    PauseTimer: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
 
-    ShuffleMob: () => {
-      let mob = [...state.data.mob];
+      let timerDuration = timer.timerDuration;
+      if (timer.timerStartedAt !== null) {
+        const elapsed = Date.now() - timer.timerStartedAt;
+        timerDuration = Math.max(0, timer.timerDuration - elapsed);
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            timerStartedAt: null,
+            timerDuration,
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+
+    AddUser: (name, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            mob: timer.mob.concat(name),
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+
+    RemoveUser: (name, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            mob: timer.mob.filter(n => n !== name),
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+
+    ShuffleMob: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      let mob = [...timer.mob];
       let index, otherIndex, temp;
       for(index = mob.length - 1; index > 0; index--) {
         otherIndex = Math.floor(Math.random() * (index + 1));
@@ -144,30 +245,34 @@ const update = (action, state) => {
       return [
         {
           ...state,
-          data: {
-            ...state.data,
+          [timerId]: {
+            ...timer,
             mob,
           },
         },
-        TickEffect,
+        TickEffect(timerId),
       ];
     },
 
-    CycleMob: () => {
-      const [first, ...rest] = state.data.mob;
+    CycleMob: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const [first, ...rest] = timer.mob;
+
       return [
         {
           ...state,
-          data: {
-            ...state.data,
+          [timerId]: {
+            ...timer,
             mob: [...rest, first],
           },
         },
-        TickEffect,
+        TickEffect(timerId),
       ];
     },
-
-    _: () => [state, effects.none()],
   }, action);
 };
 
@@ -179,6 +284,8 @@ app({
   subscribe: state => {
     Storage.store(state);
 
+    const anyTimers = Object.keys(state).length > 0;
+
     return [
       Http(
         MessageBus,
@@ -186,7 +293,9 @@ app({
         Action,
         'localhost',
         port,
+        !process.env.MULTITIMER,
       ),
+      anyTimers && Cleanup(Storage, Action),
     ];
   },
 });
