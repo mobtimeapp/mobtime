@@ -50,7 +50,6 @@ export const mobber = (props) => h(card, {
         width: '32px',
         height: '32px',
       },
-      // onclick: [actions.RemoveNameFromMob, name],
       onclick: [props.onRemove, props.name],
     }, 'X'),
   ]),

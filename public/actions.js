@@ -7,13 +7,14 @@ if ('Notification' in window) {
 
 export const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
 
-export const Init = () => [
+export const Init = (_, timerId) => [
   {
     serverState: {
       timerStartedAt: null,
       timerDuration: 0,
       mob: [],
     },
+    timerId,
     remainingTime: 0,
     token: '',
     name: '',

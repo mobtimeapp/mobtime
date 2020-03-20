@@ -1,3 +1,5 @@
+import api from '/api.js';
+
 const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
   let cancel = false;
   let handle = null;
@@ -26,32 +28,45 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
 };
 export const Timer = props => [TimerFX, props];
 
-const WebsocketFX = (dispatch, { actions }) => {
+const KeepAliveFX = (_dispatch, { token, timerId }) => {
+  let cancel = false;
+  let handle = null;
+
+  const checkConnection = () => {
+    return cancel
+      ? null
+      : api('/api/ping', token, timerId)
+        .then(r => {
+          if (!r.ok) {
+            const error = new Error(`HTTP Status ${r.status}: ${r.statusText}`);
+            error.response = r;
+            throw error;
+          }
+          handle = setTimeout(checkConnection, 60000);
+        })
+        .catch((err) => {
+          console.warn('Unable to ping timer', err);
+        });
+  };
+
+  setTimeout(checkConnection, 0);
+
+  return () => {
+    cancel = true;
+    clearTimeout(handle);
+  };
+};
+export const KeepAlive = props => [KeepAliveFX, props];
+
+
+const WebsocketFX = (dispatch, { timerId, actions }) => {
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
   const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}`;
 
   let socket = null;
-  let handle = null;
   let cancel = false;
-
-  const checkConnection = () => {
-    return cancel
-      ? null
-      : fetch('/api/status')
-        .then(r => {
-          if (!r.ok) {
-            socket.close();
-          }
-          handle = setTimeout(checkConnection, 10000);
-        })
-        .catch((err) => {
-          if (socket) {
-            socket.close();
-          }
-        });
-  };
 
   const connect = () => {
     if (cancel) {
@@ -67,6 +82,8 @@ const WebsocketFX = (dispatch, { actions }) => {
 
     socket.addEventListener('open', () => {
       clearTimeout(connectionAttempt);
+
+      socket.send(timerId);
 
       dispatch(actions.SetWebsocketState, 'connected');
 
@@ -89,11 +106,9 @@ const WebsocketFX = (dispatch, { actions }) => {
   };
 
   setTimeout(connect, 0);
-  checkConnection();
 
   return () => {
     cancel = true;
-    clearTimeout(handle);
     socket.close();
     socket = null;
   };
