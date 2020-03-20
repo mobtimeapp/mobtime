@@ -1,16 +1,10 @@
 import formatTime from '/formatTime.js';
+import api from '/api.js';
 
 const ApiEffectFX = (dispatch, { endpoint, token, OnOK, OnERR }) => {
-  const authHeaders = token
-    ? { Authorization: `token ${token}` }
-    : {};
+  const [timerId] = window.location.pathname.split('/').filter(v => v);
 
-  const headers = {
-    Accept: 'application/json',
-    ...authHeaders,
-  };
-    
-  return fetch(endpoint, { headers })
+  return api(endpoint, token, timerId)
     .then(r => {
       if (!r.ok) {
         const error = new Error(`Status ${r.status}: ${r.statusText}`);

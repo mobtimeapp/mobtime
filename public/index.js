@@ -10,6 +10,8 @@ import { mobber } from '/components/mobber.js';
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
 
+const [timerId] = window.location.pathname.split('/').filter(v => v);
+
 const renderMob = mob => {
   const [mobNavigator, mobDriver, ...rest] = mob;
 
@@ -35,7 +37,7 @@ const renderMob = mob => {
 };
 
 app({
-  init: actions.Init,
+  init: actions.Init(null, timerId),
 
   view: state => h('div', {
     class: {
@@ -230,7 +232,11 @@ app({
   ])),
 
   subscriptions: state => [
-    subscriptions.Websocket({ actions }),
+    state.timerId && subscriptions.Websocket({ actions, timerId: state.timerId }),
+    state.token && subscriptions.KeepAlive({
+      timerId: state.timerId,
+      token: state.token,
+    }),
     (state.serverState.timerStartedAt !== null) && subscriptions.Timer({
       timerStartedAt: state.serverState.timerStartedAt,
       timerDuration: state.serverState.timerDuration,
