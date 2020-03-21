@@ -9,7 +9,9 @@ export const fullButton = (props, children) => h('button', {
     'hover:bg-blue-700': true,
     'text-white': true,
     'font-bold': true,
-    'py-2': true,
-    'px-4': true,
+    'py-3': true,
+    'px-1': true,
+    'text-xl': true,
+    'md:text-3xl': true,
   },
 }, children);
