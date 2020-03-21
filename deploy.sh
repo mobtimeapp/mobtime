@@ -9,6 +9,10 @@ CURRENT_TIMESTAMP=`date +%s`
 
 CURRENT_DEPLOY="$DEPLOY_DIR/$CURRENT_TIMESTAMP"
 
+function install() {
+  yarn install
+}
+
 function ensureHostDirIsCreated() {
   mkdir -p $CONFIG_DIR
 }
@@ -25,6 +29,7 @@ function setupCurrentDeploy() {
   fi
 }
 
+install
 ensureHostDirIsCreated
 copySelfIntoDeploy
 setupCurrentDeploy
