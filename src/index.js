@@ -37,10 +37,6 @@ const update = (action, state) => {
         expiresAt: Date.now() + EXPIRE_TIMER,
       };
 
-      const thing = state[timerId]
-        ? 'Reusing'
-        : 'Adding';
-
       return [
         {
           ...state,

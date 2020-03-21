@@ -97,7 +97,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
     return response.status(201).end();
   });
-  router.get('/mob/shuffle', timerMiddleware, (_request, response) => {
+  router.get('/mob/shuffle', timerMiddleware, (request, response) => {
     dispatch(action.ShuffleMob(request.timerId));
 
     return response.status(201).end();
