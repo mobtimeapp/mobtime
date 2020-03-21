@@ -5,9 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mob Timer</title>
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <script type="module">
+      import { app, h } from 'https://unpkg.com/hyperapp?module=1';
+
+      const tw = (...classes) => classes
+        .filter(c => c)
+        .reduce((classObject, name) => ({ ...classObject, [name]: true }), {});
+
+      const Init = (_, { location }) => ({
+        timerId: '',
+        baseUrl: `${location.host}`,
+      });
+
+      const SetTimerId = (state, timerId) => ({ ...state, timerId });
+
+      app({
+        //init: Init(null, { location: window.location }),
+        init: Init(null, { location: { host: 'mobtime.mrbarry.com' } }),
+
+        view: state => h('div', null, [
+          h('div', { class: tw('flex', 'flex-col', 'justify-center', 'items-center') }, [
+            h('input', {
+              class: tw('text-4xl', 'border-b', 'border-b-solid', 'border-blue-700', 'max-w-full', 'text-center'),
+              style: { width: '300px' },
+              id: 'timerId',
+              maxlength: 12,
+              pattern: '[\\w\\-]+',
+              placeholder: 'my-timer',
+              oninput: [SetTimerId, event => event.target.value],
+            }, 'Your Timer ID'),
+            h('label', { class: tw('text-base'), for: 'timerId' }, 'Your Timer ID'),
+            h(
+              'a',
+              {
+                class: tw('mt-2', 'text-2xl', 'bg-transparent', 'hover:bg-blue-500', 'text-blue-700', 'font-semibold', 'hover:text-white', 'py-2', 'px-4', 'border', 'border-blue-500', 'hover:border-transparent', 'rounded'),
+                href: `/${state.timerId}`,
+              },
+              state.timerId
+                ? `${state.baseUrl}`
+                : 'Go to your timer',
+              state.timerId && h('span', { class: tw('block', 'sm:inline') }, `/${state.timerId}`),
+              h('span', { class: tw('sm:ml-4', 'block', 'sm:inline') }, '→'),
+            ),
+          ]),
+        ]),
+
+        node: document.querySelector('#buildYourTimerApp'),
+
+      });
+    </script>
   </head>
-  <body>
-    <h1>mobtime</h1>
-    Append your vanity name to the url to start a new timer.
+  <body class="flex flex-col items-center justify-start">
+    <div class="w-full sm:w-10/12 md:w-8/12 lg:w-4/12 rounded overflow-hidden shadow-0 sm:shadow-lg">
+      <section class="px-4 pt-6">
+        <h1 class="text-4xl font-bold">Start your timer</h1>
+      </section>
+      <hr />
+      <section class="px-4 py-10 bg-white">
+        <div id="buildYourTimerApp"></div>
+      </section>
+      <hr />
+      <section class="px-4 pt-4 pb-2 mb-2">
+        <h3 class="text-2xl font-bold mb-3">What is mobtime?</h3>
+        <p class="mb-2">
+          Mobtime is a real-time collaborative timer for mob programming.
+        </p>
+        <p class="mb-2">
+          Mobtime solves the problem of sharing a timer with a remote team.
+        </p>
+        <p class="mb-2">
+          By using the power of websockets and your hopes and dreams, you too can share a timer with your friends while you program.
+        </p>
+      </section>
+      <hr />
+      <section class="px-4 pt-4 pb-2 mb-2">
+        <p>
+          Mobtime is open source, and you can find out more about it on <a href="https://github.com/mrozbarry/mobtime" class="border-blue-700 border-b" target="_blank">github</a>,
+          and over on <a href="https://mrbarry.com" class="border-blue-700 border-b" target="_blank">mrbarry.com</a>.
+        </p>
+      </section>
+    </div>
   </body>
 </html>
