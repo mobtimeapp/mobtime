@@ -65,12 +65,12 @@ const update = (action, state) => {
     },
 
     RemoveTimer: (timerId) => {
+      const { [timerId]: _oldTimer, ...timers } = state;
       return [
         {
-          ...state,
-          [timerId]: undefined,
-          },
-          effects.none(),
+          ...timers,
+        },
+        effects.none(),
       ];
     },
 
