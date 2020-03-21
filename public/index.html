@@ -20,8 +20,7 @@
       const SetTimerId = (state, timerId) => ({ ...state, timerId });
 
       app({
-        //init: Init(null, { location: window.location }),
-        init: Init(null, { location: { host: 'mobtime.mrbarry.com' } }),
+        init: Init(null, { location: window.location }),
 
         view: state => h('div', null, [
           h('div', { class: tw('flex', 'flex-col', 'justify-center', 'items-center') }, [
