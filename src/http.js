@@ -142,8 +142,8 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
     return response.status(201).end();
   });
-  router.get('/timer/resume', timerMiddleware, (_request, response) => {
-    const { timerDuration } = storage.read().data;
+  router.get('/timer/resume', timerMiddleware, (request, response) => {
+    const { timerDuration } = storage.read()[request.timerId];
     dispatch(action.StartTimer(timerDuration, request.timerId));
 
     return response.status(201).end();
