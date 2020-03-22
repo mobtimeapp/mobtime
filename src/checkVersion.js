@@ -11,7 +11,7 @@ import packageJson from '../package.json';
     .replace(/\.git$/, '')
     .split('/');
 
-export const CheckVersion = (Action) => effects.defer(
+export const CheckVersion = () => effects.defer(
   fetch(`https://api.github.com/repos/${owner}/${repo}/tags`)
     .then(r => {
       if (!r.ok) {

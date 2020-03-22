@@ -228,16 +228,15 @@ app({
         'text-center': true,
         'text-xs': true,
       },
-    }, `Websocket ${state.websocketState}`),
+    }, `Websocket ${state.websocketState}, with ${state.serverState.connections - 1} other(s)`),
   ])),
 
   subscriptions: state => [
     state.timerId && subscriptions.Websocket({ actions, timerId: state.timerId }),
     state.token && subscriptions.KeepAlive({
-      timerId: state.timerId,
       token: state.token,
     }),
-    (state.serverState.timerStartedAt !== null) && subscriptions.Timer({
+    state.serverState.timerStartedAt && subscriptions.Timer({
       timerStartedAt: state.serverState.timerStartedAt,
       timerDuration: state.serverState.timerDuration,
       actions,

@@ -15,7 +15,10 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
     const { tokens, ...publicPayload } = timer;
 
-    return publicPayload;
+    return {
+      ...publicPayload,
+      connections: tokens.length,
+    };
   };
 
   const broadcast = (payload, timerId) => {
@@ -35,13 +38,23 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
   app.use(helmet());
 
+  const findTimerIdByToken = (token, timers) => {
+    const timerIds = Object.keys(timers);
+    let timerId;
+    for(timerId of timerIds) {
+      if (timers[timerId].tokens.includes(token)) {
+        return timerId;
+      }
+    }
+    return null;
+  };
+
   const timerMiddleware = (request, response, next) => {
-    const timerId = request.headers['x-timer-id'];
     const token = (request.headers.authorization || '')
       .replace(/^token /, '');
-    const timer = storage.read()[timerId];
+    const timerId = findTimerIdByToken(token, storage.read());
 
-    if (!token || !timer || !timer.tokens.includes(token)) {
+    if (!token || !timerId) {
       return response
         .status(401)
         .json({ message: 'Invalid token, include `Authorization: token <token>` in your request' })
@@ -66,8 +79,16 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
   router.use(timerMiddleware);
 
-  router.get('/ping', timerMiddleware, (request, response) => {
-    dispatch(action.PingTimer(request.timerId));
+  router.get('/ping', timerMiddleware, async (request, response) => {
+    await dispatch(action.SyncTimer(request.timerId));
+    await dispatch(action.PingTimer(request.timerId));
+
+    return response
+      .status(201)
+      .end();
+  });
+  router.get('/reset', timerMiddleware, async (request, response) => {
+    await dispatch(action.ResetTimer(request.timerId));
 
     return response
       .status(201)
@@ -181,6 +202,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
       const timer = storage.read()[timerId];
       if (!timer) {
+        console.log('websocket requested timer that does not exist, closing', timer);
         return client.close();
       }
 

@@ -49,6 +49,7 @@ const update = (action, state) => {
     PingTimer: (timerId) => {
       const timer = state[timerId];
       if (!timer) {
+        console.log('PingTimer: timer not found', timerId);
         return [state, effects.none()];
       }
 
@@ -187,6 +188,25 @@ const update = (action, state) => {
           },
         },
         TickEffect(timerId),
+      ];
+    },
+
+    ResetTimer: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            timerStartedAt: null,
+            timerDuration: 0,
+          },
+        },
+        effects.none(),
       ];
     },
 

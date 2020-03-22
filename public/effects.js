@@ -2,9 +2,7 @@ import formatTime from '/formatTime.js';
 import api from '/api.js';
 
 const ApiEffectFX = (dispatch, { endpoint, token, OnOK, OnERR }) => {
-  const [timerId] = window.location.pathname.split('/').filter(v => v);
-
-  return api(endpoint, token, timerId)
+  return api(endpoint, token)
     .then(r => {
       if (!r.ok) {
         const error = new Error(`Status ${r.status}: ${r.statusText}`);

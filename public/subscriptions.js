@@ -19,7 +19,9 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     handle = setTimeout(tick, 100);
   };
 
-  setTimeout(tick, 0);
+  if (timerStartedAt) {
+    handle = setTimeout(tick, 0);
+  }
 
   return () => {
     cancel = true;
@@ -28,21 +30,21 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
 };
 export const Timer = props => [TimerFX, props];
 
-const KeepAliveFX = (_dispatch, { token, timerId }) => {
+const KeepAliveFX = (_dispatch, { token }) => {
   let cancel = false;
   let handle = null;
 
   const checkConnection = () => {
     return cancel
       ? null
-      : api('/api/ping', token, timerId)
+      : api('/api/ping', token)
         .then(r => {
           if (!r.ok) {
             const error = new Error(`HTTP Status ${r.status}: ${r.statusText}`);
             error.response = r;
             throw error;
           }
-          handle = setTimeout(checkConnection, 60000);
+          handle = setTimeout(checkConnection, 5 * 60 * 1000);
         })
         .catch((err) => {
           console.warn('Unable to ping timer', err);
@@ -60,6 +62,7 @@ export const KeepAlive = props => [KeepAliveFX, props];
 
 
 const WebsocketFX = (dispatch, { timerId, actions }) => {
+  console.log('Opening websocket subscription', timerId);
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
@@ -87,7 +90,8 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
       dispatch(actions.SetWebsocketState, 'connected');
 
-      socket.addEventListener('close', () => {
+      socket.addEventListener('close', (event) => {
+        console.log('websocket disconnected', event);
         dispatch(actions.SetWebsocketState, 'disconnected');
         socket = null;
         setTimeout(connect, 10000);

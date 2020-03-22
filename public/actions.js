@@ -13,6 +13,7 @@ export const Init = (_, timerId) => [
       timerStartedAt: null,
       timerDuration: 0,
       mob: [],
+      connections: 0,
     },
     timerId,
     remainingTime: 0,
@@ -67,6 +68,12 @@ export const Completed = state => [
       text: 'The time is up, cycle and start a new timer',
     }),
     effects.UpdateTitleWithTime({ remainingTime: 0 }),
+    effects.ApiEffect({
+      endpoint: `/api/timer/reset`,
+      token: state.token,
+      OnOK: Noop,
+      OnERR: Noop,
+    }),
   ]
 ]
 

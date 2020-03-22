@@ -13,6 +13,7 @@ export default enumerize({
   StartTimer: [Number, String],
   SyncTimer: [String],
   PauseTimer: [String],
+  ResetTimer: [String],
 
   AddUser: [String, String],
   RemoveUser: [String, String],

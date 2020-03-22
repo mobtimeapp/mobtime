@@ -1,7 +1,6 @@
-export default (endpoint, token, timerId) => {
+export default (endpoint, token) => {
   const headers = {
     'Accept': 'application/json',
-    'X-Timer-Id': timerId,
     Authorization: `token ${token}`,
   };
     
