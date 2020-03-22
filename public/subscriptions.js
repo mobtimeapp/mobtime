@@ -66,7 +66,7 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
-  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}`;
+  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`;
 
   let socket = null;
   let cancel = false;
@@ -80,13 +80,12 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
     dispatch(actions.SetWebsocketState, 'connecting');
     let connectionAttempt = setTimeout(() => {
+      console.log('Waited 10 seconds, no websocket response, closing connection attempt');
       socket.close();
     }, 10000);
 
     socket.addEventListener('open', () => {
       clearTimeout(connectionAttempt);
-
-      socket.send(timerId);
 
       dispatch(actions.SetWebsocketState, 'connected');
 

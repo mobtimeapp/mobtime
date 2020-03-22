@@ -2,6 +2,7 @@ import express from 'express';
 import ws from 'ws';
 import http from 'http';
 import helmet from 'helmet';
+import { URL } from 'url';
 import path from 'path';
 
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTimer = true) => (dispatch) => {
@@ -80,18 +81,26 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
   router.use(timerMiddleware);
 
   router.get('/ping', timerMiddleware, async (request, response) => {
+    const timer = getTimer(request.timerId);
+    if (!timer) {
+      return response
+        .status(205)
+        .json({ message: 'Timer does not exist, or has expired. Please refresh application to continue' })
+        .end();
+    }
+
     await dispatch(action.SyncTimer(request.timerId));
     await dispatch(action.PingTimer(request.timerId));
 
     return response
-      .status(201)
+      .status(204)
       .end();
   });
   router.get('/reset', timerMiddleware, async (request, response) => {
     await dispatch(action.ResetTimer(request.timerId));
 
     return response
-      .status(201)
+      .status(204)
       .end();
   });
   router.get('/mob/add/:name', timerMiddleware, (request, response) => {
@@ -193,30 +202,25 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
     console.log(`Local server up: http://${host}:${port}`);
   });
 
-  wss.on('connection', (client) => {
-    const token = Math.random().toString(36).slice(2);
-    client.$token = token;
+  wss.on('connection', async (client, request) => {
+    const url = new URL(request.url, `http://${request.headers.host}`);
+    client.$token = Math.random().toString(36).slice(2);
+    client.$timerId = url.pathname
+      .split('/')
+      .filter(v => v)[0];
 
-    client.on('message', async (timerId) => {
-      if (!timerId) return;
+    const timer = getTimer(client.$timerId);
+    if (!timer) {
+      console.log('websocket requested timer that does not exist, closing', timer);
+      return client.close();
+    }
 
-      const timer = storage.read()[timerId];
-      if (!timer) {
-        console.log('websocket requested timer that does not exist, closing', timer);
-        return client.close();
-      }
-
-      client.$timerId = timerId;
-      await dispatch(action.AddToken(token, timerId));
-
-      client.send(JSON.stringify({
-        type: 'token',
-        token,
-        state: getTimer(timerId),
-      }));
-
-      await dispatch(action.SyncTimer(timerId));
-    });
+    await dispatch(action.AddToken(client.$token, client.$timerId));
+    client.send(JSON.stringify({
+      type: 'token',
+      token: client.$token,
+      state: getTimer(client.$timerId),
+    }));
 
     client.on('close', () => {
       if (!client.$timerId) return;
