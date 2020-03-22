@@ -2,6 +2,7 @@ import { app, h } from 'https://unpkg.com/hyperapp?module=1';
 import * as actions from '/actions.js';
 import * as subscriptions from '/subscriptions.js';
 import timerRemainingDisplay from '/formatTime.js';
+import Status from '/status.js';
 
 import { card } from '/components/card.js';
 import { button } from '/components/button.js';
@@ -106,38 +107,52 @@ app({
         }, 'Resume'),
       ]),
     ]),
+
     h('hr'),
-    h(section, {
-      class: {
-        'flex': true,
-        'flex-row': true,
-        'items-center': true,
-        'justify-between': true,
-      },
+
+    h('form', {
+      action: '#',
+      method: 'get',
+      onsubmit: [
+        actions.StartTimer,
+        e => {
+          e.preventDefault();
+          return undefined;
+        }
+      ],
     }, [
-      h('span', null, [
-        h('span', null, 'Start timer for'),
-        h('label', null, [
-          h(input, {
-            type: 'number',
-            value: state.timeInMinutes,
-            min: 1,
-            max: 60,
-            step: 1,
-            oninput: [actions.UpdateTimeInMinutes, e => e.target.value],
-            style: {
-              width: '50px',
-              textAlign: 'center',
-              fontWeight: 'bold',
-            },
-          }),
-          h('span', null, `minute${state.timeInMinutes != 1 ? 's' : ''}`),
+      h(section, {
+        class: {
+          'flex': true,
+          'flex-row': true,
+          'items-center': true,
+          'justify-between': true,
+        },
+      }, [
+        h('span', null, [
+          h('span', null, 'Start timer for'),
+          h('label', null, [
+            h(input, {
+              type: 'number',
+              value: state.timeInMinutes,
+              min: 1,
+              max: 60,
+              step: 1,
+              oninput: [actions.UpdateTimeInMinutes, e => e.target.value],
+              style: {
+                width: '50px',
+                textAlign: 'center',
+                fontWeight: 'bold',
+              },
+            }),
+            h('span', null, `minute${state.timeInMinutes != 1 ? 's' : ''}`),
+          ]),
         ]),
+        h(button, {
+          type: 'submit',
+          disabled: !state.timeInMinutes,
+        }, 'Go!'),
       ]),
-      h(button, {
-        disabled: !state.timeInMinutes,
-        onclick: actions.StartTimer,
-      }, 'Go!'),
     ]),
 
     h('hr'),
@@ -158,35 +173,52 @@ app({
 
     h('hr'),
 
-    h(section, {
-      class: {
-        'flex': true,
-        'flex-row': true,
-        'items-center': true,
-        'justify-between': true,
-      },
+    h('form', {
+      action: '#',
+      method: 'get',
+      onsubmit: [
+        actions.AddNameToMob,
+        e => {
+          e.preventDefault();
+          return undefined;
+        },
+      ],
     }, [
-      h('label', null, [
-        h('span', null, 'Add'),
-        h(input, {
-          value: state.name,
-          oninput: [actions.UpdateName, e => e.target.value],
-          placeholder: 'Name here...',
-          style: {
-            minWidth: '160px',
-            fontWeight: 'bold',
-          },
-        }),
-        h('span', {
-          class: {
-            'hidden': true,
-            'sm:inline': true,
-          },
-        }, 'to the mob'),
+      h(section, {
+        class: {
+          'flex': true,
+          'flex-row': true,
+          'items-center': true,
+          'justify-between': true,
+        },
+      }, [
+        h('label', null, [
+          h('span', null, 'Add'),
+          h(input, {
+            value: state.name,
+            oninput: [actions.UpdateName, e => e.target.value],
+            placeholder: 'Name here...',
+            style: {
+              minWidth: '160px',
+              fontWeight: 'bold',
+            },
+          }),
+          h('span', {
+            class: {
+              'hidden': true,
+              'sm:inline': true,
+            },
+          }, 'to the mob'),
+        ]),
+        h(button, {
+          type: 'submit',
+          disabled: !state.name,
+        }, 'Go!'),
       ]),
-      h(button, { disabled: !state.name, onclick: actions.AddNameToMob }, 'Go!'),
     ]),
+
     h('hr'),
+
     h(section, {
       class: {
         'sm:flex': true,
@@ -233,9 +265,12 @@ app({
 
   subscriptions: state => [
     state.timerId && subscriptions.Websocket({ actions, timerId: state.timerId }),
-    state.token && subscriptions.KeepAlive({
-      token: state.token,
-    }),
+    Status.caseOf({
+      Connected: token => subscriptions.KeepAlive({ token }),
+      Connecting: () => false,
+      Reconnecting: () => false,
+      Error: () => false,
+    }, state.status),
     state.serverState.timerStartedAt && subscriptions.Timer({
       timerStartedAt: state.serverState.timerStartedAt,
       timerDuration: state.serverState.timerDuration,
