@@ -50,7 +50,18 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
     return null;
   };
 
-  const timerMiddleware = (request, response, next) => {
+  const router = new express.Router();
+
+  router.use((_request, response, next) => {
+    try {
+      next();
+    } catch (err) {
+      console.log(err);
+      return response.status(500).json({ message: err.toString() }).end()
+    }
+  });
+
+  router.use((request, response, next) => {
     const token = (request.headers.authorization || '')
       .replace(/^token /, '');
     const timerId = findTimerIdByToken(token, storage.read());
@@ -65,22 +76,9 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
     request.timerId = timerId;
 
     next();
-  };
-
-  const router = new express.Router();
-
-  router.use((_request, response, next) => {
-    try {
-      next()
-    } catch (err) {
-      console.log(err);
-      return response.status(500).json({ message: err.toString() }).end()
-    }
   });
 
-  router.use(timerMiddleware);
-
-  router.get('/ping', timerMiddleware, async (request, response) => {
+  router.get('/ping', async (request, response) => {
     const timer = getTimer(request.timerId);
     if (!timer) {
       return response
@@ -96,14 +94,14 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
       .status(204)
       .end();
   });
-  router.get('/reset', timerMiddleware, async (request, response) => {
+  router.get('/reset', async (request, response) => {
     await dispatch(action.ResetTimer(request.timerId));
 
     return response
       .status(204)
       .end();
   });
-  router.get('/mob/add/:name', timerMiddleware, (request, response) => {
+  router.get('/mob/add/:name', (request, response) => {
     const { name } = request.params;
     const { mob } = storage.read()[request.timerId];
 
@@ -118,24 +116,24 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
     return response.status(201).end();
   });
-  router.get('/mob/remove/:name', timerMiddleware, (request, response) => {
+  router.get('/mob/remove/:name', (request, response) => {
     const { name } = request.params;
 
     dispatch(action.RemoveUser(name, request.timerId));
 
     return response.status(201).end();
   });
-  router.get('/mob/cycle', timerMiddleware, (request, response) => {
+  router.get('/mob/cycle', (request, response) => {
     dispatch(action.CycleMob(request.timerId));
 
     return response.status(201).end();
   });
-  router.get('/mob/shuffle', timerMiddleware, (request, response) => {
+  router.get('/mob/shuffle', (request, response) => {
     dispatch(action.ShuffleMob(request.timerId));
 
     return response.status(201).end();
   });
-  router.get('/timer/start/:seconds', timerMiddleware, (request, response) => {
+  router.get('/timer/start/:seconds', (request, response) => {
     const { seconds } = request.params;
 
     if (Number.isNaN(seconds)) {
@@ -151,13 +149,13 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
     return response.status(201).end();
   });
-  router.get('/timer/resume', timerMiddleware, (request, response) => {
+  router.get('/timer/resume', (request, response) => {
     const { timerDuration } = storage.read()[request.timerId];
     dispatch(action.StartTimer(timerDuration, request.timerId));
 
     return response.status(201).end();
   });
-  router.get('/timer/pause', timerMiddleware, (request, response) => {
+  router.get('/timer/pause', (request, response) => {
     const { seconds } = request.params;
 
     if (Number.isNaN(seconds)) {
