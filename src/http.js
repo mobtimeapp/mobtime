@@ -1,6 +1,7 @@
 import express from 'express';
 import ws from 'ws';
 import http from 'http';
+import helmet from 'helmet';
 import path from 'path';
 
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTimer = true) => (dispatch) => {
@@ -31,6 +32,8 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
       }
     }
   };
+
+  app.use(helmet());
 
   const timerMiddleware = (request, response, next) => {
     const timerId = request.headers['x-timer-id'];
