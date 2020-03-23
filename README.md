@@ -20,7 +20,7 @@ And your phone:
 yarn && yarn start
 ```
 
-Share the ngrok `https` link, and add your team.
+For a share-able link, you can run `yarn ngrok` in parallel to generate an ngrok url.
 
 ## Contributing
 
