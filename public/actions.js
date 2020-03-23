@@ -21,20 +21,21 @@ export const Init = (_, timerId) => [
       timerStartedAt: null,
       timerDuration: 0,
       mob: [],
+      goals: [],
       lockedMob: null,
       connections: 0,
     },
     timerId,
     remainingTime: 0,
     name: '',
+    goal: '',
     timeInMinutes: '5',
     allowNotification: initialAllowNotification,
     status: Status.Connecting(),
   },
 ];
 
-export const SetRemainingTime = (state, remainingTime) => [
-  {
+export const SetRemainingTime = (state, remainingTime) => [ {
     ...state,
     remainingTime,
   },
@@ -158,6 +159,50 @@ export const RemoveNameFromMob = (state, name) => [
     }),
     state.status,
   ),
+];
+
+export const AddGoal = (state) => [
+  { ...state, goal: '' },
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: `/api/mob/goals/add/${encodeURIComponent(state.goal)}`,
+      token,
+      OnOK: Noop,
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+export const CompleteGoal = (state, { text, completed }) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: `/api/mob/goals/${encodeURIComponent(text)}/${completed ? 'complete' : 'uncomplete'}`,
+      token,
+      OnOK: Noop,
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+export const RemoveGoal = (state, text) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: `/api/mob/goals/remove/${encodeURIComponent(text)}`,
+      token,
+      OnOK: Noop,
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+
+export const UpdateGoalText = (state, goal) => [
+  {
+    ...state,
+    goal,
+  },
 ];
 
 export const UpdateTimeInMinutes = (state, timeInMinutes) => ({

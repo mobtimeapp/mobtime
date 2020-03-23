@@ -51,3 +51,13 @@ const UpdateTitleWithTimeFX = (_dispatch, { remainingTime }) => {
     : 'mobtime';
 };
 export const UpdateTitleWithTime = (props) => [UpdateTitleWithTimeFX, props];
+
+const OpenPromptFX = (dispatch, { title, OnValue, OnCancel }) => {
+  setTimeout(() => {
+    const value = window.prompt(title, ''); // eslint-disable-line no-alert
+    return value
+      ? dispatch(OnValue, value)
+      : dispatch(OnCancel);
+  }, 0);
+};
+export const OpenPrompt = (props) => [OpenPromptFX, props];
