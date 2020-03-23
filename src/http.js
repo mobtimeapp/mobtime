@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import express from 'express';
 import ws from 'ws';
 import http from 'http';
@@ -10,7 +12,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
   const server = http.createServer(app);
   const wss = new ws.Server({ server });
 
-  const getTimer = timerId => {
+  const getTimer = (timerId) => {
     const timer = storage.read()[timerId];
     if (!timer) return null;
 
@@ -25,7 +27,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
   const broadcast = (payload, timerId) => {
     const message = JSON.stringify(payload);
     let client;
-    for(client of wss.clients) {
+    for (client of wss.clients) {
       if (client.$timerId !== timerId) continue;
 
       try {
@@ -42,7 +44,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
   const findTimerIdByToken = (token, timers) => {
     const timerIds = Object.keys(timers);
     let timerId;
-    for(timerId of timerIds) {
+    for (timerId of timerIds) {
       if (timers[timerId].tokens.includes(token)) {
         return timerId;
       }
@@ -54,10 +56,10 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
   router.use((_request, response, next) => {
     try {
-      next();
+      return next();
     } catch (err) {
       console.log(err);
-      return response.status(500).json({ message: err.toString() }).end()
+      return response.status(500).json({ message: err.toString() }).end();
     }
   });
 
@@ -75,7 +77,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
     request.timerId = timerId;
 
-    next();
+    return next();
   });
 
   router.get('/ping', async (request, response) => {
@@ -214,9 +216,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
       return response.sendFile(htmlPayload);
     });
 
-    app.get('/', (_request, response) => {
-      return response.redirect('/timer');
-    });
+    app.get('/', (_request, response) => response.redirect('/timer'));
 
     app.use(express.static(path.resolve(rootPath, 'public')));
   } else {
@@ -235,10 +235,9 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
   wss.on('connection', async (client, request) => {
     const url = new URL(request.url, `http://${request.headers.host}`);
-    client.$token = Math.random().toString(36).slice(2);
-    client.$timerId = url.pathname
-      .split('/')
-      .filter(v => v)[0];
+    client.$token = Math.random().toString(36).slice(2); // eslint-disable-line no-param-reassign
+    const [timerId] = url.pathname.split('/').filter((v) => v);
+    client.$timerId = timerId; // eslint-disable-line no-param-reassign
 
     const timer = getTimer(client.$timerId);
     if (!timer) {
@@ -258,25 +257,27 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
       dispatch(action.RemoveToken(client.$token, client.$timerId));
     });
+
+    return undefined;
   });
 
   const cancelBusSubscription = bus.subscribe((data) => {
     switch (data.type) {
-    case 'tick':
-      return broadcast({
-        type: 'tick',
-        state: getTimer(data.timerId),
-      }, data.timerId);
+      case 'tick':
+        return broadcast({
+          type: 'tick',
+          state: getTimer(data.timerId),
+        }, data.timerId);
 
-    case 'notify':
-      return broadcast({
-        type: 'notify',
-        message: data.message,
-        state: getTimer(data.timerId),
-      }, data.timerId);
+      case 'notify':
+        return broadcast({
+          type: 'notify',
+          message: data.message,
+          state: getTimer(data.timerId),
+        }, data.timerId);
 
-    default:
-      break;
+      default:
+        return undefined;
     }
   });
 

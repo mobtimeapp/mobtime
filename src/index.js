@@ -1,5 +1,5 @@
 import { config }from 'dotenv';
-import { app, effects } from 'ferp/src/ferp';
+import { app, effects } from 'ferp';
 import * as bus from './bus';
 import * as storage from './storage';
 import Action from './actions';

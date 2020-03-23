@@ -1,4 +1,4 @@
-import enumerize from 'https://unpkg.com/@mrbarrysoftware/js-enumerize?module=1';
+import enumerize from 'https://unpkg.com/@mrbarrysoftware/js-enumerize?module=1'; // eslint-disable-line import/no-unresolved
 
 export default enumerize({
   Connecting: [],

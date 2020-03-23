@@ -3,14 +3,14 @@ export const make = () => {
 
   const emit = (...args) => {
     let fn;
-    for(fn of fns) {
+    for (fn of fns) {
       if (!fn) continue;
       fn(...args);
     }
   };
 
   const resetFns = () => {
-    const allNull = fns.every(fn => !fn);
+    const allNull = fns.every((fn) => !fn);
     if (!allNull) return;
     fns = [];
   };

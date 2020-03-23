@@ -1,3 +1,5 @@
+/* eslint-disable import/no-absolute-path, import/extensions, import/no-unresolved */
+
 import api from '/api.js';
 import Status from '/status.js';
 
@@ -6,7 +8,7 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
   let handle = null;
 
   const tick = () => {
-    if (cancel) return;
+    if (cancel) return undefined;
 
     const now = Date.now();
     const elapsed = now - timerStartedAt;
@@ -18,6 +20,8 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     }
 
     handle = setTimeout(tick, 100);
+
+    return undefined;
   };
 
   if (timerStartedAt) {
@@ -29,28 +33,26 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     clearTimeout(handle);
   };
 };
-export const Timer = props => [TimerFX, props];
+export const Timer = (props) => [TimerFX, props];
 
 const KeepAliveFX = (_dispatch, { token }) => {
   let cancel = false;
   let handle = null;
 
-  const checkConnection = () => {
-    return cancel
-      ? null
-      : api('/api/ping', token)
-        .then(r => {
-          if (!r.ok) {
-            const error = new Error(`HTTP Status ${r.status}: ${r.statusText}`);
-            error.response = r;
-            throw error;
-          }
-          handle = setTimeout(checkConnection, 5 * 60 * 1000);
-        })
-        .catch((err) => {
-          console.warn('Unable to ping timer', err);
-        });
-  };
+  const checkConnection = () => (cancel
+    ? null
+    : api('/api/ping', token)
+      .then((r) => {
+        if (!r.ok) {
+          const error = new Error(`HTTP Status ${r.status}: ${r.statusText}`);
+          error.response = r;
+          throw error;
+        }
+        handle = setTimeout(checkConnection, 5 * 60 * 1000);
+      })
+      .catch((err) => {
+        console.warn('Unable to ping timer', err); // eslint-disable-line no-console
+      }));
 
   setTimeout(checkConnection, 0);
 
@@ -59,11 +61,10 @@ const KeepAliveFX = (_dispatch, { token }) => {
     clearTimeout(handle);
   };
 };
-export const KeepAlive = props => [KeepAliveFX, props];
+export const KeepAlive = (props) => [KeepAliveFX, props];
 
 
 const WebsocketFX = (dispatch, { timerId, actions }) => {
-  console.log('Opening websocket subscription', timerId);
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
@@ -80,8 +81,8 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
     socket = new WebSocket(websocketAddress);
 
     dispatch(actions.SetStatus, Status.Connecting());
-    let connectionAttempt = setTimeout(() => {
-      console.log('Waited 10 seconds, no websocket response, closing connection attempt');
+    const connectionAttempt = setTimeout(() => {
+      console.log('Waited 10 seconds, no websocket response, closing connection attempt'); // eslint-disable-line no-console
       socket.close();
     }, 10000);
 
@@ -89,8 +90,7 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
       clearTimeout(connectionAttempt);
 
       socket.addEventListener('close', (event) => {
-        console.log('websocket disconnected', event);
-        dispatch(actions.SetStatus, Status.Error('Disconnected by server'));
+        dispatch(actions.SetStatus, Status.Error(event.reason || 'Disconnected by server'));
         socket = null;
         setTimeout(connect, 10000);
       });
@@ -119,4 +119,4 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
     socket = null;
   };
 };
-export const Websocket = props => [WebsocketFX, props];
+export const Websocket = (props) => [WebsocketFX, props];

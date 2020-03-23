@@ -1,4 +1,4 @@
-const formatTime = milliseconds => {
+const formatTime = (milliseconds) => {
   if (!milliseconds) {
     return '00:00';
   }
@@ -7,7 +7,7 @@ const formatTime = milliseconds => {
   const seconds = Math.floor(remainingMilliseconds / 1000);
 
   return [minutes, seconds]
-    .map(t => `${t}`.padStart(2, '0'))
+    .map((t) => `${t}`.padStart(2, '0'))
     .join(':');
 };
 

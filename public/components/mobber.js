@@ -17,7 +17,7 @@ export const mobber = (props) => h(card, {
       'justify-between': true,
     },
   }, [
-    h('div', null,  [
+    h('div', null, [
       h('div', {
         class: {
           'text-gray-500': !props.name,
@@ -54,4 +54,3 @@ export const mobber = (props) => h(card, {
     }, 'X'),
   ]),
 ]);
-

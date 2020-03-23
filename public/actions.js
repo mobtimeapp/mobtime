@@ -6,14 +6,14 @@ const withToken = (fn, status) => Status.caseOf({
   Connected: fn,
   Reconnecting: () => false,
   Error: () => false,
-}, status)
+}, status);
 
 let initialAllowNotification = false;
 if ('Notification' in window) {
   initialAllowNotification = Notification.permission === 'granted';
 }
 
-export const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
+export const Noop = (state) => state;
 
 export const Init = (_, timerId) => [
   {
@@ -50,17 +50,15 @@ export const SetToken = (state, token) => ({
     : Status.Connecting(),
 });
 
-export const Tick = (state, serverState) => {
-  return {
-    ...state,
-    serverState,
-    remainingTime: serverState.timerStartedAt !== null
-      ? Math.max(0, serverState.timerDuration - (Date.now() - serverState.timerStartedAt))
-      : serverState.timerDuration,
-  };
-};
+export const Tick = (state, serverState) => ({
+  ...state,
+  serverState,
+  remainingTime: serverState.timerStartedAt !== null
+    ? Math.max(0, serverState.timerDuration - (Date.now() - serverState.timerStartedAt))
+    : serverState.timerDuration,
+});
 
-export const Completed = state => [
+export const Completed = (state) => [
   {
     ...state,
     serverState: {
@@ -75,15 +73,15 @@ export const Completed = state => [
       text: 'The time is up, cycle and start a new timer',
     }),
     effects.UpdateTitleWithTime({ remainingTime: 0 }),
-  ]
-]
+  ],
+];
 
 export const UpdateName = (state, name) => ({
   ...state,
   name,
 });
 
-export const ShuffleMob = state => [
+export const ShuffleMob = (state) => [
   state,
   withToken(
     (token) => effects.ApiEffect({
@@ -95,10 +93,10 @@ export const ShuffleMob = state => [
     state.status,
   ),
 ];
-export const CycleMob = state => [
+export const CycleMob = (state) => [
   state,
   withToken(
-    token => effects.ApiEffect({
+    (token) => effects.ApiEffect({
       endpoint: '/api/mob/cycle',
       token,
       OnOK: Noop,
@@ -108,10 +106,10 @@ export const CycleMob = state => [
   ),
 ];
 
-export const LockMob = state => [
+export const LockMob = (state) => [
   state,
   withToken(
-    token => effects.ApiEffect({
+    (token) => effects.ApiEffect({
       endpoint: '/api/mob/lock',
       token,
       OnOK: Noop,
@@ -120,10 +118,10 @@ export const LockMob = state => [
     state.status,
   ),
 ];
-export const UnlockMob = state => [
+export const UnlockMob = (state) => [
   state,
   withToken(
-    token => effects.ApiEffect({
+    (token) => effects.ApiEffect({
       endpoint: '/api/mob/unlock',
       token,
       OnOK: Noop,
@@ -133,13 +131,13 @@ export const UnlockMob = state => [
   ),
 ];
 
-export const AddNameToMob = state => [
+export const AddNameToMob = (state) => [
   {
     ...state,
     name: '',
   },
   withToken(
-    token => effects.ApiEffect({
+    (token) => effects.ApiEffect({
       endpoint: `/api/mob/add/${encodeURIComponent(state.name)}`,
       token,
       OnOK: Noop,
@@ -152,7 +150,7 @@ export const AddNameToMob = state => [
 export const RemoveNameFromMob = (state, name) => [
   state,
   withToken(
-    token => effects.ApiEffect({
+    (token) => effects.ApiEffect({
       endpoint: `/api/mob/remove/${encodeURIComponent(name)}`,
       token,
       OnOK: Noop,
@@ -167,13 +165,11 @@ export const UpdateTimeInMinutes = (state, timeInMinutes) => ({
   timeInMinutes,
 });
 
-export const Noop = state => state;
-
-export const PauseTimer = state => [
+export const PauseTimer = (state) => [
   state,
   withToken(
-    token => effects.ApiEffect({
-      endpoint: `/api/timer/pause`,
+    (token) => effects.ApiEffect({
+      endpoint: '/api/timer/pause',
       token,
       OnOK: Noop,
       OnERR: Noop,
@@ -182,11 +178,11 @@ export const PauseTimer = state => [
   ),
 ];
 
-export const ResumeTimer = state => [
+export const ResumeTimer = (state) => [
   state,
   withToken(
-    token => effects.ApiEffect({
-      endpoint: `/api/timer/resume`,
+    (token) => effects.ApiEffect({
+      endpoint: '/api/timer/resume',
       token,
       OnOK: Noop,
       OnERR: Noop,
@@ -195,13 +191,13 @@ export const ResumeTimer = state => [
   ),
 ];
 
-export const StartTimer = state => {
+export const StartTimer = (state) => {
   const milliseconds = (Number(state.timeInMinutes) * 60 * 1000) + 999;
 
   return [
     state,
     withToken(
-      token => effects.ApiEffect({
+      (token) => effects.ApiEffect({
         endpoint: `/api/timer/start/${milliseconds}`,
         token,
         OnOK: Noop,
@@ -212,7 +208,9 @@ export const StartTimer = state => {
   ];
 };
 
-export const RequestNotificationPermission = state => [
+export const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
+
+export const RequestNotificationPermission = (state) => [
   state,
   effects.NotificationPermission({
     SetAllowNotification,
@@ -225,4 +223,4 @@ export const ShowNotification = (state, message) => [
     title: 'Cycle Complete',
     text: message,
   }),
-]
+];

@@ -1,6 +1,6 @@
 import { h } from 'https://unpkg.com/hyperapp?module=1';
 
-export const input = (props) =>  h('input', {
+export const input = (props) => h('input', {
   ...props,
   class: {
     'border-b': true,
@@ -11,4 +11,3 @@ export const input = (props) =>  h('input', {
     ...(props.class || {}),
   },
 });
-

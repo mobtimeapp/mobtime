@@ -1,19 +1,21 @@
-import { effects } from 'ferp/src/ferp';
+/* eslint-disable no-console */
+
+import { effects } from 'ferp';
 import fetch from 'node-fetch';
 import semver from 'semver';
 import packageJson from '../package.json';
 
-  const repository = packageJson.repository.url;
-  const version = semver.coerce(packageJson.version);
+const repository = packageJson.repository.url;
+const version = semver.coerce(packageJson.version);
 
-  const [owner, repo] = repository
-    .replace(/^https:\/\/github.com\//, '')
-    .replace(/\.git$/, '')
-    .split('/');
+const [owner, repo] = repository
+  .replace(/^https:\/\/github.com\//, '')
+  .replace(/\.git$/, '')
+  .split('/');
 
 export const CheckVersion = () => effects.defer(
   fetch(`https://api.github.com/repos/${owner}/${repo}/tags`)
-    .then(r => {
+    .then((r) => {
       if (!r.ok) {
         const error = new Error(`Status ${r.status}: ${r.statusText}`);
         error.response = r;
@@ -34,5 +36,5 @@ export const CheckVersion = () => effects.defer(
       console.log(err);
       console.log('But the server will continue to function');
     })
-    .then(() => effects.none())
+    .then(() => effects.none()),
 );

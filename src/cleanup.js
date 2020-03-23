@@ -4,7 +4,7 @@ const CleanupSub = (storage, Action) => (dispatch) => {
     const state = storage.read();
     const timerIds = Object.keys(state);
     let timerId;
-    for(timerId of timerIds) {
+    for (timerId of timerIds) {
       const timer = state[timerId];
       if (now > timer.expiresAt) {
         dispatch(Action.RemoveTimer(timerId));
