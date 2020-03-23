@@ -72,13 +72,19 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
   let socket = null;
   let cancel = false;
+  let pingHandle = null;
 
   const connect = () => {
-    if (cancel) {
-      return;
-    }
+    clearTimeout(pingHandle);
+    if (cancel) return;
 
     socket = new WebSocket(websocketAddress);
+
+    const ping = () => {
+      if (cancel) return;
+      socket.send(JSON.stringify({ ping: Date.now() }));
+      pingHandle = setTimeout(ping, 1 * 60 * 1000);
+    };
 
     dispatch(actions.SetStatus, Status.Connecting());
     const connectionAttempt = setTimeout(() => {
@@ -88,12 +94,16 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
     socket.addEventListener('open', () => {
       clearTimeout(connectionAttempt);
+      clearTimeout(pingHandle);
 
       socket.addEventListener('close', (event) => {
+        clearTimeout(pingHandle);
         dispatch(actions.SetStatus, Status.Error(event.reason || 'Disconnected by server'));
         socket = null;
         setTimeout(connect, 10000);
       });
+
+      ping();
     });
 
     socket.addEventListener('message', (event) => {
@@ -115,6 +125,7 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
   return () => {
     cancel = true;
+    clearTimeout(pingHandle);
     socket.close();
     socket = null;
   };
