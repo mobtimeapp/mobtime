@@ -10,6 +10,7 @@ import { fullButton } from '/components/fullButton.js';
 import { mobber } from '/components/mobber.js';
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
+import { goal } from '/components/goal.js';
 
 const [timerId] = window.location.pathname.split('/').filter(v => v);
 
@@ -154,6 +155,69 @@ app({
         }, 'Go!'),
       ]),
     ]),
+
+    h('hr'),
+
+    h(section, {}, [
+      state.serverState.goals.map(({ text, completed }) => h(goal, {
+        text,
+        completed,
+      })),
+      state.serverState.goals.length === 0 && h(
+        'span',
+        {
+          class: {
+            'text-gray-400': true,
+          },
+        },
+        'No goals, add one now',
+      ),
+
+    ]),
+
+    state.serverState.goals.length < 5 && [
+      h('hr'),
+
+      h('form', {
+        action: '#',
+        method: 'get',
+        onsubmit: [
+          actions.AddGoal,
+          e => {
+            e.preventDefault();
+            return undefined;
+          },
+        ],
+      }, [
+        h(section, {
+          class: {
+            'flex': true,
+            'flex-row': true,
+            'items-center': true,
+            'justify-between': true,
+          },
+        }, [
+          h('label', null, [
+            h('span', { class: { 'mr-1': true } }, 'Add'),
+            h(input, {
+              autofocus: 'autofocus',
+              value: state.goal,
+              oninput: [actions.UpdateGoalText, e => e.target.value],
+              placeholder: 'Refactor tricky code...',
+              style: {
+                minWidth: '160px',
+                fontWeight: 'bold',
+              },
+            }),
+            h('span', { class: { 'ml-1': true } }, 'as a goal'),
+          ]),
+          h(button, {
+            type: 'submit',
+            disabled: !state.goal,
+          }, 'Go!'),
+        ]),
+      ]),
+    ],
 
     h('hr'),
 

@@ -1,6 +1,7 @@
 import { h } from 'https://unpkg.com/hyperapp?module=1';
 import { card } from '/components/card.js';
 import { section } from '/components/section.js';
+import { deleteButton } from '/components/deleteButton.js';
 
 export const mobber = (props) => h(card, {
   class: {
@@ -32,25 +33,8 @@ export const mobber = (props) => h(card, {
         },
       }, props.position),
     ]),
-    props.name && h('button', {
-      class: {
-        'rounded-full': true,
-        'border': true,
-        'flex': true,
-        'items-center': true,
-        'justify-center': true,
-        'text-center': true,
-        'border-blue-500': true,
-        'hover:text-white': true,
-        'hover:bg-blue-500': true,
-        'hover:border-transparent': true,
-        'text-blue-700': true,
-      },
-      style: {
-        width: '32px',
-        height: '32px',
-      },
+    props.name && h(deleteButton, {
       onclick: [props.onRemove, props.name],
-    }, 'X'),
+    }),
   ]),
 ]);

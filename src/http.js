@@ -138,6 +138,34 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
     return response.status(201).end();
   });
+  router.get('/mob/goals/add/:goal', (request, response) => {
+    const timer = getTimer(request.timerId);
+    if (timer.goals.length >= 5) {
+      return response
+        .status(403)
+        .json({ message: 'Too many goals' })
+        .end();
+    }
+
+    dispatch(action.AddGoal(request.params.goal, request.timerId));
+
+    return response.status(204).end();
+  });
+  router.get('/mob/goals/:goal/complete', (request, response) => {
+    dispatch(action.CompleteGoal(request.params.goal, true, request.timerId));
+
+    return response.status(204).end();
+  });
+  router.get('/mob/goals/:goal/uncomplete', (request, response) => {
+    dispatch(action.CompleteGoal(request.params.goal, false, request.timerId));
+
+    return response.status(204).end();
+  });
+  router.get('/mob/goals/remove/:goal', (request, response) => {
+    dispatch(action.RemoveGoal(request.params.goal, request.timerId));
+
+    return response.status(204).end();
+  });
   router.get('/mob/cycle', (request, response) => {
     dispatch(action.CycleMob(request.timerId));
 

@@ -17,6 +17,10 @@ export default enumerize({
   AddUser: [String, String],
   RemoveUser: [String, String],
 
+  AddGoal: [String, String],
+  CompleteGoal: [String, Boolean, String],
+  RemoveGoal: [String, String],
+
   LockMob: [String],
   UnlockMob: [String],
 

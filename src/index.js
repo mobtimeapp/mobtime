@@ -39,6 +39,7 @@ const update = (action, state) => {
         lockedMob: null,
         timerStartedAt: null,
         timerDuration: 0,
+        goals: [],
         tokens: [],
         expiresAt: Date.now() + EXPIRE_TIMER,
       };
@@ -217,6 +218,74 @@ const update = (action, state) => {
           [timerId]: {
             ...timer,
             mob: timer.mob.filter(n => n !== name),
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+
+    AddGoal: (text, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const goal = timer.goals.find(g => g.text === text);
+      if (goal) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            goals: [
+              ...timer.goals,
+              { text, completed: false },
+            ],
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+    CompleteGoal: (text, completed, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const goalIndex = timer.goals.findIndex(g => g.text === text);
+      if (goalIndex === -1) {
+        return [state, effects.none()];
+      }
+
+      const goals = [...timer.goals];
+      goals[goalIndex].completed = completed;
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            goals,
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+    RemoveGoal: (text, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            goals: timer.goals.filter(g => g.text !== text),
           },
         },
         TickEffect(timerId),
