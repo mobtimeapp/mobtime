@@ -223,3 +223,11 @@ export const RequestNotificationPermission = state => [
     SetAllowNotification,
   }),
 ];
+
+export const ShowNotification = (state, message) => [
+  state,
+  effects.DisplayNotification({
+    title: 'Cycle Complete',
+    text: message,
+  }),
+]

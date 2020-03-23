@@ -104,6 +104,10 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
         dispatch(actions.SetToken, message.token);
       }
 
+      if (message.type === 'notify') {
+        dispatch(actions.ShowNotification, message.message);
+      }
+
       dispatch(actions.Tick, message.state);
     });
   };

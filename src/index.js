@@ -21,6 +21,11 @@ const TickEffect = timerId => effects.thunk(() => {
   return effects.none();
 });
 
+const NotifyEffect = timerId => effects.thunk(() => {
+  MessageBus.emit({ type: 'notify', message: 'Maybe take a 5-10 minute break', timerId });
+  return effects.none();
+});
+
 const update = (action, state) => {
   return Action.caseOf({
     Init: () => [
@@ -316,16 +321,26 @@ const update = (action, state) => {
       }
 
       const [first, ...rest] = timer.mob;
+      const mob = [...rest, first];
+
+      const isCycleComplete = timer.lockedMob
+        ? mob.every((v, i) => v === timer.lockedMob[i])
+        : false;
 
       return [
         {
           ...state,
           [timerId]: {
             ...timer,
-            mob: [...rest, first],
+            mob,
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          isCycleComplete
+            ? NotifyEffect(timerId)
+            : effects.none(),
+        ]),
       ];
     },
   }, action);

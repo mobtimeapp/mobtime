@@ -268,6 +268,13 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
         state: getTimer(data.timerId),
       }, data.timerId);
 
+    case 'notify':
+      return broadcast({
+        type: 'notify',
+        message: data.message,
+        state: getTimer(data.timerId),
+      }, data.timerId);
+
     default:
       break;
     }
