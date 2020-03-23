@@ -89,7 +89,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
         .end();
     }
 
-    await dispatch(action.SyncTimer(request.timerId));
     await dispatch(action.PingTimer(request.timerId));
 
     return response

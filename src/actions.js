@@ -11,7 +11,6 @@ export default enumerize({
   RemoveToken: [String, String],
 
   StartTimer: [Number, String],
-  SyncTimer: [String],
   PauseTimer: [String],
   ResetTimer: [String],
 

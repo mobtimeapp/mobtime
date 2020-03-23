@@ -143,35 +143,6 @@ const update = (action, state) => {
       ];
     },
 
-    SyncTimer: (timerId) => {
-      const timer = state[timerId];
-      if (!timer) {
-        return [state, effects.none()];
-      }
-
-      let timerStartedAt = timer.timerStartedAt;
-      let timerDuration = timer.timerDuration;
-      if (timer.timerStartedAt !== null) {
-        const elapsed = Date.now() - timer.timerStartedAt;
-        timerDuration = Math.max(0, timer.timerDuration - elapsed);
-      }
-      if (timerDuration === 0) {
-        timerStartedAt = null;
-      }
-
-      return [
-        {
-          ...state,
-          [timerId]: {
-            ...timer,
-            timerStartedAt,
-            timerDuration,
-          },
-        },
-        TickEffect(timerId),
-      ];
-    },
-
     PauseTimer: (timerId) => {
       const timer = state[timerId];
       if (!timer) {
