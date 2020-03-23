@@ -21,6 +21,7 @@ export const Init = (_, timerId) => [
       timerStartedAt: null,
       timerDuration: 0,
       mob: [],
+      lockedMob: null,
       connections: 0,
     },
     timerId,
@@ -104,6 +105,31 @@ export const CycleMob = state => [
   withToken(
     token => effects.ApiEffect({
       endpoint: '/api/mob/cycle',
+      token,
+      OnOK: Noop,
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+
+export const LockMob = state => [
+  state,
+  withToken(
+    token => effects.ApiEffect({
+      endpoint: '/api/mob/lock',
+      token,
+      OnOK: Noop,
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+export const UnlockMob = state => [
+  state,
+  withToken(
+    token => effects.ApiEffect({
+      endpoint: '/api/mob/unlock',
       token,
       OnOK: Noop,
       OnERR: Noop,

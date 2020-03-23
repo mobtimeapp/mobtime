@@ -18,6 +18,9 @@ export default enumerize({
   AddUser: [String, String],
   RemoveUser: [String, String],
 
+  LockMob: [String],
+  UnlockMob: [String],
+
   ShuffleMob: [String],
   CycleMob: [String],
 });

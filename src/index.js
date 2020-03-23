@@ -31,6 +31,7 @@ const update = (action, state) => {
     AddTimer: (timerId) => {
       const timer = state[timerId] || {
         mob: [],
+        lockedMob: null,
         timerStartedAt: null,
         timerDuration: 0,
         tokens: [],
@@ -240,6 +241,41 @@ const update = (action, state) => {
           [timerId]: {
             ...timer,
             mob: timer.mob.filter(n => n !== name),
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+
+    LockMob: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            lockedMob: [...timer.mob],
+          },
+        },
+        TickEffect(timerId),
+      ];
+    },
+    UnlockMob: (timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            lockedMob: null,
           },
         },
         TickEffect(timerId),

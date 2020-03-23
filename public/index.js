@@ -158,22 +158,28 @@ app({
     h('hr'),
 
     h(section, null, [
-      h('div', {
+      state.serverState.mob.length > 0 && h('div', {
         class: {
           'flex': true,
           'items-center': true,
           'justify-between': true,
         },
       }, [
-        h(button, { onclick: actions.CycleMob }, 'Cycle Mob'),
-        h(button, { onclick: actions.ShuffleMob }, 'Shuffle'),
+        h(button, { onclick: actions.CycleMob }, 'Rotate Roles'),
+        h(button, {
+          disabled: state.serverState.lockedMob,
+          onclick: actions.ShuffleMob,
+        }, 'Randomize Order'),
+        state.serverState.lockedMob
+          ?  h(button, { onclick: actions.UnlockMob }, 'Unlock Mob')
+          :  h(button, { onclick: actions.LockMob }, 'Lock Mob'),
       ]),
       renderMob(state.serverState.mob),
     ]),
 
     h('hr'),
 
-    h('form', {
+    state.serverState.lockedMob === null && h('form', {
       action: '#',
       method: 'get',
       onsubmit: [
@@ -195,6 +201,7 @@ app({
         h('label', null, [
           h('span', null, 'Add'),
           h(input, {
+            autofocus: 'autofocus',
             value: state.name,
             oninput: [actions.UpdateName, e => e.target.value],
             placeholder: 'Name here...',

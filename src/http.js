@@ -103,12 +103,18 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
   });
   router.get('/mob/add/:name', (request, response) => {
     const { name } = request.params;
-    const { mob } = storage.read()[request.timerId];
+    const { mob, lockedMob } = storage.read()[request.timerId];
 
     if (mob.includes(name)) {
       return response
         .status(400)
         .json({ message: 'User is already in mob' })
+        .end();
+    }
+    if (lockedMob) {
+      return response
+        .status(400)
+        .json({ message: 'Mob is locked' })
         .end();
     }
 
@@ -118,6 +124,14 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
   });
   router.get('/mob/remove/:name', (request, response) => {
     const { name } = request.params;
+    const { lockedMob } = storage.read()[request.timerId];
+
+    if (lockedMob) {
+      return response
+        .status(400)
+        .json({ message: 'Mob is locked' })
+        .end();
+    }
 
     dispatch(action.RemoveUser(name, request.timerId));
 
@@ -126,12 +140,31 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
   router.get('/mob/cycle', (request, response) => {
     dispatch(action.CycleMob(request.timerId));
 
-    return response.status(201).end();
+    return response.status(204).end();
   });
   router.get('/mob/shuffle', (request, response) => {
+    const { lockedMob } = getTimer(request.timerId);
+
+    if (lockedMob) {
+      return response
+        .status(400)
+        .json({ message: 'Mob is locked' })
+        .end();
+    }
+
     dispatch(action.ShuffleMob(request.timerId));
 
-    return response.status(201).end();
+    return response.status(204).end();
+  });
+  router.get('/mob/lock', (request, response) => {
+    dispatch(action.LockMob(request.timerId));
+
+    return response.status(204).end();
+  });
+  router.get('/mob/unlock', (request, response) => {
+    dispatch(action.UnlockMob(request.timerId));
+
+    return response.status(204).end();
   });
   router.get('/timer/start/:seconds', (request, response) => {
     const { seconds } = request.params;
