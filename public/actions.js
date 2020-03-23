@@ -43,11 +43,6 @@ export const SetRemainingTime = (state, remainingTime) => [
 
 export const SetStatus = (state, status) => ({ ...state, status });
 
-export const SetWebsocketState = (state, websocketState) => ({
-  ...state,
-  websocketState,
-});
-
 export const SetToken = (state, token) => ({
   ...state,
   status: token

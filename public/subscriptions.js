@@ -1,4 +1,5 @@
 import api from '/api.js';
+import Status from '/status.js';
 
 const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
   let cancel = false;
@@ -78,7 +79,7 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
     socket = new WebSocket(websocketAddress);
 
-    dispatch(actions.SetWebsocketState, 'connecting');
+    dispatch(actions.SetStatus, Status.Connecting());
     let connectionAttempt = setTimeout(() => {
       console.log('Waited 10 seconds, no websocket response, closing connection attempt');
       socket.close();
@@ -87,11 +88,9 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
     socket.addEventListener('open', () => {
       clearTimeout(connectionAttempt);
 
-      dispatch(actions.SetWebsocketState, 'connected');
-
       socket.addEventListener('close', (event) => {
         console.log('websocket disconnected', event);
-        dispatch(actions.SetWebsocketState, 'disconnected');
+        dispatch(actions.SetStatus, Status.Error('Disconnected by server'));
         socket = null;
         setTimeout(connect, 10000);
       });

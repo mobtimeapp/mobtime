@@ -4,5 +4,5 @@ export default enumerize({
   Connecting: [],
   Connected: [String],
   Reconnecting: [Number],
-  Error: [],
+  Error: [String],
 });

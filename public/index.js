@@ -260,14 +260,23 @@ app({
     h(section, {
       class: {
         'w-full': true,
-        'bg-red-500': state.websocketState === 'disconnected',
-        'bg-transparent': state.websocketState !== 'disconnected',
-        'text-white': state.websocketState === 'disconnected',
-        'text-gray-400': state.websocketState !== 'disconnected',
+        ...Status.caseOf({
+          Connecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
+          Connected: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
+          Reconnecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
+          Error: () => ({ 'bg-red-500': true, 'text-white': true }),
+        }, state.status),
         'text-center': true,
         'text-xs': true,
       },
-    }, `Websocket ${state.websocketState}, with ${state.serverState.connections - 1} other(s)`),
+    },
+      Status.caseOf({
+        Connecting: () => 'Websocket connecting',
+        Connected: () => `Websocket connected, with ${state.serverState.connections - 1} other(s)`,
+        Reconnecting: () => 'Websocket reconnecting',
+        Error: (err) => `Error: ${err}`
+      }, state.status),
+    ),
   ])),
 
   subscriptions: state => [
