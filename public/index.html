@@ -15,6 +15,12 @@
       const Init = (_, { location }) => ({
         timerId: '',
         baseUrl: `${location.host}`,
+        statistics: {
+          timers: 0,
+          mobbers: 0,
+          connections: 0,
+          goals: 0,
+        },
       });
 
       const SetTimerId = (state, timerId) => ({ ...state, timerId });
@@ -52,6 +58,27 @@
         node: document.querySelector('#buildYourTimerApp'),
 
       });
+
+      fetch('/api/statistics')
+        .then((r) => {
+          if (!r.ok) {
+            const error = new Error(`Http status ${r.status}: ${r.statusText}`);
+            error.response = r;
+            throw error;
+          }
+          return r.json();
+        })
+        .then(({ mobbers, connections, goals }) => {
+          const setTextOfElement = (text, selector) => document
+            .querySelector(selector).innerText = text;
+
+          setTextOfElement(connections, '#connections');
+          setTextOfElement(goals, '#goals');
+          setTextOfElement(mobbers, '#mobbers');
+        })
+        .catch((err) => {
+          console.warn('Unable to get timer statistics', err);
+        });
     </script>
   </head>
   <body class="flex flex-col items-center justify-start">
@@ -62,6 +89,12 @@
       <hr />
       <section class="px-4 py-10 bg-white">
         <div id="buildYourTimerApp"></div>
+      </section>
+      <hr />
+      <section class="px-4 pt-4 pb-2 mb-2">
+        There are <strong id="connections">0</strong> active users,
+        <strong id="goals">0</strong> tracked goals,
+        and <strong id="mobbers">0</strong> people mobbing right now.
       </section>
       <hr />
       <section class="px-4 pt-4 pb-2 mb-2">
