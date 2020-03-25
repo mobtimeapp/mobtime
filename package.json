@@ -11,18 +11,15 @@
     "dev": "nodemon --ignore public ./index.js",
     "start": "node ./index.js",
     "live": "echo 'This is deprecated, use yarn start now'; yarn start'",
-    "ngrok": "node ./ngrok.js",
     "lint": "eslint ."
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
     "concurrently": "^5.1.0",
-    "dotenv": "^8.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "ferp": "^1.1.5",
     "helmet": "^3.21.3",
-    "ngrok": "^3.2.7",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.2",
     "semver": "^7.1.3",

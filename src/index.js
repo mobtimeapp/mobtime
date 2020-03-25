@@ -1,4 +1,3 @@
-import { config }from 'dotenv';
 import { app, effects } from 'ferp';
 import * as bus from './bus';
 import * as storage from './storage';
@@ -6,8 +5,6 @@ import Action from './actions';
 import { Http } from './http';
 import { CheckVersion } from './checkVersion';
 import { Cleanup } from './cleanup';
-
-config(); // load dotenv config
 
 const port = process.env.PORT || 4321;
 
@@ -403,7 +400,6 @@ app({
         Action,
         'localhost',
         port,
-        !process.env.MULTITIMER,
       ),
       anyTimers && Cleanup(Storage, Action),
     ];

@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import { URL } from 'url';
 import path from 'path';
 
-const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTimer = true) => (dispatch) => {
+const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (dispatch) => {
   const app = express();
   const server = http.createServer(app);
   const wss = new ws.Server({ server });
@@ -254,25 +254,13 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321, singleTi
 
   const rootPath = path.resolve(__dirname, '..');
 
-  if (singleTimer) {
-    app.use('/timer', (_request, response) => {
-      dispatch(action.AddTimer('timer'));
-      const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
-      return response.sendFile(htmlPayload);
-    });
+  app.use(express.static(path.resolve(rootPath, 'public')));
 
-    app.get('/', (_request, response) => response.redirect('/timer'));
-
-    app.use(express.static(path.resolve(rootPath, 'public')));
-  } else {
-    app.use(express.static(path.resolve(rootPath, 'public')));
-
-    app.get('/:timerId', async (request, response) => {
-      await dispatch(action.AddTimer(request.params.timerId));
-      const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
-      return response.sendFile(htmlPayload);
-    });
-  }
+  app.get('/:timerId', async (request, response) => {
+    await dispatch(action.AddTimer(request.params.timerId));
+    const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
+    return response.sendFile(htmlPayload);
+  });
 
   server.listen(port, host, () => {
     console.log(`Local server up: http://${host}:${port}`);
