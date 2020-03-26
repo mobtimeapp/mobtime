@@ -29,7 +29,7 @@ export const Init = (_, timerId) => [
     remainingTime: 0,
     name: '',
     goal: '',
-    timeInMinutes: '0.1',
+    timeInMinutes: '5',
     allowNotification: initialAllowNotification,
     status: Status.Connecting(),
   },
