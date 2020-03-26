@@ -136,7 +136,7 @@ app({
             h(input, {
               type: 'number',
               value: state.timeInMinutes,
-              min: 1,
+              min: 0.1,
               max: 60,
               step: 1,
               oninput: [actions.UpdateTimeInMinutes, e => e.target.value],

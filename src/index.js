@@ -34,6 +34,8 @@ const NotifyTimeUpEffect = timerId => NotificationEffect(
 );
 
 const update = (action, state) => {
+  if (!action) return [state, effects.none()];
+
   return Action.caseOf({
     Init: () => [
       {},
@@ -191,7 +193,10 @@ const update = (action, state) => {
             timerDuration: 0,
           },
         },
-        NotifyTimeUpEffect(timerId),
+        effects.batch([
+          NotifyTimeUpEffect(timerId),
+          timer.timerStartedAt && Action.CycleMob(timerId),
+        ])
       ];
     },
 
