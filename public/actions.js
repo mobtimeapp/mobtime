@@ -69,11 +69,16 @@ export const Completed = (state) => [
     remainingTime: 0,
   },
   [
-    effects.DisplayNotification({
-      title: 'Mob Timer',
-      text: 'The time is up, cycle and start a new timer',
-    }),
     effects.UpdateTitleWithTime({ remainingTime: 0 }),
+    withToken(
+      (token) => effects.ApiEffect({
+        endpoint: '/api/timer/reset',
+        token,
+        OnOK: Noop,
+        OnERR: Noop,
+      }),
+      state.status,
+    ),
   ],
 ];
 

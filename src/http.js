@@ -113,7 +113,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
       .status(204)
       .end();
   });
-  router.get('/reset', async (request, response) => {
+  router.get('/timer/reset', async (request, response) => {
     await dispatch(action.ResetTimer(request.timerId));
 
     return response

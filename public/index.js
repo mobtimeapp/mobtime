@@ -351,7 +351,7 @@ app({
       Reconnecting: () => false,
       Error: () => false,
     }, state.status),
-    state.serverState.timerStartedAt && subscriptions.Timer({
+    subscriptions.Timer({
       timerStartedAt: state.serverState.timerStartedAt,
       timerDuration: state.serverState.timerDuration,
       actions,

@@ -18,10 +18,20 @@ const TickEffect = timerId => effects.thunk(() => {
   return effects.none();
 });
 
-const NotifyEffect = timerId => effects.thunk(() => {
-  MessageBus.emit({ type: 'notify', message: 'Maybe take a 5-10 minute break', timerId });
+const NotificationEffect = (message, timerId) => effects.thunk(() => {
+  MessageBus.emit({ type: 'notify', message, timerId });
   return effects.none();
 });
+
+const NotifyBreakEffect = timerId => NotificationEffect(
+  'Maybe take a 5-10 minute break',
+  timerId,
+);
+
+const NotifyTimeUpEffect = timerId => NotificationEffect(
+  'The time is up, cycle and start a new timer',
+  timerId,
+);
 
 const update = (action, state) => {
   return Action.caseOf({
@@ -181,7 +191,7 @@ const update = (action, state) => {
             timerDuration: 0,
           },
         },
-        effects.none(),
+        NotifyTimeUpEffect(timerId),
       ];
     },
 
@@ -375,7 +385,7 @@ const update = (action, state) => {
         effects.batch([
           TickEffect(timerId),
           isCycleComplete
-            ? NotifyEffect(timerId)
+            ? NotifyBreakEffect(timerId)
             : effects.none(),
         ]),
       ];
