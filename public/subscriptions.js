@@ -14,13 +14,11 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     const elapsed = now - timerStartedAt;
     const remaining = Math.max(0, timerDuration - elapsed);
 
-    console.log('Timer.tick', { remaining });
-
     if (remaining === 0) {
       return dispatch(actions.Completed);
-    } else {
-      dispatch(actions.SetRemainingTime, remaining);
     }
+
+    dispatch(actions.SetRemainingTime, remaining);
 
     handle = setTimeout(tick, 100);
 

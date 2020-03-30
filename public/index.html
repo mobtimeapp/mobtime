@@ -29,29 +29,31 @@
         init: Init(null, { location: window.location }),
 
         view: state => h('div', null, [
-          h('div', { class: tw('flex', 'flex-col', 'justify-center', 'items-center') }, [
-            h('input', {
-              class: tw('text-4xl', 'border-b', 'border-b-solid', 'border-blue-700', 'max-w-full', 'text-center'),
-              style: { width: '300px' },
-              id: 'timerId',
-              maxlength: 12,
-              pattern: '[\\w\\-]+',
-              placeholder: 'my-timer',
-              oninput: [SetTimerId, event => event.target.value],
-            }, 'Your Timer ID'),
-            h('label', { class: tw('text-base'), for: 'timerId' }, 'Your Timer ID'),
-            h(
-              'a',
-              {
-                class: tw('mt-2', 'text-2xl', 'bg-transparent', 'hover:bg-blue-500', 'text-blue-700', 'font-semibold', 'hover:text-white', 'py-2', 'px-4', 'border', 'border-blue-500', 'hover:border-transparent', 'rounded'),
-                href: `/${state.timerId}`,
-              },
-              state.timerId
-                ? `${state.baseUrl}`
-                : 'Go to your timer',
-              state.timerId && h('span', { class: tw('block', 'sm:inline') }, `/${state.timerId}`),
-              h('span', { class: tw('sm:ml-4', 'block', 'sm:inline') }, '→'),
-            ),
+          h('form', { action: `/${state.timerId}`, disabled: !state.timerId.length }, [
+            h('div', { class: tw('flex', 'flex-col', 'justify-center', 'items-center') }, [
+              h('input', {
+                class: tw('text-4xl', 'border-b', 'border-b-solid', 'border-blue-700', 'max-w-full', 'text-center'),
+                style: { width: '300px' },
+                id: 'timerId',
+                maxlength: 12,
+                pattern: '[\\w\\-]{1,}',
+                placeholder: 'my-timer',
+                oninput: [SetTimerId, event => event.target.value],
+              }, 'Your Timer ID'),
+              h('label', { class: tw('text-base'), for: 'timerId' }, 'Your Timer ID'),
+              h(
+                'button',
+                {
+                  type: 'submit',
+                  class: tw('mt-2', 'text-2xl', 'bg-transparent', 'hover:bg-blue-500', 'text-blue-700', 'font-semibold', 'hover:text-white', 'py-2', 'px-4', 'border', 'border-blue-500', 'hover:border-transparent', 'rounded'),
+                },
+                state.timerId
+                  ? `${state.baseUrl}`
+                  : 'Go to your timer',
+                state.timerId && h('span', { class: tw('block', 'sm:inline') }, `/${state.timerId}`),
+                h('span', { class: tw('sm:ml-4', 'block', 'sm:inline') }, '→'),
+              ),
+            ]),
           ]),
         ]),
 

@@ -35,7 +35,8 @@ export const Init = (_, timerId) => [
   },
 ];
 
-export const SetRemainingTime = (state, remainingTime) => [ {
+export const SetRemainingTime = (state, remainingTime) => [
+  {
     ...state,
     remainingTime,
   },
