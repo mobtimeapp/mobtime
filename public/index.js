@@ -65,11 +65,10 @@ app({
       'sm:mt-2': true,
       'rounded': false,
       'sm:rounded': true,
+      'bg-indigo-600': true,
+      'text-white': true,
     },
   }, [
-    !state.allowNotification && ('Notification' in window) && h(fullButton, {
-      onclick: actions.RequestNotificationPermission,
-    }, 'Click Here to Enable Notifications'),
     h(section, {
       class: {
         'flex': true,
@@ -81,6 +80,7 @@ app({
       h('h1', {
         class: {
           'text-6xl': true,
+          'font-bold': true,
           'flex': true,
           'p-0': true,
           'm-0': true,
@@ -341,6 +341,24 @@ app({
         Error: (err) => `Error: ${err}`
       }, state.status),
     ),
+    !state.allowNotification && ('Notification' in window) && h(fullButton, {
+      onclick: actions.RequestNotificationPermission,
+      class: {
+        'w-full': false,
+        'w-3/4': true,
+        'bg-blue-500': false,
+        'hover:bg-blue-700': false,
+        'bg-green-500': true,
+        'hover:bg-green-700': true,
+        'uppercase': true,
+        'font-bold': false,
+        'font-light': true,
+        'tracking-wider': true,
+        'rounded-tr-lg': true,
+        'py-3': false,
+        'py-1': true,
+      },
+    }, 'Enable Notifications'),
   ])),
 
   subscriptions: state => [
