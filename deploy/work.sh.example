@@ -1,0 +1,37 @@
+#!/bin/bash
+set -e
+
+### Configuration ###
+
+APP_NAME=appname
+APP_DIR="/var/www/$APP_NAME"
+GIT_URL="git://github.com/your-username/$APP_NAME.git"
+RESTART_ARGS=
+NODE_ENV=production
+
+### Automation steps ###
+
+set -x
+
+# Pull latest code
+echo Cloning fresh copy of master...
+git clone --depth=1 --branch=master $GIT_URL $APP_DIR/next
+
+echo Removing .git directory...
+rm -rf $APP_DIR/next/.git
+
+echo Installing dependencies...
+cd $APP_DIR/next
+yarn --prod --non-interactive
+
+echo Swapping fresh deploy with current code...
+rm -rf $APP_DIR/previous
+mv $APP_DIR/code $APP_DIR/previous
+mv $APP_DIR/next $APP_DIR/code
+
+echo Restarting passenger app...
+
+# Restart app
+passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running $RESTART_ARGS $APP_DIR/code
+
+echo Done

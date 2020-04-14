@@ -36,44 +36,6 @@ yarn global add ngrok
 ngrok http 4321 # replace 4321 with the port you do
 ```
 
-### Host it with pm2 and nginx
-
-nginx
-
-```
-{
-  location / {
-    proxy_pass                  http://localhost:4321;
-    proxy_redirect              off;
-    proxy_set_header            Host $host;
-    proxy_set_header            X-Real-IP $remote_addr;
-    proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header            X-Forwarded-Host $server_name;
-
-    proxy_pass_request_headers  on;
-
-    proxy_set_header            Upgrade $http_upgrade;
-    proxy_set_header            Connection "upgrade";
-  }
-}
-```
-
-pm2 `ecosystem.config.js`
-
-```js
-module.exports = {
-  apps : [{
-    name: 'mobtime',
-    script: 'index.js',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 4321,
-    },
-  }],
-};
-```
-
-
 ## Contributing
 
 Bug reports and suggestions are welcome, just create an issue. PRs are welcome, too.

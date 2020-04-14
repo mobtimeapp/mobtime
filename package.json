@@ -11,7 +11,8 @@
     "dev": "nodemon --ignore public ./index.js",
     "start": "node ./index.js",
     "live": "echo 'This is deprecated, use yarn start now'; yarn start'",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "deploy": "./deploy/initiate.sh"
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",

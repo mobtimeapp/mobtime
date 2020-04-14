@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+### Configuration ###
+
+APP_NAME=myapp
+SERVER="$APP_NAME@ip-address"
+APP_DIR="/var/www/$APP_NAME"
+REMOTE_SCRIPT_PATH="/tmp/deploy-$APP_NAME.sh"
+KEY_ARGS=
+
+
+### Library ###
+
+function run()
+{
+  echo "Running: $@"
+  "$@"
+}
+
+
+### Automation steps ###
+
+run scp $KEY_ARGS deploy/work.sh $SERVER:$REMOTE_SCRIPT_PATH
+echo
+echo "---- Running deployment script on remote server ----"
+run ssh $KEY_ARGS $SERVER bash $REMOTE_SCRIPT_PATH
+
