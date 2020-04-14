@@ -844,10 +844,10 @@ feature-policy@0.3.0:
   resolved "https://registry.yarnpkg.com/feature-policy/-/feature-policy-0.3.0.tgz#7430e8e54a40da01156ca30aaec1a381ce536069"
   integrity sha512-ZtijOTFN7TzCujt1fnNhfWPFPSHeZkesff9AXZj+UEjYBynWNUIYpC87Ve4wHzyexQsImicLu7WsC2LHq7/xrQ==
 
-ferp@^1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/ferp/-/ferp-1.1.5.tgz#4b78ed443f8c269095f6bcdee3bb5f2010568ed4"
-  integrity sha512-B+qltA0lHpDnbJWEZfG5IgB3jJU+R7sqL1IX98yY0NXkeJz0/pLCTfiRSskVnzTW1kLt+anu8ju0Rkf6jqLprg==
+ferp@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/ferp/-/ferp-1.2.0.tgz#663babe4efe03053d70076e07925022ec9a4aa94"
+  integrity sha512-PnyfzKxorL+uo96si8XG8ULTKfLqimRcJYLeF6ikLX3HpVOvAcXkYs3wJ9uoaJJ0F7oNcsCI3hpETLxfXOjV5A==
 
 figures@^3.0.0:
   version "3.2.0"

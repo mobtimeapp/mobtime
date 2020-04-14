@@ -18,7 +18,7 @@
     "concurrently": "^5.1.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "ferp": "^1.1.5",
+    "ferp": "^1.2.0",
     "helmet": "^3.21.3",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.2",
