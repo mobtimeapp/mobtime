@@ -2,3 +2,5 @@ node_modules
 .env
 deploy/*.sh
 deploy/config.js
+database/database.sqlite
+database/migrated.json
