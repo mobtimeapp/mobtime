@@ -3,3 +3,4 @@ node_modules
 deploy/*.sh
 deploy/config.js
 database/*.sqlite
+database/*.sqlite3

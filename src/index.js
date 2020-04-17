@@ -6,6 +6,8 @@ import { Http } from './http';
 import { CheckVersion } from './checkVersion';
 import { Cleanup } from './cleanup';
 
+import * as database from './database';
+
 const port = process.env.PORT || 4321;
 
 const EXPIRE_TIMER = 30 * 60 * 1000; // 30 minutes
@@ -43,6 +45,7 @@ const update = (action, state) => {
     ],
 
     AddTimer: (timerId) => {
+      const doesExist = !!state[timerId];
       const timer = state[timerId] || {
         mob: [],
         lockedMob: null,
@@ -58,7 +61,9 @@ const update = (action, state) => {
           ...state,
           [timerId]: timer,
         },
-        effects.none(),
+        doesExist
+          ? effects.none()
+          : effects.defer(database.createTimer(timerId, timer).then(() => effects.none())),
       ];
     },
 
