@@ -237,6 +237,48 @@ const update = (action, state) => {
       ];
     },
 
+    MoveUser: (sourceIndex, destinationIndex, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const clamp = index => Math.min(timer.mob.length, Math.max(0, index));
+
+      const clampedSourceIndex = clamp(sourceIndex);
+      const clampedDestinationIndex = clamp(destinationIndex);
+
+      if (clampedSourceIndex === clampedDestinationIndex) {
+        return [state, effects.none()];
+      }
+
+      const mobber = timer.mob[clampedSourceIndex];
+
+      const mob = timer.mob.reduce((nextMob, oldMobber, index) => {
+        if (index === clampedSourceIndex) return nextMob;
+
+        return (index === destinationIndex)
+          ? [...nextMob, mobber, oldMobber]
+          : [...nextMob, oldMobber];
+      }, []);
+
+      if (clampedDestinationIndex >= mob.length) {
+        mob.push(timer.mob[clampedSourceIndex]);
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            mob,
+          },
+        },
+        TickEffect(timerId),
+      ]
+      
+    },
+
     AddGoal: (text, timerId) => {
       const timer = state[timerId];
       if (!timer) {
