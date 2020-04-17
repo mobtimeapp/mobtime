@@ -171,7 +171,7 @@ export const AddGoal = (state) => [
   { ...state, goal: '' },
   withToken(
     (token) => effects.ApiEffect({
-      endpoint: `/api/mob/goals/add/${encodeURIComponent(state.goal)}`,
+      endpoint: `/api/goals/add/${encodeURIComponent(state.goal)}`,
       token,
       OnOK: Noop,
       OnERR: Noop,
@@ -183,7 +183,7 @@ export const CompleteGoal = (state, { text, completed }) => [
   state,
   withToken(
     (token) => effects.ApiEffect({
-      endpoint: `/api/mob/goals/${encodeURIComponent(text)}/${completed ? 'complete' : 'uncomplete'}`,
+      endpoint: `/api/goals/${encodeURIComponent(text)}/${completed ? 'complete' : 'uncomplete'}`,
       token,
       OnOK: Noop,
       OnERR: Noop,
@@ -195,7 +195,7 @@ export const RemoveGoal = (state, text) => [
   state,
   withToken(
     (token) => effects.ApiEffect({
-      endpoint: `/api/mob/goals/remove/${encodeURIComponent(text)}`,
+      endpoint: `/api/goals/remove/${encodeURIComponent(text)}`,
       token,
       OnOK: Noop,
       OnERR: Noop,

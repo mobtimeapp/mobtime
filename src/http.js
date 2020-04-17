@@ -7,6 +7,10 @@ import helmet from 'helmet';
 import { URL } from 'url';
 import path from 'path';
 
+import apiTimer from './api/timer';
+import apiMob from './api/mob';
+import apiGoals from './api/goals';
+
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (dispatch) => {
   const app = express();
   const server = http.createServer(app);
@@ -84,6 +88,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   router.use((request, response, next) => {
     const token = (request.headers.authorization || '')
       .replace(/^token /, '');
+
     const timerId = findTimerIdByToken(token, storage.read());
 
     if (!token || !timerId) {
@@ -113,142 +118,10 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
       .status(204)
       .end();
   });
-  router.get('/timer/reset', async (request, response) => {
-    await dispatch(action.ResetTimer(request.timerId));
 
-    return response
-      .status(204)
-      .end();
-  });
-  router.get('/mob/add/:name', (request, response) => {
-    const { name } = request.params;
-    const { mob, lockedMob } = storage.read()[request.timerId];
-
-    if (mob.includes(name)) {
-      return response
-        .status(400)
-        .json({ message: 'User is already in mob' })
-        .end();
-    }
-    if (lockedMob) {
-      return response
-        .status(400)
-        .json({ message: 'Mob is locked' })
-        .end();
-    }
-
-    dispatch(action.AddUser(name, request.timerId));
-
-    return response.status(201).end();
-  });
-  router.get('/mob/remove/:name', (request, response) => {
-    const { name } = request.params;
-    const { lockedMob } = storage.read()[request.timerId];
-
-    if (lockedMob) {
-      return response
-        .status(400)
-        .json({ message: 'Mob is locked' })
-        .end();
-    }
-
-    dispatch(action.RemoveUser(name, request.timerId));
-
-    return response.status(201).end();
-  });
-  router.get('/mob/goals/add/:goal', (request, response) => {
-    const timer = getTimer(request.timerId);
-    if (timer.goals.length >= 5) {
-      return response
-        .status(403)
-        .json({ message: 'Too many goals' })
-        .end();
-    }
-
-    dispatch(action.AddGoal(request.params.goal, request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/mob/goals/:goal/complete', (request, response) => {
-    dispatch(action.CompleteGoal(request.params.goal, true, request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/mob/goals/:goal/uncomplete', (request, response) => {
-    dispatch(action.CompleteGoal(request.params.goal, false, request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/mob/goals/remove/:goal', (request, response) => {
-    dispatch(action.RemoveGoal(request.params.goal, request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/mob/cycle', (request, response) => {
-    dispatch(action.CycleMob(request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/mob/shuffle', (request, response) => {
-    const { lockedMob } = getTimer(request.timerId);
-
-    if (lockedMob) {
-      return response
-        .status(400)
-        .json({ message: 'Mob is locked' })
-        .end();
-    }
-
-    dispatch(action.ShuffleMob(request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/mob/lock', (request, response) => {
-    dispatch(action.LockMob(request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/mob/unlock', (request, response) => {
-    dispatch(action.UnlockMob(request.timerId));
-
-    return response.status(204).end();
-  });
-  router.get('/timer/start/:seconds', (request, response) => {
-    const { seconds } = request.params;
-
-    if (Number.isNaN(seconds)) {
-      return response
-        .status(400)
-        .json({ message: 'The seconds provided is not a number' })
-        .end();
-    }
-
-    const numberOfSeconds = Number(seconds);
-
-    dispatch(action.StartTimer(numberOfSeconds, request.timerId));
-
-    return response.status(201).end();
-  });
-  router.get('/timer/resume', (request, response) => {
-    const { timerDuration } = storage.read()[request.timerId];
-    dispatch(action.StartTimer(timerDuration, request.timerId));
-
-    return response.status(201).end();
-  });
-  router.get('/timer/pause', (request, response) => {
-    const { seconds } = request.params;
-
-    if (Number.isNaN(seconds)) {
-      return response
-        .status(400)
-        .json({ message: 'The seconds provided is not a number' })
-        .end();
-    }
-
-    dispatch(action.PauseTimer(request.timerId));
-
-    return response.status(201).end();
-  });
+  router.use('/timer', apiTimer(dispatch, action, storage));
+  router.use('/mob', apiMob(dispatch, action, storage));
+  router.use('/goals', apiGoals(dispatch, action, storage));
 
   app.use('/api', router);
 
