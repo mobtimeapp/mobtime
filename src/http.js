@@ -10,11 +10,15 @@ import path from 'path';
 import apiTimer from './api/timer';
 import apiMob from './api/mob';
 import apiGoals from './api/goals';
+import apiStatistics from './api/statistics';
+import apiPing from './api/ping';
 
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (dispatch) => {
   const app = express();
   const server = http.createServer(app);
   const wss = new ws.Server({ server });
+
+  app.use(helmet());
 
   const getTimer = (timerId) => {
     const timer = storage.read()[timerId];
@@ -43,8 +47,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     }
   };
 
-  app.use(helmet());
-
   const findTimerIdByToken = (token, timers) => {
     const timerIds = Object.keys(timers);
     let timerId;
@@ -67,24 +69,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     }
   });
 
-  router.get('/statistics', (_request, response) => {
-    const state = storage.read();
-    const timerIds = Object.keys(state);
-    const timerStatistics = timerIds.reduce((counts, id) => ({
-      mobbers: counts.mobbers + state[id].mob.length,
-      connections: counts.connections + state[id].tokens.length,
-      goals: counts.goals + state[id].goals.length,
-    }), { mobbers: 0, connections: 0, goals: 0 });
-
-    return response
-      .status(200)
-      .json({
-        timers: timerIds.length,
-        ...timerStatistics,
-      })
-      .end();
-  });
-
   router.use((request, response, next) => {
     const token = (request.headers.authorization || '')
       .replace(/^token /, '');
@@ -103,30 +87,15 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     return next();
   });
 
-  router.get('/ping', async (request, response) => {
-    const timer = getTimer(request.timerId);
-    if (!timer) {
-      return response
-        .status(205)
-        .json({ message: 'Timer does not exist, or has expired. Please refresh application to continue' })
-        .end();
-    }
-
-    await dispatch(action.PingTimer(request.timerId));
-
-    return response
-      .status(204)
-      .end();
-  });
-
   router.use('/timer', apiTimer(dispatch, action, storage));
   router.use('/mob', apiMob(dispatch, action, storage));
   router.use('/goals', apiGoals(dispatch, action, storage));
+  router.use(apiStatistics(dispatch, action, storage));
+  router.use(apiPing(dispatch, action, storage));
 
   app.use('/api', router);
 
   const rootPath = path.resolve(__dirname, '..');
-
   app.use(express.static(path.resolve(rootPath, 'public')));
 
   app.get('/:timerId', async (request, response) => {
