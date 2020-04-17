@@ -193,10 +193,11 @@ const update = (action, state) => {
             timerDuration: 0,
           },
         },
-        effects.batch([
-          NotifyTimeUpEffect(timerId),
-          timer.timerStartedAt && Action.CycleMob(timerId),
-        ])
+        effects.batch(
+          timer.timerStartedAt
+            ? [NotifyTimeUpEffect(timerId), Action.CycleMob(timerId)]
+            : [effects.none()]
+        ),
       ];
     },
 
