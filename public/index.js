@@ -13,6 +13,10 @@ import { input } from '/components/input.js';
 import { goal } from '/components/goal.js';
 import { reorderable } from '/components/reorderable.js';
 
+import { header } from '/sections/header.js';
+import { timeRemaining } from '/sections/timeRemaining.js';
+import { setLength } from '/sections/setLength.js';
+
 const [timerId] = window.location.pathname.split('/').filter(v => v);
 
 const renderMob = (mob, mobDrag) => {
@@ -69,94 +73,16 @@ app({
       'text-white': true,
     },
   }, [
-    h(section, {
-      class: {
-        'flex': true,
-        'flex-row': true,
-        'align-center': true,
-        'justify-between': true,
-      },
-    }, [
-      h('h1', {
-        class: {
-          'text-6xl': true,
-          'font-bold': true,
-          'flex': true,
-          'p-0': true,
-          'm-0': true,
-        },
-      }, timerRemainingDisplay(state.remainingTime)),
-      h('div', {
-        class: {},
-      }, [
-        h(button, {
-          class: {
-            'block': true,
-            'w-full': true,
-            'mb-1': true,
-          },
-          disabled: state.serverState.timerStartedAt === null,
-          onclick: actions.PauseTimer,
-        }, 'Pause'),
-        h(button, {
-          class: {
-            'block': true,
-            'w-full': true,
-          },
-          disabled: state.serverState.timerDuration === 0 || (state.serverState.timerStartedAt !== null),
-          onclick: actions.ResumeTimer,
-        }, 'Resume'),
-      ]),
-    ]),
+    h(header),
 
-    h('hr'),
+    h(timeRemaining, {
+      remainingTime: state.remainingTime,
+      serverState: state.serverState,
+    }),
 
-    h('form', {
-      action: '#',
-      method: 'get',
-      onsubmit: [
-        actions.StartTimer,
-        e => {
-          e.preventDefault();
-          return undefined;
-        }
-      ],
-    }, [
-      h(section, {
-        class: {
-          'flex': true,
-          'flex-row': true,
-          'items-center': true,
-          'justify-between': true,
-        },
-      }, [
-        h('span', null, [
-          h('span', null, 'Start timer for'),
-          h('label', null, [
-            h(input, {
-              type: 'number',
-              value: state.timeInMinutes,
-              min: 1,
-              max: 60,
-              step: 1,
-              oninput: [actions.UpdateTimeInMinutes, e => e.target.value],
-              style: {
-                width: '50px',
-                textAlign: 'center',
-                fontWeight: 'bold',
-              },
-            }),
-            h('span', null, `minute${state.timeInMinutes != 1 ? 's' : ''}`),
-          ]),
-        ]),
-        h(button, {
-          type: 'submit',
-          disabled: !state.timeInMinutes,
-        }, 'Go!'),
-      ]),
-    ]),
-
-    h('hr'),
+    h(setLength, {
+      timeInMinutes: state.timeInMinutes,
+    }),
 
     h(section, {}, [
       state.serverState.goals.map(({ text, completed }) => h(goal, {
