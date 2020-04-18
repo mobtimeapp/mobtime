@@ -1,13 +1,28 @@
 import { h } from 'https://unpkg.com/hyperapp?module=1';
 import * as dnd from '/dragAndDrop.js';
 
-/*
- * TODO:
- *   add onDragStart action and pass from index
- *   show drop targets on move
- *   ???
- *   profit
- */
+const dropZone = (props) => h('div', {
+  key: 'reorderable-drop',
+  style: {
+    left: 0,
+    height: `${props.height}px`,
+    transition: 'all .3s ease-in-out',
+  },
+  class: {
+    'relative': true,
+    'w-full': true,
+    'border': true,
+    'border-dotted': true,
+    'border-white': true,
+    'text-center': true,
+    'flex': true,
+    'items-center': true,
+    'justify-center': true,
+    'bg-indigo-500': true,
+  },
+  ondragover: [props.onDragOver, dnd.dragOverDecoder(props.index)],
+  ondrop: [props.onDrop, dnd.dropDecoder(props.drag[1])],
+}, 'Drop Here');
 
 export const reorderable = (props) => {
   const isDragging = props.drag.length === 2;
@@ -26,20 +41,7 @@ export const reorderable = (props) => {
     [
       ...props.items.map((item, index) => [
         (index === props.drag[1]) && (
-          h('div', {
-            key: 'reorderable-drop',
-            style: {
-              position: 'relative',
-              left: 0,
-              height: `${props.height}px`,
-              width: '100%',
-              border: '2px black dotted',
-              textAlign: 'center',
-              transition: 'all .3s ease-in-out',
-            },
-            ondragover: [props.onDragOver, dnd.dragOverDecoder(index)],
-            ondrop: [props.onDrop, dnd.dropDecoder(props.drag[1])],
-          }, 'Drop Here')
+          h(dropZone, { ...props, index })
         ),
         (index !== props.drag[0]) && h(
           'div',
@@ -80,20 +82,7 @@ export const reorderable = (props) => {
         ),
       ]),
       (props.drag[1] >= props.items.length) && (
-        h('div', {
-          key: 'reorderable-drop',
-          style: {
-            position: 'relative',
-            left: 0,
-            height: `${props.height}px`,
-            width: '100%',
-            border: '2px black dotted',
-            textAlign: 'center',
-            transition: 'all .3s ease-in-out',
-          },
-          ondragover: [props.onDragOver, dnd.dragOverDecoder(props.drag[1])],
-          ondrop: [props.onDrop, dnd.dropDecoder(props.drag[1])],
-        }, 'Drop Here')
+        h(dropZone, { ...props, index: props.drag[1] })
       ),
     ],
   );

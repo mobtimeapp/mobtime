@@ -13,11 +13,12 @@ export const deleteButton = props => h('button', {
     'hover:text-white': true,
     'hover:bg-blue-500': true,
     'hover:border-transparent': true,
-    'text-blue-700': true,
+    'fas': true,
+    'fa-times': true,
     ...(props.class || {}),
   },
   style: {
     width: props.size || '32px',
     height: props.size || '32px',
   },
-}, 'X');
+});

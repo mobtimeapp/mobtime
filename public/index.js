@@ -1,46 +1,24 @@
 import { app, h } from 'https://unpkg.com/hyperapp?module=1';
 import * as actions from '/actions.js';
 import * as subscriptions from '/subscriptions.js';
-import timerRemainingDisplay from '/formatTime.js';
 import Status from '/status.js';
 
 import { card } from '/components/card.js';
 import { button } from '/components/button.js';
 import { fullButton } from '/components/fullButton.js';
-import { mobber } from '/components/mobber.js';
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
 import { goal } from '/components/goal.js';
-import { reorderable } from '/components/reorderable.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
 import { setLength } from '/sections/setLength.js';
+import { mobParticipants } from '/sections/mobParticipants.js';
+import { addParticipant } from '/sections/addParticipant.js';
+import { mobActions } from '/sections/mobActions.js';
+// import { qrShare } from '/sections/qrShare.js';
 
 const [timerId] = window.location.pathname.split('/').filter(v => v);
-
-const renderMob = (mob, mobDrag) => {
-  const [mobNavigator, mobDriver, ...rest] = mob;
-
-  const items = [
-    { name: mobNavigator, position: 'Navigator' },
-    { name: mobDriver, position: 'Driver' },
-    ...rest.map(name => ({ name, position: 'mob' })),
-  ];
-
-  return h('div', null, h(reorderable, {
-    items,
-    getKey: ({ name }) => name,
-    height: 64,
-    component: mobber,
-    onDragStart: actions.StartMobDrag,
-    onDragOver: actions.MoveMobDrag,
-    onDragEnd: actions.EndMobDrag,
-    onDrop: actions.DropMobDrag,
-    drag: mobDrag,
-    onRemove: actions.RemoveNameFromMob,
-  }));
-};
 
 app({
   init: actions.Init(null, timerId),
@@ -145,107 +123,18 @@ app({
       ]),
     ],
 
-    h('hr'),
-
-    h(section, null, [
-      state.serverState.mob.length > 0 && h('div', {
-        class: {
-          'flex': true,
-          'items-center': true,
-          'justify-between': true,
-        },
-      }, [
-        h(button, { onclick: actions.CycleMob }, 'Rotate Roles'),
-        h(button, {
-          disabled: state.serverState.lockedMob,
-          onclick: actions.ShuffleMob,
-        }, 'Randomize Order'),
-        state.serverState.lockedMob
-          ?  h(button, { onclick: actions.UnlockMob }, 'Unlock Mob')
-          :  h(button, { onclick: actions.LockMob }, 'Lock Mob'),
-      ]),
-      renderMob(state.serverState.mob, state.mobDrag),
-    ]),
-
-    h('hr'),
-
-    state.serverState.lockedMob === null && h('form', {
-      action: '#',
-      method: 'get',
-      onsubmit: [
-        actions.AddNameToMob,
-        e => {
-          e.preventDefault();
-          return undefined;
-        },
-      ],
-    }, [
-      h(section, {
-        class: {
-          'flex': true,
-          'flex-row': true,
-          'items-center': true,
-          'justify-between': true,
-        },
-      }, [
-        h('label', null, [
-          h('span', null, 'Add'),
-          h(input, {
-            autofocus: 'autofocus',
-            value: state.name,
-            oninput: [actions.UpdateName, e => e.target.value],
-            placeholder: 'Name here...',
-            style: {
-              minWidth: '160px',
-              fontWeight: 'bold',
-            },
-          }),
-          h('span', {
-            class: {
-              'hidden': true,
-              'sm:inline': true,
-            },
-          }, 'to the mob'),
-        ]),
-        h(button, {
-          type: 'submit',
-          disabled: !state.name,
-        }, 'Go!'),
-      ]),
-    ]),
-
-    h('hr'),
-
-    h(section, {
-      class: {
-        'sm:flex': true,
-        'flex-col': true,
-        'items-center': true,
-        'justify-center': true,
-        'hidden': true,
-      },
-    }, [
-      h('div', {
-        class: {
-          'text-md': true,
-          'text-gray-600': true,
-          'mb-3': true,
-        },
-      }, 'Scan this code to get the timer on your phone'),
-      h('img', {
-        src: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${window.location}`,
-        class: {
-          'mb-3': true,
-        },
-      }),
-    ]),
-
-    h('hr', {
-      class: {
-        'hidden': true,
-        'sm:block': true,
-      },
+    h(mobParticipants, {
+      mobDrag: state.mobDrag,
+      mob: state.serverState.mob,
     }),
+
+    h(addParticipant, {
+      name: state.name,
+    }),
+
+    h(mobActions),
+
+    // h(qrShare),
 
     h(section, {
       class: {

@@ -6,20 +6,12 @@ import { button } from '/components/button.js';
 
 import * as actions from '/actions.js';
 
-export const setLength = (props) => h(section, null, [
-  h('h2', {
-    class: {
-      'text-lg': true,
-      'font-bold': true,
-      'uppercase': true,
-    },
-  }, 'Set Length'),
-
+export const addParticipant = (props) => h(section, null, [
   h('form', {
     action: '#',
     method: 'get',
     onsubmit: [
-      actions.StartTimer,
+      actions.AddNameToMob,
       (e) => {
         e.preventDefault();
         return undefined;
@@ -33,42 +25,40 @@ export const setLength = (props) => h(section, null, [
       'w-full': true,
     },
   }, [
-    h(input, {
-      type: 'number',
-      min: 1,
-      max: 60,
-      step: 1,
-      value: props.timeInMinutes,
-      oninput: [actions.UpdateTimeInMinutes, (e) => e.target.value],
+
+    h('div', {
+      class: {
+        'flex-shrink': true,
+        'overflow-hidden': true,
+        'mr-4': true,
+      },
+    }, h(input, {
+      value: props.name,
+      oninput: [actions.UpdateName, (e) => e.target.value],
+      placeholder: 'Add Person',
 
       class: {
-        'text-4xl': true,
-        'font-extrabold': true,
+        'text-3xl': true,
+        'font-bold': true,
         'hover:border-blue-500': true,
         'hover:border-b-solid': true,
         'bg-indigo-600': true,
         'text-white': true,
-        'w-1/3': true,
-        'text-center': true,
+        'w-full': true,
       },
-    }),
-
-    h('span', {
-      class: {
-        'text-4xl': true,
-        'font-extrabold': true,
-      },
-    }, 'minutes'),
+    })),
 
     h(button, {
       type: 'submit',
       class: {
         'bg-green-600': true,
         'text-white': true,
+        'flex-grow': true,
+        'whitespace-no-wrap': true,
       },
     }, [
-      h('i', { class: 'fas fa-stopwatch mr-3' }),
-      'Start',
+      h('i', { class: 'fas fa-plus mr-3' }),
+      'Add',
     ]),
   ]),
 ]);
