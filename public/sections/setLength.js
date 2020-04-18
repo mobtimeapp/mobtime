@@ -44,7 +44,7 @@ export const setLength = (props) => h(section, null, [
       class: {
         'text-4xl': true,
         'font-extrabold': true,
-        'hover:border-blue-500': true,
+        'hover:border-indigo-300': true,
         'hover:border-b-solid': true,
         'bg-indigo-600': true,
         'text-white': true,

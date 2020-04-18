@@ -18,7 +18,7 @@ export const mobActions = () => h(section, {
     class: {
       'text-lg': true,
       'bg-white': true,
-      'text-blue-600': true,
+      'text-indigo-600': true,
       'flex-grow': true,
       'mr-1': true,
     },
@@ -29,7 +29,7 @@ export const mobActions = () => h(section, {
     class: {
       'text-lg': true,
       'bg-white': true,
-      'text-blue-600': true,
+      'text-indigo-600': true,
       'flex-grow': true,
       'ml-1': true,
     },

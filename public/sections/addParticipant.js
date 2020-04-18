@@ -40,7 +40,7 @@ export const addParticipant = (props) => h(section, null, [
       class: {
         'text-3xl': true,
         'font-bold': true,
-        'hover:border-blue-500': true,
+        'hover:border-indigo-300': true,
         'hover:border-b-solid': true,
         'bg-indigo-600': true,
         'text-white': true,

@@ -14,8 +14,6 @@ export const mobber = (props) => h(section, {
     'cursor-move': !!props.name,
     'h-full': true,
     'w-full': true,
-    //'bg-transparent': props.position === 'mob',
-    //'bg-blue-100': props.position !== 'mob',
   },
   draggable: !!props.name,
   ondragstart: [props.onDragStart, dnd.dragDecoder(props.index)],
