@@ -8,6 +8,8 @@ export const input = (props) => h('input', {
     'mx-1': true,
     'hover:border-blue-500': true,
     'hover:border-b-solid': true,
+    'bg-indigo-600': true,
+    'text-white': true,
     ...(props.class || {}),
   },
 });
