@@ -25,6 +25,7 @@ export const Init = (_, timerId) => [
       lockedMob: null,
       connections: 0,
     },
+    mobDrag: [],
     timerId,
     remainingTime: 0,
     name: '',
@@ -34,6 +35,38 @@ export const Init = (_, timerId) => [
     status: Status.Connecting(),
   },
 ];
+
+export const StartMobDrag = (state, sourceIndex) => ({
+  ...state,
+  mobDrag: [sourceIndex, sourceIndex],
+});
+
+export const MoveMobDrag = (state, destinationIndex) => ({
+  ...state,
+  mobDrag: [state.mobDrag[0], destinationIndex],
+});
+
+export const DropMobDrag = (state, destinationIndex) => {
+  const sourceIndex = state.mobDrag[0];
+
+  return [
+    state,
+    withToken(
+      (token) => effects.ApiEffect({
+        endpoint: `/api/mob/move/${sourceIndex}/to/${destinationIndex}`,
+        token,
+        OnOK: Noop,
+        OnERR: Noop,
+      }),
+      state.status,
+    ),
+  ];
+};
+
+export const EndMobDrag = (state) => ({
+  ...state,
+  mobDrag: [],
+});
 
 export const SetRemainingTime = (state, remainingTime) => [
   {
