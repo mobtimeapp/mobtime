@@ -4,15 +4,16 @@ import * as subscriptions from '/subscriptions.js';
 import Status from '/status.js';
 
 import { card } from '/components/card.js';
-import { button } from '/components/button.js';
 import { fullButton } from '/components/fullButton.js';
 import { section } from '/components/section.js';
-import { input } from '/components/input.js';
-import { goal } from '/components/goal.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
 import { setLength } from '/sections/setLength.js';
+
+import { goalList } from '/sections/goalList.js';
+import { addGoal } from '/sections/addGoal.js';
+
 import { mobParticipants } from '/sections/mobParticipants.js';
 import { addParticipant } from '/sections/addParticipant.js';
 import { mobActions } from '/sections/mobActions.js';
@@ -62,66 +63,12 @@ app({
       timeInMinutes: state.timeInMinutes,
     }),
 
-    h(section, {}, [
-      state.serverState.goals.map(({ text, completed }) => h(goal, {
-        text,
-        completed,
-      })),
-      state.serverState.goals.length === 0 && h(
-        'span',
-        {
-          class: {
-            'text-gray-400': true,
-          },
-        },
-        'No goals, add one now',
-      ),
-
-    ]),
-
-    state.serverState.goals.length < 5 && [
-      h('hr'),
-
-      h('form', {
-        action: '#',
-        method: 'get',
-        onsubmit: [
-          actions.AddGoal,
-          e => {
-            e.preventDefault();
-            return undefined;
-          },
-        ],
-      }, [
-        h(section, {
-          class: {
-            'flex': true,
-            'flex-row': true,
-            'items-center': true,
-            'justify-between': true,
-          },
-        }, [
-          h('label', null, [
-            h('span', { class: { 'mr-1': true } }, 'Add'),
-            h(input, {
-              autofocus: 'autofocus',
-              value: state.goal,
-              oninput: [actions.UpdateGoalText, e => e.target.value],
-              placeholder: 'Refactor tricky code...',
-              style: {
-                minWidth: '160px',
-                fontWeight: 'bold',
-              },
-            }),
-            h('span', { class: { 'ml-1': true } }, 'as a goal'),
-          ]),
-          h(button, {
-            type: 'submit',
-            disabled: !state.goal,
-          }, 'Go!'),
-        ]),
-      ]),
-    ],
+    h(goalList, {
+      goals: state.serverState.goals,
+    }),
+    h(addGoal, {
+      goal: state.goal,
+    }),
 
     h(mobParticipants, {
       mobDrag: state.mobDrag,
@@ -156,9 +103,11 @@ app({
         Error: (err) => `Error: ${err}`
       }, state.status),
     ),
-    !state.allowNotification && ('Notification' in window) && h(fullButton, {
+
+    h(fullButton, {
       onclick: actions.RequestNotificationPermission,
       class: {
+        'hidden': !(!state.allowNotification && ('Notification' in window)),
         'bg-green-500': true,
         'hover:bg-green-700': true,
         'uppercase': true,
