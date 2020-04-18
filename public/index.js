@@ -11,10 +11,11 @@ import { mobber } from '/components/mobber.js';
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
 import { goal } from '/components/goal.js';
+import { reorderable } from '/components/reorderable.js';
 
 const [timerId] = window.location.pathname.split('/').filter(v => v);
 
-const renderMob = mob => {
+const renderMob = (mob, mobDrag) => {
   const [mobNavigator, mobDriver, ...rest] = mob;
 
   const items = [
@@ -23,19 +24,18 @@ const renderMob = mob => {
     ...rest.map(name => ({ name, position: 'mob' })),
   ];
 
-  return h('ol', {
-    class: {
-      'pt-2': true,
-      'pb-1': true,
-      'w-full': true,
-    },
-  }, items.map(({ name, position }) => h('li', null, [
-    h(mobber, {
-      position,
-      name,
-      onRemove: actions.RemoveNameFromMob,
-    })
-  ])));
+  return h('div', null, h(reorderable, {
+    items,
+    getKey: ({ name }) => name,
+    height: 64,
+    component: mobber,
+    onDragStart: actions.StartMobDrag,
+    onDragOver: actions.MoveMobDrag,
+    onDragEnd: actions.EndMobDrag,
+    onDrop: actions.DropMobDrag,
+    drag: mobDrag,
+    onRemove: actions.RemoveNameFromMob,
+  }));
 };
 
 app({
@@ -238,7 +238,7 @@ app({
           ?  h(button, { onclick: actions.UnlockMob }, 'Unlock Mob')
           :  h(button, { onclick: actions.LockMob }, 'Lock Mob'),
       ]),
-      renderMob(state.serverState.mob),
+      renderMob(state.serverState.mob, state.mobDrag),
     ]),
 
     h('hr'),
