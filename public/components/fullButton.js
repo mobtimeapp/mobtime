@@ -7,7 +7,6 @@ export const fullButton = (props, children) => h('button', {
     'py-3': true,
     'px-4': true,
     'text-base': true,
-    // 'md:text-3xl': true,
     ...(props.class || {}),
   },
 }, children);
