@@ -13,24 +13,35 @@ export const goal = (props) => h('div', {
 }, [
   h('label', {
     class: {
+      'w-full': true,
+      'pl-4': true,
+      'flex': true,
+      'flex-row': true,
+      'items-center': true,
+      'justify-between': true,
       'flex-grow': true,
-      'block': true,
+      'mr-2': true,
     },
   }, [
     h('input', {
       type: 'checkbox',
       checked: props.completed,
       onchange: [actions.CompleteGoal, (e) => ({ text: props.text, completed: e.target.checked })],
-    }),
-    h('span', {
       class: {
-        'ml-2': true,
+        'mr-3': true,
+      },
+    }),
+    h('div', {
+      class: {
         'line-through': props.completed,
+        'text-2xl': true,
+        'flex-grow': true,
+        'leading-tight': true,
       },
     }, props.text),
   ]),
   h(deleteButton, {
     size: '24px',
-    onclick: [actions.RemoveGoal, props.text]
+    onclick: [actions.RemoveGoal, props.text],
   }),
 ]);

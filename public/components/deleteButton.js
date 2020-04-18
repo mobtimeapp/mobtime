@@ -1,6 +1,6 @@
 import { h } from 'https://unpkg.com/hyperapp?module=1';
 
-export const deleteButton = props => h('button', {
+export const deleteButton = (props) => h('button', {
   ...props,
   class: {
     'rounded-full': true,
@@ -9,15 +9,16 @@ export const deleteButton = props => h('button', {
     'items-center': true,
     'justify-center': true,
     'text-center': true,
-    'border-blue-500': true,
-    'hover:text-white': true,
-    'hover:bg-blue-500': true,
+    'border-indigo-300': true,
+    'hover:text-indigo-600': true,
+    'hover:bg-white': true,
     'hover:border-transparent': true,
-    'text-blue-700': true,
+    'fas': true,
+    'fa-times': true,
     ...(props.class || {}),
   },
   style: {
     width: props.size || '32px',
     height: props.size || '32px',
   },
-}, 'X');
+});

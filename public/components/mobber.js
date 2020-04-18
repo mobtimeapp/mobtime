@@ -11,8 +11,6 @@ export const mobber = (props) => h(section, {
     'items-center': true,
     'justify-between': true,
     'mb-3': true,
-    'bg-transparent': props.position === 'mob',
-    'bg-blue-100': props.position !== 'mob',
     'cursor-move': !!props.name,
     'h-full': true,
     'w-full': true,
@@ -24,17 +22,21 @@ export const mobber = (props) => h(section, {
   h('div', null, [
     h('div', {
       class: {
-        'text-gray-500': !props.name,
-      },
-    }, props.name || 'Empty'),
-    h('div', {
-      class: {
         'uppercase': true,
-        'text-xs': true,
-        'text-gray-400': props.position === 'mob',
-        'text-gray-600': props.position !== 'mob',
+        'text-lg': true,
+        'font-extrabold': props.position !== 'mob',
+        'leading-none': true,
+        'mb-1': true,
       },
     }, props.position),
+    h('div', {
+      class: {
+        'text-gray-500': !props.name,
+        'text-4xl': true,
+        'font-bold': props.position !== 'mob',
+        'leading-none': true,
+      },
+    }, props.name || 'Empty'),
   ]),
 
   props.name && h(deleteButton, {
