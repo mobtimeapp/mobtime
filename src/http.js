@@ -116,8 +116,8 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
 
     const timer = getTimer(client.$timerId);
     if (!timer) {
-      console.log('websocket requested timer that does not exist, closing', timer);
-      return client.close();
+      console.log('websocket requested timer that does not exist, creating new timer', timer);
+      await dispatch(action.AddTimer(client.$timerId));
     }
 
     await dispatch(action.AddToken(client.$token, client.$timerId));
