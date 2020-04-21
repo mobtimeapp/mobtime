@@ -99,7 +99,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   app.use(express.static(path.resolve(rootPath, 'public')));
 
   app.get('/:timerId', async (request, response) => {
-    await dispatch(action.AddTimer(request.params.timerId));
     const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
     return response.sendFile(htmlPayload);
   });
