@@ -90,18 +90,19 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
     dispatch(actions.SetStatus, Status.Connecting());
     const connectionAttempt = setTimeout(() => {
       console.log('Waited 10 seconds, no websocket response, closing connection attempt'); // eslint-disable-line no-console
-      socket.close();
-    }, 10000);
+      setTimeout(connect, 1000);
+    }, 2000);
 
     socket.addEventListener('open', () => {
       clearTimeout(connectionAttempt);
       clearTimeout(pingHandle);
 
       socket.addEventListener('close', (event) => {
+        console.log('socket closed');
         clearTimeout(pingHandle);
         dispatch(actions.SetStatus, Status.Error(event.reason || 'Disconnected by server'));
         socket = null;
-        setTimeout(connect, 10000);
+        setTimeout(connect, 1000);
       });
 
       ping();
