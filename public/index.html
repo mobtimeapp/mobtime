@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mob Timer</title>
+    <title>MobTime</title>
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/57cb566a11.js" crossorigin="anonymous"></script>
     <script type="module">
       import { app, h } from '//unpkg.com/hyperapp?module=1';
 
@@ -83,7 +84,39 @@
         });
     </script>
   </head>
-  <body class="flex flex-col items-center justify-start">
+  <body>
+    <div class="w-full h-screen bg-indigo-600 text-white flex flex-col items-center justify-center px-2">
+      <div class="flex flex-row items-end justify-center mb-4">
+        <i class="fas fa-user-ninja text-6xl"></i>
+        <i class="fas fa-user-tie text-6xl"></i>
+        <i class="fas fa-stopwatch mb-2 text-green-400" style="font-size: 8rem; margin-left: -12px; margin-right: -12px;"></i>
+        <i class="fas fa-user text-6xl"></i>
+        <i class="fas fa-user-astronaut text-6xl"></i>
+      </div>
+      <div class="w-full sm:w-3/4 lg:w-1/2">
+        <h1 class="uppercase font-bold text-3xl sm:text-4xl md:text-5xl text-center tracking-wide sm:tracking-wider md:tracking-widest leading-none md:leading:wide">
+          Collaborative timer for your mob team
+        </h1>
+      </div>
+      <form action="#" method="GET" class="w-full sm:w-3/4 md:w-1/2">
+        <div class="w-full">
+          <div class="border-b-4 border-white text-3xl sm:text-4xl flex flex-row items-center justify-start w-full overflow-x-hidden">
+            <div>mobti.me/</div>
+            <div class="flex-grow">
+              <input
+                class="outline-none border-none w-full bg-indigo-600 text-white text-center"
+                style="max-width: 100%;"
+                placeholder="orange-monkey"
+                pattern="([0-9A-Za-z_]|-){2,}"
+                maxlength="32"
+                autocomplete="organization"
+                oninput="function() { this.value.replace(/ /, '-'); }"
+              />
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
     <div class="w-full sm:w-10/12 md:w-8/12 lg:w-4/12 rounded overflow-hidden shadow-0 sm:shadow-lg">
       <section class="px-4 pt-6">
         <h1 class="text-4xl font-bold">Start your timer</h1>
