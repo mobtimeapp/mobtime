@@ -12,7 +12,7 @@
     "start": "node ./index.js",
     "live": "echo 'This is deprecated, use yarn start now'; yarn start'",
     "lint": "eslint .",
-    "deploy": "./deploy/initiate.sh"
+    "deploy": "node ./deploy/index.js"
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
