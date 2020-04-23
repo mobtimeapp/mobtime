@@ -1,0 +1,14 @@
+const targets = {
+  'your-name-here': {
+    ssh: {
+      host: '123.456.789.001',
+      user: 'mobtime',
+    },
+    rsa: '/Users/your-user-name/.ssh/id_rsa', // optional
+  },
+};
+
+module.exports = {
+  appName: 'your-app-name',
+  targets,
+};
