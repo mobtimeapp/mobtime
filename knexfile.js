@@ -22,6 +22,7 @@ module.exports = {
       tableName: 'knex_migrations',
       directory: './database/migrations',
     },
+    useNullAsDefault: true,
   },
 
   staging: {
@@ -32,6 +33,7 @@ module.exports = {
     migrations: {
       tableName: 'knex_migrations',
     },
+    useNullAsDefault: true,
   },
 
   production: {
@@ -42,6 +44,7 @@ module.exports = {
     migrations: {
       tableName: 'knex_migrations',
     },
+    useNullAsDefault: true,
   },
 
 };
