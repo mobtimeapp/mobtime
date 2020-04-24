@@ -8,6 +8,8 @@
     "url": "https://github.com/mrozbarry/mobtime.git"
   },
   "scripts": {
+    "migrate:up": "knex --esm migrate:up",
+    "migratedownp": "knex --esm migrate:down",
     "dev": "nodemon --ignore public ./index.js",
     "start": "node ./index.js",
     "live": "echo 'This is deprecated, use yarn start now'; yarn start'",
@@ -21,9 +23,11 @@
     "express": "^4.17.1",
     "ferp": "^1.2.0",
     "helmet": "^3.21.3",
+    "knex": "^0.20.13",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.2",
     "semver": "^7.1.3",
+    "sqlite3": "^4.1.1",
     "ws": "^7.2.3"
   },
   "private": true,

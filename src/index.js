@@ -5,6 +5,7 @@ import Action from './actions';
 import { Http } from './http';
 import { CheckVersion } from './checkVersion';
 import { Cleanup } from './cleanup';
+import AuditLogEffect from './auditLog';
 
 const port = process.env.PORT || 4321;
 
@@ -43,6 +44,8 @@ const update = (action, state) => {
     ],
 
     AddTimer: (timerId) => {
+      const timerExists = !!state[timerId];
+
       const timer = state[timerId] || {
         mob: [],
         lockedMob: null,
@@ -58,11 +61,13 @@ const update = (action, state) => {
           ...state,
           [timerId]: timer,
         },
-        effects.none(),
+        timerExists
+          ? effects.none()
+          : AuditLogEffect(null, null, 'AddTimer', timerId),
       ];
     },
 
-    PingTimer: (timerId) => {
+    PingTimer: (_token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         console.log('PingTimer: timer not found', timerId);
@@ -87,7 +92,7 @@ const update = (action, state) => {
         {
           ...timers,
         },
-        effects.none(),
+        AuditLogEffect(null, null, 'RemoveTimer', timerId),
       ];
     },
 
@@ -105,7 +110,7 @@ const update = (action, state) => {
             tokens: timer.tokens.concat(token),
           },
         },
-        effects.none(),
+        AuditLogEffect(timerId, null, 'AddToken', token),
       ];
     },
 
@@ -123,11 +128,11 @@ const update = (action, state) => {
             tokens: timer.tokens.filter(t => t !== token),
           },
         },
-        effects.none(),
+        AuditLogEffect(timerId, null, 'RemoveToken', token),
       ];
     },
 
-    StartTimer: (milliseconds, timerId) => {
+    StartTimer: (milliseconds, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -149,11 +154,12 @@ const update = (action, state) => {
         },
         effects.batch([
           TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'StartTimer', milliseconds.toString()),
         ]),
       ];
     },
 
-    PauseTimer: (timerId) => {
+    PauseTimer: (token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -174,13 +180,21 @@ const update = (action, state) => {
             timerDuration,
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'PauseTimer'),
+        ]),
+
       ];
     },
 
-    ResetTimer: (timerId) => {
+    ResetTimer: (token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
+        return [state, effects.none()];
+      }
+
+      if (timer.timerStartedAt === null && timer.timerDuration === 0) {
         return [state, effects.none()];
       }
 
@@ -193,15 +207,14 @@ const update = (action, state) => {
             timerDuration: 0,
           },
         },
-        effects.batch(
-          timer.timerStartedAt
-            ? [NotifyTimeUpEffect(timerId), Action.CycleMob(timerId)]
-            : [effects.none()]
-        ),
+        effects.batch([
+          NotifyTimeUpEffect(timerId), Action.CycleMob(timerId),
+          AuditLogEffect(timerId, token, 'ResetTimer'),
+        ]),
       ];
     },
 
-    AddUser: (name, timerId) => {
+    AddUser: (name, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -215,11 +228,14 @@ const update = (action, state) => {
             mob: timer.mob.concat(name),
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'AddUser', name),
+        ]),
       ];
     },
 
-    RemoveUser: (name, timerId) => {
+    RemoveUser: (name, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -233,11 +249,14 @@ const update = (action, state) => {
             mob: timer.mob.filter(n => n !== name),
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'RemoveUser', name),
+        ]),
       ];
     },
 
-    MoveUser: (sourceIndex, destinationIndex, timerId) => {
+    MoveUser: (sourceIndex, destinationIndex, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -274,12 +293,15 @@ const update = (action, state) => {
             mob,
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'MoveUser', { sourceIndex, destinationIndex }),
+        ]),
       ]
       
     },
 
-    AddGoal: (text, timerId) => {
+    AddGoal: (text, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -301,10 +323,14 @@ const update = (action, state) => {
             ],
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'AddGoal', text),
+        ]),
       ];
     },
-    CompleteGoal: (text, completed, timerId) => {
+
+    CompleteGoal: (text, completed, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -326,10 +352,13 @@ const update = (action, state) => {
             goals,
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'CompleteGoal', { text, completed }),
+        ]),
       ];
     },
-    RemoveGoal: (text, timerId) => {
+    RemoveGoal: (text, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -343,11 +372,14 @@ const update = (action, state) => {
             goals: timer.goals.filter(g => g.text !== text),
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'RemoveGoal', text),
+        ]),
       ];
     },
 
-    LockMob: (timerId) => {
+    LockMob: (_token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -364,7 +396,7 @@ const update = (action, state) => {
         TickEffect(timerId),
       ];
     },
-    UnlockMob: (timerId) => {
+    UnlockMob: (_token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -382,7 +414,7 @@ const update = (action, state) => {
       ];
     },
 
-    ShuffleMob: (timerId) => {
+    ShuffleMob: (token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -405,11 +437,14 @@ const update = (action, state) => {
             mob,
           },
         },
-        TickEffect(timerId),
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'ShuffleMob'),
+        ]),
       ];
     },
 
-    CycleMob: (timerId) => {
+    CycleMob: (token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -435,6 +470,7 @@ const update = (action, state) => {
           isCycleComplete
             ? NotifyBreakEffect(timerId)
             : effects.none(),
+          AuditLogEffect(timerId, token, 'CycleMob'),
         ]),
       ];
     },

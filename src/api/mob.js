@@ -23,7 +23,7 @@ export default (dispatch, action, storage) => {
         .end();
     }
 
-    dispatch(action.AddUser(name, request.timerId));
+    dispatch(action.AddUser(name, request.token, request.timerId));
 
     return response.status(201).end();
   });
@@ -39,13 +39,13 @@ export default (dispatch, action, storage) => {
         .end();
     }
 
-    dispatch(action.RemoveUser(name, request.timerId));
+    dispatch(action.RemoveUser(name, request.token, request.timerId));
 
     return response.status(201).end();
   });
 
   router.get('/cycle', (request, response) => {
-    dispatch(action.CycleMob(request.timerId));
+    dispatch(action.CycleMob(request.token, request.timerId));
 
     return response.status(204).end();
   });
@@ -60,7 +60,7 @@ export default (dispatch, action, storage) => {
         .end();
     }
 
-    dispatch(action.ShuffleMob(request.timerId));
+    dispatch(action.ShuffleMob(request.token, request.timerId));
 
     return response.status(204).end();
   });
@@ -80,19 +80,19 @@ export default (dispatch, action, storage) => {
         .end();
     }
 
-    dispatch(action.MoveUser(sourceIndex, destinationIndex, request.timerId));
+    dispatch(action.MoveUser(sourceIndex, destinationIndex, request.token, request.timerId));
 
     return response.status(204).end();
   });
 
   router.get('/lock', (request, response) => {
-    dispatch(action.LockMob(request.timerId));
+    dispatch(action.LockMob(request.token, request.timerId));
 
     return response.status(204).end();
   });
 
   router.get('/unlock', (request, response) => {
-    dispatch(action.UnlockMob(request.timerId));
+    dispatch(action.UnlockMob(request.token, request.timerId));
 
     return response.status(204).end();
   });

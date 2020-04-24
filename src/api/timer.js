@@ -4,7 +4,7 @@ export default (dispatch, action, storage) => {
   const router = new express.Router();
 
   router.get('/reset', async (request, response) => {
-    await dispatch(action.ResetTimer(request.timerId));
+    await dispatch(action.ResetTimer(request.token, request.timerId));
 
     return response
       .status(204)
@@ -23,14 +23,14 @@ export default (dispatch, action, storage) => {
 
     const numberOfSeconds = Number(seconds);
 
-    dispatch(action.StartTimer(numberOfSeconds, request.timerId));
+    dispatch(action.StartTimer(numberOfSeconds, request.token, request.timerId));
 
     return response.status(201).end();
   });
 
   router.get('/resume', (request, response) => {
     const { timerDuration } = storage.read()[request.timerId];
-    dispatch(action.StartTimer(timerDuration, request.timerId));
+    dispatch(action.StartTimer(timerDuration, request.token, request.timerId));
 
     return response.status(201).end();
   });
@@ -45,7 +45,7 @@ export default (dispatch, action, storage) => {
         .end();
     }
 
-    dispatch(action.PauseTimer(request.timerId));
+    dispatch(action.PauseTimer(request.token, request.timerId));
 
     return response.status(201).end();
   });
