@@ -8,7 +8,8 @@
     "url": "https://github.com/mrozbarry/mobtime.git"
   },
   "scripts": {
-    "migrate": "node --require esm ./database/migrate.js",
+    "migrate:up": "knex --esm migrate:up",
+    "migratedownp": "knex --esm migrate:down",
     "dev": "nodemon --ignore public ./index.js",
     "start": "node ./index.js",
     "live": "echo 'This is deprecated, use yarn start now'; yarn start'",

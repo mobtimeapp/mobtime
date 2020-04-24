@@ -1,4 +1,4 @@
-exports.up = (knex) => knex.createTable('audit', (table) => {
+export const up = (knex) => knex.schema.createTable('audit', (table) => {
   table.increments();
   table.string('timer_id');
   table.string('token');
@@ -7,4 +7,4 @@ exports.up = (knex) => knex.createTable('audit', (table) => {
   table.timestamps();
 });
 
-exports.down = (knex) => knex.dropTable('audit');
+export const down = (knex) => knex.schema.dropTable('audit');

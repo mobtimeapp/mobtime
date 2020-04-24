@@ -13,7 +13,7 @@ export default (dispatch, action, storage) => {
         .end();
     }
 
-    await dispatch(action.PingTimer(request.timerId));
+    await dispatch(action.PingTimer(request.token, request.timerId));
 
     return response
       .status(204)

@@ -82,6 +82,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     }
 
     request.timerId = timerId;
+    request.token = token;
     return next();
   });
 
