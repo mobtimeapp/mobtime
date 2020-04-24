@@ -1,50 +1,40 @@
 // Update with your config settings.
 
+const defaults = {
+  client: 'sqlite3',
+  migrations: {
+    tableName: 'knex_migrations',
+    directory: './database/migrations',
+  },
+  useNullAsDefault: true,
+};
+
 module.exports = {
   test: {
-    client: 'sqlite3',
+    ...defaults,
     connection: {
       filename: './database/test.sqlite3',
     },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: './database/migrations',
-    },
-    useNullAsDefault: true,
   },
 
   development: {
-    client: 'sqlite3',
+    ...defaults,
     connection: {
       filename: './database/development.sqlite3',
     },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: './database/migrations',
-    },
-    useNullAsDefault: true,
   },
 
   staging: {
-    client: 'sqlite3',
+    ...defaults,
     connection: {
       filename: './database/staging.sqlite3',
     },
-    migrations: {
-      tableName: 'knex_migrations',
-    },
-    useNullAsDefault: true,
   },
 
   production: {
-    client: 'sqlite3',
+    ...defaults,
     connection: {
       filename: './database/production.sqlite3',
     },
-    migrations: {
-      tableName: 'knex_migrations',
-    },
-    useNullAsDefault: true,
   },
-
 };
