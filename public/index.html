@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MobTime</title>
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <style type="text/css">
+      body * {
+        box-sizing: border-box;
+      }
+    </style>
     <script src="https://kit.fontawesome.com/57cb566a11.js" crossorigin="anonymous"></script>
     <script type="module">
       const mobName = document.querySelector('#mobName');
@@ -12,8 +17,26 @@
         event.target.value = event.target.value.replace(/ +/, '-');
       });
 
-      const adjectives = 'big,hairy,purple,tall,round,tough,ticklish,frustrated,guarded,helpful,happy,arrested,friendly,mysterious,calm,tilted,predictable'.split(',');
-      const nouns = 'human,monkey,car,trailer,house,grass,keyboard,grid,mullet,hippy,friend,shoe,detective,harp,piano,tree,egg,lock,gas,condo,mouse,planet,dust,bow,juice'.split(',');
+      const shuffleOnce = (source) => {
+        const array = source.slice();
+        let currentIndex = array.length;
+        let temporaryValue, randomIndex;
+
+        for(currentIndex = array.length; currentIndex > 0; currentIndex--) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+
+          temporaryValue = array[currentIndex - 1];
+          array[currentIndex - 1] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+      };
+      const shuffle = (source) => Array.from({ length: 5 }, () => null)
+        .reduce(shuffleOnce, source);
+
+      const adjectives = shuffle('big,hairy,purple,tall,round,tough,ticklish,frustrated,guarded,helpful,happy,arrested,friendly,mysterious,calm,tilted,predictable'.split(','));
+      const nouns = shuffle('human,monkey,car,trailer,house,grass,keyboard,grid,mullet,hippy,friend,shoe,detective,harp,piano,tree,egg,lock,gas,condo,mouse,planet,dust,bow,juice'.split(','));
       const randomFromArray = (source) => source[Math.floor(Math.random() * source.length)];
 
       const timerForm = document.querySelector('form');
@@ -69,10 +92,12 @@
       };
 
       mobNameElement.addEventListener('focus', stopMobName);
-      mobNameElement.addEventListener('blur', () => {
-        if (mobNameElement.value === '') {
-          setTimeout(typeNewAdjectiveNounPairMobName, 1000);
-        }
+      mobNameElement.addEventListener('blur', (event) => {
+        if (event.target.value !== '') return;
+        setTimeout(() => {
+          interaction = false;
+          typeNewAdjectiveNounPairMobName()
+        }, 3000);
       });
       mobNameElement.addEventListener('input', (event) => {
         setMobNameValue(event.target.value);
@@ -84,12 +109,40 @@
         setMobNameValue(randomMobName());
       });
 
-      import { app, h } from '//unpkg.com/hyperapp?module=1';
-      // TODO: Any hyperapp things?
+      const elements = {
+        timers: document.querySelector('#timers'),
+        connections: document.querySelector('#connections'),
+        mobbers: document.querySelector('#mobbers'),
+        goals: document.querySelector('#goals'),
+      };
+      const fetchStatistics = () => fetch('/api/statistics', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
+        .then((r) => {
+          if (!r.ok) {
+            throw new Error('Unable to get statistics');
+          }
+          return r.json();
+        })
+        .then((statistics) => {
+          Object.keys(statistics).forEach((key) => {
+            const element = elements[key];
+            const count = element.querySelector('.count');
+            const average = element.querySelector('.average');
+            count.innerText = statistics[key];
+            if (average && statistics.timers > 0) {
+              average.innerText = (statistics[key] / statistics.timers).toFixed(2);
+            }
+          });
+        });
+
+      fetchStatistics();
     </script>
   </head>
   <body class="bg-gray-100">
-    <div class="w-full h-screen bg-indigo-600 text-white flex flex-col items-center justify-center px-2">
+    <div class="w-full h-screen bg-indigo-600 text-white flex flex-col items-center justify-center overflow-hidden px-2 sm:px-0">
       <div class="flex-grow"></div>
       <div class="flex flex-row items-end justify-center mb-4">
         <i class="fas fa-user-ninja text-6xl"></i>
@@ -98,9 +151,9 @@
         <i class="fas fa-user text-6xl"></i>
         <i class="fas fa-user-astronaut text-6xl"></i>
       </div>
-      <div class="w-full sm:w-3/4 lg:w-1/2">
+      <div class="w-full sm:w-3/4 lg:w-1/2 bg-indigo-500">
         <h1 class="uppercase font-bold text-3xl sm:text-4xl md:text-5xl text-center tracking-wide sm:tracking-wider md:tracking-widest leading-none md:leading:wide">
-          Collaborative timer for your mob team
+          A collaborative timer for your mob team
         </h1>
       </div>
       <form action="#" method="GET" class="w-full sm:w-3/4 md:w-1/2">
@@ -136,17 +189,16 @@
       <div class="flex-grow"></div>
       <div class="text-center">
         <div class="leading-none">More</div>
-        <i class="fas fa-arrow-down"></i>
+        <i class="fas fa-angle-down"></i>
       </div>
     </div>
 
     <h1 class="text-6xl my-6 font-bold text-center">It's <span class="underline text-indigo-600">MobTime</span></h1>
-
     <p class="text-gray-600 my-6 text-base text-center">&dash; Here's a quick list of things you should know &dash;<p>
 
-    <div class="container mx-auto flex flex-row flex-wrap-auto my-6">
-      <div class="shadow rounded bg-white w-full sm:w-1/2 md:w-1/3 pb-3 mx-4 box-border">
-        <img src="https://images.pexels.com/photos/9660/business-money-pink-coins.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" class="w-full h-auto mb-4" />
+    <div class="flex-grow container px-2 mx-auto my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+      <div class="shadow rounded bg-white pt-3 sm:pt-0 pb-3 box-border mx-1 sm:mx-0">
+        <img src="https://images.pexels.com/photos/9660/business-money-pink-coins.jpg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" class="w-full h-auto mb-4 hidden sm:block" />
         <h1 class="text-lg text-center font-bold mb-4">Free</h1>
         <ul class="px-3 list-disc ml-3">
           <li>Basic features will be free forever</li>
@@ -154,8 +206,8 @@
           <li>Your data will never be shared</li>
         </ul>
       </div>
-      <div class="shadow rounded bg-white w-full sm:w-1/2 md:w-1/3 pb-3 mx-4 box-border">
-        <img src="https://images.pexels.com/photos/3277808/pexels-photo-3277808.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" class="w-full h-auto mb-4" />
+      <div class="shadow rounded bg-white pt-3 sm:pt-0 pb-3 box-border mx-1 sm:mx-0">
+        <img src="https://images.pexels.com/photos/3277808/pexels-photo-3277808.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" class="w-full h-auto mb-4 hidden sm:block" />
         <h1 class="text-lg text-center font-bold mb-4">Collaborative</h1>
         <ul class="px-3 list-disc ml-3">
           <li>Realtime websocket data</li>
@@ -163,8 +215,8 @@
           <li>Track the goals</li>
         </ul>
       </div>
-      <div class="shadow rounded bg-white w-full sm:w-1/2 md:w-1/3 pb-3 mx-4 box-border">
-        <img src="https://images.pexels.com/photos/2004161/pexels-photo-2004161.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" class="w-full h-auto mb-4" />
+      <div class="shadow rounded bg-white pt-3 sm:pt-0 pb-3 box-border mx-1 sm:mx-0">
+        <img src="https://images.pexels.com/photos/2004161/pexels-photo-2004161.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" class="w-full h-auto mb-4 hidden sm:block" />
         <h1 class="text-lg text-center font-bold mb-4">Open-Source</h1>
         <ul class="px-3 list-disc ml-3">
           <li>Source on <a href="https://github.com/mrozbarry/mobtime" rel="noopener" target="_blank" class="text-indigo-600 underline">github</a></li>
@@ -174,16 +226,40 @@
       </div>
     </div>
 
-    <div class="container mx-auto my-6 px-3">
-      <div>
-        <h2 class="inline-block text-6xl font-bold">0</h2> <span class="text-2xl">Live Mobs</span>
+    <div class="container mx-auto my-6 px-3 grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+
+      <div class="flex flex-row items-end justify-start bg-white py-12 pl-6" id="timers">
+        <h2 class="inline-block text-6xl font-bold mr-2 leading-none count">0</h2>
+        <div>
+          <span class="text-2xl block leading-none">Timers</span>
+          <span class="text-sm text-gray-500 leading-none">Live right now</span>
+        </div>
       </div>
-      <div>
-        <h2 class="inline-block text-6xl font-bold">0</h2> <span class="text-2xl">Mobbers</span>
+
+      <div class="flex flex-row items-end justify-start bg-white py-12 pl-6" id="connections">
+        <h2 class="inline-block text-6xl font-bold mr-2 leading-none count">0</h2>
+        <div>
+          <span class="text-2xl block leading-none">Live Users</span>
+          <span class="text-sm text-gray-500 leading-none"><span class="average">0</span> per timer</span>
+        </div>
       </div>
-      <div>
-        <h2 class="inline-block text-6xl font-bold">0</h2> <span class="text-2xl">Goals Set</span>
+
+      <div class="flex flex-row items-end justify-start bg-white py-12 pl-6" id="mobbers">
+        <h2 class="inline-block text-6xl font-bold mr-2 leading-none count">0</h2>
+        <div>
+          <span class="text-2xl block leading-none">In a Mob</span>
+          <span class="text-sm text-gray-500 leading-none"><span class="average">0</span> per timer</span>
+        </div>
       </div>
+
+      <div class="flex flex-row items-end justify-start bg-white py-12 pl-6" id="goals">
+        <h2 class="inline-block text-6xl font-bold mr-2 leading-none count">0</h2>
+        <div>
+          <span class="text-2xl block leading-none">Live Goals</span>
+          <span class="text-sm text-gray-500 leading-none"><span class="average">0</span> per timer</span>
+        </div>
+      </div>
+
     </div>
 
     <div class="px-3 py-4 mt-6 text-center text-sm text-gray-600">

@@ -69,8 +69,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     }
   });
 
-  router.use(apiStatistics(dispatch, action, storage));
-
   const authorizedRouter = new express.Router();
   authorizedRouter.use((request, response, next) => {
     const token = (request.headers.authorization || '').replace(/^token /, '');
@@ -86,11 +84,14 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     request.timerId = timerId;
     return next();
   });
+
+
   authorizedRouter.use('/timer', apiTimer(dispatch, action, storage));
   authorizedRouter.use('/mob', apiMob(dispatch, action, storage));
   authorizedRouter.use('/goals', apiGoals(dispatch, action, storage));
   authorizedRouter.use(apiPing(dispatch, action, storage));
 
+  router.use(apiStatistics(dispatch, action, storage));
   router.use(authorizedRouter);
 
   app.use('/api', router);
