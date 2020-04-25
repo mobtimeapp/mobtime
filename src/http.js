@@ -13,6 +13,25 @@ import apiGoals from './api/goals';
 import apiStatistics from './api/statistics';
 import apiPing from './api/ping';
 
+import { database } from './database';
+
+const BLACKLIST_TIMEOUT = 1000 * 60 * 60;
+
+const isTimerOnBlacklist = (timer_id) => database // eslint-disable-line camelcase
+  .select('timer_id', 'created_at')
+  .from('blacklist')
+  .where({ timer_id })
+  .whereRaw("strftime('%s', created_at) > ?", [(Date.now() - BLACKLIST_TIMEOUT) / 1000])
+  .then((results) => results.length > 0)
+  .catch((error) => {
+    console.log('Unable to check blacklist');
+    console.log({ timer_id });
+    console.log(error);
+    console.log('');
+    return false;
+  });
+
+
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (dispatch) => {
   const app = express();
   const server = http.createServer(app);
@@ -105,6 +124,11 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   });
 
   app.get('/:timerId', async (request, response) => {
+    const isOnBlacklist = await isTimerOnBlacklist(request.params.timerId);
+    if (isOnBlacklist) {
+      return response.status(418).end();
+    }
+
     const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
     return response.sendFile(htmlPayload);
   });
@@ -118,6 +142,12 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     client.$token = Math.random().toString(36).slice(2); // eslint-disable-line no-param-reassign
     const [timerId] = url.pathname.split('/').filter((v) => v);
     client.$timerId = timerId; // eslint-disable-line no-param-reassign
+
+    const isOnBlacklist = await isTimerOnBlacklist(client.$timerId);
+    if (isOnBlacklist) {
+      client.close(1013, 'Blacklist');
+      return;
+    }
 
     const timer = getTimer(client.$timerId);
     if (!timer) {

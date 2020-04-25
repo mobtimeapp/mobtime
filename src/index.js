@@ -7,6 +7,9 @@ import { CheckVersion } from './checkVersion';
 import { Cleanup } from './cleanup';
 import AuditLogEffect from './auditLog';
 
+import { TokenPoliceEffect } from './tokenPolice';
+import { BlacklistEffect } from './blacklist';
+
 const port = process.env.PORT || 4321;
 
 const EXPIRE_TIMER = 30 * 60 * 1000; // 30 minutes
@@ -110,7 +113,13 @@ const update = (action, state) => {
             tokens: timer.tokens.concat(token),
           },
         },
-        AuditLogEffect(timerId, null, 'AddToken', token),
+        effects.batch([
+          AuditLogEffect(timerId, null, 'AddToken', token),
+          TokenPoliceEffect(
+            timerId,
+            BlacklistEffect,
+          ),
+        ]),
       ];
     },
 
