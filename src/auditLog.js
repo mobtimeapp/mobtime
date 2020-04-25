@@ -1,5 +1,5 @@
 import { effects } from 'ferp';
-import { connection as database } from './database';
+import { database } from './database';
 
 const writeToAuditLog = (
   timer_id, // eslint-disable-line camelcase
