@@ -119,10 +119,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   const rootPath = path.resolve(__dirname, '..');
   app.use(express.static(path.resolve(rootPath, 'public')));
 
-  app.get('/Elmo', async (_request, response) => {
-    return response.status(418).end();
-  });
-
   app.get('/:timerId', async (request, response) => {
     const isOnBlacklist = await isTimerOnBlacklist(request.params.timerId);
     if (isOnBlacklist) {
