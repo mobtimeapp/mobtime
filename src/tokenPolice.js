@@ -4,7 +4,7 @@ import { effects } from 'ferp';
 
 import { database } from './database';
 
-const NUMBER_OF_TOKEN_ISSUES_TO_CONSIDER_BLACKLIST = 10;
+const NUMBER_OF_TOKEN_ISSUES_TO_CONSIDER_BLACKLIST = 50;
 
 export const TokenPoliceEffect = (
   timer_id, // eslint-disable-line camelcase
@@ -14,7 +14,7 @@ export const TokenPoliceEffect = (
     .select('action', 'timer_id', 'created_at')
     .from('audit')
     .where({ action: 'AddToken', timer_id })
-    .whereRaw("strftime('%s', created_at) > strftime('%s', 'now', '-5 second')")
+    .whereRaw("strftime('%s', created_at) > strftime('%s', 'now', '-1 minute')")
     .limit(20)
     .then((results) => (results.length < NUMBER_OF_TOKEN_ISSUES_TO_CONSIDER_BLACKLIST
       ? effects.none()
