@@ -10,6 +10,9 @@ import AuditLogEffect from './auditLog';
 import { TokenPoliceEffect } from './tokenPolice';
 import { BlacklistEffect } from './blacklist';
 
+import { LoadEffect } from './load';
+import { Persist } from './persistence';
+
 const port = process.env.PORT || 4321;
 
 const EXPIRE_TIMER = 30 * 60 * 1000; // 30 minutes
@@ -43,7 +46,15 @@ const update = (action, state) => {
   return Action.caseOf({
     Init: () => [
       {},
-      CheckVersion(Action),
+      effects.batch([
+        CheckVersion(Action),
+        LoadEffect(Action),
+      ]),
+    ],
+
+    Load: (newState) => [
+      newState,
+      effects.none(),
     ],
 
     AddTimer: (timerId) => {
@@ -217,8 +228,9 @@ const update = (action, state) => {
           },
         },
         effects.batch([
-          NotifyTimeUpEffect(timerId), Action.CycleMob(timerId),
+          NotifyTimeUpEffect(timerId),
           AuditLogEffect(timerId, token, 'ResetTimer'),
+          Action.CycleMob(timerId),
         ]),
       ];
     },
@@ -505,6 +517,7 @@ app({
         port,
       ),
       anyTimers && Cleanup(Storage, Action),
+      Persist(Storage),
     ];
   },
 });
