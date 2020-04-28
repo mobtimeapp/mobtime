@@ -2,5 +2,4 @@ node_modules
 .env
 deploy/*.sh
 deploy/config.js
-database/*.sqlite
-database/*.sqlite3
+database/*.sqlite*
