@@ -1,0 +1,6 @@
+{
+  "ignore": ["storage"],
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

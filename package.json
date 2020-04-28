@@ -36,13 +36,5 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.1",
     "resolve": "^1.15.1"
-  },
-  "nodemonConfig": {
-    "env": {
-      "NODE_ENV": "development"
-    },
-    "ignore": [
-      "storage"
-    ]
   }
 }
