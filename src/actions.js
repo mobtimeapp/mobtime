@@ -3,6 +3,8 @@ import enumerize from '@mrbarrysoftware/js-enumerize';
 export default enumerize({
   Init: [],
 
+  Load: [Object],
+
   AddTimer: [String],
   PingTimer: [String, String],
   RemoveTimer: [String],

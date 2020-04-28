@@ -40,6 +40,9 @@
   "nodemonConfig": {
     "env": {
       "NODE_ENV": "development"
-    }
+    },
+    "ignore": [
+      "storage"
+    ]
   }
 }
