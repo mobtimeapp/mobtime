@@ -15,13 +15,11 @@ import apiPing from './api/ping';
 
 import { database } from './database';
 
-const BLACKLIST_TIMEOUT = 1000 * 60 * 60;
-
 const isTimerOnBlacklist = (timer_id) => database // eslint-disable-line camelcase
   .select('timer_id', 'created_at')
   .from('blacklist')
   .where({ timer_id })
-  .whereRaw("strftime('%s', created_at) > ?", [(Date.now() - BLACKLIST_TIMEOUT) / 1000])
+  .whereRaw("strftime('%s', created_at) > strftime('%s', 'now', '-1 hour')")
   .then((results) => results.length > 0)
   .catch((error) => {
     console.log('Unable to check blacklist');
