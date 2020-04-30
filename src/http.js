@@ -12,6 +12,7 @@ import apiMob from './api/mob';
 import apiGoals from './api/goals';
 import apiStatistics from './api/statistics';
 import apiPing from './api/ping';
+import apiRecaptcha from './api/recaptcha';
 
 import { database } from './database';
 
@@ -110,6 +111,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   authorizedRouter.use(apiPing(dispatch, action, storage));
 
   router.use(apiStatistics(dispatch, action, storage));
+  router.use(apiRecaptcha(dispatch, action, storage));
   router.use(authorizedRouter);
 
   app.use('/api', router);
