@@ -8,6 +8,7 @@
     "url": "https://github.com/mrozbarry/mobtime.git"
   },
   "scripts": {
+    "migrate:latest": "knex --esm migrate:latest",
     "migrate:up": "knex --esm migrate:up",
     "migratedownp": "knex --esm migrate:down",
     "dev": "nodemon --ignore public ./index.js",
