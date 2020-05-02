@@ -19,22 +19,21 @@ import { addParticipant } from '/sections/addParticipant.js';
 import { mobActions } from '/sections/mobActions.js';
 // import { qrShare } from '/sections/qrShare.js';
 
-const [timerId] = window.location.pathname.split('/').filter(v => v);
+const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 
 app({
-  init: actions.Init(null, timerId),
+  init: actions.Init(null, initialTimerId),
 
-  view: state => h('div', {
+  view: (state) => h('div', {
     class: {
       'flex': true,
       'items-start': true,
       'justify-center': true,
-      'pb-3': true,
     },
   }, h(card, {
     class: {
-      'h-full': true,
-      'sm:h-auto': true,
+      'min-h-screen': true,
+      'sm:min-h-0': true,
       'w-full': true,
       'sm:w-8/12': true,
       'lg:w-6/12': true,
@@ -43,7 +42,7 @@ app({
       'sm:shadow-lg': true,
       'pt-2': false,
       'pt-0': true,
-      'pb-0': true,
+      'pb-12': true,
       'pb-1': false,
       'sm:mt-2': true,
       'rounded': false,
@@ -119,20 +118,27 @@ app({
     }, 'Enable Notifications'),
   ])),
 
-  subscriptions: state => [
-    state.timerId && subscriptions.Websocket({ actions, timerId: state.timerId }),
-    Status.caseOf({
-      Connected: token => subscriptions.KeepAlive({ token }),
-      Connecting: () => false,
-      Reconnecting: () => false,
-      Error: () => false,
-    }, state.status),
-    subscriptions.Timer({
-      timerStartedAt: state.serverState.timerStartedAt,
-      timerDuration: state.serverState.timerDuration,
-      actions,
-    }),
-  ],
+  subscriptions: state => {
+    const { timerId, recaptchaToken } = state;
+    return [
+      timerId && recaptchaToken && subscriptions.Websocket({
+        actions,
+        timerId,
+        recaptchaToken,
+      }),
+      Status.caseOf({
+        Connected: token => subscriptions.KeepAlive({ token }),
+        Connecting: () => false,
+        Reconnecting: () => false,
+        Error: () => false,
+      }, state.status),
+      subscriptions.Timer({
+        timerStartedAt: state.serverState.timerStartedAt,
+        timerDuration: state.serverState.timerDuration,
+        actions,
+      }),
+    ];
+  },
 
   node: document.querySelector('#app'),
 });

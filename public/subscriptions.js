@@ -65,11 +65,11 @@ const KeepAliveFX = (_dispatch, { token }) => {
 export const KeepAlive = (props) => [KeepAliveFX, props];
 
 
-const WebsocketFX = (dispatch, { timerId, actions }) => {
+const WebsocketFX = (dispatch, { recaptchaToken, timerId, actions }) => {
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
-  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`;
+  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${recaptchaToken}/${timerId}`;
 
   let socket = null;
   let cancel = false;

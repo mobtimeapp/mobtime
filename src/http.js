@@ -1,11 +1,15 @@
 /* eslint-disable no-console */
 
 import express from 'express';
+import bodyParser from 'body-parser';
 import ws from 'ws';
 import http from 'http';
 import helmet from 'helmet';
 import { URL } from 'url';
 import path from 'path';
+import fs from 'fs';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 
 import apiTimer from './api/timer';
 import apiMob from './api/mob';
@@ -35,6 +39,9 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   const server = http.createServer(app);
   const wss = new ws.Server({ server });
 
+  dotenv.config();
+
+  app.use(bodyParser.json());
   app.use(helmet());
 
   const getTimer = (timerId) => {
@@ -124,18 +131,56 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
     }
 
     const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
-    return response.sendFile(htmlPayload);
+    const initialHtml = await fs.promises.readFile(htmlPayload, { encoding: 'utf8' });
+    const html = initialHtml.replace(/\{\{RECAPTCHA_PUBLIC\}\}/g, process.env.RECAPTCHA_PUBLIC);
+
+    return response
+      .status(200)
+      .send(html)
+      .end();
   });
 
   server.listen(port, host, () => {
     console.log(`Local server up: http://${host}:${port}`);
   });
 
+
   wss.on('connection', async (client, request) => {
     const url = new URL(request.url, `http://${request.headers.host}`);
     client.$token = Math.random().toString(36).slice(2); // eslint-disable-line no-param-reassign
-    const [timerId] = url.pathname.split('/').filter((v) => v);
+
+    const [recaptchaToken, timerId] = url.pathname.split('/').filter((v) => v);
+
     client.$timerId = timerId; // eslint-disable-line no-param-reassign
+
+    const body = {
+      secret: process.env.RECAPTCHA_SECRET,
+      response: recaptchaToken,
+    };
+
+    const recaptchaResponse = await fetch(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${body.secret}&response=${body.response}`,
+      {
+        headers: { 'Accept': 'application/json' },
+        method: 'post',
+      },
+    )
+      .then((resp) => {
+        if (!resp.ok) {
+          throw new Error('Unable to verify captcha response');
+        }
+        return resp.json();
+      })
+      .catch((error) => {
+        console.error(error);
+        console.log('');
+        return { score: 0 };
+      });
+
+    if (recaptchaResponse.score < 0) {
+      client.close(1013, 'Probably a bot?');
+      return;
+    }
 
     const isOnBlacklist = await isTimerOnBlacklist(client.$timerId);
     if (isOnBlacklist) {
