@@ -1,3 +1,5 @@
+/* globals grecaptcha */
+
 import formatTime from '/formatTime.js';
 import api from '/api.js';
 
@@ -52,6 +54,7 @@ const UpdateTitleWithTimeFX = (_dispatch, { remainingTime }) => {
 };
 export const UpdateTitleWithTime = (props) => [UpdateTitleWithTimeFX, props];
 
+
 const OpenPromptFX = (dispatch, { title, OnValue, OnCancel }) => {
   setTimeout(() => {
     const value = window.prompt(title, ''); // eslint-disable-line no-alert
@@ -61,3 +64,14 @@ const OpenPromptFX = (dispatch, { title, OnValue, OnCancel }) => {
   }, 0);
 };
 export const OpenPrompt = (props) => [OpenPromptFX, props];
+
+
+const RecaptchaFX = (dispatch, props) => grecaptcha
+  .ready(() => grecaptcha
+    .execute(
+      window.RECAPTCHA_PUBLIC,
+      { action: 'timer' },
+    )
+    .then((token) => dispatch(props.OnRecaptchaToken, token)));
+
+export const Recaptcha = (props) => [RecaptchaFX, props];

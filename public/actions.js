@@ -32,8 +32,12 @@ export const Init = (_, timerId) => [
     goal: '',
     timeInMinutes: '5',
     allowNotification: initialAllowNotification,
+    recaptchaToken: null,
     status: Status.Connecting(),
   },
+  effects.Recaptcha({
+    OnRecaptchaToken: SetRecaptchaToken,
+  }),
 ];
 
 export const StartMobDrag = (state, sourceIndex) => ({
@@ -308,3 +312,9 @@ export const ShowNotification = (state, message) => [
     text: message,
   }),
 ];
+
+export const SetRecaptchaToken = (state, recaptchaToken) => ({
+  ...state,
+  recaptchaToken,
+
+});
