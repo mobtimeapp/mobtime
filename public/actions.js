@@ -25,6 +25,7 @@ export const Init = (_, timerId) => [
       lockedMob: null,
       connections: 0,
     },
+    timerTab: 'mob',
     mobDrag: [],
     timerId,
     remainingTime: 0,
@@ -39,6 +40,11 @@ export const Init = (_, timerId) => [
     OnRecaptchaToken: SetRecaptchaToken,
   }),
 ];
+
+export const SetTimerTab = (state, timerTab) => ({
+  ...state,
+  timerTab,
+});
 
 export const StartMobDrag = (state, sourceIndex) => ({
   ...state,
