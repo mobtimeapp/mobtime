@@ -6,13 +6,6 @@ export default (dispatch, action, storage) => {
   router.get('/add/:goal', (request, response) => {
     const timer = storage.read()[request.timerId];
 
-    if (timer.goals.length >= 5) {
-      return response
-        .status(403)
-        .json({ message: 'Too many goals' })
-        .end();
-    }
-
     dispatch(action.AddGoal(request.params.goal, request.token, request.timerId));
 
     return response.status(204).end();
