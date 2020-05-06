@@ -6,6 +6,7 @@ import Status from '/status.js';
 import { card } from '/components/card.js';
 import { fullButton } from '/components/fullButton.js';
 import { section } from '/components/section.js';
+import { tab } from '/components/tab.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
@@ -17,7 +18,7 @@ import { addGoal } from '/sections/addGoal.js';
 import { mobParticipants } from '/sections/mobParticipants.js';
 import { addParticipant } from '/sections/addParticipant.js';
 import { mobActions } from '/sections/mobActions.js';
-// import { qrShare } from '/sections/qrShare.js';
+import { qrShare } from '/sections/qrShare.js';
 
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 
@@ -62,25 +63,55 @@ app({
       timeInMinutes: state.timeInMinutes,
     }),
 
-    h(goalList, {
-      goals: state.serverState.goals,
-    }),
-    h(addGoal, {
-      goal: state.goal,
-    }),
+    h('div', {
+      class: {
+        'grid': true,
+        'grid-cols-3': true,
+        'gap-1': true,
+        'px-2': true,
+        'py-4': true,
+        'sm:px-4': true,
+      },
+    }, [
+      h(tab, {
+        selected: state.timerTab === 'mob',
+        onclick: [actions.SetTimerTab, 'mob'],
+      }, 'Mob'),
+      h(tab, {
+        selected: state.timerTab === 'goals',
+        onclick: [actions.SetTimerTab, 'goals'],
+      }, 'Goals'),
+      h(tab, {
+        selected: state.timerTab === 'share',
+        onclick: [actions.SetTimerTab, 'share'],
+      }, 'Share'),
+    ]),
 
-    h(mobParticipants, {
-      mobDrag: state.mobDrag,
-      mob: state.serverState.mob,
-    }),
+    state.timerTab === 'goals' && [
+      h(goalList, {
+        goals: state.serverState.goals,
+      }),
+      h(addGoal, {
+        goal: state.goal,
+      }),
+    ],
 
-    h(addParticipant, {
-      name: state.name,
-    }),
+    state.timerTab === 'mob' && [
+      h(mobParticipants, {
+        mobDrag: state.mobDrag,
+        mob: state.serverState.mob,
+      }),
 
-    h(mobActions),
+      h(addParticipant, {
+        name: state.name,
+      }),
 
-    // h(qrShare),
+      h(mobActions),
+    ],
+
+    state.timerTab === 'share' && [
+      h(qrShare),
+    ],
 
     h(section, {
       class: {

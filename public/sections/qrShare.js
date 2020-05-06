@@ -4,11 +4,10 @@ import { section } from '/components/section.js';
 
 export const qrShare = () => h(section, {
   class: {
-    'sm:flex': true,
+    'flex': true,
     'flex-col': true,
     'items-center': true,
     'justify-center': true,
-    'hidden': true,
   },
 }, [
   h('div', {

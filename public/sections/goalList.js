@@ -16,10 +16,4 @@ export const goalList = (props) => h(section, null, [
     text,
     completed,
   })),
-
-  h('div', {
-    class: {
-      'hidden': props.goals.length > 0,
-    },
-  }, 'No goals, add one now'),
 ]);
