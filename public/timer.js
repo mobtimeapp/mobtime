@@ -149,13 +149,12 @@ app({
     }, 'Enable Notifications'),
   ])),
 
-  subscriptions: state => {
-    const { timerId, recaptchaToken } = state;
+  subscriptions: (state) => {
+    const { timerId } = state;
     return [
-      timerId && recaptchaToken && subscriptions.Websocket({
+      timerId && subscriptions.Websocket({
         actions,
         timerId,
-        recaptchaToken,
       }),
       Status.caseOf({
         Connected: token => subscriptions.KeepAlive({ token }),

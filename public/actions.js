@@ -33,12 +33,8 @@ export const Init = (_, timerId) => [
     goal: '',
     timeInMinutes: '5',
     allowNotification: initialAllowNotification,
-    recaptchaToken: null,
     status: Status.Connecting(),
   },
-  effects.Recaptcha({
-    OnRecaptchaToken: SetRecaptchaToken,
-  }),
 ];
 
 export const SetTimerTab = (state, timerTab) => ({
