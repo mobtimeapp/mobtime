@@ -1,5 +1,3 @@
-/* globals grecaptcha */
-
 import formatTime from '/formatTime.js';
 import api from '/api.js';
 
@@ -64,14 +62,3 @@ const OpenPromptFX = (dispatch, { title, OnValue, OnCancel }) => {
   }, 0);
 };
 export const OpenPrompt = (props) => [OpenPromptFX, props];
-
-
-const RecaptchaFX = (dispatch, props) => grecaptcha
-  .ready(() => grecaptcha
-    .execute(
-      window.RECAPTCHA_PUBLIC,
-      { action: 'timer' },
-    )
-    .then((token) => dispatch(props.OnRecaptchaToken, token)));
-
-export const Recaptcha = (props) => [RecaptchaFX, props];

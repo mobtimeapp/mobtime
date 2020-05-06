@@ -1,3 +1,4 @@
+/* globals grecaptcha */
 /* eslint-disable import/no-absolute-path, import/extensions, import/no-unresolved */
 
 import api from '/api.js';
@@ -65,21 +66,39 @@ const KeepAliveFX = (_dispatch, { token }) => {
 export const KeepAlive = (props) => [KeepAliveFX, props];
 
 
-const WebsocketFX = (dispatch, { recaptchaToken, timerId, actions }) => {
+const WebsocketFX = (dispatch, { timerId, actions }) => {
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
-  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${recaptchaToken}/${timerId}`;
+  const getAddress = (recaptchaToken) => (
+    `${protocol}://${window.location.hostname}:${window.location.port}/${recaptchaToken}/${timerId}`
+  );
 
   let socket = null;
   let cancel = false;
   let pingHandle = null;
 
-  const connect = () => {
+  const getToken = () => new Promise((resolve, reject) => {
+    try {
+      grecaptcha
+        .ready(() => grecaptcha
+          .execute(
+            window.RECAPTCHA_PUBLIC,
+            { action: 'connection' },
+          )
+          .then(resolve));
+    } catch (err) {
+      reject(err);
+    }
+  });
+
+  const connect = async () => {
     clearTimeout(pingHandle);
     if (cancel) return;
 
-    socket = new WebSocket(websocketAddress);
+    const recaptchaToken = await getToken();
+
+    socket = new WebSocket(getAddress(recaptchaToken));
 
     const ping = () => {
       if (cancel) return;
