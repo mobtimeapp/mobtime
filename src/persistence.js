@@ -4,10 +4,18 @@ import fs from 'fs';
 
 const storageTmpPath = path.resolve(__dirname, '..', 'storage', 'tmp');
 
+const removeTokens = (state) => Object.keys(state).reduce((nextState, timerId) => ({
+  ...nextState,
+  [timerId]: {
+    ...state[timerId],
+    tokens: [],
+  },
+}), {});
+
 const PersistenceSubscription = (storage) => () => {
-  const serializeState = (source) => () => {
-    const state = storage.read();
-    console.log(source, 'persisting state', state); 
+  const serializeState = () => {
+    const state = removeTokens(storage.read());
+
     fs.writeFileSync(
       path.resolve(storageTmpPath, 'state.json'),
       JSON.stringify(state),
@@ -16,9 +24,8 @@ const PersistenceSubscription = (storage) => () => {
   };
 
   const listenTo = (signal) => {
-    const fn = serializeState(`[${signal}]`);
-    process.on(signal, fn);
-    return () => process.off(signal, fn);
+    process.on(signal, serializeState);
+    return () => process.off(signal, serializeState);
   };
 
   const cancels = [
@@ -26,10 +33,7 @@ const PersistenceSubscription = (storage) => () => {
     listenTo('SIGINT'),
   ];
 
-  console.log('Waiting on exit signals...');
-
   return () => {
-    console.log('Removing persistence subscription');
     for (const fn of cancels) {
       fn();
     }
