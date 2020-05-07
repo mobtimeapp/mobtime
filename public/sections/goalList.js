@@ -4,14 +4,6 @@ import { section } from '/components/section.js';
 import { goal } from '/components/goal.js';
 
 export const goalList = (props) => h(section, null, [
-  h('h2', {
-    class: {
-      'text-lg': true,
-      'font-bold': true,
-      'uppercase': true,
-    },
-  }, 'Goals'),
-
   props.goals.map(({ text, completed }) => h(goal, {
     text,
     completed,

@@ -333,6 +333,8 @@ const update = (action, state) => {
         return [state, effects.none()];
       }
 
+      const id = Math.random().toString(36).slice(2);
+
       return [
         {
           ...state,
@@ -340,7 +342,7 @@ const update = (action, state) => {
             ...timer,
             goals: [
               ...timer.goals,
-              { text, completed: false },
+              { id, text, completed: false },
             ],
           },
         },
@@ -351,13 +353,13 @@ const update = (action, state) => {
       ];
     },
 
-    CompleteGoal: (text, completed, token, timerId) => {
+    CompleteGoal: (goalId, completed, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
       }
 
-      const goalIndex = timer.goals.findIndex(g => g.text === text);
+      const goalIndex = timer.goals.findIndex(g => g.id === goalId || g.text === goalId);
       if (goalIndex === -1) {
         return [state, effects.none()];
       }
@@ -379,7 +381,7 @@ const update = (action, state) => {
         ]),
       ];
     },
-    RemoveGoal: (text, token, timerId) => {
+    RemoveGoal: (goalId, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -390,7 +392,7 @@ const update = (action, state) => {
           ...state,
           [timerId]: {
             ...timer,
-            goals: timer.goals.filter(g => g.text !== text),
+            goals: timer.goals.filter(g => g.id !== goalId || g.text !== goalId),
           },
         },
         effects.batch([

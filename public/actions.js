@@ -218,11 +218,11 @@ export const AddGoal = (state) => [
     state.status,
   ),
 ];
-export const CompleteGoal = (state, { text, completed }) => [
+export const CompleteGoal = (state, { id, completed }) => [
   state,
   withToken(
     (token) => effects.ApiEffect({
-      endpoint: `/api/goals/${encodeURIComponent(text)}/${completed ? 'complete' : 'uncomplete'}`,
+      endpoint: `/api/goals/${completed ? 'complete' : 'uncomplete'}/${id}`,
       token,
       OnOK: Noop,
       OnERR: Noop,
@@ -230,11 +230,11 @@ export const CompleteGoal = (state, { text, completed }) => [
     state.status,
   ),
 ];
-export const RemoveGoal = (state, text) => [
+export const RemoveGoal = (state, id) => [
   state,
   withToken(
     (token) => effects.ApiEffect({
-      endpoint: `/api/goals/remove/${encodeURIComponent(text)}`,
+      endpoint: `/api/goals/remove/${id}`,
       token,
       OnOK: Noop,
       OnERR: Noop,
