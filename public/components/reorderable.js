@@ -1,89 +1,119 @@
 import { h } from 'https://unpkg.com/hyperapp?module=1';
-import * as dnd from '/dragAndDrop.js';
+import * as actions from '/actions.js';
 
-const dropZone = (props) => h('div', {
-  key: 'reorderable-drop',
+const relativeContainer = (props, children) => h('div', {
+  ...props,
+  class: {
+    ...props.class,
+    'relative': true,
+  },
+}, children);
+
+const dropTarget = (props, children) => h('div', {
+  onmouseenter: [actions.DragTo, { to: props.index }],
   style: {
-    left: 0,
-    height: `${props.height}px`,
-    transition: 'all .3s ease-in-out',
+    alpha: 0.5,
   },
   class: {
-    'relative': true,
-    'w-full': true,
-    'border': true,
-    'border-dotted': true,
+    'border-2': true,
     'border-white': true,
-    'text-center': true,
-    'flex': true,
-    'items-center': true,
-    'justify-center': true,
-    'bg-indigo-500': true,
+    'border-dotted': true,
+    'h-20': true,
+    'bg-gray-600': true,
+    'rounded': true,
   },
-  ondragover: [props.onDragOver, dnd.dragOverDecoder(props.index)],
-  ondrop: [props.onDrop, dnd.dropDecoder(props.drag[1])],
-}, 'Drop Here');
+}, children);
+
+const dropZoneTrigger = (props) => h('div', {
+  class: {
+    'absolute': true,
+    'w-full': true,
+    'bg-transparent': true,
+  },
+  style: {
+    top: props.top,
+    left: 0,
+    height: '50%',
+  },
+  onmouseenter: [actions.DragTo, { to: props.index }],
+});
+
+const mouseDownDecoder = (type, from) => (event) => ({
+  type,
+  from,
+  clientX: event.clientX,
+  clientY: event.clientY,
+});
+
+const dragContainer = (props, children) => h('div', {
+  class: {
+    'hidden': props.isDragFrom,
+    'relative': true,
+    'select-none': true,
+  },
+  onmousedown: [actions.DragSelect, mouseDownDecoder(
+    props.dragType,
+    props.index,
+  )],
+}, [
+  children,
+  props.isDragging && [
+    h(dropZoneTrigger, {
+      index: props.index,
+      top: 0,
+    }),
+    h(dropZoneTrigger, {
+      index: props.index + 1,
+      top: '50%',
+    }),
+  ],
+]);
+
+const draggingContainer = (props, children) => h('div', {
+  style: {
+    position: 'absolute',
+    top: `${props.drag.clientY + 5}px`,
+    left: `${props.drag.clientX + 5}px`,
+    transform: 'rotate(-10deg)',
+  },
+  class: {
+    'transition-all': true,
+    'duration-75': true,
+    'ease-in-out': true,
+    'pointer-events-none': true,
+    'border': true,
+    'border-green-600': true,
+    'rounded': true,
+    'bg-indigo-600': true,
+  },
+}, children);
 
 export const reorderable = (props) => {
-  const isDragging = props.drag.length === 2;
+  const isDragging = props.drag.type === props.dragType && props.drag.active;
+  const isDraggingFrom = (from) => isDragging && from === props.drag.from;
+  const isDraggingTo = (to) => isDragging && to === props.drag.to;
 
-  return h(
-    'section',
-    {
-      class: {
-        'my-3': true,
-      },
-      style: {
-        position: 'relative',
-        width: '100%',
-      },
-    },
-    [
+  return h('div', {}, [
+    h(relativeContainer, {}, [
       ...props.items.map((item, index) => [
-        (index === props.drag[1]) && (
-          h(dropZone, { ...props, index })
-        ),
-        (index !== props.drag[0]) && h(
-          'div',
-          {
-            style: {
-              position: 'relative',
-              left: 0,
-              height: `${props.height}px`,
-              width: '100%',
-            },
-            key: props.getKey(item),
-          },
-          [
-            props.component({ ...props, ...item, index }),
-            isDragging && h('div', {
-              ondragover: [props.onDragOver, index],
-              style: {
-                display: isDragging ? 'block' : 'none',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '50%',
-              },
-            }),
-            isDragging && h('div', {
-              ondragover: [props.onDragOver, index + 1],
-              style: {
-                display: isDragging ? 'block' : 'none',
-                position: 'absolute',
-                top: '50%',
-                left: 0,
-                width: '100%',
-                height: '50%',
-              },
-            }),
-          ],
-        ),
+        isDraggingTo(index) && h(dropTarget, {
+          index,
+        }),
+        h(dragContainer, {
+          isDragging,
+          isDragFrom: isDraggingFrom(index),
+          index,
+          dragType: props.dragType,
+        }, props.renderItem(item)),
       ]),
-      (props.drag[1] >= props.items.length) && (
-        h(dropZone, { ...props, index: props.drag[1] })
-      ),
-    ],
-  );
+
+      isDraggingTo(props.items.length) && h(dropTarget, {
+        index: props.items.length,
+      }),
+    ]),
+
+    isDragging && h(draggingContainer, {
+      drag: props.drag,
+    }, props.renderItem(props.items[props.drag.from])),
+  ]);
 };
