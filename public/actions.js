@@ -15,6 +15,15 @@ if ('Notification' in window) {
 
 export const Noop = (state) => state;
 
+const emptyDrag = {
+  active: false,
+  type: null,
+  from: null,
+  to: null,
+  clientX: null,
+  clientY: null,
+};
+
 export const Init = (_, timerId) => [
   {
     serverState: {
@@ -26,7 +35,7 @@ export const Init = (_, timerId) => [
       connections: 0,
     },
     timerTab: 'mob',
-    mobDrag: [],
+    drag: { ...emptyDrag },
     timerId,
     remainingTime: 0,
     name: '',
@@ -42,36 +51,111 @@ export const SetTimerTab = (state, timerTab) => ({
   timerTab,
 });
 
-export const StartMobDrag = (state, sourceIndex) => ({
+export const DragSelect = (state, { type, from, clientX, clientY }) => ({
   ...state,
-  mobDrag: [sourceIndex, sourceIndex],
+  drag: {
+    active: false,
+    type,
+    from,
+    to: null,
+    clientX,
+    clientY,
+  },
 });
 
-export const MoveMobDrag = (state, destinationIndex) => ({
+export const DragMove = (state, {
+  clientX,
+  clientY,
+}) => {
+  if (!state.drag.active) {
+    const diffX = state.drag.clientX - clientX;
+    const diffY = state.drag.clientY - clientY;
+    const distance = Math.sqrt((diffX * diffX) + (diffY * diffY));
+    if (distance < 5) {
+      return state;
+    }
+    return {
+      ...state,
+      drag: {
+        ...state.drag,
+        active: true,
+        to: state.drag.from,
+        clientX,
+        clientY,
+      },
+    };
+  }
+
+  return {
+    ...state,
+    drag: {
+      ...state.drag,
+      active: true,
+      clientX,
+      clientY,
+    },
+  };
+};
+
+export const DragTo = (state, { to }) => ({
   ...state,
-  mobDrag: [state.mobDrag[0], destinationIndex],
+  drag: {
+    ...state.drag,
+    to,
+  },
 });
 
-export const DropMobDrag = (state, destinationIndex) => {
-  const sourceIndex = state.mobDrag[0];
-
-  return [
-    state,
+const dragEndEffects = {
+  mob: (drag, status) => [
     withToken(
       (token) => effects.ApiEffect({
-        endpoint: `/api/mob/move/${sourceIndex}/to/${destinationIndex}`,
+        endpoint: `/api/mob/move/${drag.from}/to/${drag.to}`,
         token,
         OnOK: Noop,
         OnERR: Noop,
       }),
-      state.status,
+      status,
     ),
-  ];
+  ],
+
+  goal: (drag, status) => [
+    withToken(
+      (token) => effects.ApiEffect({
+        endpoint: `/api/goals/move/${drag.from}/to/${drag.to}`,
+        token,
+        OnOK: Noop,
+        OnERR: Noop,
+      }),
+      status,
+    ),
+  ],
+
+  _: () => [],
 };
 
-export const EndMobDrag = (state) => ({
+export const DragEnd = (state) => {
+  const badDrag = !state.drag.active
+    || state.drag.to === null
+    || state.drag.to === state.drag.from;
+
+  const effectFn = (!badDrag && dragEndEffects[state.drag.type])
+    || dragEndEffects._;
+
+  return ([
+    {
+      ...state,
+      drag: { ...emptyDrag },
+    },
+    effectFn(
+      state.drag,
+      state.status,
+    ),
+  ]);
+};
+
+export const DragCancel = (state) => ({
   ...state,
-  mobDrag: [],
+  drag: { ...emptyDrag },
 });
 
 export const SetRemainingTime = (state, remainingTime) => [
