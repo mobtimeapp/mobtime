@@ -91,13 +91,28 @@ export const SetToken = (state, token) => ({
     : Status.Connecting(),
 });
 
-export const Tick = (state, serverState) => ({
-  ...state,
-  serverState,
-  remainingTime: serverState.timerStartedAt !== null
-    ? Math.max(0, serverState.timerDuration - (Date.now() - serverState.timerStartedAt))
-    : serverState.timerDuration,
-});
+export const Tick = (state, serverState) => {
+  const nextState = {
+    ...state,
+    serverState,
+    remainingTime: serverState.timerStartedAt !== null
+      ? Math.max(0, serverState.timerDuration - (Date.now() - serverState.timerStartedAt))
+      : serverState.timerDuration,
+  };
+
+  const { remainingTime } = nextState;
+
+  if (remainingTime === 0) {
+    return [
+      nextState,
+      [
+        effects.UpdateTitleWithTime({ remainingTime: 0 }),
+      ],
+    ];
+  }
+
+  return nextState;
+};
 
 export const Completed = (state) => [
   {
@@ -105,6 +120,7 @@ export const Completed = (state) => [
     serverState: {
       ...state.serverState,
       timerStartedAt: null,
+      timerDuration: null,
     },
     remainingTime: 0,
   },
