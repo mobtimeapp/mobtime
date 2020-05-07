@@ -377,7 +377,7 @@ const update = (action, state) => {
         },
         effects.batch([
           TickEffect(timerId),
-          AuditLogEffect(timerId, token, 'CompleteGoal', { text, completed }),
+          AuditLogEffect(timerId, token, 'CompleteGoal', { goalId, completed }),
         ]),
       ];
     },
@@ -392,12 +392,12 @@ const update = (action, state) => {
           ...state,
           [timerId]: {
             ...timer,
-            goals: timer.goals.filter(g => g.id !== goalId || g.text !== goalId),
+            goals: timer.goals.filter(g => g.id !== goalId && g.text !== goalId),
           },
         },
         effects.batch([
           TickEffect(timerId),
-          AuditLogEffect(timerId, token, 'RemoveGoal', text),
+          AuditLogEffect(timerId, token, 'RemoveGoal', goalId),
         ]),
       ];
     },
