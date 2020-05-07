@@ -18,16 +18,13 @@ export const mobParticipants = (props) => {
 
   return h(section, null, [
     h('div', null, h(reorderable, {
+      dragType: 'mob',
       items,
-      getKey: ({ name }) => name,
-      height: 82,
-      component: mobber,
-      onDragStart: actions.StartMobDrag,
-      onDragOver: actions.MoveMobDrag,
-      onDragEnd: actions.EndMobDrag,
-      onDrop: actions.DropMobDrag,
-      drag: props.mobDrag,
-      onRemove: actions.RemoveNameFromMob,
+      renderItem: (item) => h(mobber, {
+        ...item,
+        onRemove: actions.RemoveNameFromMob,
+      }),
+      drag: props.drag,
     })),
   ]);
 };

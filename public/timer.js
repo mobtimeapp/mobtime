@@ -87,18 +87,9 @@ app({
       }, 'Share'),
     ]),
 
-    state.timerTab === 'goals' && [
-      h(goalList, {
-        goals: state.serverState.goals,
-      }),
-      h(addGoal, {
-        goal: state.goal,
-      }),
-    ],
-
     state.timerTab === 'mob' && [
       h(mobParticipants, {
-        mobDrag: state.mobDrag,
+        drag: state.drag.type === 'mob' ? state.drag : {},
         mob: state.serverState.mob,
       }),
 
@@ -107,6 +98,16 @@ app({
       }),
 
       h(mobActions),
+    ],
+
+    state.timerTab === 'goals' && [
+      h(goalList, {
+        drag: state.drag.type === 'goal' ? state.drag : {},
+        goals: state.serverState.goals,
+      }),
+      h(addGoal, {
+        goal: state.goal,
+      }),
     ],
 
     state.timerTab === 'share' && [
@@ -150,26 +151,35 @@ app({
   ])),
 
   subscriptions: (state) => {
-    const { timerId } = state;
+    const { timerId, drag } = state;
+
     return [
       timerId && subscriptions.Websocket({
         actions,
         timerId,
       }),
+
       Status.caseOf({
-        Connected: token => subscriptions.KeepAlive({ token }),
+        Connected: (token) => subscriptions.KeepAlive({ token }),
         Connecting: () => false,
         Reconnecting: () => false,
         Error: () => false,
       }, state.status),
+
       subscriptions.Timer({
         timerStartedAt: state.serverState.timerStartedAt,
         timerDuration: state.serverState.timerDuration,
         actions,
+      }),
+
+      drag.type && subscriptions.DragAndDrop({
+        active: drag.active,
+        DragMove: actions.DragMove,
+        DragEnd: actions.DragEnd,
+        DragCancel: actions.DragCancel,
       }),
     ];
   },
 
   node: document.querySelector('#app'),
 });
-

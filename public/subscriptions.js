@@ -152,3 +152,38 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
   };
 };
 export const Websocket = (props) => [WebsocketFX, props];
+
+
+const DragAndDropFX = (dispatch, props) => {
+  const onMove = (event) => {
+    dispatch(props.DragMove, {
+      clientX: event.pageX,
+      clientY: event.pageY,
+    });
+  };
+
+  const onMouseUp = (event) => {
+    if (props.active) {
+      event.preventDefault();
+    }
+    dispatch(props.DragEnd);
+  };
+
+  const onKeyUp = (event) => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+    dispatch(props.DragCancel);
+  };
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('keyup', onKeyUp);
+  document.addEventListener('mouseup', onMouseUp);
+
+  return () => {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('keyup', onKeyUp);
+  };
+};
+export const DragAndDrop = (props) => [DragAndDropFX, props];

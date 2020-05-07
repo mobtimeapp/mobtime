@@ -2,8 +2,6 @@ import { h } from 'https://unpkg.com/hyperapp?module=1';
 import { section } from '/components/section.js';
 import { deleteButton } from '/components/deleteButton.js';
 
-import * as dnd from '/dragAndDrop.js';
-
 export const mobber = (props) => h(section, {
   class: {
     'flex': true,
@@ -15,9 +13,6 @@ export const mobber = (props) => h(section, {
     'h-full': true,
     'w-full': true,
   },
-  draggable: !!props.name,
-  ondragstart: [props.onDragStart, dnd.dragDecoder(props.index)],
-  ondragend: props.onDragEnd,
 }, [
   h('div', null, [
     h('div', {
