@@ -230,7 +230,7 @@ const update = (action, state) => {
         effects.batch([
           NotifyTimeUpEffect(timerId),
           AuditLogEffect(timerId, token, 'ResetTimer'),
-          Action.CycleMob(timerId),
+          Action.CycleMob(token, timerId),
         ]),
       ];
     },
