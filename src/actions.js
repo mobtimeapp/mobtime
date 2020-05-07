@@ -23,6 +23,7 @@ export default enumerize({
   AddGoal: [String, String, String],
   CompleteGoal: [String, Boolean, String, String],
   RemoveGoal: [String, String, String],
+  MoveGoal: [Number, Number, String, String],
 
   LockMob: [String],
   UnlockMob: [String],
