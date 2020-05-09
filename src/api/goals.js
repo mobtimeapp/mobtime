@@ -24,5 +24,25 @@ export default (dispatch, action, storage) => {
     return response.status(204).end();
   });
 
+  router.get('/move/:sourceIndex/to/:destinationIndex', (request, response) => {
+    const sourceIndex = Number(request.params.sourceIndex);
+    const destinationIndex = Number(request.params.destinationIndex);
+
+    if (Number.isNaN(sourceIndex) || Number.isNaN(destinationIndex)) {
+      return response
+        .status(400)
+        .json({
+          message: 'You must provide and source and desintation indexes',
+          sourceIndex,
+          destinationIndex,
+        })
+        .end();
+    }
+
+    dispatch(action.MoveGoal(sourceIndex, destinationIndex, request.token, request.timerId));
+
+    return response.status(204).end();
+  });
+
   return router;
 };

@@ -402,6 +402,51 @@ const update = (action, state) => {
       ];
     },
 
+    MoveGoal: (sourceIndex, destinationIndex, token, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const clamp = index => Math.min(timer.goals.length, Math.max(0, index));
+
+      const clampedSourceIndex = clamp(sourceIndex);
+      const clampedDestinationIndex = clamp(destinationIndex);
+
+      if (clampedSourceIndex === clampedDestinationIndex) {
+        return [state, effects.none()];
+      }
+
+      const goal = timer.goals[clampedSourceIndex];
+
+      const goals = timer.goals.reduce((nextGoals, oldGoal, index) => {
+        if (index === clampedSourceIndex) return nextGoals;
+
+        return (index === destinationIndex)
+          ? [...nextGoals, goal, oldGoal]
+          : [...nextGoals, oldGoal];
+      }, []);
+
+      if (clampedDestinationIndex >= goals.length) {
+        goals.push(timer.goals[clampedSourceIndex]);
+      }
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            goals,
+          },
+        },
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'MoveGoal', { sourceIndex, destinationIndex }),
+        ]),
+      ]
+      
+    },
+
     LockMob: (_token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
