@@ -11,9 +11,4 @@ export const goalList = (props) => h(section, null, [
     renderItem: (item) => h(goal, item),
     drag: props.drag,
   }),
-  //props.goals.map(({ id, text, completed }) => h(goal, {
-    //id,
-    //text,
-    //completed,
-  //})),
 ]);
