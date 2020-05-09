@@ -8,9 +8,26 @@ export const tab = (props, children) => h('button', {
     'hover:bg-indigo-300': !props.selected,
     'text-white': true,
     'py-1': true,
+    'px-3': true,
     'text-2xl': true,
-    'text-center': true,
     'w-full': true,
+    'flex': true,
+    'flex-row': true,
+    'items-center': true,
+    'justify-between': true,
   },
   onclick: props.onclick,
-}, children);
+}, [
+  h('div', {}, children),
+  props.details && h('div', {
+    class: {
+      'text-sm': true,
+      'text-gray-200': true,
+      'p-1': true,
+      'rounded': true,
+      'bg-green-600': true,
+    },
+  }, [
+    props.details,
+  ]),
+]);

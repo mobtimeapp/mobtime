@@ -22,6 +22,18 @@ import { qrShare } from '/sections/qrShare.js';
 
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 
+const getGoalsDetails = ({ goals }) => {
+  const total = goals.length;
+
+  if (total === 0) {
+    return 'None';
+  }
+
+  const completed = goals.filter((g) => g.completed).length;
+
+  return `${completed} / ${total}`;
+};
+
 app({
   init: actions.Init(null, initialTimerId),
 
@@ -80,6 +92,7 @@ app({
       h(tab, {
         selected: state.timerTab === 'goals',
         onclick: [actions.SetTimerTab, 'goals'],
+        details: getGoalsDetails(state.serverState),
       }, 'Goals'),
       h(tab, {
         selected: state.timerTab === 'share',
