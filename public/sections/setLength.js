@@ -2,7 +2,6 @@ import { h } from 'https://unpkg.com/hyperapp?module=1';
 
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
-import { button } from '/components/button.js';
 
 import * as actions from '/actions.js';
 
@@ -15,16 +14,7 @@ export const setLength = (props) => h(section, null, [
     },
   }, 'Set Length'),
 
-  h('form', {
-    action: '#',
-    method: 'get',
-    onsubmit: [
-      actions.StartTimer,
-      (e) => {
-        e.preventDefault();
-        return undefined;
-      },
-    ],
+  h('div', {
     class: {
       'flex': true,
       'flex-row': true,
@@ -34,6 +24,7 @@ export const setLength = (props) => h(section, null, [
     },
   }, [
     h(input, {
+      name: 'value',
       type: 'number',
       min: 1,
       max: 60,
@@ -59,16 +50,5 @@ export const setLength = (props) => h(section, null, [
         'font-extrabold': true,
       },
     }, 'minutes'),
-
-    h(button, {
-      type: 'submit',
-      class: {
-        'bg-green-600': true,
-        'text-white': true,
-      },
-    }, [
-      h('i', { class: 'fas fa-stopwatch mr-3' }),
-      'Start',
-    ]),
   ]),
 ]);

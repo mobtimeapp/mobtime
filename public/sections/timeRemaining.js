@@ -2,6 +2,7 @@ import { h } from 'https://unpkg.com/hyperapp?module=1';
 
 import { section } from '/components/section.js';
 import { button } from '/components/button.js';
+import { deleteButton } from '/components/deleteButton.js';
 
 import timerRemainingDisplay from '/formatTime.js';
 import * as actions from '/actions.js';
@@ -28,31 +29,66 @@ export const timeRemaining = (props) => {
     }, [
       h('h3', {
         class: {
-          'text-6xl': true,
-          'font-extrabold': true,
+          'flex': true,
+          'flex-row': true,
+          'items-start': true,
+          'justify-start': true,
         },
-      }, timerRemainingDisplay(props.remainingTime)),
-
-      h(button, {
-        class: {
-          'bg-white': true,
-          'text-green-600': true,
-        },
-        disabled: !props.serverState.timerDuration,
-        onclick: isPaused
-          ? actions.ResumeTimer
-          : actions.PauseTimer,
       }, [
-        h('i', {
+        h('span', {
           class: {
-            'fas': true,
-            'fa-pause': !isPaused,
-            'fa-play': isPaused,
-            'mr-4': true,
+            'text-6xl': true,
+            'font-extrabold': true,
+            'leading-none': true,
           },
+        }, timerRemainingDisplay(props.remainingTime)),
+        h(deleteButton, {
+          size: '24px',
+          onclick: [actions.Completed],
         }),
-        isPaused ? 'Resume' : 'Pause',
       ]),
+
+      props.serverState.timerDuration === 0 && [
+        h(button, {
+          class: {
+            'bg-green-600': true,
+            'text-white': true,
+          },
+          onclick: [actions.StartTimer],
+        }, [
+          h('i', {
+            class: {
+              'fas': true,
+              'fa-play': true,
+              'mr-4': true,
+            },
+          }),
+          'Start Turn',
+        ]),
+      ],
+
+      props.serverState.timerDuration > 0 && [
+        h(button, {
+          class: {
+            'bg-white': true,
+            'text-green-600': true,
+          },
+          disabled: !props.serverState.timerDuration,
+          onclick: isPaused
+            ? actions.ResumeTimer
+            : actions.PauseTimer,
+        }, [
+          h('i', {
+            class: {
+              'fas': true,
+              'fa-pause': !isPaused,
+              'fa-play': isPaused,
+              'mr-4': true,
+            },
+          }),
+          isPaused ? 'Resume' : 'Pause',
+        ]),
+      ],
     ]),
   ]);
 };
