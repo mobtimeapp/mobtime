@@ -68,6 +68,9 @@ const update = (action, state) => {
         goals: [],
         tokens: [],
         expiresAt: Date.now() + EXPIRE_TIMER,
+        settings: {
+          duration: (5 * 60 * 1000) + 900,
+        },
       };
 
       return [
@@ -152,7 +155,7 @@ const update = (action, state) => {
       ];
     },
 
-    StartTimer: (milliseconds, token, timerId) => {
+    StartTimerFromSeconds: (milliseconds, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -174,7 +177,31 @@ const update = (action, state) => {
         },
         effects.batch([
           TickEffect(timerId),
-          AuditLogEffect(timerId, token, 'StartTimer', milliseconds.toString()),
+          AuditLogEffect(timerId, token, 'StartTimerFromSeconds', milliseconds.toString()),
+        ]),
+      ];
+    },
+
+    StartTimer: (token, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const timerDuration = timer.settings.duration;
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            timerDuration,
+            timerStartedAt: Date.now(),
+          },
+        },
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'StartTimer'),
         ]),
       ];
     },
@@ -539,6 +566,32 @@ const update = (action, state) => {
             ? NotifyBreakEffect(timerId)
             : effects.none(),
           AuditLogEffect(timerId, token, 'CycleMob'),
+        ]),
+      ];
+    },
+
+    UpdateSettings: (nextSettings, token, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const settings = {
+        ...(timer.settings || {}),
+        ...nextSettings,
+      };
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            settings,
+          },
+        },
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'UpdateSettings', settings),
         ]),
       ];
     },

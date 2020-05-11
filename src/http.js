@@ -14,6 +14,7 @@ import fetch from 'node-fetch';
 import apiTimer from './api/timer';
 import apiMob from './api/mob';
 import apiGoals from './api/goals';
+import apiSettings from './api/settings';
 import apiStatistics from './api/statistics';
 import apiPing from './api/ping';
 
@@ -114,6 +115,7 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   authorizedRouter.use('/timer', apiTimer(dispatch, action, storage));
   authorizedRouter.use('/mob', apiMob(dispatch, action, storage));
   authorizedRouter.use('/goals', apiGoals(dispatch, action, storage));
+  authorizedRouter.use(apiSettings(dispatch, action, storage));
   authorizedRouter.use(apiPing(dispatch, action, storage));
 
   router.use(apiStatistics(dispatch, action, storage));

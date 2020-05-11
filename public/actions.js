@@ -382,7 +382,7 @@ export const ResumeTimer = (state) => [
 ];
 
 export const StartTimer = (state) => {
-  const milliseconds = (Number(state.timeInMinutes) * 60 * 1000) + 999;
+  const milliseconds = (Number(state.timeInMinutes) * 60 * 1000);
 
   return [
     state,
