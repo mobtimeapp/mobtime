@@ -12,7 +12,8 @@ export default enumerize({
   AddToken: [String, String],
   RemoveToken: [String, String],
 
-  StartTimer: [Number, String, String],
+  StartTimerFromSeconds: [Number, String, String],
+  StartTimer: [String, String],
   PauseTimer: [String, String],
   ResetTimer: [String, String],
 
@@ -30,4 +31,6 @@ export default enumerize({
 
   ShuffleMob: [String, String],
   CycleMob: [String, String],
+
+  UpdateSettings: [Object, String, String],
 });
