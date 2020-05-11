@@ -33,6 +33,7 @@ export const Init = (_, timerId) => [
       goals: [],
       lockedMob: null,
       connections: 0,
+      settings: {},
     },
     timerTab: 'mob',
     drag: { ...emptyDrag },
@@ -40,9 +41,9 @@ export const Init = (_, timerId) => [
     remainingTime: 0,
     name: '',
     goal: '',
-    timeInMinutes: '5',
     allowNotification: initialAllowNotification,
     status: Status.Connecting(),
+    pendingSettings: {},
   },
 ];
 
@@ -350,11 +351,6 @@ export const UpdateGoalText = (state, goal) => [
   },
 ];
 
-export const UpdateTimeInMinutes = (state, timeInMinutes) => ({
-  ...state,
-  timeInMinutes,
-});
-
 export const PauseTimer = (state) => [
   state,
   withToken(
@@ -381,22 +377,18 @@ export const ResumeTimer = (state) => [
   ),
 ];
 
-export const StartTimer = (state) => {
-  const milliseconds = (Number(state.timeInMinutes) * 60 * 1000);
-
-  return [
-    state,
-    withToken(
-      (token) => effects.ApiEffect({
-        endpoint: `/api/timer/start/${milliseconds}`,
-        token,
-        OnOK: Noop,
-        OnERR: Noop,
-      }),
-      state.status,
-    ),
-  ];
-};
+export const StartTimer = (state) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: '/api/timer/start',
+      token,
+      OnOK: Noop,
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
 
 export const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
 
@@ -420,3 +412,36 @@ export const SetRecaptchaToken = (state, recaptchaToken) => ({
   recaptchaToken,
 
 });
+
+export const PendingSettingsReset = (state) => ({
+  ...state,
+  pendingSettings: {},
+});
+
+export const PendingSettingsSet = (state, { key, value }) => ({
+  ...state,
+  pendingSettings: {
+    ...state.pendingSettings,
+    [key]: value,
+  },
+});
+
+export const UpdateSettings = (state) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: '/api/settings',
+      options: {
+        method: 'post',
+        body: JSON.stringify(state.pendingSettings),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+      token,
+      OnOK: PendingSettingsReset,
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];

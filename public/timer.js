@@ -7,10 +7,10 @@ import { card } from '/components/card.js';
 import { fullButton } from '/components/fullButton.js';
 import { section } from '/components/section.js';
 import { tab } from '/components/tab.js';
+import { settings } from '/components/settings.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
-import { setLength } from '/sections/setLength.js';
 
 import { goalList } from '/sections/goalList.js';
 import { addGoal } from '/sections/addGoal.js';
@@ -18,6 +18,9 @@ import { addGoal } from '/sections/addGoal.js';
 import { mobParticipants } from '/sections/mobParticipants.js';
 import { addParticipant } from '/sections/addParticipant.js';
 import { mobActions } from '/sections/mobActions.js';
+
+import { setLength } from '/sections/setLength.js';
+
 import { qrShare } from '/sections/qrShare.js';
 
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
@@ -71,14 +74,11 @@ app({
       serverState: state.serverState,
     }),
 
-    h(setLength, {
-      timeInMinutes: state.timeInMinutes,
-    }),
-
     h('div', {
       class: {
         'grid': true,
-        'grid-cols-3': true,
+        'grid-cols-2': true,
+        'sm:grid-cols-4': true,
         'gap-1': true,
         'px-2': true,
         'py-4': true,
@@ -94,6 +94,10 @@ app({
         onclick: [actions.SetTimerTab, 'goals'],
         details: getGoalsDetails(state.serverState),
       }, 'Goals'),
+      h(tab, {
+        selected: state.timerTab === 'settings',
+        onclick: [actions.SetTimerTab, 'settings'],
+      }, 'Settings'),
       h(tab, {
         selected: state.timerTab === 'share',
         onclick: [actions.SetTimerTab, 'share'],
@@ -122,6 +126,12 @@ app({
         goal: state.goal,
       }),
     ],
+
+    state.timerTab === 'settings' && h(settings, {}, [
+      h(setLength, {
+        timeInMinutes: state.timeInMinutes,
+      }),
+    ]),
 
     state.timerTab === 'share' && [
       h(qrShare),
