@@ -53,6 +53,7 @@ app({
       'sm:min-h-0': true,
       'w-full': true,
       'sm:w-8/12': true,
+      'md:w-10/12': true,
       'lg:w-6/12': true,
       'xl:w-4/12': true,
       'shadow': false,
@@ -79,7 +80,7 @@ app({
       class: {
         'grid': true,
         'grid-cols-2': true,
-        'sm:grid-cols-4': true,
+        'sm:grid-cols-5': true,
         'gap-1': true,
         'sm:gap-0': true,
         'px-2': true,
@@ -87,6 +88,10 @@ app({
         'sm:px-4': true,
       },
     }, [
+      h(tab, {
+        selected: state.timerTab === 'overview',
+        onclick: [actions.SetTimerTab, 'overview'],
+      }, 'Overview'),
       h(tab, {
         selected: state.timerTab === 'mob',
         onclick: [actions.SetTimerTab, 'mob'],
@@ -105,6 +110,20 @@ app({
         onclick: [actions.SetTimerTab, 'share'],
       }, 'Share'),
     ]),
+
+    state.timerTab === 'overview' && [
+      h(mobParticipants, {
+        drag: state.drag.type === 'overview' ? state.drag : {},
+        mob: state.serverState.mob.slice(0, 2),
+      }),
+
+      h(goalList, {
+        drag: state.drag.type === 'goal' ? state.drag : {},
+        goals: state.serverState.goals.slice(0, 3),
+      }),
+
+    ],
+
 
     state.timerTab === 'mob' && [
       h(mobParticipants, {
