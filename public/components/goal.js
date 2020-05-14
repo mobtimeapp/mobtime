@@ -40,7 +40,7 @@ export const goal = (props) => h('div', {
       },
     }, props.text),
   ]),
-  h(deleteButton, {
+  !props.overview && h(deleteButton, {
     size: '24px',
     onclick: [actions.RemoveGoal, props.id],
   }),

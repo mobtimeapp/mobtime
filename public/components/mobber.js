@@ -34,7 +34,7 @@ export const mobber = (props) => h(section, {
     }, props.name || 'Empty'),
   ]),
 
-  props.name && h(deleteButton, {
+  props.name && props.onRemove && h(deleteButton, {
     onclick: [props.onRemove, props.name],
   }),
 ]);
