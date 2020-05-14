@@ -10,7 +10,9 @@ const ApiEffectFX = (dispatch, {
       error.response = r;
       throw error;
     }
-    return r.json();
+    return r.status === 204
+      ? null
+      : r.json();
   })
   .then((data) => dispatch(OnOK, data))
   .catch((err) => dispatch(OnERR, err));
