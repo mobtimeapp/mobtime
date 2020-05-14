@@ -8,6 +8,7 @@ import { fullButton } from '/components/fullButton.js';
 import { section } from '/components/section.js';
 import { tab } from '/components/tab.js';
 import { settings } from '/components/settings.js';
+import { badge } from '/components/badge.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
@@ -19,7 +20,7 @@ import { mobParticipants } from '/sections/mobParticipants.js';
 import { addParticipant } from '/sections/addParticipant.js';
 import { mobActions } from '/sections/mobActions.js';
 
-import { setLength } from '/sections/setLength.js';
+import { setLength } from '/settings/setLength.js';
 
 import { qrShare } from '/sections/qrShare.js';
 
@@ -29,12 +30,12 @@ const getGoalsDetails = ({ goals }) => {
   const total = goals.length;
 
   if (total === 0) {
-    return 'None';
+    return '';
   }
 
   const completed = goals.filter((g) => g.completed).length;
 
-  return `${completed} / ${total}`;
+  return h(badge, {}, `${completed}/${total}`);
 };
 
 app({
@@ -80,6 +81,7 @@ app({
         'grid-cols-2': true,
         'sm:grid-cols-4': true,
         'gap-1': true,
+        'sm:gap-0': true,
         'px-2': true,
         'py-4': true,
         'sm:px-4': true,
@@ -127,9 +129,12 @@ app({
       }),
     ],
 
-    state.timerTab === 'settings' && h(settings, {}, [
+    state.timerTab === 'settings' && h(settings, {
+      pendingSettings: state.pendingSettings,
+    }, [
       h(setLength, {
-        timeInMinutes: state.timeInMinutes,
+        pendingSettings: state.pendingSettings,
+        settings: state.serverState.settings,
       }),
     ]),
 
