@@ -9,6 +9,7 @@ import { section } from '/components/section.js';
 import { tab } from '/components/tab.js';
 import { settings } from '/components/settings.js';
 import { badge } from '/components/badge.js';
+import { button } from '/components/button.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
@@ -49,6 +50,7 @@ app({
     },
   }, h(card, {
     class: {
+      'box-border': true,
       'min-h-screen': true,
       'sm:min-h-0': true,
       'w-full': true,
@@ -78,11 +80,9 @@ app({
 
     h('div', {
       class: {
-        'grid': true,
-        'grid-cols-2': true,
-        'sm:grid-cols-5': true,
-        'gap-1': true,
-        'sm:gap-0': true,
+        'flex': true,
+        'flex-row': true,
+        'flex-wrap': true,
         'px-2': true,
         'py-4': true,
         'sm:px-4': true,
@@ -95,6 +95,8 @@ app({
       h(tab, {
         selected: state.timerTab === 'mob',
         onclick: [actions.SetTimerTab, 'mob'],
+        details: state.serverState.mob.length > 0
+          && h(badge, {}, state.serverState.mob.length.toString()),
       }, 'Mob'),
       h(tab, {
         selected: state.timerTab === 'goals',
@@ -112,14 +114,64 @@ app({
     ]),
 
     state.timerTab === 'overview' && [
+      h('div', {
+        class: {
+          'px-5': true,
+          'pt-3': true,
+          'flex': true,
+          'flex-row': true,
+          'items-end': true,
+          'justify-between': true,
+          'w-full': true,
+          'border-b': true,
+        },
+      }, [
+        h('h2', {
+          class: {
+            'text-lg': true,
+            'font-bold': true,
+            'py-1': true,
+          },
+        }, 'Who\'s Up'),
+        h(button, {
+          type: 'button',
+          onclick: [actions.SetTimerTab, 'mob'],
+        }, 'Edit Mob'),
+      ]),
       h(mobParticipants, {
-        drag: state.drag.type === 'overview' ? state.drag : {},
+        overview: true,
+        drag: {},
         mob: state.serverState.mob.slice(0, 2),
       }),
 
+      h('div', {
+        class: {
+          'px-5': true,
+          'pt-3': true,
+          'flex': true,
+          'flex-row': true,
+          'items-end': true,
+          'justify-between': true,
+          'w-full': true,
+          'border-b': true,
+        },
+      }, [
+        h('h2', {
+          class: {
+            'text-lg': true,
+            'font-bold': true,
+            'py-1': true,
+          },
+        }, 'Top Goals'),
+        h(button, {
+          type: 'button',
+          onclick: [actions.SetTimerTab, 'goals'],
+        }, 'Edit Goals'),
+      ]),
       h(goalList, {
-        drag: state.drag.type === 'goal' ? state.drag : {},
-        goals: state.serverState.goals.slice(0, 3),
+        overview: true,
+        drag: {},
+        goals: state.serverState.goals.filter((g) => !g.completed).slice(0, 3),
       }),
 
     ],
