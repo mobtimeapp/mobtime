@@ -12,7 +12,7 @@ export const tab = (props, children) => h('button', {
     'py-1': true,
     'px-3': true,
     'text-lg': true,
-    'w-full': true,
+    'flex-grow': true,
     'flex': true,
     'flex-row': true,
     'items-center': true,
@@ -20,6 +20,14 @@ export const tab = (props, children) => h('button', {
   },
   onclick: props.onclick,
 }, [
-  h('div', {}, children),
-  props.details,
+  h('div', {
+    class: {
+      'uppercase': true,
+    },
+  }, children),
+  props.details && h('div', {
+    class: {
+      'ml-2': true,
+    },
+  }, props.details),
 ]);
