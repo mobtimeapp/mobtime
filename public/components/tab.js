@@ -11,7 +11,7 @@ export const tab = (props, children) => h('button', {
     'text-white': true,
     'py-1': true,
     'px-3': true,
-    'text-2xl': true,
+    'text-lg': true,
     'w-full': true,
     'flex': true,
     'flex-row': true,
