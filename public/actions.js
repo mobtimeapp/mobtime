@@ -35,7 +35,7 @@ export const Init = (_, timerId) => [
       connections: 0,
       settings: {},
     },
-    timerTab: 'mob',
+    timerTab: 'overview',
     drag: { ...emptyDrag },
     timerId,
     remainingTime: 0,
