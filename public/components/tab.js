@@ -2,10 +2,12 @@ import { h } from 'https://unpkg.com/hyperapp?module=1';
 
 export const tab = (props, children) => h('button', {
   class: {
-    'rounded': true,
     'bg-indigo-400': props.selected,
-    'bg-transparent': !props.selected,
-    'hover:bg-indigo-300': !props.selected,
+    'sm:bg-transparent': !props.selected,
+    'bg-indigo-700': !props.selected,
+    'hover:bg-indigo-500': !props.selected,
+    'border-b': !props.selected,
+    'border-indigo-300': true,
     'text-white': true,
     'py-1': true,
     'px-3': true,
@@ -19,15 +21,5 @@ export const tab = (props, children) => h('button', {
   onclick: props.onclick,
 }, [
   h('div', {}, children),
-  props.details && h('div', {
-    class: {
-      'text-sm': true,
-      'text-gray-200': true,
-      'p-1': true,
-      'rounded': true,
-      'bg-green-600': true,
-    },
-  }, [
-    props.details,
-  ]),
+  props.details,
 ]);
