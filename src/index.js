@@ -40,6 +40,19 @@ const NotifyTimeUpEffect = timerId => NotificationEffect(
   timerId,
 );
 
+const defaultTimer = {
+  mob: [],
+  lockedMob: null,
+  timerStartedAt: null,
+  timerDuration: 0,
+  goals: [],
+  tokens: [],
+  expiresAt: Date.now() + EXPIRE_TIMER,
+  settings: {
+    duration: (5 * 60 * 1000) + 900,
+  },
+};
+
 const update = (action, state) => {
   if (!action) return [state, effects.none()];
 
@@ -61,16 +74,7 @@ const update = (action, state) => {
       const timerExists = !!state[timerId];
 
       const timer = state[timerId] || {
-        mob: [],
-        lockedMob: null,
-        timerStartedAt: null,
-        timerDuration: 0,
-        goals: [],
-        tokens: [],
-        expiresAt: Date.now() + EXPIRE_TIMER,
-        settings: {
-          duration: (5 * 60 * 1000) + 900,
-        },
+        ...defaultTimer,
       };
 
       return [
@@ -124,6 +128,10 @@ const update = (action, state) => {
           ...state,
           [timerId]: {
             ...timer,
+            settings: {
+              ...defaultTimer.settings,
+              ...(timer.settings || {}),
+            },
             tokens: timer.tokens.concat(token),
           },
         },
