@@ -41,6 +41,9 @@ export const timeRemaining = (props) => {
             'font-extrabold': true,
             'leading-none': true,
           },
+          style: {
+            fontFamily: "'Working Sans', sans-serif",
+          },
         }, timerRemainingDisplay(props.remainingTime)),
         h(deleteButton, {
           size: '24px',
