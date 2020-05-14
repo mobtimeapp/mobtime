@@ -45,7 +45,7 @@ export const timeRemaining = (props) => {
             fontFamily: "'Working Sans', sans-serif",
           },
         }, timerRemainingDisplay(props.remainingTime)),
-        h(deleteButton, {
+        props.remainingTime > 0 && h(deleteButton, {
           size: '24px',
           onclick: [actions.Completed],
         }),
