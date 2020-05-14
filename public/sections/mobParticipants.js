@@ -22,7 +22,7 @@ export const mobParticipants = (props) => {
       items,
       renderItem: (item) => h(mobber, {
         ...item,
-        onRemove: actions.RemoveNameFromMob,
+        onRemove: !props.overview && actions.RemoveNameFromMob,
       }),
       drag: props.drag,
     })),

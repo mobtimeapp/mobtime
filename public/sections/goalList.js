@@ -8,7 +8,10 @@ export const goalList = (props) => h(section, null, [
   h(reorderable, {
     dragType: 'goal',
     items: props.goals,
-    renderItem: (item) => h(goal, item),
+    renderItem: (item) => h(goal, {
+      overview: props.overview,
+      ...item,
+    }),
     drag: props.drag,
   }),
 ]);
