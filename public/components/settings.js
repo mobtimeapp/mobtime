@@ -1,19 +1,12 @@
 import { h } from 'https://unpkg.com/hyperapp?module=1';
 
-import * as actions from '/actions.js';
+import { button } from '/components/button.js';
 
-const formToJson = (formElement) => {
-  const formData = new FormData(formElement);
-  return Array.from(formData.keys())
-    .reduce((json, key) => ({
-      ...json,
-      [key]: formData.get(key),
-    }), {});
-};
+import * as actions from '/actions.js';
 
 const formDecoder = (e) => {
   e.preventDefault();
-  return formToJson(e.target);
+  return null;
 };
 
 export const settings = (props, children) => h('form', {
@@ -24,4 +17,47 @@ export const settings = (props, children) => h('form', {
     actions.UpdateSettings,
     formDecoder,
   ],
-}, children);
+}, [
+  h('div', {
+    class: {
+      'grid': true,
+      'gap-2': true,
+      'sm:grid-cols-2': true,
+      'px-8': true,
+      'mb-4': true,
+    },
+  }, children),
+  (Object.keys(props.pendingSettings).length > 0) && h('div', {
+    class: {
+      'grid': true,
+      'gap-1': true,
+      'grid-cols-2': true,
+      'px-8': true,
+      'mb-4': true,
+    },
+  }, [
+    h(button, {
+      class: {
+        'bg-indigo-500': true,
+        'hover:bg-indigo-400': true,
+      },
+      onclick: actions.PendingSettingsReset,
+    }, 'Cancel'),
+    h(button, {
+      type: 'submit',
+      class: {
+        'bg-green-600': true,
+        'hover:bg-green-500': true,
+      },
+      disable: Object.keys(props.pendingSettings).length === 0,
+    }, 'Save'),
+  ]),
+  (Object.keys(props.pendingSettings).length === 0) && h('div', {
+    class: {
+      'text-center': true,
+    },
+  }, [
+    'Settings are up to date ',
+    h('i', { class: 'fas fa-check' }),
+  ]),
+]);
