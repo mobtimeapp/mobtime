@@ -5,7 +5,8 @@ export const badge = (props, children) => h('div', {
   class: {
     'text-sm': true,
     'text-gray-200': true,
-    'p-1': true,
+    'py-1': true,
+    'px-2': true,
     'rounded': true,
     'bg-green-600': true,
   },
