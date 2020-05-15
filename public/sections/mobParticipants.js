@@ -5,8 +5,6 @@ import { section } from '/components/section.js';
 import { reorderable } from '/components/reorderable.js';
 import { mobber } from '/components/mobber.js';
 
-import * as actions from '/actions.js';
-
 export const mobParticipants = (props) => {
   const [mobNavigator, mobDriver, ...rest] = props.mob;
 
@@ -22,7 +20,7 @@ export const mobParticipants = (props) => {
       items,
       renderItem: (item) => h(mobber, {
         ...item,
-        onRemove: !props.overview && actions.RemoveNameFromMob,
+        overview: props.overview,
       }),
       drag: props.drag,
     })),

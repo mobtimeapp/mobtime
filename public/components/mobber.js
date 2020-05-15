@@ -2,6 +2,8 @@ import { h } from 'https://unpkg.com/hyperapp?module=1';
 import { section } from '/components/section.js';
 import { deleteButton } from '/components/deleteButton.js';
 
+import * as actions from '/actions.js';
+
 export const mobber = (props) => h(section, {
   class: {
     'flex': true,
@@ -9,7 +11,7 @@ export const mobber = (props) => h(section, {
     'items-center': true,
     'justify-between': true,
     'mb-3': true,
-    'cursor-move': !!props.name,
+    'cursor-move': !!props.name && !props.overview,
     'h-full': true,
     'w-full': true,
   },
@@ -34,7 +36,7 @@ export const mobber = (props) => h(section, {
     }, props.name || 'Empty'),
   ]),
 
-  props.name && props.onRemove && h(deleteButton, {
-    onclick: [props.onRemove, props.name],
+  props.name && !props.overview && h(deleteButton, {
+    onclick: [actions.RemoveNameFromMob, props.name],
   }),
 ]);
