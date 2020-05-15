@@ -10,6 +10,7 @@ import { tab } from '/components/tab.js';
 import { settings } from '/components/settings.js';
 import { badge } from '/components/badge.js';
 import { button } from '/components/button.js';
+import { overviewHeading } from '/components/overviewHeading.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
@@ -114,60 +115,28 @@ app({
     ]),
 
     state.timerTab === 'overview' && [
-      h('div', {
-        class: {
-          'px-5': true,
-          'pt-3': true,
-          'flex': true,
-          'flex-row': true,
-          'items-end': true,
-          'justify-between': true,
-          'w-full': true,
-          'border-b': true,
-        },
-      }, [
-        h('h2', {
-          class: {
-            'text-lg': true,
-            'font-bold': true,
-            'py-1': true,
-          },
-        }, 'Who\'s Up'),
-        h(button, {
-          type: 'button',
-          onclick: [actions.SetTimerTab, 'mob'],
-        }, 'Edit Mob'),
-      ]),
+      h(overviewHeading, {
+        rightAction: (
+          h(button, {
+            type: 'button',
+            onclick: [actions.SetTimerTab, 'mob'],
+          }, 'Edit Mob')
+        ),
+      }, 'Who\'s Up'),
       h(mobParticipants, {
         overview: true,
         drag: {},
         mob: state.serverState.mob.slice(0, 2),
       }),
 
-      h('div', {
-        class: {
-          'px-5': true,
-          'pt-3': true,
-          'flex': true,
-          'flex-row': true,
-          'items-end': true,
-          'justify-between': true,
-          'w-full': true,
-          'border-b': true,
-        },
-      }, [
-        h('h2', {
-          class: {
-            'text-lg': true,
-            'font-bold': true,
-            'py-1': true,
-          },
-        }, 'Top Goals'),
-        h(button, {
-          type: 'button',
-          onclick: [actions.SetTimerTab, 'goals'],
-        }, 'Edit Goals'),
-      ]),
+      h(overviewHeading, {
+        rightAction: (
+          h(button, {
+            type: 'button',
+            onclick: [actions.SetTimerTab, 'goals'],
+          }, 'Edit Goals')
+        ),
+      }, 'Top Goals'),
       h(goalList, {
         overview: true,
         drag: {},
