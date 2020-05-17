@@ -7,6 +7,8 @@ import { CheckVersion } from './checkVersion';
 import { Cleanup } from './cleanup';
 import AuditLogEffect from './auditLog';
 
+import { EXPIRE_TIMER } from './timerConfig';
+
 import { TokenPoliceEffect } from './tokenPolice';
 import { BlacklistEffect } from './blacklist';
 
@@ -14,8 +16,6 @@ import { LoadEffect } from './load';
 import { Persist } from './persistence';
 
 const port = process.env.PORT || 4321;
-
-const EXPIRE_TIMER = 30 * 60 * 1000; // 30 minutes
 
 const MessageBus = bus.make();
 const Storage = storage.make();
