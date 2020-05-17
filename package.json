@@ -15,12 +15,12 @@
     "start": "node ./index.js",
     "live": "echo 'This is deprecated, use yarn start now'; yarn start'",
     "lint": "eslint .",
-    "deploy": "node ./deploy/index.js"
+    "deploy": "node ./deploy/index.js",
+    "test": "ava"
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
     "body-parser": "^1.19.0",
-    "concurrently": "^5.1.0",
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
@@ -35,9 +35,22 @@
   },
   "private": true,
   "devDependencies": {
+    "ava": "^3.8.2",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.1",
     "resolve": "^1.15.1"
+  },
+  "ava": {
+    "files": [
+      "src/**/*.test.js"
+    ],
+    "concurrency": 8,
+    "failFast": true,
+    "failWithoutAssertions": true,
+    "require": [
+      "esm"
+    ],
+    "verbose": true
   }
 }
