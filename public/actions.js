@@ -294,11 +294,11 @@ export const AddNameToMob = (state) => [
   ),
 ];
 
-export const RemoveNameFromMob = (state, name) => [
+export const RemoveFromMob = (state, id) => [
   state,
   withToken(
     (token) => effects.ApiEffect({
-      endpoint: `/api/mob/remove/${encodeURIComponent(name)}`,
+      endpoint: `/api/mob/remove/${encodeURIComponent(id)}`,
       token,
       OnOK: Noop,
       OnERR: Noop,

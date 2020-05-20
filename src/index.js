@@ -6,6 +6,7 @@ import { Http } from './http';
 import { CheckVersion } from './checkVersion';
 import { Cleanup } from './cleanup';
 import AuditLogEffect from './auditLog';
+import { id } from './id';
 
 import { EXPIRE_TIMER } from './timerConfig';
 
@@ -281,7 +282,10 @@ const update = (action, state) => {
           ...state,
           [timerId]: {
             ...timer,
-            mob: timer.mob.concat(name),
+            mob: timer.mob.concat({
+              id: id(),
+              name,
+            }),
           },
         },
         effects.batch([
@@ -291,7 +295,7 @@ const update = (action, state) => {
       ];
     },
 
-    RemoveUser: (name, token, timerId) => {
+    RemoveUser: (userId, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
@@ -302,12 +306,12 @@ const update = (action, state) => {
           ...state,
           [timerId]: {
             ...timer,
-            mob: timer.mob.filter(n => n !== name),
+            mob: timer.mob.filter(m => m.id !== userId),
           },
         },
         effects.batch([
           TickEffect(timerId),
-          AuditLogEffect(timerId, token, 'RemoveUser', name),
+          AuditLogEffect(timerId, token, 'RemoveUser', userId),
         ]),
       ];
     },
