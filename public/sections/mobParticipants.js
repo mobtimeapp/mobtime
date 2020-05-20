@@ -9,9 +9,9 @@ export const mobParticipants = (props) => {
   const [mobNavigator, mobDriver, ...rest] = props.mob;
 
   const items = [
-    { name: mobNavigator, position: 'Navigator' },
-    { name: mobDriver, position: 'Driver' },
-    ...rest.map((name) => ({ name, position: 'mob' })),
+    { ...mobNavigator, position: 'Navigator' },
+    { ...mobDriver, position: 'Driver' },
+    ...rest.map((m) => ({ ...m, position: 'mob' })),
   ];
 
   return h(section, null, [

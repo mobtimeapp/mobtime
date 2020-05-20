@@ -28,8 +28,8 @@ export default (dispatch, action, storage) => {
     return response.status(201).end();
   });
 
-  router.get('/remove/:name', (request, response) => {
-    const { name } = request.params;
+  router.get('/remove/:id', (request, response) => {
+    const { id } = request.params;
     const { lockedMob } = getTimer(request.timerId);
 
     if (lockedMob) {
@@ -39,7 +39,7 @@ export default (dispatch, action, storage) => {
         .end();
     }
 
-    dispatch(action.RemoveUser(name, request.token, request.timerId));
+    dispatch(action.RemoveUser(id, request.token, request.timerId));
 
     return response.status(201).end();
   });
