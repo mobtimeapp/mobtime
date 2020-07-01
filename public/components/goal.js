@@ -1,6 +1,5 @@
 import { h } from '/vendor/hyperapp.js';
 
-import { deleteButton } from '/components/deleteButton.js';
 import * as actions from '/actions.js';
 
 export const goal = (props) => h('div', {
@@ -10,6 +9,7 @@ export const goal = (props) => h('div', {
     'items-center': true,
     'justify-between': true,
     'mb-2': true,
+    'w-full': true,
   },
 }, [
   h('label', {
@@ -41,8 +41,4 @@ export const goal = (props) => h('div', {
       },
     }, props.text),
   ]),
-  !props.overview && h(deleteButton, {
-    size: '24px',
-    onclick: [actions.RemoveGoal, props.id],
-  }),
 ]);

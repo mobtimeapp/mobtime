@@ -2,11 +2,13 @@ import { h } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';
 
+import { deleteButton } from '/components/deleteButton.js';
+
 const relativeContainer = (props, children) => h('div', {
   ...props,
   class: {
     ...props.class,
-    'relative': true,
+    relative: true,
   },
 }, children);
 
@@ -51,13 +53,45 @@ const dragContainer = (props, children) => h('div', {
     'hidden': props.isDragFrom,
     'relative': true,
     'select-none': true,
+    'flex': true,
+    'flex-row': true,
+    'items-center': true,
+    'justify-start': true,
   },
-  onmousedown: [actions.DragSelect, mouseDownDecoder(
-    props.dragType,
-    props.index,
-  )],
 }, [
+  !props.disabled && h('div', {
+    class: {
+      'h-full': true,
+      'flex': true,
+      'flex-col': true,
+      'items-center': true,
+      'justify-between': true,
+      'py-8': true,
+      'mr-2': true,
+      'cursor-move': true,
+    },
+    onmousedown: [actions.DragSelect, mouseDownDecoder(
+      props.dragType,
+      props.index,
+    )],
+  }, Array.from({ length: 3 }, () => h(
+    'div',
+    {
+      class: {
+        'border-b': true,
+        'border-b-white': true,
+        'my-1': true,
+        'w-6': true,
+      },
+    },
+  ))),
+
   children,
+
+  props.onDelete && h(deleteButton, {
+    onclick: props.onDelete,
+  }),
+
   props.isDragging && [
     h(dropZoneTrigger, {
       index: props.index,
@@ -87,7 +121,9 @@ const draggingContainer = (props, children) => h('div', {
     'rounded': true,
     'bg-indigo-600': true,
   },
-}, children);
+}, [
+  children,
+]);
 
 export const reorderable = (props) => {
   const isDragging = props.drag.type === props.dragType && props.drag.active;
@@ -105,6 +141,10 @@ export const reorderable = (props) => {
           isDragFrom: isDraggingFrom(index),
           index,
           dragType: props.dragType,
+          disabled: props.disabled,
+          onDelete: props.onDelete && item.id
+            ? [props.onDelete, item.id]
+            : undefined,
         }, props.renderItem(item)),
       ]),
 

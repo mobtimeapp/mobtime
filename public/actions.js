@@ -52,7 +52,12 @@ export const SetTimerTab = (state, timerTab) => ({
   timerTab,
 });
 
-export const DragSelect = (state, { type, from, clientX, clientY }) => ({
+export const DragSelect = (state, {
+  type,
+  from,
+  clientX,
+  clientY,
+}) => ({
   ...state,
   drag: {
     active: false,
@@ -245,31 +250,6 @@ export const CycleMob = (state) => [
   withToken(
     (token) => effects.ApiEffect({
       endpoint: '/api/mob/cycle',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
-];
-
-export const LockMob = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/mob/lock',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
-];
-export const UnlockMob = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/mob/unlock',
       token,
       OnOK: Noop,
       OnERR: Noop,

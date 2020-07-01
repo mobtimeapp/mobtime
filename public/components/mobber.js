@@ -1,9 +1,6 @@
 import { h } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
-import { deleteButton } from '/components/deleteButton.js';
-
-import * as actions from '/actions.js';
 
 export const mobber = (props) => h(section, {
   class: {
@@ -12,7 +9,6 @@ export const mobber = (props) => h(section, {
     'items-center': true,
     'justify-between': true,
     'mb-3': true,
-    'cursor-move': !!props.name && !props.overview,
     'h-full': true,
     'w-full': true,
   },
@@ -36,8 +32,4 @@ export const mobber = (props) => h(section, {
       },
     }, props.name || 'Empty'),
   ]),
-
-  props.name && !props.overview && h(deleteButton, {
-    onclick: [actions.RemoveFromMob, props.id],
-  }),
 ]);

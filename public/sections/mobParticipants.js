@@ -1,6 +1,8 @@
 
 import { h } from '/vendor/hyperapp.js';
 
+import * as actions from '/actions.js';
+
 import { section } from '/components/section.js';
 import { reorderable } from '/components/reorderable.js';
 import { mobber } from '/components/mobber.js';
@@ -20,9 +22,12 @@ export const mobParticipants = (props) => {
       items,
       renderItem: (item) => h(mobber, {
         ...item,
-        overview: props.overview,
       }),
       drag: props.drag,
+      disabled: props.overview,
+      onDelete: props.overview
+        ? undefined
+        : actions.RemoveFromMob,
     })),
   ]);
 };
