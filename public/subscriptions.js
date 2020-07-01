@@ -56,7 +56,7 @@ const KeepAliveFX = (_dispatch, { token }) => {
         console.warn('Unable to ping timer', err); // eslint-disable-line no-console
       }));
 
-  setTimeout(checkConnection, 0);
+  requestAnimationFrame(checkConnection);
 
   return () => {
     cancel = true;
@@ -142,7 +142,7 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
     });
   };
 
-  setTimeout(connect, 0);
+  requestAnimationFrame(connect);
 
   return () => {
     cancel = true;
