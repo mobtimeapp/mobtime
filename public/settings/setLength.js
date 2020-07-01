@@ -1,18 +1,19 @@
 import { h } from 'https://unpkg.com/hyperapp?module=1';
-
 import { input } from '/components/input.js';
 import { base } from '/settings/base.js';
 
 import * as actions from '/actions.js';
 
+const isNumber = (value) => Number(value) == value; // eslint-disable-line eqeqeq
+
 const toMinutes = (value) => (
-  value
+  isNumber(value)
     ? parseInt((value - 900) / 60000, 10)
     : value
 );
 
 const toSeconds = (value) => (
-  value
+  isNumber(value)
     ? (value * 60000) + 900
     : value
 );
@@ -28,10 +29,8 @@ export const setLength = (props) => h(base, {
 }, [
   h(input, {
     name: 'value',
-    min: 1,
-    max: 60,
     maxlength: 2,
-    pattern: '\\d{1,2}',
+    pattern: '[1-9][0-9]',
     value: toMinutes(value('duration', props)),
     oninput: [
       actions.PendingSettingsSet,
