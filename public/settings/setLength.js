@@ -30,7 +30,7 @@ export const setLength = (props) => h(base, {
   h(input, {
     name: 'value',
     maxlength: 2,
-    pattern: '[1-9][0-9]',
+    pattern: '[1-9][0-9]?',
     value: toMinutes(value('duration', props)),
     oninput: [
       actions.PendingSettingsSet,
