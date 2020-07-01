@@ -11,10 +11,12 @@ export const goalList = (props) => h(section, null, [
     dragType: 'goal',
     items: props.goals,
     renderItem: (item) => h(goal, {
-      overview: props.overview,
       ...item,
     }),
     drag: props.drag,
-    onDelete: actions.RemoveGoal,
+    disabled: props.overview,
+    onDelete: props.overview
+      ? undefined
+      : actions.RemoveGoal,
   }),
 ]);
