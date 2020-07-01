@@ -367,11 +367,6 @@ const update = (action, state) => {
         return [state, effects.none()];
       }
 
-      const goal = timer.goals.find(g => g.text === text);
-      if (goal) {
-        return [state, effects.none()];
-      }
-
       const id = Math.random().toString(36).slice(2);
 
       return [
@@ -398,7 +393,7 @@ const update = (action, state) => {
         return [state, effects.none()];
       }
 
-      const goalIndex = timer.goals.findIndex(g => g.id === goalId || g.text === goalId);
+      const goalIndex = timer.goals.findIndex(g => g.id === goalId);
       if (goalIndex === -1) {
         return [state, effects.none()];
       }
@@ -431,7 +426,7 @@ const update = (action, state) => {
           ...state,
           [timerId]: {
             ...timer,
-            goals: timer.goals.filter(g => g.id !== goalId && g.text !== goalId),
+            goals: timer.goals.filter(g => g.id !== goalId),
           },
         },
         effects.batch([
