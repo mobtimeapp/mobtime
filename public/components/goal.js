@@ -12,33 +12,34 @@ export const goal = (props) => h('div', {
     'w-full': true,
   },
 }, [
-  h('label', {
+  h('input', {
+    id: `goal-${props.id}`,
+    type: 'checkbox',
+    checked: props.completed,
+    onchange: [actions.CompleteGoal, (e) => ({ id: props.id, completed: e.target.checked })],
     class: {
-      'w-full': true,
-      'pl-4': true,
-      'flex': true,
-      'flex-row': true,
-      'items-center': true,
-      'justify-between': true,
-      'flex-grow': true,
-      'mr-2': true,
+      'mr-3': true,
+      'sr-only': true,
     },
+  }),
+  h('button', {
+    onclick: [actions.CompleteGoal, ({ id: props.id, completed: !props.completed })],
   }, [
-    h('input', {
-      type: 'checkbox',
-      checked: props.completed,
-      onchange: [actions.CompleteGoal, (e) => ({ id: props.id, completed: e.target.checked })],
+    h('span', {
       class: {
-        'mr-3': true,
+        'fa-stack': true,
       },
-    }),
-    h('div', {
-      class: {
-        'line-through': props.completed,
-        'text-4xl': true,
-        'flex-grow': true,
-        'leading-tight': true,
-      },
-    }, props.text),
+    }, [
+      h('i', { class: 'far fa-circle fa-stack-2x' }),
+      props.completed && h('i', { class: 'fas fa-check fa-stack-1x text-green-500' }),
+    ]),
   ]),
+  h('label', {
+    for: `goal-${props.id}`,
+    class: {
+      'text-4xl': true,
+      'flex-grow': true,
+      'leading-tight': true,
+    },
+  }, props.text),
 ]);

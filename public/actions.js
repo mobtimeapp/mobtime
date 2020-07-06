@@ -324,6 +324,14 @@ export const RemoveGoal = (state, id) => [
   ),
 ];
 
+export const MoveGoal = (state, { from, to }) => [
+  {
+    ...state,
+  },
+  dragEndEffects.goal({ from, to }, state.status),
+];
+
+
 export const UpdateGoalText = (state, goal) => [
   {
     ...state,

@@ -3,6 +3,7 @@ import { h } from '/vendor/hyperapp.js';
 import * as actions from '/actions.js';
 
 import { deleteButton } from '/components/deleteButton.js';
+import { listButton } from '/components/listButton.js';
 
 const relativeContainer = (props, children) => h('div', {
   ...props,
@@ -61,8 +62,9 @@ const dragContainer = (props, children) => h('div', {
 }, [
   !props.disabled && h('div', {
     class: {
+      'hidden': true,
+      'sm:flex': true,
       'h-full': true,
-      'flex': true,
       'flex-col': true,
       'items-center': true,
       'justify-between': true,
@@ -87,6 +89,53 @@ const dragContainer = (props, children) => h('div', {
   ))),
 
   children,
+
+  props.onMove && h('div', {
+    class: {
+      // 'sm:hidden': true,
+      'flex': true,
+    },
+  }, [
+    props.index > 0 && h(listButton, {
+      class: {
+        'text-white': true,
+        'border-2': true,
+        'border-white': true,
+        'mr-2': true,
+      },
+      onclick: [
+        props.onMove,
+        { from: props.index, to: props.index - 1 },
+      ],
+    }, [
+      h('i', { class: 'fas fa-arrow-up' }),
+    ]),
+    h(listButton, {
+      class: {
+        'text-white': true,
+        'border-2': true,
+        'border-white': true,
+        'mr-2': true,
+      },
+      onclick: [
+        props.onMove,
+        { from: props.index, to: props.index + 2 },
+      ],
+    }, [
+      h('i', { class: 'fas fa-arrow-down' }),
+    ]),
+  ]),
+
+  h(listButton, {
+    class: {
+      'text-white': true,
+      'border-2': true,
+      'border-white': true,
+      'mr-2': true,
+    },
+  }, [
+    h('i', { class: 'fas fa-pencil-alt' }),
+  ]),
 
   props.onDelete && h(deleteButton, {
     onclick: props.onDelete,
@@ -145,6 +194,7 @@ export const reorderable = (props) => {
           onDelete: props.onDelete && item.id
             ? [props.onDelete, item.id]
             : undefined,
+          onMove: props.onMove,
         }, props.renderItem(item)),
       ]),
 

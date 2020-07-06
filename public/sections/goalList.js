@@ -18,5 +18,8 @@ export const goalList = (props) => h(section, null, [
     onDelete: props.overview
       ? undefined
       : actions.RemoveGoal,
+    onMove: props.overview
+      ? undefined
+      : actions.MoveGoal,
   }),
 ]);
