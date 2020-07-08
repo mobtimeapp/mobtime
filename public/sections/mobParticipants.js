@@ -1,4 +1,3 @@
-
 import { h } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';

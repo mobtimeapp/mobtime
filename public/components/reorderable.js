@@ -96,27 +96,31 @@ const dragContainer = (props, children) => h('div', {
       'flex': props.expandActions,
     },
   }, [
-    props.onMoveUp && h(listButton, {
+    h(listButton, {
       'class': {
-        'text-white': true,
+        'text-white': !!props.onMoveUp,
+        'text-gray-600': !props.onMoveUp,
         'border-2': true,
         'border-white': true,
         'mr-2': true,
       },
       'onclick': props.onMoveUp,
+      'disabled': !props.onMoveUp,
       'aria-label': `Move ${props.type} up`,
     }, [
       h('i', { class: 'fas fa-arrow-up' }),
     ]),
 
-    props.onMoveDown && h(listButton, {
+    h(listButton, {
       'class': {
-        'text-white': true,
+        'text-white': !!props.onMoveDown,
+        'text-gray-600': !props.onMoveDown,
         'border-2': true,
         'border-white': true,
         'mr-2': true,
       },
       'onclick': props.onMoveDown,
+      'disabled': !props.onMoveDown,
       'aria-label': `Move ${props.type} down`,
     }, [
       h('i', { class: 'fas fa-arrow-down' }),
@@ -142,7 +146,7 @@ const dragContainer = (props, children) => h('div', {
     }),
   ]),
 
-  props.item.id && h(listButton, {
+  props.item.id && !props.disabled && h(listButton, {
     class: {
       'text-white': true,
       'text-indigo-600': props.expandActions,
