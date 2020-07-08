@@ -11,9 +11,14 @@ export const mobber = (props) => h(section, {
     'mb-3': true,
     'h-full': true,
     'w-full': true,
+    'truncate': props.truncate,
   },
 }, [
-  h('div', null, [
+  h('div', {
+    class: {
+      'truncate': props.truncate,
+    },
+  }, [
     h('div', {
       class: {
         'uppercase': true,
@@ -29,6 +34,7 @@ export const mobber = (props) => h(section, {
         'text-4xl': true,
         'font-bold': props.position !== 'mob',
         'leading-none': true,
+        'truncate': props.truncate,
       },
     }, props.name || 'Empty'),
   ]),

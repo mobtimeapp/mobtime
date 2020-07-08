@@ -35,6 +35,7 @@ export const Init = (_, timerId) => [
       connections: 0,
       settings: {},
     },
+    expandedReorderable: null,
     timerTab: 'overview',
     drag: { ...emptyDrag },
     timerId,
@@ -227,6 +228,34 @@ export const Completed = (state) => [
     ),
   ],
 ];
+export const RenameUser = (state, { id, value }) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: `/api/mob/rename/${id}/${encodeURIComponent(value)}`,
+      token,
+      OnOK: [ExpandReorderable, { expandedReorderable: null }],
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+export const RenameUserPrompt = (state, { id }) => {
+  const user = state.serverState.mob.find((m) => m.id === id);
+  if (!user) return state;
+
+  return [
+    state,
+    effects.OpenPrompt({
+      title: 'Rename Mobber',
+      defaultValue: user.name,
+      defaultResult: {
+        id,
+      },
+      OnValue: RenameUser,
+    }),
+  ];
+};
 
 export const UpdateName = (state, name) => ({
   ...state,
@@ -287,6 +316,13 @@ export const RemoveFromMob = (state, id) => [
   ),
 ];
 
+export const MoveMob = (state, { from, to }) => [
+  {
+    ...state,
+  },
+  dragEndEffects.mob({ from, to }, state.status),
+];
+
 export const AddGoal = (state) => [
   { ...state, goal: '' },
   withToken(
@@ -323,13 +359,40 @@ export const RemoveGoal = (state, id) => [
     state.status,
   ),
 ];
-
 export const MoveGoal = (state, { from, to }) => [
   {
     ...state,
   },
   dragEndEffects.goal({ from, to }, state.status),
 ];
+export const RenameGoal = (state, { id, value }) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: `/api/goals/rename/${id}/${encodeURIComponent(value)}`,
+      token,
+      OnOK: [ExpandReorderable, { expandedReorderable: null }],
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+export const RenameGoalPrompt = (state, { id }) => {
+  const goal = state.serverState.goals.find((g) => g.id === id);
+  if (!goal) return state;
+
+  return [
+    state,
+    effects.OpenPrompt({
+      title: 'Rename Goal',
+      defaultValue: goal.text,
+      defaultResult: {
+        id,
+      },
+      OnValue: RenameGoal,
+    }),
+  ];
+};
 
 
 export const UpdateGoalText = (state, goal) => [
@@ -433,3 +496,16 @@ export const UpdateSettings = (state) => [
     state.status,
   ),
 ];
+
+export const Confirm = (state, { text, action }) => [
+  state,
+  effects.Confirm({
+    text,
+    action,
+  }),
+];
+
+export const ExpandReorderable = (state, { expandedReorderable }) => ({
+  ...state,
+  expandedReorderable,
+});

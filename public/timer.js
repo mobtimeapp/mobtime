@@ -126,6 +126,7 @@ app({
       }, 'Who\'s Up'),
       h(mobParticipants, {
         overview: true,
+        expandedReorderable: state.expandedReorderable,
         drag: {},
         mob: state.serverState.mob.slice(0, 2),
       }),
@@ -140,6 +141,7 @@ app({
       }, 'Top Goals'),
       h(goalList, {
         overview: true,
+        expandedReorderable: state.expandedReorderable,
         drag: {},
         goals: state.serverState.goals.filter((g) => !g.completed).slice(0, 3),
       }),
@@ -149,6 +151,7 @@ app({
 
     state.timerTab === 'mob' && [
       h(mobParticipants, {
+        expandedReorderable: state.expandedReorderable,
         drag: state.drag.type === 'mob' ? state.drag : {},
         mob: state.serverState.mob,
       }),
@@ -162,6 +165,7 @@ app({
 
     state.timerTab === 'goals' && [
       h(goalList, {
+        expandedReorderable: state.expandedReorderable,
         drag: state.drag.type === 'goal' ? state.drag : {},
         goals: state.serverState.goals,
       }),

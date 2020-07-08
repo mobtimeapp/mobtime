@@ -10,6 +10,7 @@ export const goal = (props) => h('div', {
     'justify-between': true,
     'mb-2': true,
     'w-full': true,
+    'truncate': props.truncate,
   },
 }, [
   h('input', {
@@ -23,7 +24,13 @@ export const goal = (props) => h('div', {
     },
   }),
   h('button', {
-    onclick: [actions.CompleteGoal, ({ id: props.id, completed: !props.completed })],
+    disabled: props.id === null,
+    onclick: props.id !== null
+      ? [actions.CompleteGoal, ({ id: props.id, completed: !props.completed })]
+      : undefined,
+    class: {
+      'text-gray-500': props.id === null,
+    },
   }, [
     h('span', {
       class: {
@@ -40,6 +47,8 @@ export const goal = (props) => h('div', {
       'text-4xl': true,
       'flex-grow': true,
       'leading-tight': true,
+      'text-gray-500': props.id === null,
+      'truncate': props.truncate,
     },
   }, props.text),
 ]);

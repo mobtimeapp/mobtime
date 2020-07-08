@@ -90,56 +90,71 @@ const dragContainer = (props, children) => h('div', {
 
   children,
 
-  props.onMove && h('div', {
+  h('div', {
     class: {
-      // 'sm:hidden': true,
-      'flex': true,
+      'hidden': !props.expandActions,
+      'flex': props.expandActions,
     },
   }, [
-    props.index > 0 && h(listButton, {
-      class: {
+    props.onMoveUp && h(listButton, {
+      'class': {
         'text-white': true,
         'border-2': true,
         'border-white': true,
         'mr-2': true,
       },
-      onclick: [
-        props.onMove,
-        { from: props.index, to: props.index - 1 },
-      ],
+      'onclick': props.onMoveUp,
+      'aria-label': `Move ${props.type} up`,
     }, [
       h('i', { class: 'fas fa-arrow-up' }),
     ]),
-    h(listButton, {
+
+    props.onMoveDown && h(listButton, {
+      'class': {
+        'text-white': true,
+        'border-2': true,
+        'border-white': true,
+        'mr-2': true,
+      },
+      'onclick': props.onMoveDown,
+      'aria-label': `Move ${props.type} down`,
+    }, [
+      h('i', { class: 'fas fa-arrow-down' }),
+    ]),
+
+    props.onEdit && h(listButton, {
       class: {
         'text-white': true,
         'border-2': true,
         'border-white': true,
         'mr-2': true,
       },
-      onclick: [
-        props.onMove,
-        { from: props.index, to: props.index + 2 },
-      ],
+      onclick: props.onEdit,
     }, [
-      h('i', { class: 'fas fa-arrow-down' }),
+      h('i', { class: 'fas fa-pencil-alt' }),
     ]),
+
+    props.onDelete && h(deleteButton, {
+      onclick: props.onDelete,
+      class: {
+        'mr-2': true,
+      },
+    }),
   ]),
 
-  h(listButton, {
+  props.item.id && h(listButton, {
     class: {
       'text-white': true,
+      'text-indigo-600': props.expandActions,
+      'bg-white': props.expandActions,
       'border-2': true,
       'border-white': true,
       'mr-2': true,
     },
+    onclick: props.onExpand,
   }, [
-    h('i', { class: 'fas fa-pencil-alt' }),
+    h('i', { class: 'fas fa-ellipsis-h' }),
   ]),
-
-  props.onDelete && h(deleteButton, {
-    onclick: props.onDelete,
-  }),
 
   props.isDragging && [
     h(dropZoneTrigger, {
@@ -178,6 +193,7 @@ export const reorderable = (props) => {
   const isDragging = props.drag.type === props.dragType && props.drag.active;
   const isDraggingFrom = (from) => isDragging && from === props.drag.from;
   const isDraggingTo = (to) => isDragging && to === props.drag.to;
+  const isExpanded = (item) => props.expandedReorderable === props.getReorderableId(item);
 
   return h('div', {}, [
     h(relativeContainer, {}, [
@@ -189,12 +205,27 @@ export const reorderable = (props) => {
           isDragging,
           isDragFrom: isDraggingFrom(index),
           index,
+          item,
           dragType: props.dragType,
           disabled: props.disabled,
           onDelete: props.onDelete && item.id
-            ? [props.onDelete, item.id]
+            ? [actions.Confirm, { action: [props.onDelete, item.id], text: 'Are you sure you want to delete this?' }]
             : undefined,
-          onMove: props.onMove,
+          onMoveUp: props.onMove && item.id && index > 0
+            ? [props.onMove, { from: index, to: index - 1 }]
+            : undefined,
+          onMoveDown: props.onMove && item.id && (index < props.items.length - 1)
+            ? [props.onMove, { from: index, to: index + 2 }]
+            : undefined,
+          expandActions: isExpanded(item),
+          onExpand: [actions.ExpandReorderable, {
+            expandedReorderable: isExpanded(item)
+              ? null
+              : props.getReorderableId(item),
+          }],
+          onEdit: props.onEdit && item.id
+            ? [props.onEdit, { id: item.id }]
+            : undefined,
         }, props.renderItem(item)),
       ]),
 
