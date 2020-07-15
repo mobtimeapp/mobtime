@@ -1,4 +1,5 @@
-import { h } from 'https://unpkg.com/hyperapp?module=1';
+import { h } from '/vendor/hyperapp.js';
+
 import * as actions from '/actions.js';
 
 const relativeContainer = (props, children) => h('div', {

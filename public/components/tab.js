@@ -1,4 +1,4 @@
-import { h } from 'https://unpkg.com/hyperapp?module=1';
+import { h } from '/vendor/hyperapp.js';
 
 export const tab = (props, children) => h('button', {
   class: {

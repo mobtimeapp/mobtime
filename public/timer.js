@@ -1,4 +1,5 @@
-import { app, h } from 'https://unpkg.com/hyperapp?module=1';
+import { app, h } from '/vendor/hyperapp.js';
+
 import * as actions from '/actions.js';
 import * as subscriptions from '/subscriptions.js';
 import Status from '/status.js';

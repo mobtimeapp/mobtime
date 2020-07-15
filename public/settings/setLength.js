@@ -1,4 +1,5 @@
-import { h } from 'https://unpkg.com/hyperapp?module=1';
+import { h } from '/vendor/hyperapp.js';
+
 import { input } from '/components/input.js';
 import { base } from '/settings/base.js';
 

@@ -1,4 +1,4 @@
-import { h } from 'https://unpkg.com/hyperapp?module=1';
+import { h } from '/vendor/hyperapp.js';
 
 import { button } from '/components/button.js';
 
