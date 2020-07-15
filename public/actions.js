@@ -24,6 +24,13 @@ const emptyDrag = {
   clientY: null,
 };
 
+const emptyPrompt = {
+  text: '',
+  defaultValue: '',
+  onValue: Noop,
+  visible: false,
+};
+
 export const Init = (_, timerId) => [
   {
     serverState: {
@@ -38,6 +45,7 @@ export const Init = (_, timerId) => [
     expandedReorderable: null,
     timerTab: 'overview',
     drag: { ...emptyDrag },
+    prompt: { ...emptyPrompt },
     timerId,
     remainingTime: 0,
     name: '',
@@ -47,6 +55,33 @@ export const Init = (_, timerId) => [
     pendingSettings: {},
   },
 ];
+
+export const PromptOpen = (state, {
+  text,
+  defaultValue,
+  onValue,
+}) => ({
+  ...state,
+  prompt: {
+    text,
+    defaultValue,
+    onValue,
+    visible: true,
+  },
+});
+
+export const PromptOK = (state, { value }) => [
+  {
+    ...state,
+    prompt: { ...emptyPrompt },
+  },
+  effects.andThen({ action: state.prompt.onValue, value }),
+];
+
+export const PromptCancel = (state) => ({
+  ...state,
+  prompt: { ...emptyPrompt },
+});
 
 export const SetTimerTab = (state, timerTab) => ({
   ...state,

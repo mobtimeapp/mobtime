@@ -5,6 +5,7 @@ export const input = (props) => h('input', {
   class: {
     'border-b-4': true,
     'border-b-solid': true,
+    'px-2': true,
     ...(props.class || {}),
   },
 });
