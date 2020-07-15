@@ -73,3 +73,9 @@ const ConfirmFX = (dispatch, { text, action, confirmation }) => {
   });
 };
 export const Confirm = (props) => [ConfirmFX, props];
+
+const andThenFX = (dispatch, { action, props }) => {
+  dispatch(action, props);
+};
+export const andThen = (props) => [andThenFX, props];
+

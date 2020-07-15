@@ -27,6 +27,7 @@ const emptyDrag = {
 const emptyPrompt = {
   text: '',
   defaultValue: '',
+  context: null,
   onValue: Noop,
   visible: false,
 };
@@ -56,16 +57,23 @@ export const Init = (_, timerId) => [
   },
 ];
 
+export const ExpandReorderable = (state, { expandedReorderable }) => ({
+  ...state,
+  expandedReorderable,
+});
+
 export const PromptOpen = (state, {
   text,
   defaultValue,
-  onValue,
+  OnValue,
+  context,
 }) => ({
   ...state,
   prompt: {
     text,
     defaultValue,
-    onValue,
+    OnValue,
+    context,
     visible: true,
   },
 });
@@ -75,7 +83,13 @@ export const PromptOK = (state, { value }) => [
     ...state,
     prompt: { ...emptyPrompt },
   },
-  effects.andThen({ action: state.prompt.onValue, value }),
+  effects.andThen({
+    action: state.prompt.OnValue,
+    props: {
+      ...state.prompt.context,
+      value,
+    },
+  }),
 ];
 
 export const PromptCancel = (state) => ({
@@ -279,17 +293,14 @@ export const RenameUserPrompt = (state, { id }) => {
   const user = state.serverState.mob.find((m) => m.id === id);
   if (!user) return state;
 
-  return [
-    state,
-    effects.OpenPrompt({
-      title: 'Rename Mobber',
-      defaultValue: user.name,
-      defaultResult: {
-        id,
-      },
-      OnValue: RenameUser,
-    }),
-  ];
+  return PromptOpen(state, {
+    text: 'Rename Mob Member',
+    defaultValue: user.name,
+    OnValue: RenameUser,
+    context: {
+      id,
+    },
+  });
 };
 
 export const UpdateName = (state, name) => ({
@@ -416,19 +427,15 @@ export const RenameGoalPrompt = (state, { id }) => {
   const goal = state.serverState.goals.find((g) => g.id === id);
   if (!goal) return state;
 
-  return [
-    state,
-    effects.OpenPrompt({
-      title: 'Rename Goal',
-      defaultValue: goal.text,
-      defaultResult: {
-        id,
-      },
-      OnValue: RenameGoal,
-    }),
-  ];
+  return PromptOpen(state, {
+    text: 'Rename Goal',
+    defaultValue: goal.text,
+    OnValue: RenameGoal,
+    context: {
+      id,
+    },
+  });
 };
-
 
 export const UpdateGoalText = (state, goal) => [
   {
@@ -540,7 +547,3 @@ export const Confirm = (state, { text, action }) => [
   }),
 ];
 
-export const ExpandReorderable = (state, { expandedReorderable }) => ({
-  ...state,
-  expandedReorderable,
-});

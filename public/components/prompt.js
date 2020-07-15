@@ -14,16 +14,17 @@ export const appPrompt = (props) => h(modal, {
   },
 }, [
   h('form', {
-    onsubmit: [
-      actions.Noop,
-      (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        return {
+    onsubmit: (_, e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      return [
+        actions.PromptOK,
+        {
           value: formData.get('value'),
-        };
-      },
-    ],
+        },
+      ];
+    },
   }, [
     h('label', {
       for: 'mobtime-prompt',
@@ -33,11 +34,12 @@ export const appPrompt = (props) => h(modal, {
         'text-2xl': true,
         'mb-2': true,
       },
-    }, props.prompt),
+    }, props.text),
     h(input, {
       id: 'mobtime-prompt',
       name: 'value',
       value: props.defaultValue,
+      autocomplete: 'off',
       class: {
         'block': true,
         'bg-indigo-500': true,
