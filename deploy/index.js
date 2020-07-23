@@ -51,9 +51,15 @@ const main = async (env) => {
     return 1;
   };
 
-  const remotePath = `/tmp/deploy_${appName}.sh`;
+  const now = Date.now();
+  const remotePath = `/tmp/deploy_${appName}_${now}.sh`;
 
   const sshTarget = `${target.ssh.user}@${target.ssh.host}`;
+
+  console.log('Starting deploy');
+  console.log('=======================');
+  console.log(JSON.stringify(target, null, 2));
+  console.log('=======================');
 
   console.log('Initializing deploy script...');
   await exec('scp', [
@@ -69,6 +75,10 @@ const main = async (env) => {
   await exec('ssh', [
     ...(target.rsa ? [`-i ${target.rsa}`] : []),
     sshTarget,
+    ...Object.keys(target.env || {}).reduce((envs, key) => [
+      ...envs,
+      `${key}=${target.env[key]}`,
+    ], []),
     'bash',
     remotePath,
   ], `ssh ${sshTarget}`);
