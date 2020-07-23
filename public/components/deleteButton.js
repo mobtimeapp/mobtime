@@ -1,24 +1,19 @@
 import { h } from '/vendor/hyperapp.js';
 
-export const deleteButton = (props) => h('button', {
+import { listButton } from './listButton.js';
+
+export const deleteButton = (props) => h(listButton, {
   ...props,
   class: {
-    'rounded-full': true,
-    'border': true,
-    'flex': true,
-    'items-center': true,
-    'justify-center': true,
-    'text-center': true,
-    'border-indigo-300': true,
-    'hover:text-indigo-600': true,
-    'hover:bg-white': true,
-    'hover:border-transparent': true,
-    'fas': true,
-    'fa-times': true,
+    'text-white': true,
+    'bg-red-500': true,
     ...(props.class || {}),
   },
-  style: {
-    width: props.size || '32px',
-    height: props.size || '32px',
-  },
-});
+}, [
+  h('i', {
+    class: {
+      'fas': true,
+      'fa-times': true,
+    },
+  }),
+]);

@@ -2,11 +2,14 @@ import { h } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';
 
+import { deleteButton } from '/components/deleteButton.js';
+import { listButton } from '/components/listButton.js';
+
 const relativeContainer = (props, children) => h('div', {
   ...props,
   class: {
     ...props.class,
-    'relative': true,
+    relative: true,
   },
 }, children);
 
@@ -51,13 +54,112 @@ const dragContainer = (props, children) => h('div', {
     'hidden': props.isDragFrom,
     'relative': true,
     'select-none': true,
+    'flex': true,
+    'flex-row': true,
+    'items-center': true,
+    'justify-start': true,
   },
-  onmousedown: [actions.DragSelect, mouseDownDecoder(
-    props.dragType,
-    props.index,
-  )],
 }, [
+  !props.disabled && h('div', {
+    class: {
+      'hidden': true,
+      'sm:flex': true,
+      'h-full': true,
+      'flex-col': true,
+      'items-center': true,
+      'justify-between': true,
+      'py-8': true,
+      'mr-2': true,
+      'cursor-move': true,
+    },
+    onmousedown: [actions.DragSelect, mouseDownDecoder(
+      props.dragType,
+      props.index,
+    )],
+  }, Array.from({ length: 3 }, () => h(
+    'div',
+    {
+      class: {
+        'border-b': true,
+        'border-b-white': true,
+        'my-1': true,
+        'w-6': true,
+      },
+    },
+  ))),
+
   children,
+
+  h('div', {
+    class: {
+      'hidden': !props.expandActions,
+      'flex': props.expandActions,
+    },
+  }, [
+    h(listButton, {
+      'class': {
+        'text-white': !!props.onMoveUp,
+        'text-gray-600': !props.onMoveUp,
+        'border-2': true,
+        'border-white': true,
+        'mr-2': true,
+      },
+      'onclick': props.onMoveUp,
+      'disabled': !props.onMoveUp,
+      'aria-label': `Move ${props.type} up`,
+    }, [
+      h('i', { class: 'fas fa-arrow-up' }),
+    ]),
+
+    h(listButton, {
+      'class': {
+        'text-white': !!props.onMoveDown,
+        'text-gray-600': !props.onMoveDown,
+        'border-2': true,
+        'border-white': true,
+        'mr-2': true,
+      },
+      'onclick': props.onMoveDown,
+      'disabled': !props.onMoveDown,
+      'aria-label': `Move ${props.type} down`,
+    }, [
+      h('i', { class: 'fas fa-arrow-down' }),
+    ]),
+
+    props.onEdit && h(listButton, {
+      class: {
+        'text-white': true,
+        'border-2': true,
+        'border-white': true,
+        'mr-2': true,
+      },
+      onclick: props.onEdit,
+    }, [
+      h('i', { class: 'fas fa-pencil-alt' }),
+    ]),
+
+    props.onDelete && h(deleteButton, {
+      onclick: props.onDelete,
+      class: {
+        'mr-2': true,
+      },
+    }),
+  ]),
+
+  props.item.id && !props.disabled && h(listButton, {
+    class: {
+      'text-white': true,
+      'text-indigo-600': props.expandActions,
+      'bg-white': props.expandActions,
+      'border-2': true,
+      'border-white': true,
+      'mr-2': true,
+    },
+    onclick: props.onExpand,
+  }, [
+    h('i', { class: 'fas fa-ellipsis-h' }),
+  ]),
+
   props.isDragging && [
     h(dropZoneTrigger, {
       index: props.index,
@@ -87,12 +189,15 @@ const draggingContainer = (props, children) => h('div', {
     'rounded': true,
     'bg-indigo-600': true,
   },
-}, children);
+}, [
+  children,
+]);
 
 export const reorderable = (props) => {
   const isDragging = props.drag.type === props.dragType && props.drag.active;
   const isDraggingFrom = (from) => isDragging && from === props.drag.from;
   const isDraggingTo = (to) => isDragging && to === props.drag.to;
+  const isExpanded = (item) => props.expandedReorderable === props.getReorderableId(item);
 
   return h('div', {}, [
     h(relativeContainer, {}, [
@@ -104,7 +209,27 @@ export const reorderable = (props) => {
           isDragging,
           isDragFrom: isDraggingFrom(index),
           index,
+          item,
           dragType: props.dragType,
+          disabled: props.disabled,
+          onDelete: props.onDelete && item.id
+            ? [actions.Confirm, { action: [props.onDelete, item.id], text: 'Are you sure you want to delete this?' }]
+            : undefined,
+          onMoveUp: props.onMove && item.id && index > 0
+            ? [props.onMove, { from: index, to: index - 1 }]
+            : undefined,
+          onMoveDown: props.onMove && item.id && (index < props.items.length - 1)
+            ? [props.onMove, { from: index, to: index + 2 }]
+            : undefined,
+          expandActions: isExpanded(item),
+          onExpand: [actions.ExpandReorderable, {
+            expandedReorderable: isExpanded(item)
+              ? null
+              : props.getReorderableId(item),
+          }],
+          onEdit: props.onEdit && item.id
+            ? [props.onEdit, { id: item.id }]
+            : undefined,
         }, props.renderItem(item)),
       ]),
 

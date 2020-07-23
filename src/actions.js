@@ -20,11 +20,13 @@ export default enumerize({
   AddUser: [String, String, String],
   RemoveUser: [String, String, String],
   MoveUser: [Number, Number, String, String],
+  RenameUser: [String, String, String, String],
 
   AddGoal: [String, String, String],
   CompleteGoal: [String, Boolean, String, String],
   RemoveGoal: [String, String, String],
   MoveGoal: [Number, Number, String, String],
+  RenameGoal: [String, String, String, String],
 
   LockMob: [String],
   UnlockMob: [String],
