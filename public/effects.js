@@ -55,12 +55,27 @@ const UpdateTitleWithTimeFX = (_dispatch, { remainingTime }) => {
 export const UpdateTitleWithTime = (props) => [UpdateTitleWithTimeFX, props];
 
 
-const OpenPromptFX = (dispatch, { title, OnValue, OnCancel }) => {
+const OpenPromptFX = (dispatch, { title, defaultValue, defaultResult = {}, OnValue, OnCancel }) => {
   setTimeout(() => {
-    const value = window.prompt(title, ''); // eslint-disable-line no-alert
+    const value = window.prompt(title, defaultValue || ''); // eslint-disable-line no-alert
     return value
-      ? dispatch(OnValue, value)
+      ? dispatch(OnValue, { ...defaultResult, value })
       : dispatch(OnCancel);
   }, 0);
 };
 export const OpenPrompt = (props) => [OpenPromptFX, props];
+
+const ConfirmFX = (dispatch, { text, action, confirmation }) => {
+  const confirmFn = confirmation || window.confirm;
+  if (!confirmFn(text)) return;
+  requestAnimationFrame(() => {
+    dispatch(action);
+  });
+};
+export const Confirm = (props) => [ConfirmFX, props];
+
+const andThenFX = (dispatch, { action, props }) => {
+  dispatch(action, props);
+};
+export const andThen = (props) => [andThenFX, props];
+

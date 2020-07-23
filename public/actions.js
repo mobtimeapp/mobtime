@@ -24,6 +24,14 @@ const emptyDrag = {
   clientY: null,
 };
 
+const emptyPrompt = {
+  text: '',
+  defaultValue: '',
+  context: null,
+  OnValue: Noop,
+  visible: false,
+};
+
 export const Init = (_, timerId) => [
   {
     serverState: {
@@ -35,8 +43,10 @@ export const Init = (_, timerId) => [
       connections: 0,
       settings: {},
     },
+    expandedReorderable: null,
     timerTab: 'overview',
     drag: { ...emptyDrag },
+    prompt: { ...emptyPrompt },
     timerId,
     remainingTime: 0,
     name: '',
@@ -47,12 +57,57 @@ export const Init = (_, timerId) => [
   },
 ];
 
+export const ExpandReorderable = (state, { expandedReorderable }) => ({
+  ...state,
+  expandedReorderable,
+});
+
+export const PromptOpen = (state, {
+  text,
+  defaultValue,
+  OnValue,
+  context,
+}) => ({
+  ...state,
+  prompt: {
+    text,
+    defaultValue,
+    OnValue,
+    context,
+    visible: true,
+  },
+});
+
+export const PromptOK = (state, { value }) => [
+  {
+    ...state,
+    prompt: { ...emptyPrompt },
+  },
+  effects.andThen({
+    action: state.prompt.OnValue,
+    props: {
+      ...state.prompt.context,
+      value,
+    },
+  }),
+];
+
+export const PromptCancel = (state) => ({
+  ...state,
+  prompt: { ...emptyPrompt },
+});
+
 export const SetTimerTab = (state, timerTab) => ({
   ...state,
   timerTab,
 });
 
-export const DragSelect = (state, { type, from, clientX, clientY }) => ({
+export const DragSelect = (state, {
+  type,
+  from,
+  clientX,
+  clientY,
+}) => ({
   ...state,
   drag: {
     active: false,
@@ -222,6 +277,31 @@ export const Completed = (state) => [
     ),
   ],
 ];
+export const RenameUser = (state, { id, value }) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: `/api/mob/rename/${id}/${encodeURIComponent(value)}`,
+      token,
+      OnOK: [ExpandReorderable, { expandedReorderable: null }],
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+export const RenameUserPrompt = (state, { id }) => {
+  const user = state.serverState.mob.find((m) => m.id === id);
+  if (!user) return state;
+
+  return PromptOpen(state, {
+    text: 'Rename Mob Member',
+    defaultValue: user.name,
+    OnValue: RenameUser,
+    context: {
+      id,
+    },
+  });
+};
 
 export const UpdateName = (state, name) => ({
   ...state,
@@ -245,31 +325,6 @@ export const CycleMob = (state) => [
   withToken(
     (token) => effects.ApiEffect({
       endpoint: '/api/mob/cycle',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
-];
-
-export const LockMob = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/mob/lock',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
-];
-export const UnlockMob = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/mob/unlock',
       token,
       OnOK: Noop,
       OnERR: Noop,
@@ -305,6 +360,13 @@ export const RemoveFromMob = (state, id) => [
     }),
     state.status,
   ),
+];
+
+export const MoveMob = (state, { from, to }) => [
+  {
+    ...state,
+  },
+  dragEndEffects.mob({ from, to }, state.status),
 ];
 
 export const AddGoal = (state) => [
@@ -343,6 +405,37 @@ export const RemoveGoal = (state, id) => [
     state.status,
   ),
 ];
+export const MoveGoal = (state, { from, to }) => [
+  {
+    ...state,
+  },
+  dragEndEffects.goal({ from, to }, state.status),
+];
+export const RenameGoal = (state, { id, value }) => [
+  state,
+  withToken(
+    (token) => effects.ApiEffect({
+      endpoint: `/api/goals/rename/${id}/${encodeURIComponent(value)}`,
+      token,
+      OnOK: [ExpandReorderable, { expandedReorderable: null }],
+      OnERR: Noop,
+    }),
+    state.status,
+  ),
+];
+export const RenameGoalPrompt = (state, { id }) => {
+  const goal = state.serverState.goals.find((g) => g.id === id);
+  if (!goal) return state;
+
+  return PromptOpen(state, {
+    text: 'Rename Goal',
+    defaultValue: goal.text,
+    OnValue: RenameGoal,
+    context: {
+      id,
+    },
+  });
+};
 
 export const UpdateGoalText = (state, goal) => [
   {
@@ -445,3 +538,12 @@ export const UpdateSettings = (state) => [
     state.status,
   ),
 ];
+
+export const Confirm = (state, { text, action }) => [
+  state,
+  effects.Confirm({
+    text,
+    action,
+  }),
+];
+

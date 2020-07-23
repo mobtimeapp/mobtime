@@ -12,6 +12,7 @@ import { settings } from '/components/settings.js';
 import { badge } from '/components/badge.js';
 import { button } from '/components/button.js';
 import { overviewHeading } from '/components/overviewHeading.js';
+import { appPrompt } from '/components/prompt.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
@@ -50,174 +51,184 @@ app({
       'items-start': true,
       'justify-center': true,
     },
-  }, h(card, {
-    class: {
-      'box-border': true,
-      'min-h-screen': true,
-      'sm:min-h-0': true,
-      'w-full': true,
-      'sm:w-8/12': true,
-      'md:w-10/12': true,
-      'lg:w-6/12': true,
-      'xl:w-4/12': true,
-      'shadow': false,
-      'sm:shadow-lg': true,
-      'pt-2': false,
-      'pt-0': true,
-      'pb-12': true,
-      'pb-1': false,
-      'sm:mt-2': true,
-      'rounded': false,
-      'sm:rounded': true,
-      'bg-indigo-600': true,
-      'text-white': true,
-    },
   }, [
-    h(header),
-
-    h(timeRemaining, {
-      remainingTime: state.remainingTime,
-      serverState: state.serverState,
-    }),
-
-    h('div', {
+    h(card, {
       class: {
-        'flex': true,
-        'flex-row': true,
-        'flex-wrap': true,
-        'px-2': true,
-        'py-4': true,
-        'sm:px-4': true,
-      },
-    }, [
-      h(tab, {
-        selected: state.timerTab === 'overview',
-        onclick: [actions.SetTimerTab, 'overview'],
-      }, 'Overview'),
-      h(tab, {
-        selected: state.timerTab === 'mob',
-        onclick: [actions.SetTimerTab, 'mob'],
-        details: state.serverState.mob.length > 0
-          && h(badge, {}, state.serverState.mob.length.toString()),
-      }, 'Mob'),
-      h(tab, {
-        selected: state.timerTab === 'goals',
-        onclick: [actions.SetTimerTab, 'goals'],
-        details: getGoalsDetails(state.serverState),
-      }, 'Goals'),
-      h(tab, {
-        selected: state.timerTab === 'settings',
-        onclick: [actions.SetTimerTab, 'settings'],
-      }, 'Settings'),
-      h(tab, {
-        selected: state.timerTab === 'share',
-        onclick: [actions.SetTimerTab, 'share'],
-      }, 'Share'),
-    ]),
-
-    state.timerTab === 'overview' && [
-      h(overviewHeading, {
-        rightAction: (
-          h(button, {
-            type: 'button',
-            onclick: [actions.SetTimerTab, 'mob'],
-          }, 'Edit Mob')
-        ),
-      }, 'Who\'s Up'),
-      h(mobParticipants, {
-        overview: true,
-        drag: {},
-        mob: state.serverState.mob.slice(0, 2),
-      }),
-
-      h(overviewHeading, {
-        rightAction: (
-          h(button, {
-            type: 'button',
-            onclick: [actions.SetTimerTab, 'goals'],
-          }, 'Edit Goals')
-        ),
-      }, 'Top Goals'),
-      h(goalList, {
-        overview: true,
-        drag: {},
-        goals: state.serverState.goals.filter((g) => !g.completed).slice(0, 3),
-      }),
-
-    ],
-
-
-    state.timerTab === 'mob' && [
-      h(mobParticipants, {
-        drag: state.drag.type === 'mob' ? state.drag : {},
-        mob: state.serverState.mob,
-      }),
-
-      h(addParticipant, {
-        name: state.name,
-      }),
-
-      h(mobActions),
-    ],
-
-    state.timerTab === 'goals' && [
-      h(goalList, {
-        drag: state.drag.type === 'goal' ? state.drag : {},
-        goals: state.serverState.goals,
-      }),
-      h(addGoal, {
-        goal: state.goal,
-      }),
-    ],
-
-    state.timerTab === 'settings' && h(settings, {
-      pendingSettings: state.pendingSettings,
-    }, [
-      h(setLength, {
-        pendingSettings: state.pendingSettings,
-        settings: state.serverState.settings,
-      }),
-    ]),
-
-    state.timerTab === 'share' && [
-      h(qrShare),
-    ],
-
-    h(section, {
-      class: {
+        'box-border': true,
+        'min-h-screen': true,
+        'sm:min-h-0': true,
         'w-full': true,
-        ...Status.caseOf({
-          Connecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
-          Connected: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
-          Reconnecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
-          Error: () => ({ 'bg-red-500': true, 'text-white': true }),
-        }, state.status),
-        'text-center': true,
-        'text-xs': true,
+        'sm:w-8/12': true,
+        'md:w-10/12': true,
+        'lg:w-6/12': true,
+        'xl:w-4/12': true,
+        'shadow': false,
+        'sm:shadow-lg': true,
+        'pt-2': false,
+        'pt-0': true,
+        'pb-12': true,
+        'pb-1': false,
+        'sm:mt-2': true,
+        'rounded': false,
+        'sm:rounded': true,
+        'bg-indigo-600': true,
+        'text-white': true,
+        'relative': true,
       },
-    },
-      Status.caseOf({
+    }, [
+      h(header),
+
+      h(timeRemaining, {
+        remainingTime: state.remainingTime,
+        serverState: state.serverState,
+      }),
+
+      h('div', {
+        class: {
+          'flex': true,
+          'flex-row': true,
+          'flex-wrap': true,
+          'px-2': true,
+          'py-4': true,
+          'sm:px-4': true,
+        },
+      }, [
+        h(tab, {
+          selected: state.timerTab === 'overview',
+          onclick: [actions.SetTimerTab, 'overview'],
+        }, 'Overview'),
+        h(tab, {
+          selected: state.timerTab === 'mob',
+          onclick: [actions.SetTimerTab, 'mob'],
+          details: state.serverState.mob.length > 0
+            && h(badge, {}, state.serverState.mob.length.toString()),
+        }, 'Mob'),
+        h(tab, {
+          selected: state.timerTab === 'goals',
+          onclick: [actions.SetTimerTab, 'goals'],
+          details: getGoalsDetails(state.serverState),
+        }, 'Goals'),
+        h(tab, {
+          selected: state.timerTab === 'settings',
+          onclick: [actions.SetTimerTab, 'settings'],
+        }, 'Settings'),
+        h(tab, {
+          selected: state.timerTab === 'share',
+          onclick: [actions.SetTimerTab, 'share'],
+        }, 'Share'),
+      ]),
+
+      state.timerTab === 'overview' && [
+        h(overviewHeading, {
+          rightAction: (
+            h(button, {
+              type: 'button',
+              onclick: [actions.SetTimerTab, 'mob'],
+            }, 'Edit Mob')
+          ),
+        }, 'Who\'s Up'),
+        h(mobParticipants, {
+          overview: true,
+          expandedReorderable: state.expandedReorderable,
+          drag: {},
+          mob: state.serverState.mob.slice(0, 2),
+        }),
+
+        h(overviewHeading, {
+          rightAction: (
+            h(button, {
+              type: 'button',
+              onclick: [actions.SetTimerTab, 'goals'],
+            }, 'Edit Goals')
+          ),
+        }, 'Top Goals'),
+        h(goalList, {
+          overview: true,
+          expandedReorderable: state.expandedReorderable,
+          drag: {},
+          goals: state.serverState.goals.filter((g) => !g.completed).slice(0, 3),
+        }),
+
+      ],
+
+
+      state.timerTab === 'mob' && [
+        h(mobParticipants, {
+          expandedReorderable: state.expandedReorderable,
+          drag: state.drag.type === 'mob' ? state.drag : {},
+          mob: state.serverState.mob,
+        }),
+
+        h(addParticipant, {
+          name: state.name,
+        }),
+
+        h(mobActions),
+      ],
+
+      state.timerTab === 'goals' && [
+        h(goalList, {
+          expandedReorderable: state.expandedReorderable,
+          drag: state.drag.type === 'goal' ? state.drag : {},
+          goals: state.serverState.goals,
+        }),
+        h(addGoal, {
+          goal: state.goal,
+        }),
+      ],
+
+      state.timerTab === 'settings' && h(settings, {
+        pendingSettings: state.pendingSettings,
+      }, [
+        h(setLength, {
+          pendingSettings: state.pendingSettings,
+          settings: state.serverState.settings,
+        }),
+      ]),
+
+      state.timerTab === 'share' && [
+        h(qrShare),
+      ],
+
+      h(section, {
+        class: {
+          'w-full': true,
+          ...Status.caseOf({
+            Connecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
+            Connected: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
+            Reconnecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
+            Error: () => ({ 'bg-red-500': true, 'text-white': true }),
+          }, state.status),
+          'text-center': true,
+          'text-xs': true,
+        },
+      }, Status.caseOf({
         Connecting: () => 'Websocket connecting',
         Connected: () => `Websocket connected, with ${state.serverState.connections - 1} other(s)`,
         Reconnecting: () => 'Websocket reconnecting',
-        Error: (err) => `Error: ${err}`
-      }, state.status),
-    ),
+        Error: (err) => `Error: ${err}`,
+      }, state.status)),
 
-    h(fullButton, {
-      onclick: actions.RequestNotificationPermission,
-      class: {
-        'hidden': !(!state.allowNotification && ('Notification' in window)),
-        'bg-green-500': true,
-        'hover:bg-green-700': true,
-        'uppercase': true,
-        'font-light': true,
-        'tracking-widest': true,
-        'rounded-tr-lg': true,
-        'py-1': true,
-      },
-    }, 'Enable Notifications'),
-  ])),
+      h(fullButton, {
+        onclick: actions.RequestNotificationPermission,
+        class: {
+          'hidden': !(!state.allowNotification && ('Notification' in window)),
+          'bg-green-500': true,
+          'hover:bg-green-700': true,
+          'uppercase': true,
+          'font-light': true,
+          'tracking-widest': true,
+          'rounded-tr-lg': true,
+          'py-1': true,
+        },
+      }, 'Enable Notifications'),
+
+      state.prompt.visible && h(appPrompt, {
+        ...state.prompt,
+      }),
+    ]),
+
+  ]),
 
   subscriptions: (state) => {
     const { timerId, drag } = state;

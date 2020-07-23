@@ -357,18 +357,46 @@ const update = (action, state) => {
           TickEffect(timerId),
           AuditLogEffect(timerId, token, 'MoveUser', { sourceIndex, destinationIndex }),
         ]),
-      ]
-      
+      ];
     },
 
-    AddGoal: (text, token, timerId) => {
+    RenameUser: (userId, newName, token, timerId) => {
       const timer = state[timerId];
       if (!timer) {
         return [state, effects.none()];
       }
 
-      const goal = timer.goals.find(g => g.text === text);
-      if (goal) {
+      const user = timer.mob.find(m => m.id === userId);
+      if (!user) {
+        return [state, effects.none()];
+      }
+
+      const mob = timer.mob.map((m) => {
+        if (m.id !== userId) return m;
+        return {
+          ...m,
+          name: newName,
+        };
+      });
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            mob,
+          },
+        },
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'RenameUser', { userId, oldName: user.name, newName }),
+        ]),
+      ];
+    },
+
+    AddGoal: (text, token, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
         return [state, effects.none()];
       }
 
@@ -398,7 +426,7 @@ const update = (action, state) => {
         return [state, effects.none()];
       }
 
-      const goalIndex = timer.goals.findIndex(g => g.id === goalId || g.text === goalId);
+      const goalIndex = timer.goals.findIndex(g => g.id === goalId);
       if (goalIndex === -1) {
         return [state, effects.none()];
       }
@@ -431,7 +459,7 @@ const update = (action, state) => {
           ...state,
           [timerId]: {
             ...timer,
-            goals: timer.goals.filter(g => g.id !== goalId && g.text !== goalId),
+            goals: timer.goals.filter(g => g.id !== goalId),
           },
         },
         effects.batch([
@@ -484,6 +512,40 @@ const update = (action, state) => {
         ]),
       ]
       
+    },
+
+    RenameGoal: (goalId, newText, token, timerId) => {
+      const timer = state[timerId];
+      if (!timer) {
+        return [state, effects.none()];
+      }
+
+      const goal = timer.goals.find(g => g.id === goalId);
+      if (!goal) {
+        return [state, effects.none()];
+      }
+
+      const goals = timer.goals.map((g) => {
+        if (g.id !== goalId) return g;
+        return {
+          ...g,
+          text: newText,
+        };
+      });
+
+      return [
+        {
+          ...state,
+          [timerId]: {
+            ...timer,
+            goals,
+          },
+        },
+        effects.batch([
+          TickEffect(timerId),
+          AuditLogEffect(timerId, token, 'RenameGoal', { goalId, oldText: goal.text, newText }),
+        ]),
+      ];
     },
 
     LockMob: (_token, timerId) => {

@@ -44,6 +44,48 @@ export default (dispatch, action, storage) => {
     return response.status(201).end();
   });
 
+  router.get('/move/:sourceIndex/to/:destinationIndex', (request, response) => {
+    const sourceIndex = Number(request.params.sourceIndex);
+    const destinationIndex = Number(request.params.destinationIndex);
+
+    if (Number.isNaN(sourceIndex) || Number.isNaN(destinationIndex)) {
+      return response
+        .status(400)
+        .json({
+          message: 'You must provide and source and desintation indexes',
+          sourceIndex,
+          destinationIndex,
+        })
+        .end();
+    }
+
+    dispatch(action.MoveUser(sourceIndex, destinationIndex, request.token, request.timerId));
+
+    return response.status(204).end();
+  });
+
+  router.get('/rename/:id/:name', (request, response) => {
+    const { id, name } = request.params;
+
+    if (name.length < 3) {
+      return response
+        .status(400)
+        .json({
+          message: 'You must provide a name with at least 3 characters',
+        })
+        .end();
+    }
+
+    dispatch(action.RenameUser(
+      id,
+      name,
+      request.token,
+      request.timerId,
+    ));
+
+    return response.status(204).end();
+  });
+
   router.get('/cycle', (request, response) => {
     dispatch(action.CycleMob(request.token, request.timerId));
 
@@ -61,26 +103,6 @@ export default (dispatch, action, storage) => {
     }
 
     dispatch(action.ShuffleMob(request.token, request.timerId));
-
-    return response.status(204).end();
-  });
-
-  router.get('/move/:sourceIndex/to/:destinationIndex', (request, response) => {
-    const sourceIndex = Number(request.params.sourceIndex);
-    const destinationIndex = Number(request.params.destinationIndex);
-
-    if (Number.isNaN(sourceIndex) || Number.isNaN(destinationIndex)) {
-      return response
-        .status(400)
-        .json({
-          message: 'You must provide and source and desintation indexes',
-          sourceIndex,
-          destinationIndex,
-        })
-        .end();
-    }
-
-    dispatch(action.MoveUser(sourceIndex, destinationIndex, request.token, request.timerId));
 
     return response.status(204).end();
   });

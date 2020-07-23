@@ -44,5 +44,27 @@ export default (dispatch, action, storage) => {
     return response.status(204).end();
   });
 
+  router.get('/rename/:goalId/:newName', (request, response) => {
+    const { goalId, newName } = request.params;
+
+    if (newName.length < 3) {
+      return response
+        .status(400)
+        .json({
+          message: 'You must provide a name with at least 3 characters',
+        })
+        .end();
+    }
+
+    dispatch(action.RenameGoal(
+      goalId,
+      newName,
+      request.token,
+      request.timerId,
+    ));
+
+    return response.status(204).end();
+  });
+
   return router;
 };
