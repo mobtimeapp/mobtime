@@ -28,7 +28,7 @@ const emptyPrompt = {
   text: '',
   defaultValue: '',
   context: null,
-  onValue: Noop,
+  OnValue: Noop,
   visible: false,
 };
 
