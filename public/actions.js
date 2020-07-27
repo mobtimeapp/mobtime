@@ -41,7 +41,9 @@ export const Init = (_, timerId) => [
       goals: [],
       lockedMob: null,
       connections: 0,
-      settings: {},
+      settings: {
+        mobOrder: '',
+      },
     },
     expandedReorderable: null,
     timerTab: 'overview',
