@@ -51,6 +51,7 @@ const defaultTimer = {
   expiresAt: Date.now() + EXPIRE_TIMER,
   settings: {
     duration: (5 * 60 * 1000) + 900,
+    mobOrder: 'Navigator,Driver',
   },
 };
 
@@ -651,7 +652,7 @@ const update = (action, state) => {
       }
 
       const settings = {
-        ...(timer.settings || {}),
+        ...timer.settings,
         ...nextSettings,
       };
 

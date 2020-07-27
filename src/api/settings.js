@@ -6,11 +6,19 @@ export default (dispatch, action, storage) => {
   router.post('/settings', async (request, response) => {
     const {
       duration,
+      mobOrder,
     } = request.body;
 
-    await dispatch(action.UpdateSettings({
-      duration,
-    }, request.token, request.timerId));
+    const payload = {
+      ...(duration ? { duration } : {}),
+      ...(mobOrder ? { mobOrder } : {}),
+    };
+
+    await dispatch(action.UpdateSettings(
+      payload,
+      request.token,
+      request.timerId,
+    ));
 
     return response.status(204).end();
   });
