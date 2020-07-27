@@ -29,7 +29,7 @@ export const setLength = (props) => h(base, {
   title: 'Turn Duration',
 }, [
   h(input, {
-    name: 'value',
+    name: 'setLength',
     maxlength: 2,
     pattern: '[1-9][0-9]?',
     value: toMinutes(value('duration', props)),

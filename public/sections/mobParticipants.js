@@ -9,13 +9,12 @@ import { mobber } from '/components/mobber.js';
 const getReorderableId = (item) => `mob-${item.id}`;
 
 export const mobParticipants = (props) => {
-  const [mobNavigator, mobDriver, ...rest] = props.mob;
+  const mobOrder = (props.mobOrder || 'Navigator,Driver').split(',');
 
-  const items = [
-    { ...mobNavigator, position: 'Navigator' },
-    { ...mobDriver, position: 'Driver' },
-    ...rest.map((m) => ({ ...m, position: 'mob' })),
-  ];
+  const items = props.mob.map((participant, idx) => ({
+    ...participant,
+    position: mobOrder[idx] || 'mob',
+  }));
 
   return h(section, null, [
     h('div', null, h(reorderable, {
