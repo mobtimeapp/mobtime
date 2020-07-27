@@ -18,6 +18,8 @@ export const base = (props, children) => [
       'flex': true,
       'items-end': true,
       'sm:justify-start': true,
+      'w-full': true,
+      'overflow-hidden': true,
     },
   }, children),
 ];

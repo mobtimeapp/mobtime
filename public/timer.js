@@ -9,8 +9,7 @@ import { fullButton } from '/components/fullButton.js';
 import { section } from '/components/section.js';
 import { tab } from '/components/tab.js';
 import { settings } from '/components/settings.js';
-import { badge } from '/components/badge.js';
-import { button } from '/components/button.js';
+import { badge } from '/components/badge.js'; import { button } from '/components/button.js';
 import { overviewHeading } from '/components/overviewHeading.js';
 import { appPrompt } from '/components/prompt.js';
 
@@ -25,6 +24,7 @@ import { addParticipant } from '/sections/addParticipant.js';
 import { mobActions } from '/sections/mobActions.js';
 
 import { setLength } from '/settings/setLength.js';
+import { mobOrder } from '/settings/mobOrder.js';
 
 import { qrShare } from '/sections/qrShare.js';
 
@@ -131,7 +131,8 @@ app({
           overview: true,
           expandedReorderable: state.expandedReorderable,
           drag: {},
-          mob: state.serverState.mob.slice(0, 2),
+          mob: state.serverState.mob.slice(0, state.serverState.settings.mobOrder.split(',').length || 2),
+          mobOrder: state.serverState.settings.mobOrder,
         }),
 
         h(overviewHeading, {
@@ -157,6 +158,7 @@ app({
           expandedReorderable: state.expandedReorderable,
           drag: state.drag.type === 'mob' ? state.drag : {},
           mob: state.serverState.mob,
+          mobOrder: state.serverState.settings.mobOrder,
         }),
 
         h(addParticipant, {
@@ -181,6 +183,10 @@ app({
         pendingSettings: state.pendingSettings,
       }, [
         h(setLength, {
+          pendingSettings: state.pendingSettings,
+          settings: state.serverState.settings,
+        }),
+        h(mobOrder, {
           pendingSettings: state.pendingSettings,
           settings: state.serverState.settings,
         }),
