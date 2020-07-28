@@ -21,7 +21,7 @@ export const mobOrder = (props) => h(base, {
   }, [
     h(input, {
       name: 'mobOrder',
-      pattern: '^(.{3,},).{3,}[^,]$',
+      pattern: '^[^,].+[^,]$',
       value: value('mobOrder', props),
       oninput: [
         actions.PendingSettingsSet,
@@ -43,6 +43,6 @@ export const mobOrder = (props) => h(base, {
     }),
     h('small', {
       class: 'text-sm',
-    }, 'Comma separated list of positions'),
+    }, 'One or more comma separated list of positions'),
   ]),
 ]);
