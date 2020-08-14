@@ -540,12 +540,3 @@ export const UpdateSettings = (state) => [
     state.status,
   ),
 ];
-
-export const Confirm = (state, { text, action }) => [
-  state,
-  effects.Confirm({
-    text,
-    action,
-  }),
-];
-
