@@ -10,30 +10,7 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-
-import apiTimer from './api/timer';
-import apiMob from './api/mob';
-import apiGoals from './api/goals';
-import apiSettings from './api/settings';
 import apiStatistics from './api/statistics';
-import apiPing from './api/ping';
-
-import { database } from './database';
-
-const isTimerOnBlacklist = (timer_id) => database // eslint-disable-line camelcase
-  .select('timer_id', 'created_at')
-  .from('blacklist')
-  .where({ timer_id })
-  .whereRaw("strftime('%s', created_at) > strftime('%s', 'now', '-1 hour')")
-  .then((results) => results.length > 0)
-  .catch((error) => {
-    console.log('Unable to check blacklist');
-    console.log({ timer_id });
-    console.log(error);
-    console.log('');
-    return false;
-  });
-
 
 const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (dispatch) => {
   const app = express();
@@ -112,12 +89,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   });
 
 
-  authorizedRouter.use('/timer', apiTimer(dispatch, action, storage));
-  authorizedRouter.use('/mob', apiMob(dispatch, action, storage));
-  authorizedRouter.use('/goals', apiGoals(dispatch, action, storage));
-  authorizedRouter.use(apiSettings(dispatch, action, storage));
-  authorizedRouter.use(apiPing(dispatch, action, storage));
-
   router.use(apiStatistics(dispatch, action, storage));
   router.use(authorizedRouter);
 
@@ -127,10 +98,6 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
   app.use(express.static(path.resolve(rootPath, 'public')));
 
   app.get('/:timerId', async (request, response) => {
-    const isOnBlacklist = await isTimerOnBlacklist(request.params.timerId);
-    if (isOnBlacklist) {
-      return response.status(418).end();
-    }
 
     const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
     const initialHtml = await fs.promises.readFile(htmlPayload, { encoding: 'utf8' });
@@ -149,64 +116,16 @@ const HttpSub = (bus, storage, action, host = 'localhost', port = 4321) => (disp
 
   wss.on('connection', async (client, request) => {
     const url = new URL(request.url, `http://${request.headers.host}`);
-    client.$token = Math.random().toString(36).slice(2); // eslint-disable-line no-param-reassign
 
-    const [recaptchaToken, timerId] = url.pathname.split('/').filter((v) => v);
+    const [_, timerId] = url.pathname.split('/').filter((v) => v);
 
     client.$timerId = timerId; // eslint-disable-line no-param-reassign
 
-    const body = {
-      secret: process.env.RECAPTCHA_SECRET,
-      response: recaptchaToken,
-    };
-
-    const recaptchaResponse = await fetch(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${body.secret}&response=${body.response}`,
-      {
-        headers: { 'Accept': 'application/json' },
-        method: 'post',
-      },
-    )
-      .then((resp) => {
-        if (!resp.ok) {
-          throw new Error('Unable to verify captcha response');
-        }
-        return resp.json();
-      })
-      .catch((error) => {
-        console.error(error);
-        console.log('');
-        return { score: 0 };
-      });
-
-    if (recaptchaResponse.score < 0) {
-      client.close(1013, 'Probably a bot?');
-      return;
-    }
-
-    const isOnBlacklist = await isTimerOnBlacklist(client.$timerId);
-    if (isOnBlacklist) {
-      client.close(1013, 'Blacklist');
-      return;
-    }
-
-    const timer = getTimer(client.$timerId);
-    if (!timer) {
-      console.log('websocket requested timer that does not exist, creating new timer', client.$timerId);
-      await dispatch(action.AddTimer(client.$timerId));
-    }
-
-    await dispatch(action.AddToken(client.$token, client.$timerId));
-    client.send(JSON.stringify({
-      type: 'token',
-      token: client.$token,
-      state: getTimer(client.$timerId),
-    }));
+    await dispatch(action.AddConnection(client, client.$timerId, true));
 
     client.on('close', () => {
-      if (!client.$timerId) return;
-
       dispatch(action.RemoveToken(client.$token, client.$timerId));
+      // Need action.RemoveConnection(client);
     });
 
     return undefined;
