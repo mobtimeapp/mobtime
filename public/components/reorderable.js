@@ -213,7 +213,7 @@ export const reorderable = (props) => {
           dragType: props.dragType,
           disabled: props.disabled,
           onDelete: props.onDelete && item.id
-            ? [actions.Confirm, { action: [props.onDelete, item.id], text: 'Are you sure you want to delete this?' }]
+            ? [props.onDelete, item.id]
             : undefined,
           onMoveUp: props.onMove && item.id && index > 0
             ? [props.onMove, { from: index, to: index - 1 }]
