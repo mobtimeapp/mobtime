@@ -1,11 +1,11 @@
-import enumerize from '@mrbarrysoftware/js-enumerize';
+import enumerize, { Any } from '@mrbarrysoftware/js-enumerize';
 
 export default enumerize({
-    Init: [],
-    AddConnection: [
-        enumerize.Any,
-        String,
-        Boolean,
-    ],
-    RemoveConnection: [enumerize.Any]
+  Init: [],
+
+  AddConnection: [Any, String],
+  RemoveConnection: [Any],
+
+  MessageTimer: [Any, String, Any],
+
 });
