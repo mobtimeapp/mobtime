@@ -1,33 +1,27 @@
-import {app, effects} from 'ferp';
-import * as bus from './bus';
+import { app } from 'ferp';
 import * as storage from './storage';
 import Action from './actions';
-import {Http} from './http';
-import {update} from './update';
+import { Http } from './http';
+import { Websocket } from './websocket';
+import { update } from './update';
 
-const port = process.env.PORT || 4321;
+const port = process.env.PORT || 1234;
 
-const MessageBus = bus.make();
 const Storage = storage.make();
 
-
-
 app({
-    init: update(Action.Init(), {}),
+  init: update(Action.Init(), undefined),
 
-    update,
+  update,
 
-    subscribe: state => {
-        Storage.store(state);
+  subscribe: state => {
+    Storage.store(state);
 
-        return [
-            Http(
-                MessageBus,
-                Storage,
-                Action,
-                'localhost',
-                port,
-            ),
-        ];
-    },
+    return [
+      Http(Storage, Action, 'localhost', port),
+      ...state.connections.map((connection) => (
+        Websocket(Action, connection)
+      )),
+    ];
+  },
 });
