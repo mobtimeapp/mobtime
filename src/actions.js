@@ -7,5 +7,6 @@ export default enumerize({
   RemoveConnection: [Any, String],
 
   MessageTimer: [Any, String, Any],
+  MessageTimerOwner: [Any, String, Any],
 
 });
