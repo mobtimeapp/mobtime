@@ -72,5 +72,22 @@ export const update = (action, state) => {
         }),
       ];
     },
+
+    MessageTimerOwner: (websocket, timerId, message) => {
+      const connection = state.connections.find((connection) => {
+        return connection.timerId === timerId
+          && connection.isOwner;
+      });
+
+      return [
+        state,
+        effects.thunk(() => {
+          if (connection.websocket !== websocket) {
+            connection.websocket.send(message);
+          }
+          return effects.none();
+        }),
+      ];
+    },
   }, action);
 };
