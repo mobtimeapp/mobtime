@@ -1,3 +1,5 @@
+/* eslint-disable prefer-arrow-callback */
+
 import formatTime from '/formatTime.js';
 import api from '/api.js';
 
@@ -13,6 +15,14 @@ export const UpdateSettings = fx(function UpdateSettingsFX(_dispatch, {
   }));
 });
 
+export const BroadcastJoin = fx(function UpdateSettingsFX(_dispatch, {
+  websocket,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'client:new',
+  }));
+});
+
 export const UpdateTimer = fx(function StartTimerFX(_dispatch, {
   websocket,
   timerStartedAt,
@@ -22,22 +32,6 @@ export const UpdateTimer = fx(function StartTimerFX(_dispatch, {
     type: 'timer:update',
     timerStartedAt,
     timerDuration,
-  }));
-});
-
-export const ResumeTimer = fx(function ResumeTimerFX(_dispatch, {
-  websocket,
-}) {
-  websocket.send(JSON.stringify({
-    type: 'timer:resume',
-  }));
-});
-
-export const PauseTimer = fx(function PauseTimerFX(_dispatch, {
-  websocket,
-}) {
-  websocket.send(JSON.stringify({
-    type: 'timer:pause',
   }));
 });
 
@@ -58,6 +52,26 @@ export const UpdateMob = fx(function UpdateMobFX(_dispatch, {
   websocket.send(JSON.stringify({
     type: 'mob:update',
     mob,
+  }));
+});
+
+export const ShareTimer = fx(function ShareTimer(_dispatch, {
+  websocket,
+  timerStartedAt,
+  timerDuration,
+  mob,
+  goals,
+  settings,
+  remainingTime,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'timer:share',
+    timerStartedAt,
+    timerDuration,
+    mob,
+    goals,
+    settings,
+    remainingTime,
   }));
 });
 

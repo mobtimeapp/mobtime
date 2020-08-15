@@ -11,9 +11,13 @@ const getReorderableId = (item) => `mob-${item.id}`;
 export const mobParticipants = (props) => {
   const mobOrder = (props.mobOrder || 'Navigator,Driver').split(',');
 
-  const items = props.mob.map((participant, idx) => ({
-    ...participant,
-    position: mobOrder[idx] || 'mob',
+  const length = props.mob.length > 0
+    ? Math.max(props.mob.length, mobOrder.length)
+    : mobOrder.length;
+
+  const items = Array.from({ length }, (_, index) => ({
+    ...(props.mob[index] || {}),
+    position: mobOrder[index] || 'mob',
   }));
 
   return h(section, null, [
