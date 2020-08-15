@@ -1,6 +1,34 @@
 import { effects } from 'ferp';
 import Action from './actions';
 
+const defaultStatistics = {
+  mobbers: 0,
+  goals: 0,
+  connections: 1,
+};
+
+const extractStatistics = (message) => {
+  const { type, ...data } = JSON.parse(message);
+
+  switch (type) {
+    case 'goals:update':
+      return { goals: data.goals.length };
+
+    case 'mob:update':
+      return { mobbers: data.mob.length };
+
+    case 'timer:share':
+      return {
+        goals: data.goals.length,
+        mobbers: data.mob.length,
+      };
+
+    default:
+      return {};
+  }
+};
+
+
 export const update = (action, state) => {
   if (!action) return [state, effects.none()];
 
@@ -8,6 +36,7 @@ export const update = (action, state) => {
     Init: () => [
       {
         connections: [],
+        statistics: {},
       },
       effects.none(),
     ],
@@ -22,6 +51,13 @@ export const update = (action, state) => {
             timerId,
             isOwner,
           }),
+          statistics: {
+            ...state.statistics,
+            [timerId]: {
+              ...defaultStatistics,
+              ...(state.statistics[timerId] || {}),
+            },
+          },
         },
         effects.none(),
       ];
@@ -43,10 +79,26 @@ export const update = (action, state) => {
         return [...memo, nextConnection];
       }, []);
 
+      const {
+        [timerId]: timerStatistics,
+        ...otherStatistics
+      } = state.statistics;
+
+      const statistics = timerConnections.length === 1
+        ? otherStatistics
+        : {
+          ...otherStatistics,
+          [timerId]: {
+            ...timerStatistics,
+            connections: timerStatistics.connections - 1,
+          },
+        };
+
       return [
         {
           ...state,
           connections,
+          statistics,
         },
         effects.none(),
       ];
@@ -63,8 +115,20 @@ export const update = (action, state) => {
         return [...sockets, connection.websocket];
       }, []);
 
+      const statistics = {
+        ...state.statistics,
+        [timerId]: {
+          ...defaultStatistics,
+          ...state.statistics[timerId],
+          ...extractStatistics(message),
+        },
+      };
+
       return [
-        state,
+        {
+          ...state,
+          statistics,
+        },
         effects.thunk(() => {
           websockets.forEach((ws) => ws.send(message));
           return effects.none();
