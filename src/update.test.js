@@ -24,9 +24,10 @@ test('can add a new connection', (t) => {
 
 test('can remove an old connection', (t) => {
   const websocket = {};
-  const oldConnection = { websocket, timerId: 'foo', isOwner: true };
+  const timerId = 'foo';
+  const oldConnection = { websocket, timerId, isOwner: true };
   const [state, effect] = update(
-    Action.RemoveConnection(websocket),
+    Action.RemoveConnection(websocket, timerId),
     { connections: [oldConnection] },
   );
 
