@@ -2,7 +2,6 @@ import { effects } from 'ferp';
 import Action from './actions';
 
 export const update = (action, state) => {
-  console.log('update', action.toString());
   if (!action) return [state, effects.none()];
 
   return Action.caseOf({
