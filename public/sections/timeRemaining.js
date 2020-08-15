@@ -8,7 +8,7 @@ import timerRemainingDisplay from '/formatTime.js';
 import * as actions from '/actions.js';
 
 export const timeRemaining = (props) => {
-  const isPaused = props.serverState.timerStartedAt === null;
+  const isPaused = props.timerStartedAt === null;
 
   return h(section, null, [
     h('h2', {
@@ -51,7 +51,7 @@ export const timeRemaining = (props) => {
         }),
       ]),
 
-      props.serverState.timerDuration === 0 && [
+      props.timerDuration === 0 && [
         h(button, {
           class: {
             'bg-green-600': true,
@@ -70,13 +70,13 @@ export const timeRemaining = (props) => {
         ]),
       ],
 
-      props.serverState.timerDuration > 0 && [
+      props.timerDuration > 0 && [
         h(button, {
           class: {
             'bg-white': true,
             'text-green-600': true,
           },
-          disabled: !props.serverState.timerDuration,
+          disabled: !props.timerDuration,
           onclick: isPaused
             ? actions.ResumeTimer
             : actions.PauseTimer,
