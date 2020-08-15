@@ -4,7 +4,11 @@ const WebsocketSub = (action, connection) => (dispatch) => {
   });
 
   connection.websocket.on('message', (data) => {
-    dispatch(action.MessageTimer(connection.websocket, connection.timerId, data));
+    const { type } = JSON.parse(data);
+    if (type === 'client:new') {
+      return dispatch(action.MessageTimerOwner(connection.websocket, connection.timerId, data));
+    }
+    return dispatch(action.MessageTimer(connection.websocket, connection.timerId, data));
   });
 
   return () => {
