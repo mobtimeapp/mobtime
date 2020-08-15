@@ -2,6 +2,7 @@ import { effects } from 'ferp';
 import Action from './actions';
 
 export const update = (action, state) => {
+  console.log('update', action.toString());
   if (!action) return [state, effects.none()];
 
   return Action.caseOf({
@@ -27,15 +28,30 @@ export const update = (action, state) => {
       ];
     },
 
-    RemoveConnection: (websocket) => [
-      {
-        ...state,
-        connections: state.connections.filter((connection) => (
-          websocket !== connection.websocket
-        )),
-      },
-      effects.none(),
-    ],
+    RemoveConnection: (websocket, timerId) => {
+      const timerConnections = state.connections.filter((c) => c.timerId === timerId);
+      const target = timerConnections.find((c) => c.websocket === websocket);
+      const nextOwner = target && target.isOwner
+        ? timerConnections.find((c) => c.websocket !== websocket && !c.isOwner)
+        : null;
+
+      const connections = state.connections.reduce((memo, connection) => {
+        if (connection === target) return memo;
+        const nextConnection = connection === nextOwner
+          ? { ...connection, isOwner: true }
+          : connection;
+
+        return [...memo, nextConnection];
+      }, []);
+
+      return [
+        {
+          ...state,
+          connections,
+        },
+        effects.none(),
+      ];
+    },
 
     MessageTimer: (websocket, timerId, message) => {
       const websockets = state.connections.reduce((sockets, connection) => {
