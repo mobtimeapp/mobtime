@@ -2,7 +2,6 @@ import { app, h } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';
 import * as subscriptions from '/subscriptions.js';
-import Status from '/status.js';
 
 import { card } from '/components/card.js';
 import { fullButton } from '/components/fullButton.js';
@@ -42,6 +41,35 @@ const getGoalsDetails = ({ goals }) => {
   return h(badge, {}, `${completed}/${total}`);
 };
 
+const connectionStatus = ({ websocket }) => {
+  if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
+    return 'will-connect';
+  }
+  return websocket.readyState === WebSocket.OPEN
+    ? 'connected' : 'will-reconnect';
+};
+
+const websocketStatusClass = {
+  'will-connect': {
+    'bg-transparent': true,
+    'text-gray-400': true,
+  },
+  'connected': {
+    'bg-transparent': true,
+    'text-gray-400': true,
+  },
+  'will-reconnect': {
+    'bg-red-500': true,
+    'text-white': true
+  },
+};
+
+const websocketStatusMessage = {
+  'will-connect': 'Websocket connecting...',
+  'connected': 'Websocket Connection established',
+  'will-reconnect': 'Websocket reconnecting...',
+};
+
 app({
   init: actions.Init(null, initialTimerId),
 
@@ -78,10 +106,7 @@ app({
     }, [
       h(header),
 
-      h(timeRemaining, {
-        remainingTime: state.remainingTime,
-        serverState: state,
-      }),
+      h(timeRemaining, state),
 
       h('div', {
         class: {
@@ -199,21 +224,11 @@ app({
       h(section, {
         class: {
           'w-full': true,
-          ...Status.caseOf({
-            Connecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
-            Connected: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
-            Reconnecting: () => ({ 'bg-transparent': true, 'text-gray-400': true }),
-            Error: () => ({ 'bg-red-500': true, 'text-white': true }),
-          }, state.status),
+          ...websocketStatusClass[connectionStatus(state)],
           'text-center': true,
           'text-xs': true,
         },
-      }, Status.caseOf({
-        Connecting: () => 'Websocket connecting',
-        Connected: () => `Websocket connected, with ${state.connections - 1} other(s)`,
-        Reconnecting: () => 'Websocket reconnecting',
-        Error: (err) => `Error: ${err}`,
-      }, state.status)),
+      }, websocketStatusMessage[connectionStatus(state)]),
 
       h(fullButton, {
         onclick: actions.RequestNotificationPermission,
@@ -244,13 +259,6 @@ app({
         actions,
         timerId,
       }),
-
-      Status.caseOf({
-        Connected: (token) => subscriptions.KeepAlive({ token }),
-        Connecting: () => false,
-        Reconnecting: () => false,
-        Error: () => false,
-      }, state.status),
 
       subscriptions.Timer({
         timerStartedAt: state.timerStartedAt,
