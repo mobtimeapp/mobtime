@@ -5,11 +5,11 @@ export default (_dispatch, _action, storage) => {
 
   router.get('/statistics', (_request, response) => {
     const state = storage.read();
-    const timerIds = Object.keys(state);
+    const timerIds = Object.keys(state.statistics);
     const timerStatistics = timerIds.reduce((counts, id) => ({
-      mobbers: counts.mobbers + state[id].mob.length,
-      connections: counts.connections + state[id].tokens.length,
-      goals: counts.goals + state[id].goals.length,
+      mobbers: counts.mobbers + state.statistics[id].mobbers,
+      connections: counts.connections + state.statistics[id].connections,
+      goals: counts.goals + state.statistics[id].goals,
     }), { mobbers: 0, connections: 0, goals: 0 });
 
     return response
