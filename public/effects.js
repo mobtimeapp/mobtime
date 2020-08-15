@@ -1,6 +1,66 @@
 import formatTime from '/formatTime.js';
 import api from '/api.js';
 
+const fx = (effect) => (props) => [effect, props];
+
+export const UpdateSettings = fx(function UpdateSettingsFX(_dispatch, {
+  websocket,
+  settings,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'settings:update',
+    settings,
+  }));
+});
+
+export const UpdateTimer = fx(function StartTimerFX(_dispatch, {
+  websocket,
+  timerStartedAt,
+  timerDuration,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'timer:update',
+    timerStartedAt,
+    timerDuration,
+  }));
+});
+
+export const ResumeTimer = fx(function ResumeTimerFX(_dispatch, {
+  websocket,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'timer:resume',
+  }));
+});
+
+export const PauseTimer = fx(function PauseTimerFX(_dispatch, {
+  websocket,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'timer:pause',
+  }));
+});
+
+export const UpdateGoals = fx(function UpdateGoalsFX(_dispatch, {
+  websocket,
+  goals,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'goals:update',
+    goals,
+  }));
+});
+
+export const UpdateMob = fx(function UpdateMobFX(_dispatch, {
+  websocket,
+  mob,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'mob:update',
+    mob,
+  }));
+});
+
 const ApiEffectFX = (dispatch, {
   endpoint, options, token, OnOK, OnERR,
 }) => api(endpoint, token, options)

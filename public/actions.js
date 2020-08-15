@@ -34,16 +34,14 @@ const emptyPrompt = {
 
 export const Init = (_, timerId) => [
   {
-    serverState: {
-      timerStartedAt: null,
-      timerDuration: 0,
-      mob: [],
-      goals: [],
-      lockedMob: null,
-      connections: 0,
-      settings: {
-        mobOrder: '',
-      },
+    timerStartedAt: null,
+    timerDuration: 0,
+    mob: [],
+    goals: [],
+    lockedMob: null,
+    connections: 0,
+    settings: {
+      mobOrder: '',
     },
     expandedReorderable: null,
     timerTab: 'overview',
@@ -56,8 +54,14 @@ export const Init = (_, timerId) => [
     allowNotification: initialAllowNotification,
     status: Status.Connecting(),
     pendingSettings: {},
+    websocket: null,
   },
 ];
+
+export const SetWebsocket = (state, { websocket }) => ({
+  ...state,
+  websocket,
+});
 
 export const ExpandReorderable = (state, { expandedReorderable }) => ({
   ...state,
@@ -163,6 +167,7 @@ export const DragTo = (state, { to }) => ({
   },
 });
 
+// TODO: dragEndEffects
 const dragEndEffects = {
   mob: (drag, status) => [
     withToken(
@@ -226,13 +231,7 @@ export const SetRemainingTime = (state, remainingTime) => [
 
 export const SetStatus = (state, status) => ({ ...state, status });
 
-export const SetToken = (state, token) => ({
-  ...state,
-  status: token
-    ? Status.Connected(token)
-    : Status.Connecting(),
-});
-
+// TODO: Tick
 export const Tick = (state, serverState) => {
   const nextState = {
     ...state,
@@ -259,15 +258,13 @@ export const Tick = (state, serverState) => {
 export const Completed = (state) => [
   {
     ...state,
-    serverState: {
-      ...state.serverState,
-      timerStartedAt: null,
-      timerDuration: null,
-    },
+    timerStartedAt: null,
+    timerDuration: null,
     remainingTime: 0,
   },
   [
     effects.UpdateTitleWithTime({ remainingTime: 0 }),
+    // TODO: do this
     withToken(
       (token) => effects.ApiEffect({
         endpoint: '/api/timer/reset',
@@ -279,20 +276,26 @@ export const Completed = (state) => [
     ),
   ],
 ];
-export const RenameUser = (state, { id, value }) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: `/api/mob/rename/${id}/${encodeURIComponent(value)}`,
-      token,
-      OnOK: [ExpandReorderable, { expandedReorderable: null }],
-      OnERR: Noop,
+export const RenameUser = (state, { id, value }) => {
+  const mob = state.mob.map((m) => ({
+    ...m,
+    name: m.id === id ? value : m.name,
+  }));
+
+  return [
+    {
+      ...state,
+      mob,
+    },
+    effects.UpdateMob({
+      websocket: state.websocket,
+      mob,
     }),
-    state.status,
-  ),
-];
+  ];
+};
+
 export const RenameUserPrompt = (state, { id }) => {
-  const user = state.serverState.mob.find((m) => m.id === id);
+  const user = state.mob.find((m) => m.id === id);
   if (!user) return state;
 
   return PromptOpen(state, {
@@ -310,59 +313,70 @@ export const UpdateName = (state, name) => ({
   name,
 });
 
-export const ShuffleMob = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/mob/shuffle',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
-];
-export const CycleMob = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/mob/cycle',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
-];
+export const ShuffleMob = (state) => {
+  const mob = [...state.mob]; // FIXME: Shuffle
 
-export const AddNameToMob = (state) => [
-  {
-    ...state,
-    name: '',
-  },
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: `/api/mob/add/${encodeURIComponent(state.name)}`,
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
+  return [
+    {
+      ...state,
+      mob,
+    },
+    effects.UpdateMob({
+      websocket: state.websocket,
+      mob,
     }),
-    state.status,
-  ),
-];
+  ];
+};
 
-export const RemoveFromMob = (state, id) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: `/api/mob/remove/${encodeURIComponent(id)}`,
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
+export const CycleMob = (state) => {
+  const [first, ...rest] = state.mob;
+  const mob = [...rest, first];
+
+  return [
+    {
+      ...state,
+      mob,
+    },
+    effects.UpdateMob({
+      websocket: state.websocket,
+      mob,
     }),
-    state.status,
-  ),
-];
+  ];
+};
+
+export const AddNameToMob = (state) => {
+  const mob = state.mob.concat({
+    id: Math.random().toString(36).slice(2),
+    name: state.name,
+  });
+
+  return [
+    {
+      ...state,
+      mob,
+      name: '',
+    },
+    effects.UpdateMob({
+      websocket: state.websocket,
+      mob,
+    }),
+  ];
+};
+
+export const RemoveFromMob = (state, id) => {
+  const mob = state.mob.filter((m) => m.id !== id);
+
+  return [
+    {
+      ...state,
+      mob,
+    },
+    effects.UpdateMob({
+      websocket: state.websocket,
+      mob,
+    }),
+  ];
+};
 
 export const MoveMob = (state, { from, to }) => [
   {
@@ -371,62 +385,79 @@ export const MoveMob = (state, { from, to }) => [
   dragEndEffects.mob({ from, to }, state.status),
 ];
 
-export const AddGoal = (state) => [
-  { ...state, goal: '' },
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: `/api/goals/add/${encodeURIComponent(state.goal)}`,
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
+export const AddGoal = (state) => {
+  const goals = state.goals.concat({
+    id: Math.random().toString(36).slice(2),
+    text: state.goal,
+    completed: false,
+  });
+
+  return [
+    {
+      ...state,
+      goals,
+      goal: '',
+    },
+    effects.UpdateGoals({
+      websocket: state.websocket,
+      goals,
     }),
-    state.status,
-  ),
-];
-export const CompleteGoal = (state, { id, completed }) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: `/api/goals/${completed ? 'complete' : 'uncomplete'}/${id}`,
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
+  ];
+};
+export const CompleteGoal = (state, { id, completed }) => {
+  const goals = state.goals.map((g) => ({
+    ...g,
+    completed: g.id === id ? completed : g.completed,
+  }));
+
+  return [
+    {
+      ...state,
+      goals,
+    },
+    effects.UpdateGoals({
+      websocket: state.websocket,
+      goals,
     }),
-    state.status,
-  ),
-];
-export const RemoveGoal = (state, id) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: `/api/goals/remove/${id}`,
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
+  ];
+};
+export const RemoveGoal = (state, id) => {
+  const goals = state.goals.filter((g) => g.id !== id);
+  return [
+    {
+      ...state,
+      goals,
+    },
+    effects.UpdateGoals({
+      websocket: state.websocket,
+      goals,
     }),
-    state.status,
-  ),
-];
+  ];
+};
 export const MoveGoal = (state, { from, to }) => [
   {
     ...state,
   },
   dragEndEffects.goal({ from, to }, state.status),
 ];
-export const RenameGoal = (state, { id, value }) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: `/api/goals/rename/${id}/${encodeURIComponent(value)}`,
-      token,
-      OnOK: [ExpandReorderable, { expandedReorderable: null }],
-      OnERR: Noop,
+export const RenameGoal = (state, { id, value }) => {
+  const goals = state.goals.map((g) => ({
+    ...g,
+    text: g.id === id ? value : g.text,
+  }));
+  return [
+    {
+      ...state,
+      goals,
+    },
+    effects.UpdateGoals({
+      websocket: state.websocket,
+      goals,
     }),
-    state.status,
-  ),
-];
+  ];
+};
 export const RenameGoalPrompt = (state, { id }) => {
-  const goal = state.serverState.goals.find((g) => g.id === id);
+  const goal = state.goals.find((g) => g.id === id);
   if (!goal) return state;
 
   return PromptOpen(state, {
@@ -447,43 +478,41 @@ export const UpdateGoalText = (state, goal) => [
 ];
 
 export const PauseTimer = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/timer/pause',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
+  {
+    ...state,
+    timerStartedAt: null,
+  },
+  effects.UpdateTimer({
+    websocket: state.websocket,
+    timerStarteAt: null,
+    timerDuration: state.timerDuration,
+  }),
 ];
 
+// TODO: What
 export const ResumeTimer = (state) => [
   state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/timer/resume',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
-    }),
-    state.status,
-  ),
+  effects.ResumeTimer({
+    websocket: state.websocket,
+  }),
 ];
 
-export const StartTimer = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/timer/start',
-      token,
-      OnOK: Noop,
-      OnERR: Noop,
+export const StartTimer = (state) => {
+  const timerStartedAt = Date.now();
+  const { timerDuration } = state;
+  return [
+    {
+      ...state,
+      timerStartedAt,
+      timerDuration,
+    },
+    effects.StartTimer({
+      websocket: state.websocket,
+      timerStartedAt,
+      timerDuration,
     }),
-    state.status,
-  ),
-];
+  ];
+};
 
 export const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
 
@@ -502,12 +531,6 @@ export const ShowNotification = (state, message) => [
   }),
 ];
 
-export const SetRecaptchaToken = (state, recaptchaToken) => ({
-  ...state,
-  recaptchaToken,
-
-});
-
 export const PendingSettingsReset = (state) => ({
   ...state,
   pendingSettings: {},
@@ -521,22 +544,21 @@ export const PendingSettingsSet = (state, { key, value }) => ({
   },
 });
 
-export const UpdateSettings = (state) => [
-  state,
-  withToken(
-    (token) => effects.ApiEffect({
-      endpoint: '/api/settings',
-      options: {
-        method: 'post',
-        body: JSON.stringify(state.pendingSettings),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-      token,
-      OnOK: PendingSettingsReset,
-      OnERR: Noop,
+export const UpdateSettings = (state) => {
+  const settings = {
+    ...state.settings,
+    ...state.pendingSettings,
+  };
+
+  return [
+    {
+      ...state,
+      settings,
+      pendingSettings: {},
+    },
+    effects.UpdateSettings({
+      websocket: state.websocket,
+      settings,
     }),
-    state.status,
-  ),
-];
+  ];
+};
