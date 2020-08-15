@@ -80,7 +80,7 @@ app({
 
       h(timeRemaining, {
         remainingTime: state.remainingTime,
-        serverState: state.serverState,
+        serverState: state,
       }),
 
       h('div', {
@@ -100,13 +100,13 @@ app({
         h(tab, {
           selected: state.timerTab === 'mob',
           onclick: [actions.SetTimerTab, 'mob'],
-          details: state.serverState.mob.length > 0
-            && h(badge, {}, state.serverState.mob.length.toString()),
+          details: state.mob.length > 0
+            && h(badge, {}, state.mob.length.toString()),
         }, 'Mob'),
         h(tab, {
           selected: state.timerTab === 'goals',
           onclick: [actions.SetTimerTab, 'goals'],
-          details: getGoalsDetails(state.serverState),
+          details: getGoalsDetails(state),
         }, 'Goals'),
         h(tab, {
           selected: state.timerTab === 'settings',
@@ -131,8 +131,8 @@ app({
           overview: true,
           expandedReorderable: state.expandedReorderable,
           drag: {},
-          mob: state.serverState.mob.slice(0, state.serverState.settings.mobOrder.split(',').length || 2),
-          mobOrder: state.serverState.settings.mobOrder,
+          mob: state.mob.slice(0, state.settings.mobOrder.split(',').length || 2),
+          mobOrder: state.settings.mobOrder,
         }),
 
         h(overviewHeading, {
@@ -147,7 +147,7 @@ app({
           overview: true,
           expandedReorderable: state.expandedReorderable,
           drag: {},
-          goals: state.serverState.goals.filter((g) => !g.completed).slice(0, 3),
+          goals: state.goals.filter((g) => !g.completed).slice(0, 3),
         }),
 
       ],
@@ -157,8 +157,8 @@ app({
         h(mobParticipants, {
           expandedReorderable: state.expandedReorderable,
           drag: state.drag.type === 'mob' ? state.drag : {},
-          mob: state.serverState.mob,
-          mobOrder: state.serverState.settings.mobOrder,
+          mob: state.mob,
+          mobOrder: state.settings.mobOrder,
         }),
 
         h(addParticipant, {
@@ -172,7 +172,7 @@ app({
         h(goalList, {
           expandedReorderable: state.expandedReorderable,
           drag: state.drag.type === 'goal' ? state.drag : {},
-          goals: state.serverState.goals,
+          goals: state.goals,
         }),
         h(addGoal, {
           goal: state.goal,
@@ -184,11 +184,11 @@ app({
       }, [
         h(setLength, {
           pendingSettings: state.pendingSettings,
-          settings: state.serverState.settings,
+          settings: state.settings,
         }),
         h(mobOrder, {
           pendingSettings: state.pendingSettings,
-          settings: state.serverState.settings,
+          settings: state.settings,
         }),
       ]),
 
@@ -210,7 +210,7 @@ app({
         },
       }, Status.caseOf({
         Connecting: () => 'Websocket connecting',
-        Connected: () => `Websocket connected, with ${state.serverState.connections - 1} other(s)`,
+        Connected: () => `Websocket connected, with ${state.connections - 1} other(s)`,
         Reconnecting: () => 'Websocket reconnecting',
         Error: (err) => `Error: ${err}`,
       }, state.status)),
@@ -253,8 +253,8 @@ app({
       }, state.status),
 
       subscriptions.Timer({
-        timerStartedAt: state.serverState.timerStartedAt,
-        timerDuration: state.serverState.timerDuration,
+        timerStartedAt: state.timerStartedAt,
+        timerDuration: state.timerDuration,
         actions,
       }),
 
