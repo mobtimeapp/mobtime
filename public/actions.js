@@ -1,12 +1,4 @@
 import * as effects from '/effects.js';
-import Status from '/status.js';
-
-const withToken = (fn, status) => Status.caseOf({
-  Connecting: () => false,
-  Connected: fn,
-  Reconnecting: () => false,
-  Error: () => false,
-}, status);
 
 let initialAllowNotification = false;
 if ('Notification' in window) {
@@ -38,10 +30,10 @@ export const Init = (_, timerId) => [
     timerDuration: 0,
     mob: [],
     goals: [],
-    lockedMob: null,
     connections: 0,
     settings: {
-      mobOrder: '',
+      mobOrder: 'Navigator,Driver',
+      duration: (5 * 60 * 1000),
     },
     expandedReorderable: null,
     timerTab: 'overview',
@@ -52,7 +44,6 @@ export const Init = (_, timerId) => [
     name: '',
     goal: '',
     allowNotification: initialAllowNotification,
-    status: Status.Connecting(),
     pendingSettings: {},
     websocket: null,
   },
@@ -167,55 +158,6 @@ export const DragTo = (state, { to }) => ({
   },
 });
 
-// TODO: dragEndEffects
-const dragEndEffects = {
-  mob: (drag, status) => [
-    withToken(
-      (token) => effects.ApiEffect({
-        endpoint: `/api/mob/move/${drag.from}/to/${drag.to}`,
-        token,
-        OnOK: Noop,
-        OnERR: Noop,
-      }),
-      status,
-    ),
-  ],
-
-  goal: (drag, status) => [
-    withToken(
-      (token) => effects.ApiEffect({
-        endpoint: `/api/goals/move/${drag.from}/to/${drag.to}`,
-        token,
-        OnOK: Noop,
-        OnERR: Noop,
-      }),
-      status,
-    ),
-  ],
-
-  _: () => [],
-};
-
-export const DragEnd = (state) => {
-  const badDrag = !state.drag.active
-    || state.drag.to === null
-    || state.drag.to === state.drag.from;
-
-  const effectFn = (!badDrag && dragEndEffects[state.drag.type])
-    || dragEndEffects._;
-
-  return ([
-    {
-      ...state,
-      drag: { ...emptyDrag },
-    },
-    effectFn(
-      state.drag,
-      state.status,
-    ),
-  ]);
-};
-
 export const DragCancel = (state) => ({
   ...state,
   drag: { ...emptyDrag },
@@ -229,53 +171,45 @@ export const SetRemainingTime = (state, remainingTime) => [
   effects.UpdateTitleWithTime({ remainingTime }),
 ];
 
-export const SetStatus = (state, status) => ({ ...state, status });
+//export const Tick = (state) => {
+  //const nextState = {
+    //...state,
+    //remainingTime: state.timerStartedAt !== null
+      //? Math.max(0, state.timerDuration - (Date.now() - state.timerStartedAt))
+      //: state.timerDuration,
+  //};
 
-// TODO: Tick
-export const Tick = (state, serverState) => {
+  //const { remainingTime } = nextState;
+
+  //if (remainingTime === 0) {
+    //return [
+      //nextState,
+      //[
+        //effects.UpdateTitleWithTime({ remainingTime: 0 }),
+      //],
+    //];
+  //}
+
+  //return nextState;
+//};
+
+export const Completed = (state) => {
   const nextState = {
     ...state,
-    serverState,
-    remainingTime: serverState.timerStartedAt !== null
-      ? Math.max(0, serverState.timerDuration - (Date.now() - serverState.timerStartedAt))
-      : serverState.timerDuration,
+    timerStartedAt: null,
+    timerDuration: 0,
+    remainingTime: 0,
   };
 
-  const { remainingTime } = nextState;
-
-  if (remainingTime === 0) {
-    return [
-      nextState,
-      [
-        effects.UpdateTitleWithTime({ remainingTime: 0 }),
-      ],
-    ];
-  }
-
-  return nextState;
+  return [
+    nextState,
+    [
+      effects.UpdateTitleWithTime({ remainingTime: 0 }),
+      effects.ShareTimer(nextState),
+    ],
+  ];
 };
 
-export const Completed = (state) => [
-  {
-    ...state,
-    timerStartedAt: null,
-    timerDuration: null,
-    remainingTime: 0,
-  },
-  [
-    effects.UpdateTitleWithTime({ remainingTime: 0 }),
-    // TODO: do this
-    withToken(
-      (token) => effects.ApiEffect({
-        endpoint: '/api/timer/reset',
-        token,
-        OnOK: Noop,
-        OnERR: Noop,
-      }),
-      state.status,
-    ),
-  ],
-];
 export const RenameUser = (state, { id, value }) => {
   const mob = state.mob.map((m) => ({
     ...m,
@@ -314,7 +248,13 @@ export const UpdateName = (state, name) => ({
 });
 
 export const ShuffleMob = (state) => {
-  const mob = [...state.mob]; // FIXME: Shuffle
+  const mob = [...state.mob];
+  for (let index = mob.length - 1; index > 0; index -= 1) {
+    const otherIndex = Math.floor(Math.random() * index);
+    const old = mob[index];
+    mob[index] = mob[otherIndex];
+    mob[otherIndex] = old;
+  }
 
   return [
     {
@@ -378,12 +318,30 @@ export const RemoveFromMob = (state, id) => {
   ];
 };
 
-export const MoveMob = (state, { from, to }) => [
-  {
-    ...state,
-  },
-  dragEndEffects.mob({ from, to }, state.status),
-];
+export const MoveMob = (state, { from, to }) => {
+  const mob = state.mob.map((person, index) => {
+    let nextPerson = person;
+
+    if (index === from) {
+      nextPerson = state.mob[to];
+    } else if (index === to) {
+      nextPerson = state.mob[from];
+    }
+
+    return nextPerson;
+  });
+
+  return [
+    {
+      ...state,
+      mob,
+    },
+    effects.UpdateMob({
+      websocket: state.websocket,
+      mob,
+    }),
+  ];
+}
 
 export const AddGoal = (state) => {
   const goals = state.goals.concat({
@@ -434,12 +392,31 @@ export const RemoveGoal = (state, id) => {
     }),
   ];
 };
-export const MoveGoal = (state, { from, to }) => [
-  {
-    ...state,
-  },
-  dragEndEffects.goal({ from, to }, state.status),
-];
+export const MoveGoal = (state, { from, to }) => {
+  const goals = state.goals.map((goal, index) => {
+    let nextGoal = goal;
+
+    if (index === from) {
+      nextGoal = state.goals[to];
+    } else if (index === to) {
+      nextGoal = state.goals[from];
+    }
+
+    return nextGoal;
+  });
+
+  return [
+    {
+      ...state,
+      goals,
+    },
+    effects.UpdateGoals({
+      websocket: state.websocket,
+      goals,
+    }),
+  ];
+};
+
 export const RenameGoal = (state, { id, value }) => {
   const goals = state.goals.map((g) => ({
     ...g,
@@ -481,32 +458,42 @@ export const PauseTimer = (state) => [
   {
     ...state,
     timerStartedAt: null,
+    timerDuration: state.remainingTime,
   },
   effects.UpdateTimer({
     websocket: state.websocket,
-    timerStarteAt: null,
-    timerDuration: state.timerDuration,
+    timerStartedAt: null,
+    timerDuration: state.remainingTime,
   }),
 ];
 
-// TODO: What
-export const ResumeTimer = (state) => [
-  state,
-  effects.ResumeTimer({
-    websocket: state.websocket,
-  }),
-];
-
-export const StartTimer = (state) => {
+export const ResumeTimer = (state) => {
   const timerStartedAt = Date.now();
-  const { timerDuration } = state;
+  const timerDuration = state.remainingTime;
   return [
     {
       ...state,
       timerStartedAt,
       timerDuration,
     },
-    effects.StartTimer({
+    effects.UpdateTimer({
+      websocket: state.websocket,
+      timerStartedAt,
+      timerDuration,
+    }),
+  ];
+};
+
+export const StartTimer = (state) => {
+  const timerStartedAt = Date.now();
+  const { duration: timerDuration } = state.settings;
+  return [
+    {
+      ...state,
+      timerStartedAt,
+      timerDuration,
+    },
+    effects.UpdateTimer({
       websocket: state.websocket,
       timerStartedAt,
       timerDuration,
@@ -560,5 +547,78 @@ export const UpdateSettings = (state) => {
       websocket: state.websocket,
       settings,
     }),
+  ];
+};
+
+export const BroadcastJoin = (state) => [
+  state,
+  effects.BroadcastJoin({
+    websocket: state.websocket,
+  }),
+];
+
+export const UpdateByWebsocketData = (state, payload) => {
+  const { type, ...data } = payload;
+
+  switch (type) {
+    case 'settings:update':
+      return {
+        ...state,
+        settings: data.settings,
+      };
+
+    case 'timer:update':
+      return {
+        ...state,
+        ...data,
+      };
+
+    case 'timer:share':
+      return {
+        ...state,
+        ...data,
+      };
+
+    case 'goals:update':
+      return {
+        ...state,
+        goals: data.goals,
+      };
+
+    case 'mob:update':
+      return {
+        ...state,
+        mob: data.mob,
+      };
+
+    case 'client:new':
+      return [
+        state,
+        effects.ShareTimer(state),
+      ];
+
+    default:
+      console.log('Unknown websocket data', payload);
+      return state;
+  }
+};
+
+export const DragEnd = (state) => {
+  const badDrag = !state.drag.active
+    || state.drag.to === null
+    || state.drag.to === state.drag.from;
+
+  if (badDrag) {
+    return { ...state, drag: { ...emptyDrag } };
+  }
+
+  return [
+    {
+      ...state,
+      drag: { ...emptyDrag },
+    },
+    state.drag.type === 'mob'
+      ? effects.andThen({ action: MoveMob, props: state.drag })
+      : effects.andThen({ action: MoveGoal, props: state.drag }),
   ];
 };

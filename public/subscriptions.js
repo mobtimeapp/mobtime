@@ -1,140 +1,89 @@
 /* eslint-disable import/no-absolute-path, import/extensions, import/no-unresolved */
 
-import api from '/api.js';
-import Status from '/status.js';
-
 const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
   let cancel = false;
   let handle = null;
 
+  const cleanup = () => {
+    cancel = true;
+    clearTimeout(handle);
+  };
+
   const tick = () => {
-    if (cancel) return undefined;
+    if (cancel) return;
 
     const now = Date.now();
     const elapsed = now - timerStartedAt;
-    const remaining = Math.max(0, timerDuration - elapsed);
+    const remainingTime = Math.max(0, timerDuration - elapsed);
 
-    if (remaining === 0) {
-      return dispatch(actions.Completed);
+    if (remainingTime === 0) {
+      cleanup();
+      dispatch(actions.Completed);
+      return;
     }
 
-    dispatch(actions.SetRemainingTime, remaining);
+    dispatch(actions.SetRemainingTime, remainingTime);
 
     handle = setTimeout(tick, 100);
-
-    return undefined;
   };
 
   if (timerStartedAt) {
     handle = setTimeout(tick, 0);
   }
 
-  return () => {
-    cancel = true;
-    clearTimeout(handle);
-  };
+  return cleanup;
 };
 export const Timer = (props) => [TimerFX, props];
 
-const KeepAliveFX = (_dispatch, { token }) => {
-  let cancel = false;
-  let handle = null;
-
-  const checkConnection = () => (cancel
-    ? null
-    : api('/api/ping', token)
-      .then((r) => {
-        if (!r.ok) {
-          const error = new Error(`HTTP Status ${r.status}: ${r.statusText}`);
-          error.response = r;
-          throw error;
-        }
-        handle = setTimeout(checkConnection, 5 * 60 * 1000);
-      })
-      .catch((err) => {
-        console.warn('Unable to ping timer', err); // eslint-disable-line no-console
-      }));
-
-  requestAnimationFrame(checkConnection);
-
-  return () => {
-    cancel = true;
-    clearTimeout(handle);
-  };
-};
-export const KeepAlive = (props) => [KeepAliveFX, props];
-
-
-const WebsocketFX = (dispatch, { timerId, actions }) => {
-  const protocol = window.location.protocol === 'https:'
-    ? 'wss'
-    : 'ws';
+const WebsocketFX = (dispatch, {
+  timerId,
+  actions,
+}) => {
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const websocketAddress = (
     `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`
   );
 
   let socket = null;
   let cancel = false;
-  let pingHandle = null;
 
   const connect = async () => {
-    clearTimeout(pingHandle);
     if (cancel) return;
 
+    dispatch(actions.SetWebsocket, { websocket: null });
     socket = new WebSocket(websocketAddress);
 
-    const ping = () => {
-      if (cancel) return;
-      socket.send(JSON.stringify({ ping: Date.now() }));
-      pingHandle = setTimeout(ping, 1 * 60 * 1000);
-    };
-
-    dispatch(actions.SetStatus, Status.Connecting());
-    const connectionAttempt = setTimeout(() => {
-      console.log('Waited 10 seconds, no websocket response, closing connection attempt'); // eslint-disable-line no-console
-      setTimeout(connect, 1000);
-    }, 2000);
-
     socket.addEventListener('open', () => {
-      clearTimeout(connectionAttempt);
-      clearTimeout(pingHandle);
-
       dispatch(actions.SetWebsocket, { websocket: socket });
+      dispatch(actions.BroadcastJoin);
 
-      socket.addEventListener('close', (event) => {
-        console.log('socket closed');
-        clearTimeout(pingHandle);
-        dispatch(actions.SetStatus, Status.Error(event.reason || 'Disconnected by server'));
+      socket.addEventListener('close', () => {
         requestAnimationFrame(() => {
           dispatch(actions.SetWebsocket, { websocket: null });
         });
         socket = null;
         setTimeout(connect, 1000);
       });
-
-      ping();
     });
 
     socket.addEventListener('message', (event) => {
       const message = JSON.parse(event.data);
 
-      if (message.type === 'notify') {
-        dispatch(actions.ShowNotification, message.message);
-      }
-
-      dispatch(actions.Tick, message.state);
+      dispatch(
+        actions.UpdateByWebsocketData,
+        message,
+      );
     });
   };
 
-  requestAnimationFrame(connect);
+  requestAnimationFrame(() => {
+    connect();
+  });
 
   return () => {
     cancel = true;
 
-    requestAnimationFrame(() => {
-      dispatch(actions.SetWebsocket, { websocket: null });
-    });
-    clearTimeout(pingHandle);
+
     socket.close();
     socket = null;
   };
