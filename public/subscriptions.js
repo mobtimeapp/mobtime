@@ -1,4 +1,3 @@
-/* globals grecaptcha */
 /* eslint-disable import/no-absolute-path, import/extensions, import/no-unresolved */
 
 import api from '/api.js';
@@ -70,35 +69,19 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
   const protocol = window.location.protocol === 'https:'
     ? 'wss'
     : 'ws';
-  const getAddress = (recaptchaToken) => (
-    `${protocol}://${window.location.hostname}:${window.location.port}/${recaptchaToken}/${timerId}`
+  const websocketAddress = (
+    `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`
   );
 
   let socket = null;
   let cancel = false;
   let pingHandle = null;
 
-  const getToken = () => new Promise((resolve, reject) => {
-    try {
-      grecaptcha
-        .ready(() => grecaptcha
-          .execute(
-            window.RECAPTCHA_PUBLIC,
-            { action: 'connection' },
-          )
-          .then(resolve));
-    } catch (err) {
-      reject(err);
-    }
-  });
-
   const connect = async () => {
     clearTimeout(pingHandle);
     if (cancel) return;
 
-    const recaptchaToken = await getToken();
-
-    socket = new WebSocket(getAddress(recaptchaToken));
+    socket = new WebSocket(websocketAddress);
 
     const ping = () => {
       if (cancel) return;
@@ -116,10 +99,15 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
       clearTimeout(connectionAttempt);
       clearTimeout(pingHandle);
 
+      dispatch(actions.SetWebsocket, { websocket: socket });
+
       socket.addEventListener('close', (event) => {
         console.log('socket closed');
         clearTimeout(pingHandle);
         dispatch(actions.SetStatus, Status.Error(event.reason || 'Disconnected by server'));
+        requestAnimationFrame(() => {
+          dispatch(actions.SetWebsocket, { websocket: null });
+        });
         socket = null;
         setTimeout(connect, 1000);
       });
@@ -129,10 +117,6 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
     socket.addEventListener('message', (event) => {
       const message = JSON.parse(event.data);
-
-      if (message.token) {
-        dispatch(actions.SetToken, message.token);
-      }
 
       if (message.type === 'notify') {
         dispatch(actions.ShowNotification, message.message);
@@ -146,6 +130,10 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
   return () => {
     cancel = true;
+
+    requestAnimationFrame(() => {
+      dispatch(actions.SetWebsocket, { websocket: null });
+    });
     clearTimeout(pingHandle);
     socket.close();
     socket = null;
