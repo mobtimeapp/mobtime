@@ -2,8 +2,7 @@
   "name": "mobtime",
   "version": "1.4.0",
   "main": "index.js",
-  "license": "MIT",
-  "repository": {
+  "license": "MIT", "repository": {
     "type": "git",
     "url": "https://github.com/mrozbarry/mobtime.git"
   },
@@ -37,7 +36,8 @@
   },
   "ava": {
     "files": [
-      "src/**/*.test.js"
+      "src/**/*.test.js",
+      "public/**/*.test.js"
     ],
     "concurrency": 8,
     "failFast": true,

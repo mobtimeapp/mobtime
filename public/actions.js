@@ -1,7 +1,7 @@
-import * as effects from '/effects.js';
+import * as effects from './effects.js';
 
 let initialAllowNotification = false;
-if ('Notification' in window) {
+if (typeof window !== 'undefined' && 'Notification' in window) {
   initialAllowNotification = Notification.permission === 'granted';
 }
 
@@ -23,6 +23,27 @@ const emptyPrompt = {
   OnValue: Noop,
   visible: false,
 };
+
+const collectionMove = (collection, { from, to }) => {
+  const newCollection = collection.reduce((memo, item, index) => {
+    if (index === from) return memo;
+    if (index === to) {
+      return [
+        ...memo,
+        collection[from],
+        item,
+      ];
+    }
+    return [
+      ...memo,
+      item,
+    ];
+  }, []);
+  if (to >= newCollection.length) {
+    newCollection.push(collection[from]);
+  }
+  return newCollection;
+}
 
 export const Init = (_, timerId) => [
   {
@@ -319,17 +340,7 @@ export const RemoveFromMob = (state, id) => {
 };
 
 export const MoveMob = (state, { from, to }) => {
-  const mob = state.mob.map((person, index) => {
-    let nextPerson = person;
-
-    if (index === from) {
-      nextPerson = state.mob[to];
-    } else if (index === to) {
-      nextPerson = state.mob[from];
-    }
-
-    return nextPerson;
-  });
+  const mob = collectionMove(state.mob, { from, to });
 
   return [
     {
@@ -341,7 +352,7 @@ export const MoveMob = (state, { from, to }) => {
       mob,
     }),
   ];
-}
+};
 
 export const AddGoal = (state) => {
   const goals = state.goals.concat({
@@ -393,17 +404,7 @@ export const RemoveGoal = (state, id) => {
   ];
 };
 export const MoveGoal = (state, { from, to }) => {
-  const goals = state.goals.map((goal, index) => {
-    let nextGoal = goal;
-
-    if (index === from) {
-      nextGoal = state.goals[to];
-    } else if (index === to) {
-      nextGoal = state.goals[from];
-    }
-
-    return nextGoal;
-  });
+  const goals = collectionMove(state.goals, { from, to });
 
   return [
     {
