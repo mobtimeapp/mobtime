@@ -1,7 +1,7 @@
 /* eslint-disable prefer-arrow-callback */
 
-import formatTime from '/formatTime.js';
-import api from '/api.js';
+import formatTime from './formatTime.js';
+import api from './api.js';
 
 const fx = (effect) => (props) => [effect, props];
 
