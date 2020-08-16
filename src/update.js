@@ -30,8 +30,6 @@ const extractStatistics = (message) => {
 
 
 export const update = (action, state) => {
-  if (!action) return [state, effects.none()];
-
   return Action.caseOf({
     Init: () => [
       {
@@ -84,14 +82,15 @@ export const update = (action, state) => {
         ...otherStatistics
       } = state.statistics;
 
+      const updatedTimerStatistics = timerStatistics
+        ? { [timerId]: { ...timerStatistics, connections: timerStatistics.connections + 1 } }
+        : {}
+
       const statistics = timerConnections.length === 1
         ? otherStatistics
         : {
           ...otherStatistics,
-          [timerId]: {
-            ...timerStatistics,
-            connections: timerStatistics.connections - 1,
-          },
+          ...updatedTimerStatistics,
         };
 
       return [
@@ -137,10 +136,9 @@ export const update = (action, state) => {
     },
 
     MessageTimerOwner: (websocket, timerId, message) => {
-      const connection = state.connections.find((connection) => {
-        return connection.timerId === timerId
-          && connection.isOwner;
-      });
+      const connection = state.connections.find((c) => (
+        c.timerId === timerId && c.isOwner
+      ));
 
       return [
         state,
