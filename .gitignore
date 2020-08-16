@@ -1,6 +1,5 @@
 node_modules
-.env
 deploy/*.sh
 deploy/config.js
-database/*.sqlite*
 storage
+.nyc_output
