@@ -4,13 +4,13 @@ import * as actions from '/actions.js';
 import * as subscriptions from '/subscriptions.js';
 
 import { card } from '/components/card.js';
-import { fullButton } from '/components/fullButton.js';
 import { section } from '/components/section.js';
 import { tab } from '/components/tab.js';
 import { settings } from '/components/settings.js';
 import { badge } from '/components/badge.js'; import { button } from '/components/button.js';
 import { overviewHeading } from '/components/overviewHeading.js';
 import { appPrompt } from '/components/prompt.js';
+import { checkbox } from '/components/checkbox.js';
 
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
@@ -221,6 +221,75 @@ app({
         }),
       ]),
 
+      state.timerTab === 'client-settings' && ([
+        h(overviewHeading, {
+          rightAction: [],
+        }, 'Connection Information'),
+        h(section, {}, [
+          h(checkbox, {
+            id: 'is-owner',
+            checked: state.isOwner,
+            inputProps: {
+              readonly: true,
+            },
+          }, h('span', {
+            class: 'text-4xl',
+          }, state.isOwner ? 'You are the timer owner' : 'You are not the timer owner')),
+        ]),
+        h(overviewHeading, {
+          rightAction: [],
+        }, 'Notifications'),
+        h(section, {}, [
+          h('div', {
+            class: 'text-sm mb-2',
+          }, [
+            h(checkbox, {
+              id: 'enable-sound',
+              checked: state.allowSound,
+              inputProps: {
+                onchange: (_, event) => [
+                  actions.SetAllowSound,
+                  event.target.checked,
+                ],
+              },
+            }, h('span', { class: 'text-2xl' }, 'Enable timer sounds')),
+          ]),
+          h('div', {
+            class: 'text-xs mb-2 ml-10',
+          }, [
+            'Pneumatic horn sound provided by ',
+            h('a', {
+              href: 'https://bigsoundbank.com/detail-1828-pneumatic-horn-simple-2.html',
+              target: '_blank',
+            }, 'bigsoundbank.com'),
+          ]),
+          h('div', {
+            class: 'text-sm mb-2',
+          }, [
+            h(checkbox, {
+              id: 'enable-notifications',
+              checked: state.allowNotification,
+              inputProps: {
+                onchange: (_, event) => [
+                  actions.SetAllowNotification,
+                  event.target.checked,
+                ],
+                disabled: state.notificationPermissions === '',
+              },
+            }, h('span', { class: 'text-2xl' }, 'Enable browser notifications')),
+          ]),
+          h(button, {
+            class: {
+              'text-md': true,
+              'bg-green-500': true,
+              'text-white': true,
+              'flex-grow': true,
+            },
+            onclick: actions.RequestNotificationPermission,
+          }, 'Request notification permission'),
+        ]),
+      ]),
+
       state.timerTab === 'share' && [
         h(qrShare),
       ],
@@ -234,19 +303,37 @@ app({
         },
       }, websocketStatusMessage[connectionStatus(state)]),
 
-      h(fullButton, {
-        onclick: actions.RequestNotificationPermission,
-        class: {
-          'hidden': !(!state.allowNotification && ('Notification' in window)),
-          'bg-green-500': true,
-          'hover:bg-green-700': true,
-          'uppercase': true,
-          'font-light': true,
-          'tracking-widest': true,
-          'rounded-tr-lg': true,
-          'py-1': true,
-        },
-      }, 'Enable Notifications'),
+      h('audio', {
+        preload: 'auto',
+        id: 'timer-complete',
+      }, [
+        h('source', {
+          src: 'https://bigsoundbank.com/UPLOAD/mp3/1828.mp3',
+          type: 'audio/mp3',
+        }),
+        h('source', {
+          src: 'https://bigsoundbank.com/UPLOAD/wav/1828.wav',
+          type: 'audio/wav',
+        }),
+        h('source', {
+          src: 'https://bigsoundbank.com/UPLOAD/flac/1828.flac',
+          type: 'audio/flac',
+        }),
+      ]),
+
+      //h(fullButton, {
+        //onclick: actions.RequestNotificationPermission,
+        //class: {
+          //'hidden': !(!state.allowNotification && ('Notification' in window)),
+          //'bg-green-500': true,
+          //'hover:bg-green-700': true,
+          //'uppercase': true,
+          //'font-light': true,
+          //'tracking-widest': true,
+          //'rounded-tr-lg': true,
+          //'py-1': true,
+        //},
+      //}, 'Enable Notifications'),
 
       state.prompt.visible && h(appPrompt, {
         ...state.prompt,
