@@ -43,32 +43,29 @@ const collectionMove = (collection, { from, to }) => {
     newCollection.push(collection[from]);
   }
   return newCollection;
-}
+};
 
-export const Init = (_, timerId) => [
-  {
-    timerStartedAt: null,
-    timerDuration: 0,
-    mob: [],
-    goals: [],
-    connections: 0,
-    settings: {
-      mobOrder: 'Navigator,Driver',
-      duration: (5 * 60 * 1000),
-    },
-    expandedReorderable: null,
-    timerTab: 'overview',
-    drag: { ...emptyDrag },
-    prompt: { ...emptyPrompt },
-    timerId,
-    remainingTime: 0,
-    name: '',
-    goal: '',
-    allowNotification: initialAllowNotification,
-    pendingSettings: {},
-    websocket: null,
+export const Init = (_, timerId) => ({
+  timerStartedAt: null,
+  timerDuration: 0,
+  mob: [],
+  goals: [],
+  settings: {
+    mobOrder: 'Navigator,Driver',
+    duration: (5 * 60 * 1000),
   },
-];
+  expandedReorderable: null,
+  timerTab: 'overview',
+  drag: { ...emptyDrag },
+  prompt: { ...emptyPrompt },
+  timerId,
+  remainingTime: 0,
+  name: '',
+  goal: '',
+  allowNotification: initialAllowNotification,
+  pendingSettings: {},
+  websocket: null,
+});
 
 export const SetWebsocket = (state, { websocket }) => ({
   ...state,
@@ -192,28 +189,6 @@ export const SetRemainingTime = (state, remainingTime) => [
   effects.UpdateTitleWithTime({ remainingTime }),
 ];
 
-//export const Tick = (state) => {
-  //const nextState = {
-    //...state,
-    //remainingTime: state.timerStartedAt !== null
-      //? Math.max(0, state.timerDuration - (Date.now() - state.timerStartedAt))
-      //: state.timerDuration,
-  //};
-
-  //const { remainingTime } = nextState;
-
-  //if (remainingTime === 0) {
-    //return [
-      //nextState,
-      //[
-        //effects.UpdateTitleWithTime({ remainingTime: 0 }),
-      //],
-    //];
-  //}
-
-  //return nextState;
-//};
-
 export const Completed = (state) => {
   const nextState = {
     ...state,
@@ -253,14 +228,20 @@ export const RenameUserPrompt = (state, { id }) => {
   const user = state.mob.find((m) => m.id === id);
   if (!user) return state;
 
-  return PromptOpen(state, {
-    text: 'Rename Mob Member',
-    defaultValue: user.name,
-    OnValue: RenameUser,
-    context: {
-      id,
-    },
-  });
+  return [
+    state,
+    effects.andThen({
+      action: PromptOpen,
+      props: {
+        text: 'Rename Mob Member',
+        defaultValue: user.name,
+        OnValue: RenameUser,
+        context: {
+          id,
+        },
+      },
+    }),
+  ];
 };
 
 export const UpdateName = (state, name) => ({
