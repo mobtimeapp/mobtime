@@ -11,7 +11,7 @@ const WebsocketSub = (action, connection) => (dispatch) => {
     return dispatch(action.MessageTimer(connection.websocket, connection.timerId, data));
   });
 
-  connection.websocket.send(JSON.string({
+  connection.websocket.send(JSON.stringify({
     type: 'timer:ownership',
     isOwner: connection.isOwner,
   }));
