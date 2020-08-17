@@ -134,9 +134,13 @@ app({
           details: getGoalsDetails(state),
         }, 'Goals'),
         h(tab, {
-          selected: state.timerTab === 'settings',
-          onclick: [actions.SetTimerTab, 'settings'],
-        }, 'Settings'),
+          selected: state.timerTab === 'timer-settings',
+          onclick: [actions.SetTimerTab, 'timer-settings'],
+        }, 'Timer Settings'),
+        h(tab, {
+          selected: state.timerTab === 'client-settings',
+          onclick: [actions.SetTimerTab, 'client-settings'],
+        }, 'Client Settings'),
         h(tab, {
           selected: state.timerTab === 'share',
           onclick: [actions.SetTimerTab, 'share'],
@@ -204,7 +208,7 @@ app({
         }),
       ],
 
-      state.timerTab === 'settings' && h(settings, {
+      state.timerTab === 'timer-settings' && h(settings, {
         pendingSettings: state.pendingSettings,
       }, [
         h(setLength, {
