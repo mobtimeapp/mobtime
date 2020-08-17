@@ -109,16 +109,18 @@ const NotificationPermissionFX = (dispatch, { SetAllowNotification }) => {
 export const NotificationPermission = (props) => [NotificationPermissionFX, props];
 
 
-const DisplayNotificationFx = (_dispatch, { title, text }) => {
-  if (!('Notification' in window)) {
-    return;
+const NotifyFx = (_dispatch, { title, text, notification = true }) => {
+  if (notification) {
+    if (!('Notification' in window)) {
+      return;
+    }
+    new Notification(title, { // eslint-disable-line no-new
+      body: text,
+      vibrate: true,
+    });
   }
-  new Notification(title, { // eslint-disable-line no-new
-    body: text,
-    vibrate: true,
-  });
 };
-export const DisplayNotification = (props) => [DisplayNotificationFx, props];
+export const Notify = (props) => [NotifyFx, props];
 
 
 const UpdateTitleWithTimeFX = (_dispatch, { remainingTime }) => {

@@ -18,7 +18,7 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
 
     if (remainingTime === 0) {
       cleanup();
-      dispatch(actions.Completed);
+      dispatch(actions.Completed, { isEndOfTurn: true });
       return;
     }
 
