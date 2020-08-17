@@ -27,3 +27,8 @@ test('can set remaining timer', (t) => {
   t.deepEqual(state, { remainingTime });
   t.deepEqual(effect, effects.UpdateTitleWithTime({ remainingTime }));
 });
+
+test('can set allow notification', (t) => {
+  const state = actions.SetAllowNotification({}, true);
+  t.deepEqual(state, { allowNotification: true });
+});

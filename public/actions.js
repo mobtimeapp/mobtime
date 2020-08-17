@@ -46,6 +46,7 @@ const collectionMove = (collection, { from, to }) => {
 };
 
 export const Init = (_, timerId) => ({
+  isOwner: false,
   timerStartedAt: null,
   timerDuration: 0,
   mob: [],
@@ -189,7 +190,7 @@ export const SetRemainingTime = (state, remainingTime) => [
   effects.UpdateTitleWithTime({ remainingTime }),
 ];
 
-export const Completed = (state) => {
+export const Completed = (state, { isEndOfTurn }) => {
   const nextState = {
     ...state,
     timerStartedAt: null,
@@ -197,11 +198,32 @@ export const Completed = (state) => {
     remainingTime: 0,
   };
 
+  const extraEffects = [];
+  if (isEndOfTurn) {
+    extraEffects.push(
+      effects.Notify({
+        notification: state.allowNotification,
+        title: 'Mobtime',
+        text: 'The timer is up!',
+      }),
+    );
+  }
+
+  if (isEndOfTurn && state.isOwner) {
+    extraEffects.push(
+      effects.andThen({
+        action: CycleMob, // eslint-disable-line no-use-before-define
+        props: {},
+      }),
+    );
+  }
+
   return [
     nextState,
     [
-      effects.UpdateTitleWithTime({ remainingTime: 0 }),
+      effects.UpdateTitleWithTime({ remainingTime: nextState.remainingTime }),
       effects.ShareTimer(nextState),
+      ...extraEffects,
     ],
   ];
 };
@@ -419,14 +441,20 @@ export const RenameGoalPrompt = (state, { id }) => {
   const goal = state.goals.find((g) => g.id === id);
   if (!goal) return state;
 
-  return PromptOpen(state, {
-    text: 'Rename Goal',
-    defaultValue: goal.text,
-    OnValue: RenameGoal,
-    context: {
-      id,
-    },
-  });
+  return [
+    state,
+    effects.andThen({
+      action: PromptOpen,
+      props: {
+        text: 'Rename Goal',
+        defaultValue: goal.text,
+        OnValue: RenameGoal,
+        context: {
+          id,
+        },
+      },
+    }),
+  ];
 };
 
 export const UpdateGoalText = (state, goal) => [
@@ -449,8 +477,7 @@ export const PauseTimer = (state) => [
   }),
 ];
 
-export const ResumeTimer = (state) => {
-  const timerStartedAt = Date.now();
+export const ResumeTimer = (state, timerStartedAt = Date.now()) => {
   const timerDuration = state.remainingTime;
   return [
     {
@@ -466,8 +493,7 @@ export const ResumeTimer = (state) => {
   ];
 };
 
-export const StartTimer = (state) => {
-  const timerStartedAt = Date.now();
+export const StartTimer = (state, timerStartedAt = Date.now()) => {
   const { duration: timerDuration } = state.settings;
   return [
     {
@@ -552,13 +578,19 @@ export const UpdateByWebsocketData = (state, payload) => {
     case 'timer:update':
       return {
         ...state,
-        ...data,
+        timerStartedAt: data.timerStartedAt,
+        timerDuration: data.timerDuration,
       };
 
     case 'timer:share':
       return {
         ...state,
-        ...data,
+        timerStartedAt: data.timerStartedAt,
+        timerDuration: data.timerDuration,
+        mob: data.mob,
+        goals: data.goals,
+        settings: data.settings,
+        remainingTime: data.remainingTime,
       };
 
     case 'goals:update':
@@ -579,8 +611,14 @@ export const UpdateByWebsocketData = (state, payload) => {
         effects.ShareTimer(state),
       ];
 
+    case 'timer:ownership':
+      return {
+        ...state,
+        isOwner: data.isOwner,
+      };
+
     default:
-      console.log('Unknown websocket data', payload);
+      console.warn('Unknown websocket data', payload); // eslint-disable-line no-console
       return state;
   }
 };

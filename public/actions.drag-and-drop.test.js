@@ -21,10 +21,11 @@ test('can start a drag', (t) => {
   });
 });
 
-test('can move a drag', (t) => {
+test('can move an inactive drag', (t) => {
   const initialState = actions.DragSelect({}, {
     type: 'foo',
     from: 0,
+    active: false,
     clientX: 100,
     clientY: 200,
   });
@@ -39,6 +40,51 @@ test('can move a drag', (t) => {
     to: initialState.drag.from,
     clientX: 500,
     clientY: 600,
+  });
+});
+
+test('can move an active drag', (t) => {
+  const initialState = {
+    drag: {
+      type: 'foo',
+      from: 0,
+      active: true,
+      clientX: 100,
+      clientY: 200,
+    },
+  };
+
+  const state = actions.DragMove(initialState, {
+    clientX: 500,
+    clientY: 600,
+  });
+
+  t.like(state.drag, {
+    active: true,
+    clientX: 500,
+    clientY: 600,
+  });
+});
+
+test('does not move the drag if the mouse has not moved at least 5 pixels', (t) => {
+  const initialState = actions.DragSelect({}, {
+    type: 'foo',
+    from: 0,
+    clientX: 100,
+    clientY: 200,
+  });
+
+  const state = actions.DragMove(initialState, {
+    clientX: 101,
+    clientY: 201,
+  });
+
+  t.like(state.drag, {
+    active: false,
+    from: 0,
+    to: null,
+    clientX: 100,
+    clientY: 200,
   });
 });
 
