@@ -28,6 +28,7 @@ test('can complete a timer at the end of a turn and cycle when you are the owner
   const initialState = {
     isOwner: true,
     allowNotification: true,
+    allowSound: false,
     timerStartedAt: Date.now(),
     timerDuration: 1,
     remainingTime: 1,
@@ -38,6 +39,7 @@ test('can complete a timer at the end of a turn and cycle when you are the owner
   t.deepEqual(state, {
     isOwner: true,
     allowNotification: true,
+    allowSound: false,
     timerStartedAt: null,
     timerDuration: 0,
     remainingTime: 0,
@@ -49,6 +51,7 @@ test('can complete a timer at the end of a turn and cycle when you are the owner
     effects.Notify({
       title: 'Mobtime',
       notification: true,
+      sound: false,
       text: 'The timer is up!',
     }),
     effects.andThen({
@@ -62,6 +65,7 @@ test('can complete a timer at the end of a turn but not cycle if you are not the
   const initialState = {
     isOwner: false,
     allowNotification: true,
+    allowSound: false,
     timerStartedAt: Date.now(),
     timerDuration: 1,
     remainingTime: 1,
@@ -72,6 +76,7 @@ test('can complete a timer at the end of a turn but not cycle if you are not the
   t.deepEqual(state, {
     isOwner: false,
     allowNotification: true,
+    allowSound: false,
     timerStartedAt: null,
     timerDuration: 0,
     remainingTime: 0,
@@ -83,6 +88,7 @@ test('can complete a timer at the end of a turn but not cycle if you are not the
     effects.Notify({
       title: 'Mobtime',
       notification: true,
+      sound: false,
       text: 'The timer is up!',
     }),
   ]);

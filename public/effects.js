@@ -93,31 +93,35 @@ const ApiEffectFX = (dispatch, {
 export const ApiEffect = (props) => [ApiEffectFX, props];
 
 
-const NotificationPermissionFX = (dispatch, { SetAllowNotification }) => {
+const NotificationPermissionFX = (dispatch, { SetNotificationPermission }) => {
   if (!('Notification' in window)) {
+    dispatch(SetNotificationPermission, 'denied');
     return;
   }
   Notification.requestPermission()
     .then((value) => {
-      dispatch(SetAllowNotification, value === 'granted');
+      dispatch(SetNotificationPermission, value);
     })
     .catch((err) => {
       console.warn('Unable to ask for notification permission', err); // eslint-disable-line no-console
-      dispatch(SetAllowNotification, false);
+      dispatch(SetNotificationPermission, '');
     });
 };
 export const NotificationPermission = (props) => [NotificationPermissionFX, props];
 
 
-const NotifyFx = (_dispatch, { title, text, notification = true }) => {
+const NotifyFx = (_dispatch, { title, text, notification = true, sound = false }) => {
   if (notification) {
     if (!('Notification' in window)) {
       return;
     }
     new Notification(title, { // eslint-disable-line no-new
       body: text,
-      vibrate: true,
+      vibrate: [100, 100, 100],
     });
+  }
+  if (sound) {
+    document.querySelector('#timer-complete').play();
   }
 };
 export const Notify = (props) => [NotifyFx, props];
@@ -154,4 +158,3 @@ const andThenFX = (dispatch, { action, props }) => {
   dispatch(action, props);
 };
 export const andThen = (props) => [andThenFX, props];
-
