@@ -1,8 +1,8 @@
 import * as effects from './effects.js';
 
-let initialAllowNotification = false;
+let initialNotificationPermission = '';
 if (typeof window !== 'undefined' && 'Notification' in window) {
-  initialAllowNotification = Notification.permission === 'granted';
+  initialNotificationPermission = Notification.permission;
 }
 
 export const Noop = (state) => state;
@@ -63,7 +63,9 @@ export const Init = (_, timerId) => ({
   remainingTime: 0,
   name: '',
   goal: '',
-  allowNotification: initialAllowNotification,
+  allowNotification: initialNotificationPermission === 'granted',
+  allowSound: false,
+  notificationPermissions: initialNotificationPermission,
   pendingSettings: {},
   websocket: null,
 });
@@ -203,6 +205,7 @@ export const Completed = (state, { isEndOfTurn }) => {
     extraEffects.push(
       effects.Notify({
         notification: state.allowNotification,
+        sound: state.allowSound,
         title: 'Mobtime',
         text: 'The timer is up!',
       }),
@@ -509,13 +512,30 @@ export const StartTimer = (state, timerStartedAt = Date.now()) => {
   ];
 };
 
-export const SetAllowNotification = (state, allowNotification) => ({ ...state, allowNotification });
+export const SetNotificationPermissions = (state, notificationPermissions) => [
+  {
+    ...state,
+    notificationPermissions,
+  },
+];
 
 export const RequestNotificationPermission = (state) => [
   state,
   effects.NotificationPermission({
-    SetAllowNotification,
+    SetNotificationPermissions,
   }),
+];
+
+export const SetAllowNotification = (state, allowNotification) => ({
+  ...state,
+  allowNotification,
+});
+
+export const SetAllowSound = (state, allowSound) => [
+  {
+    ...state,
+    allowSound,
+  },
 ];
 
 export const ShowNotification = (state, message) => [
