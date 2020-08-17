@@ -42,7 +42,7 @@ test('can cycle a mob', (t) => {
     websocket,
   };
 
-  const [state, effect] = actions.ShuffleMob(initialState);
+  const [state, effect] = actions.CycleMob(initialState);
 
   t.deepEqual(state.mob, [
     initialState.mob[1],
