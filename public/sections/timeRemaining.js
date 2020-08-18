@@ -51,7 +51,7 @@ export const timeRemaining = (props) => {
         }),
       ]),
 
-      props.timerDuration === 0 && [
+      !props.timerDuration && [
         h(button, {
           class: {
             'bg-green-600': true,
@@ -70,7 +70,7 @@ export const timeRemaining = (props) => {
         ]),
       ],
 
-      props.timerDuration > 0 && [
+      [
         h(button, {
           class: {
             'bg-white': true,

@@ -60,7 +60,7 @@ const websocketStatusClass = {
   },
   'will-reconnect': {
     'bg-red-500': true,
-    'text-white': true
+    'text-white': true,
   },
 };
 

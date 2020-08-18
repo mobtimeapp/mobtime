@@ -61,6 +61,7 @@ export const Init = (_, timerId) => ({
   prompt: { ...emptyPrompt },
   timerId,
   remainingTime: 0,
+  currentTime: null,
   name: '',
   goal: '',
   allowNotification: initialNotificationPermission === 'granted',
@@ -68,6 +69,11 @@ export const Init = (_, timerId) => ({
   notificationPermissions: initialNotificationPermission,
   pendingSettings: {},
   websocket: null,
+});
+
+export const SetCurrentTime = (state, currentTime) => ({
+  ...state,
+  currentTime,
 });
 
 export const SetWebsocket = (state, { websocket }) => ({

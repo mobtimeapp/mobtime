@@ -12,8 +12,9 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
   const tick = () => {
     if (cancel) return;
 
-    const now = Date.now();
-    const elapsed = now - timerStartedAt;
+    const currentTime = Date.now();
+    dispatch(actions.SetCurrentTime, currentTime);
+    const elapsed = currentTime - timerStartedAt;
     const remainingTime = Math.max(0, timerDuration - elapsed);
 
     if (remainingTime === 0) {
