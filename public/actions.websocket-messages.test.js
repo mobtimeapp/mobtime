@@ -37,7 +37,6 @@ test('can update app state from websocket message', (t) => {
     mob: [],
     goals: [],
     settings: {},
-    remainingTime: 5,
   };
   const state = actions.UpdateByWebsocketData({}, {
     type: 'timer:share',
