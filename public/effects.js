@@ -62,7 +62,6 @@ export const ShareTimer = fx(function ShareTimer(_dispatch, {
   mob,
   goals,
   settings,
-  remainingTime,
 }) {
   websocket.send(JSON.stringify({
     type: 'timer:share',
@@ -71,7 +70,6 @@ export const ShareTimer = fx(function ShareTimer(_dispatch, {
     mob,
     goals,
     settings,
-    remainingTime,
   }));
 });
 

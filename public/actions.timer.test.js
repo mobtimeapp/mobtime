@@ -4,18 +4,19 @@ import * as actions from './actions';
 import * as effects from './effects';
 
 test('can complete a timer', (t) => {
+  const now = Date.now();
   const initialState = {
-    timerStartedAt: Date.now(),
+    timerStartedAt: now - 5,
+    currentTime: now,
     timerDuration: 1,
-    remainingTime: 1,
   };
 
   const [state, effect] = actions.Completed(initialState, { isEndOfTurn: false });
 
   t.deepEqual(state, {
     timerStartedAt: null,
+    currentTime: now,
     timerDuration: 0,
-    remainingTime: 0,
   });
 
   t.deepEqual(effect, [
@@ -31,7 +32,6 @@ test('can complete a timer at the end of a turn and cycle when you are the owner
     allowSound: false,
     timerStartedAt: Date.now(),
     timerDuration: 1,
-    remainingTime: 1,
   };
 
   const [state, effect] = actions.Completed(initialState, { isEndOfTurn: true });
@@ -42,7 +42,6 @@ test('can complete a timer at the end of a turn and cycle when you are the owner
     allowSound: false,
     timerStartedAt: null,
     timerDuration: 0,
-    remainingTime: 0,
   });
 
   t.deepEqual(effect, [
@@ -68,7 +67,6 @@ test('can complete a timer at the end of a turn but not cycle if you are not the
     allowSound: false,
     timerStartedAt: Date.now(),
     timerDuration: 1,
-    remainingTime: 1,
   };
 
   const [state, effect] = actions.Completed(initialState, { isEndOfTurn: true });
@@ -79,7 +77,6 @@ test('can complete a timer at the end of a turn but not cycle if you are not the
     allowSound: false,
     timerStartedAt: null,
     timerDuration: 0,
-    remainingTime: 0,
   });
 
   t.deepEqual(effect, [
@@ -97,26 +94,31 @@ test('can complete a timer at the end of a turn but not cycle if you are not the
 test('can pause the timer', (t) => {
   const websocket = {};
 
+  const expectedTimerDuration = 1000;
+  const now = Date.now();
+  const timerStartedAt = now - expectedTimerDuration;
+  const currentTime = now - 5;
+
   const initialState = {
     websocket,
-    timerStartedAt: Date.now(),
-    timerDuration: 500,
-    remainingTime: 100,
+    timerStartedAt,
+    currentTime,
+    timerDuration: 2000,
   };
 
-  const [state, effect] = actions.PauseTimer(initialState);
+  const [state, effect] = actions.PauseTimer(initialState, now);
 
   t.deepEqual(state, {
     websocket,
     timerStartedAt: null,
-    timerDuration: 100,
-    remainingTime: 100,
+    currentTime: now,
+    timerDuration: expectedTimerDuration,
   });
 
   t.deepEqual(effect, effects.UpdateTimer({
     websocket,
     timerStartedAt: null,
-    timerDuration: 100,
+    timerDuration: expectedTimerDuration,
   }));
 });
 
@@ -128,8 +130,8 @@ test('can resume the timer', (t) => {
   const initialState = {
     websocket,
     timerStartedAt: beforeNow,
+    currentTime: now,
     timerDuration: 1000000,
-    remainingTime: 5000,
   };
 
   const [state, effect] = actions.ResumeTimer(initialState, now);
@@ -137,14 +139,14 @@ test('can resume the timer', (t) => {
   t.deepEqual(state, {
     websocket,
     timerStartedAt: now,
-    timerDuration: 5000,
-    remainingTime: 5000,
+    currentTime: now,
+    timerDuration: 1000000,
   });
 
   t.deepEqual(effect, effects.UpdateTimer({
     websocket,
     timerStartedAt: now,
-    timerDuration: 5000,
+    timerDuration: 1000000,
   }));
 });
 

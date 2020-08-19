@@ -60,7 +60,7 @@ export const Init = (_, timerId) => ({
   drag: { ...emptyDrag },
   prompt: { ...emptyPrompt },
   timerId,
-  remainingTime: 0,
+  currentTime: null,
   name: '',
   goal: '',
   allowNotification: initialNotificationPermission === 'granted',
@@ -68,6 +68,11 @@ export const Init = (_, timerId) => ({
   notificationPermissions: initialNotificationPermission,
   pendingSettings: {},
   websocket: null,
+});
+
+export const SetCurrentTime = (state, currentTime) => ({
+  ...state,
+  currentTime,
 });
 
 export const SetWebsocket = (state, { websocket }) => ({
@@ -184,20 +189,11 @@ export const DragCancel = (state) => ({
   drag: { ...emptyDrag },
 });
 
-export const SetRemainingTime = (state, remainingTime) => [
-  {
-    ...state,
-    remainingTime,
-  },
-  effects.UpdateTitleWithTime({ remainingTime }),
-];
-
 export const Completed = (state, { isEndOfTurn }) => {
   const nextState = {
     ...state,
     timerStartedAt: null,
     timerDuration: 0,
-    remainingTime: 0,
   };
 
   const extraEffects = [];
@@ -224,7 +220,7 @@ export const Completed = (state, { isEndOfTurn }) => {
   return [
     nextState,
     [
-      effects.UpdateTitleWithTime({ remainingTime: nextState.remainingTime }),
+      effects.UpdateTitleWithTime({ remainingTime: 0 }),
       effects.ShareTimer(nextState),
       ...extraEffects,
     ],
@@ -467,36 +463,39 @@ export const UpdateGoalText = (state, goal) => [
   },
 ];
 
-export const PauseTimer = (state) => [
-  {
-    ...state,
-    timerStartedAt: null,
-    timerDuration: state.remainingTime,
-  },
-  effects.UpdateTimer({
-    websocket: state.websocket,
-    timerStartedAt: null,
-    timerDuration: state.remainingTime,
-  }),
-];
+export const PauseTimer = (state, currentTime = Date.now()) => {
+  const elapsed = currentTime - state.timerStartedAt;
+  const timerDuration = Math.max(0, state.timerDuration - elapsed);
 
-export const ResumeTimer = (state, timerStartedAt = Date.now()) => {
-  const timerDuration = state.remainingTime;
   return [
     {
       ...state,
-      timerStartedAt,
+      timerStartedAt: null,
       timerDuration,
+      currentTime,
     },
     effects.UpdateTimer({
       websocket: state.websocket,
-      timerStartedAt,
+      timerStartedAt: null,
       timerDuration,
     }),
   ];
 };
 
-export const StartTimer = (state, timerStartedAt = Date.now()) => {
+export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
+  {
+    ...state,
+    timerStartedAt,
+    currentTime: timerStartedAt,
+  },
+  effects.UpdateTimer({
+    websocket: state.websocket,
+    timerStartedAt,
+    timerDuration: state.timerDuration,
+  }),
+];
+
+export const StartTimer = (state, timerStartedAt) => {
   const { duration: timerDuration } = state.settings;
   return [
     {
@@ -610,7 +609,6 @@ export const UpdateByWebsocketData = (state, payload) => {
         mob: data.mob,
         goals: data.goals,
         settings: data.settings,
-        remainingTime: data.remainingTime,
       };
 
     case 'goals:update':
