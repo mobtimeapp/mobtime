@@ -15,15 +15,12 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     const currentTime = Date.now();
     dispatch(actions.SetCurrentTime, currentTime);
     const elapsed = currentTime - timerStartedAt;
-    const remainingTime = Math.max(0, timerDuration - elapsed);
 
-    if (remainingTime === 0) {
+    if (elapsed >= timerDuration) {
       cleanup();
       dispatch(actions.Completed, { isEndOfTurn: true });
       return;
     }
-
-    dispatch(actions.SetRemainingTime, remainingTime);
 
     handle = setTimeout(tick, 100);
   };

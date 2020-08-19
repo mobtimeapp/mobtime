@@ -473,18 +473,23 @@ export const UpdateGoalText = (state, goal) => [
   },
 ];
 
-export const PauseTimer = (state) => [
-  {
-    ...state,
-    timerStartedAt: null,
-    timerDuration: state.remainingTime,
-  },
-  effects.UpdateTimer({
-    websocket: state.websocket,
-    timerStartedAt: null,
-    timerDuration: state.remainingTime,
-  }),
-];
+export const PauseTimer = (state, currentTime) => {
+  const elapsed = currentTime - state.timerStartedAt;
+  const timerDuration = Math.max(0, state.timerDuration - elapsed);
+  return [
+    {
+      ...state,
+      timerStartedAt: null,
+      timerDuration,
+      currentTime,
+    },
+    effects.UpdateTimer({
+      websocket: state.websocket,
+      timerStartedAt: null,
+      timerDuration: state.remainingTime,
+    }),
+  ];
+};
 
 export const ResumeTimer = (state, timerStartedAt = Date.now()) => {
   const timerDuration = state.remainingTime;

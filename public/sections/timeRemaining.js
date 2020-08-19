@@ -9,6 +9,10 @@ import * as actions from '/actions.js';
 
 export const timeRemaining = (props) => {
   const isPaused = props.timerStartedAt === null;
+  const elapsed = props.currentTime - props.timerStartedAt;
+  const remainingTime = props.timerDuration > 0
+    ? Math.max(0, props.timerDuration - elapsed)
+    : 0;
 
   return h(section, null, [
     h('h2', {
@@ -44,8 +48,8 @@ export const timeRemaining = (props) => {
           style: {
             fontFamily: "'Working Sans', sans-serif",
           },
-        }, timerRemainingDisplay(props.remainingTime)),
-        props.remainingTime > 0 && h(deleteButton, {
+        }, timerRemainingDisplay(remainingTime)),
+        remainingTime > 0 && h(deleteButton, {
           size: '24px',
           onclick: [actions.Completed],
         }),
