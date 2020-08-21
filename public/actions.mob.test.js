@@ -50,10 +50,45 @@ test('can cycle a mob', (t) => {
     initialState.mob[0],
   ]);
 
-  t.deepEqual(effect, effects.UpdateMob({
+  t.deepEqual(effect, [
+    effects.UpdateMob({
+      websocket,
+      mob: state.mob,
+    }),
+  ]);
+});
+
+test('can cycle a mob while a timer is running', (t) => {
+  const websocket = {};
+
+  const initialState = {
+    timerStartedAt: 1,
+    mob: [
+      makeMobber('One'),
+      makeMobber('Two'),
+      makeMobber('Three'),
+    ],
     websocket,
-    mob: state.mob,
-  }));
+  };
+
+  const [state, effect] = actions.CycleMob(initialState);
+
+  t.deepEqual(state.mob, [
+    initialState.mob[1],
+    initialState.mob[2],
+    initialState.mob[0],
+  ]);
+
+  t.deepEqual(effect, [
+    effects.UpdateMob({
+      websocket,
+      mob: state.mob,
+    }),
+    effects.andThen({
+      action: actions.Completed,
+      props: { isEndOfTurn: true },
+    }),
+  ]);
 });
 
 test('can add in-memory name to mob', (t) => {
