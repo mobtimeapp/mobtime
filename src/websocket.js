@@ -1,9 +1,20 @@
+import { effects } from 'ferp';
+
 const WebsocketSub = (action, connection) => (dispatch) => {
-  connection.websocket.on('close', () => {
-    dispatch(action.RemoveConnection(connection.websocket, connection.timerId));
+  const websocket = connection.getWebsocket();
+
+  let isClosed = false;
+  websocket.on('close', () => {
+    if (isClosed) return;
+    isClosed = true;
+
+    dispatch(action.RemoveConnection(
+      websocket,
+      connection.timerId,
+    ));
   });
 
-  connection.websocket.on('message', (data) => {
+  websocket.on('message', (data) => {
     const { type } = JSON.parse(data);
     if (type === 'client:new') {
       return dispatch(action.MessageTimerOwner(connection.websocket, connection.timerId, data));
@@ -11,13 +22,19 @@ const WebsocketSub = (action, connection) => (dispatch) => {
     return dispatch(action.MessageTimer(connection.websocket, connection.timerId, data));
   });
 
-  connection.websocket.send(JSON.stringify({
+  return () => {
+    isClosed = true;
+  };
+};
+export const Websocket = (...props) => [WebsocketSub, ...props];
+
+export const SendOwnership = (connection) => effects.thunk(() => {
+  const websocket = connection.getWebsocket();
+
+  websocket.send(JSON.stringify({
     type: 'timer:ownership',
     isOwner: connection.isOwner,
   }));
 
-  return () => {
-    connection.websocket.close();
-  };
-};
-export const Websocket = (...props) => [WebsocketSub, ...props];
+  return effects.none();
+});
