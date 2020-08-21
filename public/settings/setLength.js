@@ -9,13 +9,13 @@ const isNumber = (value) => Number(value) == value; // eslint-disable-line eqeqe
 
 const toMinutes = (value) => (
   isNumber(value)
-    ? parseInt((value - 900) / 60000, 10)
+    ? parseInt(value / 60000, 10)
     : value
 );
 
 const toSeconds = (value) => (
   isNumber(value)
-    ? (value * 60000) + 900
+    ? (value * 60000)
     : value
 );
 
