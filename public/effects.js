@@ -23,7 +23,35 @@ export const BroadcastJoin = fx(function UpdateSettingsFX(_dispatch, {
   }));
 });
 
-export const UpdateTimer = fx(function StartTimerFX(_dispatch, {
+export const StartTimer = fx(function StartTimerFX(_dispatch, {
+  websocket,
+  timerDuration,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'timer:start',
+    timerDuration,
+  }));
+});
+
+export const PauseTimer = fx(function StartTimerFX(_dispatch, {
+  websocket,
+  timerDuration,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'timer:pause',
+    timerDuration,
+  }));
+});
+
+export const CompleteTimer = fx(function CompleteTimerFX(_dispatch, {
+  websocket,
+}) {
+  websocket.send(JSON.stringify({
+    type: 'timer:complete',
+  }));
+});
+
+export const UpdateTimer = fx(function UpdateTimerFX(_dispatch, {
   websocket,
   timerStartedAt,
   timerDuration,
@@ -55,24 +83,6 @@ export const UpdateMob = fx(function UpdateMobFX(_dispatch, {
   }));
 });
 
-export const ShareTimer = fx(function ShareTimer(_dispatch, {
-  websocket,
-  timerStartedAt,
-  timerDuration,
-  mob,
-  goals,
-  settings,
-}) {
-  websocket.send(JSON.stringify({
-    type: 'timer:share',
-    timerStartedAt,
-    timerDuration,
-    mob,
-    goals,
-    settings,
-  }));
-});
-
 const ApiEffectFX = (dispatch, {
   endpoint, options, token, OnOK, OnERR,
 }) => api(endpoint, token, options)
@@ -91,29 +101,35 @@ const ApiEffectFX = (dispatch, {
 export const ApiEffect = (props) => [ApiEffectFX, props];
 
 
-const NotificationPermissionFX = (dispatch, { SetNotificationPermission }) => {
+const NotificationPermissionFX = (dispatch, { SetNotificationPermissions }) => {
   if (!('Notification' in window)) {
-    dispatch(SetNotificationPermission, 'denied');
+    dispatch(SetNotificationPermissions, 'denied');
     return;
   }
   Notification.requestPermission()
     .then((value) => {
-      dispatch(SetNotificationPermission, value);
+      dispatch(SetNotificationPermissions, value);
     })
     .catch((err) => {
       console.warn('Unable to ask for notification permission', err); // eslint-disable-line no-console
-      dispatch(SetNotificationPermission, '');
+      dispatch(SetNotificationPermissions, '');
     });
 };
 export const NotificationPermission = (props) => [NotificationPermissionFX, props];
 
 
-const NotifyFx = (_dispatch, { title, text, notification = true, sound = false }) => {
+const NotifyFx = (_dispatch, {
+  title,
+  text,
+  notification = true,
+  sound = false,
+}) => {
+  let notificationInstance = null;
   if (notification) {
     if (!('Notification' in window)) {
       return;
     }
-    new Notification(title, { // eslint-disable-line no-new
+    notificationInstance = new Notification(title, { // eslint-disable-line no-new
       body: text,
       vibrate: [100, 100, 100],
     });
@@ -121,6 +137,13 @@ const NotifyFx = (_dispatch, { title, text, notification = true, sound = false }
   if (sound) {
     document.querySelector('#timer-complete').play();
   }
+  console.log('NotifyFX', {
+    title,
+    text,
+    notification,
+    sound,
+    notificationInstance,
+  });
 };
 export const Notify = (props) => [NotifyFx, props];
 

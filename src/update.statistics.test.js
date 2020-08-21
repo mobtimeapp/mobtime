@@ -72,31 +72,3 @@ test('intercepts mob:update to update mobber count of timer', (t) => {
     mobbers: message.mob.length,
   });
 });
-
-test('intercepts timer:share to update goal and mobber count of timer', (t) => {
-  const timerId = 'foo';
-  const initialState = makeState([
-    Action.AddConnection({}, timerId),
-  ]);
-
-  const message = {
-    type: 'timer:share',
-    mob: Array.from({ length: Math.ceil(Math.random() * 100) }, () => (
-      makeMobber()
-    )),
-    goals: Array.from({ length: Math.ceil(Math.random() * 100) }, () => (
-      makeGoal()
-    )),
-  };
-
-  const [state] = update(
-    Action.MessageTimer({}, timerId, JSON.stringify(message)),
-    initialState,
-  );
-
-  t.deepEqual(state.statistics[timerId], {
-    connections: 1,
-    goals: message.goals.length,
-    mobbers: message.mob.length,
-  });
-});
