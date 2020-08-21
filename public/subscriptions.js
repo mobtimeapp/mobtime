@@ -54,14 +54,6 @@ const WebsocketFX = (dispatch, {
     socket.addEventListener('open', () => {
       dispatch(actions.SetWebsocket, { websocket: socket });
       dispatch(actions.BroadcastJoin);
-
-      socket.addEventListener('close', () => {
-        requestAnimationFrame(() => {
-          dispatch(actions.SetWebsocket, { websocket: null });
-        });
-        socket = null;
-        setTimeout(connect, 1000);
-      });
     });
 
     socket.addEventListener('message', (event) => {
@@ -72,6 +64,18 @@ const WebsocketFX = (dispatch, {
         message,
       );
     });
+
+    socket.addEventListener('close', (event) => {
+      if (cancel) return;
+
+      setTimeout(connect, 1000);
+    });
+
+    socket.addEventListener('error', (event) => {
+      if (cancel) return;
+
+      console.warn('Socket error', event);
+    });
   };
 
   requestAnimationFrame(() => {
@@ -81,6 +85,7 @@ const WebsocketFX = (dispatch, {
   return () => {
     cancel = true;
 
+    dispatch(actions.SetWebsocket, { websocket: null });
 
     socket.close();
     socket = null;
