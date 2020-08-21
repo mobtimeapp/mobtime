@@ -17,12 +17,6 @@ const extractStatistics = (message) => {
     case 'mob:update':
       return { mobbers: data.mob.length };
 
-    case 'timer:share':
-      return {
-        goals: data.goals.length,
-        mobbers: data.mob.length,
-      };
-
     default:
       return {};
   }
@@ -84,7 +78,7 @@ export const update = (action, state) => {
 
       const updatedTimerStatistics = timerStatistics
         ? { [timerId]: { ...timerStatistics, connections: timerStatistics.connections + 1 } }
-        : {}
+        : {};
 
       const statistics = timerConnections.length === 1
         ? otherStatistics
