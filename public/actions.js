@@ -1,4 +1,5 @@
 import * as effects from './effects.js';
+import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
 let initialNotificationPermission = '';
 if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -70,10 +71,18 @@ export const Init = (_, timerId) => ({
   websocket: null,
 });
 
-export const SetCurrentTime = (state, currentTime) => ({
-  ...state,
-  currentTime,
-});
+export const SetCurrentTime = (state, currentTime) => {
+  const nextState = {
+    ...state,
+    currentTime,
+  };
+  const remainingTime = calculateTimeRemaining(nextState);
+
+  return [
+    nextState,
+    effects.UpdateTitleWithTime({ remainingTime }),
+  ];
+};
 
 export const SetWebsocket = (state, { websocket }) => ({
   ...state,
@@ -189,6 +198,23 @@ export const DragCancel = (state) => ({
   drag: { ...emptyDrag },
 });
 
+export const EndTurn = (state) => [
+  {
+    ...state,
+    timerStartedAt: null,
+    timerDuration: 0,
+  },
+  [
+    effects.UpdateTitleWithTime({ remainingTime: 0 }),
+    effects.Notify({
+      notification: state.allowNotification,
+      sound: state.allowSound,
+      title: 'Mobtime',
+      text: 'The timer is up!',
+    }),
+  ],
+];
+
 export const Completed = (state, { isEndOfTurn }) => {
   const nextState = {
     ...state,
@@ -199,11 +225,9 @@ export const Completed = (state, { isEndOfTurn }) => {
   const extraEffects = [];
   if (isEndOfTurn) {
     extraEffects.push(
-      effects.Notify({
-        notification: state.allowNotification,
-        sound: state.allowSound,
-        title: 'Mobtime',
-        text: 'The timer is up!',
+      effects.andThen({
+        action: EndTurn,
+        props: {},
       }),
     );
   }
@@ -214,6 +238,9 @@ export const Completed = (state, { isEndOfTurn }) => {
         action: CycleMob, // eslint-disable-line no-use-before-define
         props: {},
       }),
+    );
+    extraEffects.push(
+      effects.CompleteTimer({ websocket: state.websocket }),
     );
   }
 
@@ -294,16 +321,27 @@ export const ShuffleMob = (state) => {
 export const CycleMob = (state) => {
   const [first, ...rest] = state.mob;
   const mob = [...rest, first];
+  const shouldComplete = state.timerStartedAt > 0;
+
+  const effectsToRun = [
+    effects.UpdateMob({
+      websocket: state.websocket,
+      mob,
+    }),
+  ];
+  if (shouldComplete) {
+    effectsToRun.push(effects.andThen({
+      action: Completed,
+      props: { isEndOfTurn: true },
+    }));
+  }
 
   return [
     {
       ...state,
       mob,
     },
-    effects.UpdateMob({
-      websocket: state.websocket,
-      mob,
-    }),
+    effectsToRun,
   ];
 };
 
@@ -474,7 +512,7 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
       timerDuration,
       currentTime,
     },
-    effects.UpdateTimer({
+    effects.PauseTimer({
       websocket: state.websocket,
       timerStartedAt: null,
       timerDuration,
@@ -488,28 +526,24 @@ export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
     timerStartedAt,
     currentTime: timerStartedAt,
   },
-  effects.UpdateTimer({
+  effects.StartTimer({
     websocket: state.websocket,
-    timerStartedAt,
     timerDuration: state.timerDuration,
   }),
 ];
 
-export const StartTimer = (state, timerStartedAt) => {
-  const { duration: timerDuration } = state.settings;
-  return [
-    {
-      ...state,
-      timerStartedAt,
-      timerDuration,
-    },
-    effects.UpdateTimer({
-      websocket: state.websocket,
-      timerStartedAt,
-      timerDuration,
-    }),
-  ];
-};
+export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
+  {
+    ...state,
+    timerStartedAt,
+    currentTime: timerStartedAt,
+    timerDuration,
+  },
+  effects.StartTimer({
+    websocket: state.websocket,
+    timerDuration,
+  }),
+];
 
 export const SetNotificationPermissions = (state, notificationPermissions) => [
   {
@@ -594,12 +628,38 @@ export const UpdateByWebsocketData = (state, payload) => {
         settings: data.settings,
       };
 
+    case 'timer:start':
+      return {
+        ...state,
+        timerStartedAt: Date.now(),
+        timerDuration: data.timerDuration,
+      };
+
+    case 'timer:pause':
+      return {
+        ...state,
+        timerStartedAt: null,
+        timerDuration: data.timerDuration,
+      };
+
     case 'timer:update':
       return {
         ...state,
         timerStartedAt: data.timerStartedAt,
         timerDuration: data.timerDuration,
       };
+
+    case 'timer:complete':
+      return [
+        {
+          ...state,
+          timerStartedAt: null,
+        },
+        effects.andThen({
+          action: EndTurn,
+          props: {},
+        }),
+      ];
 
     case 'timer:share':
       return {

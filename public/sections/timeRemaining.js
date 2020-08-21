@@ -4,19 +4,10 @@ import { section } from '/components/section.js';
 import { button } from '/components/button.js';
 import { deleteButton } from '/components/deleteButton.js';
 
+import { calculateTimeRemaining } from '/lib/calculateTimeRemaining.js';
+
 import timerRemainingDisplay from '/formatTime.js';
 import * as actions from '/actions.js';
-
-const calculateTimeRemaining = (props) => {
-  if (!props.timerStartedAt) {
-    return props.timerDuration;
-  }
-
-  const elapsed = props.currentTime - props.timerStartedAt;
-  return props.timerDuration > 0
-    ? Math.max(0, props.timerDuration - elapsed)
-    : 0;
-};
 
 export const timeRemaining = (props) => {
   const isPaused = props.timerStartedAt === null;
@@ -59,7 +50,7 @@ export const timeRemaining = (props) => {
         }, timerRemainingDisplay(remainingTime)),
         remainingTime > 0 && h(deleteButton, {
           size: '24px',
-          onclick: [actions.Completed, { isEndOfTurn: true }],
+          onclick: [actions.Completed, { isEndOfTurn: false }],
         }),
       ]),
 
@@ -69,7 +60,13 @@ export const timeRemaining = (props) => {
             'bg-green-600': true,
             'text-white': true,
           },
-          onclick: [actions.StartTimer, Date.now()],
+          onclick: [
+            actions.StartTimer,
+            () => ({
+              timerStartedAt: Date.now(),
+              timerDuration: props.settings.duration,
+            }),
+          ],
         }, [
           h('i', {
             class: {
