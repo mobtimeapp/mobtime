@@ -3,6 +3,8 @@ import test from 'ava';
 import * as actions from './actions';
 import * as effects from './effects';
 
+import { calculateTimeRemaining } from './lib/calculateTimeRemaining';
+
 test('can update settings from websocket message', (t) => {
   const settings = { foo: 'bar' };
   const state = actions.UpdateByWebsocketData({}, {
@@ -30,22 +32,63 @@ test('can update timer from websocket message', (t) => {
   });
 });
 
-test('can update app state from websocket message', (t) => {
-  const data = {
-    timerStartedAt: 100,
-    timerDuration: 10,
-    mob: [],
-    goals: [],
-    settings: {},
+test('can start timer from websocket message', (t) => {
+  const timerDuration = 1000;
+
+  const initialState = {
+    timerDuration: null,
   };
-  const state = actions.UpdateByWebsocketData({}, {
-    type: 'timer:share',
-    ...data,
+
+  const now = Date.now();
+  const state = actions.UpdateByWebsocketData(initialState, {
+    type: 'timer:start',
+    timerDuration,
+  });
+
+  t.like(state, {
+    timerDuration,
+  });
+  const isNearNow = Math.abs(now - state.timerStartedAt) < 50;
+  t.truthy(isNearNow, 'timerStartedAt within 50ms of now');
+});
+
+test('can pause timer from websocket message', (t) => {
+  const timerDuration = 1000;
+
+  const initialState = {
+    timerStartedAt: Date.now(),
+    timerDuration: 5000,
+  };
+
+  const state = actions.UpdateByWebsocketData(initialState, {
+    type: 'timer:pause',
+    timerDuration,
   });
 
   t.deepEqual(state, {
-    ...data,
+    timerStartedAt: null,
+    timerDuration,
   });
+});
+
+test('can complete timer from websocket message', (t) => {
+  const initialState = {
+    timerStartedAt: Date.now(),
+    timerDuration: 5000,
+  };
+
+  const [state, effect] = actions.UpdateByWebsocketData(initialState, {
+    type: 'timer:complete',
+  });
+
+  t.deepEqual(state, {
+    ...initialState,
+    timerStartedAt: null,
+  });
+  t.deepEqual(effect, effects.andThen({
+    action: actions.EndTurn,
+    props: {},
+  }));
 });
 
 test('can update goals from websocket message', (t) => {
@@ -73,6 +116,7 @@ test('can update mob from websocket message', (t) => {
 });
 
 test('can share timer state when recieving client:new from websocket message', (t) => {
+  const websocket = {};
   const initialState = {
     timerStartedAt: 100,
     timerDuration: 10,
@@ -80,13 +124,19 @@ test('can share timer state when recieving client:new from websocket message', (
     goals: [],
     settings: {},
     remainingTime: 5,
+    websocket,
   };
   const [state, effect] = actions.UpdateByWebsocketData(initialState, {
     type: 'client:new',
   });
 
   t.is(state, initialState);
-  t.deepEqual(effect, effects.ShareTimer(initialState));
+  t.deepEqual(effect, [
+    effects.StartTimer({ websocket, timerDuration: calculateTimeRemaining(state) }),
+    effects.UpdateMob({ websocket, mob: state.mob }),
+    effects.UpdateGoals({ websocket, goals: state.goals }),
+    effects.UpdateSettings({ websocket, settings: state.settings }),
+  ]);
 });
 
 test('can update ownership from websocket message', (t) => {

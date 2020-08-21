@@ -232,15 +232,12 @@ export const Completed = (state, { isEndOfTurn }) => {
     );
   }
 
-  if (isEndOfTurn && state.isOwner) {
+  if (isEndOfTurn) {
     extraEffects.push(
       effects.andThen({
         action: CycleMob, // eslint-disable-line no-use-before-define
         props: {},
       }),
-    );
-    extraEffects.push(
-      effects.CompleteTimer({ websocket: state.websocket }),
     );
   }
 
@@ -248,7 +245,7 @@ export const Completed = (state, { isEndOfTurn }) => {
     nextState,
     [
       effects.UpdateTitleWithTime({ remainingTime: 0 }),
-      effects.ShareTimer(nextState),
+      effects.CompleteTimer({ websocket: state.websocket }),
       ...extraEffects,
     ],
   ];
@@ -329,6 +326,7 @@ export const CycleMob = (state) => {
       mob,
     }),
   ];
+
   if (shouldComplete) {
     effectsToRun.push(effects.andThen({
       action: Completed,
@@ -514,7 +512,6 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
     },
     effects.PauseTimer({
       websocket: state.websocket,
-      timerStartedAt: null,
       timerDuration,
     }),
   ];
@@ -661,16 +658,6 @@ export const UpdateByWebsocketData = (state, payload) => {
         }),
       ];
 
-    case 'timer:share':
-      return {
-        ...state,
-        timerStartedAt: data.timerStartedAt,
-        timerDuration: data.timerDuration,
-        mob: data.mob,
-        goals: data.goals,
-        settings: data.settings,
-      };
-
     case 'goals:update':
       return {
         ...state,
@@ -686,7 +673,12 @@ export const UpdateByWebsocketData = (state, payload) => {
     case 'client:new':
       return [
         state,
-        effects.ShareTimer(state),
+        [
+          state.timerDuration > 0 && effects.StartTimer({ websocket: state.websocket, timerDuration: calculateTimeRemaining(state) }),
+          effects.UpdateMob({ websocket: state.websocket, mob: state.mob }),
+          effects.UpdateGoals({ websocket: state.websocket, goals: state.goals }),
+          effects.UpdateSettings({ websocket: state.websocket, settings: state.settings }),
+        ],
       ];
 
     case 'timer:ownership':
