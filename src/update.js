@@ -2,6 +2,7 @@ import { effects } from 'ferp';
 import Action from './actions';
 import { id } from './id';
 import { SendOwnership } from './websocket';
+import * as Connection from './connection';
 
 const defaultStatistics = {
   mobbers: 0,
@@ -35,27 +36,20 @@ export const update = (action, state) => Action.caseOf({
   ],
 
   AddConnection: (websocket, timerId) => {
-    const isOwner = state.connections.every((c) => c.timerId !== timerId);
-    const connection = {
-      id: id(),
-      getWebsocket: () => websocket,
+    const connection = Connection.make(
+      websocket,
       timerId,
-      isOwner,
-    };
+    );
 
     return [
       {
         ...state,
         connections: state.connections.concat(connection),
-        statistics: {
-          ...state.statistics,
-          [timerId]: {
-            ...defaultStatistics,
-            ...(state.statistics[timerId] || {}),
-          },
-        },
       },
-      SendOwnership(connection),
+      effects.batch([
+        Action.SetTimerOwner(timerId),
+        Action.UpdateStatisticsFromConnections(timerId),
+      ]),
     ];
   },
 
@@ -73,21 +67,48 @@ export const update = (action, state) => Action.caseOf({
           return effects.none();
         }),
         Action.SetTimerOwner(timerId),
+        Action.UpdateStatisticsFromConnections(timerId),
       ]),
     ];
   },
 
   MessageTimer: (websocket, timerId, message) => {
-    const websockets = state.connections.reduce((sockets, connection) => {
-      const differentTimer = connection.timerId !== timerId;
-      const isOriginatingWebsocket = connection.getWebsocket() === websocket;
-      if (differentTimer || isOriginatingWebsocket) {
-        return sockets;
-      }
+    const connections = state.connections.filter((connection) => (
+      connection.timerId === timerId
+        && connection.getWebsocket() !== websocket
+    ));
 
-      return [...sockets, connection.getWebsocket()];
-    }, []);
+    return [
+      state,
+      effects.batch([
+        effects.thunk(() => {
+          connections.forEach((connection) => {
+            connection.getWebsocket().send(message);
+          });
+          return effects.none();
+        }),
+        Action.UpdateStatisticsFromMessage(timerId, message),
+      ]),
+    ];
+  },
 
+  MessageTimerOwner: (websocket, timerId, message) => {
+    const owner = state.connections.find((c) => (
+      c.timerId === timerId && c.isOwner
+    ));
+
+    return [
+      state,
+      effects.thunk(() => {
+        if (owner && owner.getWebsocket() !== websocket) {
+          owner.getWebsocket().send(message);
+        }
+        return effects.none();
+      }),
+    ];
+  },
+
+  UpdateStatisticsFromMessage: (timerId, message) => {
     const statistics = {
       ...state.statistics,
       [timerId]: {
@@ -102,26 +123,38 @@ export const update = (action, state) => Action.caseOf({
         ...state,
         statistics,
       },
-      effects.thunk(() => {
-        websockets.forEach((ws) => ws.send(message));
-        return effects.none();
-      }),
+      effects.none(),
     ];
   },
 
-  MessageTimerOwner: (websocket, timerId, message) => {
-    const connection = state.connections.find((c) => (
-      c.timerId === timerId && c.isOwner
+  UpdateStatisticsFromConnections: (timerId) => {
+    const connections = state.connections.filter((connection) => (
+      connection.timerId === timerId
     ));
 
+    const { [timerId]: old, ...prevStatistics } = state.statistics;
+
+    const augment = connections.length > 0
+      ? {
+        [timerId]: {
+          ...defaultStatistics,
+          ...old,
+          connections: connections.length,
+        },
+      }
+      : {};
+
+    const statistics = {
+      ...prevStatistics,
+      ...augment,
+    };
+
     return [
-      state,
-      effects.thunk(() => {
-        if (connection && connection.getWebsocket() !== websocket) {
-          connection.getWebsocket().send(message);
-        }
-        return effects.none();
-      }),
+      {
+        ...state,
+        statistics,
+      },
+      effects.none(),
     ];
   },
 
@@ -141,7 +174,7 @@ export const update = (action, state) => Action.caseOf({
 
     const timerConnections = connections.filter((c, index) => (
       c.timerId === timerId
-      && index !== targetIndex
+        && index !== targetIndex
     ));
 
     return [
