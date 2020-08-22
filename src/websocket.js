@@ -1,7 +1,7 @@
 import { effects } from 'ferp';
 
-const WebsocketSub = (action, connection) => (dispatch) => {
-  const websocket = connection.getWebsocket();
+const WebsocketSub = (action, getWebsocket, timerId) => (dispatch) => {
+  const websocket = getWebsocket();
 
   let isClosed = false;
   websocket.on('close', () => {
@@ -10,16 +10,16 @@ const WebsocketSub = (action, connection) => (dispatch) => {
 
     dispatch(action.RemoveConnection(
       websocket,
-      connection.timerId,
+      timerId,
     ));
   });
 
   websocket.on('message', (data) => {
     const { type } = JSON.parse(data);
     if (type === 'client:new') {
-      return dispatch(action.MessageTimerOwner(connection.websocket, connection.timerId, data));
+      return dispatch(action.MessageTimerOwner(websocket, timerId, data));
     }
-    return dispatch(action.MessageTimer(connection.websocket, connection.timerId, data));
+    return dispatch(action.MessageTimer(websocket, timerId, data));
   });
 
   return () => {
