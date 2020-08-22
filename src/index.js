@@ -20,7 +20,7 @@ app({
     return [
       Http(Storage, Action, 'localhost', port),
       ...state.connections.map((connection) => (
-        Websocket(Action, connection)
+        Websocket(Action, connection.getWebsocket, connection.timerId)
       )),
     ];
   },
