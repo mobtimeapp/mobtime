@@ -58,6 +58,19 @@ test('can cycle a mob', (t) => {
   ]);
 });
 
+test('cannot cycle an empty mob', (t) => {
+  const websocket = {};
+
+  const initialState = {
+    mob: [],
+    websocket,
+  };
+
+  const state = actions.CycleMob(initialState);
+
+  t.is(state, initialState);
+});
+
 test('can cycle a mob while a timer is running', (t) => {
   const websocket = {};
 
