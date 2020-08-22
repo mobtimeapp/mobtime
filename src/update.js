@@ -1,13 +1,12 @@
 import { effects } from 'ferp';
 import Action from './actions';
-import { id } from './id';
 import { SendOwnership } from './websocket';
 import * as Connection from './connection';
 
 const defaultStatistics = {
   mobbers: 0,
   goals: 0,
-  connections: 1,
+  connections: 0,
 };
 
 const extractStatistics = (message) => {
