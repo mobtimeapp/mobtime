@@ -316,6 +316,10 @@ export const ShuffleMob = (state) => {
 };
 
 export const CycleMob = (state) => {
+  if (state.mob.length === 0) {
+    return state;
+  }
+
   const [first, ...rest] = state.mob;
   const mob = [...rest, first];
   const shouldComplete = state.timerStartedAt > 0;
