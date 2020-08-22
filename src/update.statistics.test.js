@@ -5,70 +5,150 @@ import { id } from './id';
 import { update } from './update';
 import Action from './actions';
 
-const makeState = (actions) => {
-  const [state] = actions.reduce(([state], action) => (
-    update(action, state)
-  ), update(Action.Init(), {}));
-  return state;
-};
+import * as Connection from './connection';
 
-const makeMobber = () => ({
-  id: id(),
-  name: id(),
-});
-
-const makeGoal = () => ({
-  id: id(),
-  text: id(),
-  completed: false,
-});
-
-test('intercepts goals:update to update goal count of timer', (t) => {
+test('updates goals statistics from message', (t) => {
   const timerId = 'foo';
-  const initialState = makeState([
-    Action.AddConnection({}, timerId),
-  ]);
+  const initialState = {
+    statistics: {
+      [timerId]: {
+        connections: 0,
+        mobbers: 0,
+        goals: 0,
+      },
+    },
+  };
 
   const message = {
     type: 'goals:update',
-    goals: Array.from({ length: Math.ceil(Math.random() * 100) }, () => (
-      makeGoal()
-    )),
+    goals: Array.from({ length: Math.ceil(Math.random() * 100) }, () => ({})),
   };
 
-  const [state] = update(
-    Action.MessageTimer({}, timerId, JSON.stringify(message)),
+  const [state, effect] = update(
+    Action.UpdateStatisticsFromMessage(timerId, JSON.stringify(message)),
     initialState,
   );
 
   t.deepEqual(state.statistics[timerId], {
-    connections: 1,
+    connections: 0,
     goals: message.goals.length,
     mobbers: 0,
   });
+
+  t.deepEqual(effect, effects.none());
 });
 
-test('intercepts mob:update to update mobber count of timer', (t) => {
+test('updates mobbers statistics from message', (t) => {
   const timerId = 'foo';
-  const initialState = makeState([
-    Action.AddConnection({}, timerId),
-  ]);
+  const initialState = {
+    statistics: {
+      [timerId]: {
+        connections: 0,
+        mobbers: 0,
+        goals: 0,
+      },
+    },
+  };
 
   const message = {
     type: 'mob:update',
-    mob: Array.from({ length: Math.ceil(Math.random() * 100) }, () => (
-      makeMobber()
-    )),
+    mob: Array.from({ length: Math.ceil(Math.random() * 100) }, () => ({})),
   };
 
-  const [state] = update(
-    Action.MessageTimer({}, timerId, JSON.stringify(message)),
+  const [state, effect] = update(
+    Action.UpdateStatisticsFromMessage(timerId, JSON.stringify(message)),
     initialState,
   );
 
   t.deepEqual(state.statistics[timerId], {
-    connections: 1,
-    goals: 0,
+    connections: 0,
     mobbers: message.mob.length,
+    goals: 0,
   });
+
+  t.deepEqual(effect, effects.none());
+});
+
+test('updates no statistics from unknown message', (t) => {
+  const timerId = 'foo';
+  const initialState = {
+    statistics: {
+      [timerId]: {
+        connections: 0,
+        mobbers: 0,
+        goals: 0,
+      },
+    },
+  };
+
+  const message = {
+    type: 'unknown:message',
+    foo: 'bar',
+  };
+
+  const [state, effect] = update(
+    Action.UpdateStatisticsFromMessage(timerId, JSON.stringify(message)),
+    initialState,
+  );
+
+  t.deepEqual(state.statistics[timerId], {
+    connections: 0,
+    mobbers: 0,
+    goals: 0,
+  });
+
+  t.deepEqual(effect, effects.none());
+});
+
+test('updates connection count with latest number', (t) => {
+  const timerId = 'foo';
+  const initialState = {
+    statistics: {
+      [timerId]: {
+        connections: 0,
+        mobbers: 0,
+        goals: 0,
+      },
+    },
+    connections: [
+      Connection.make({}, timerId),
+    ],
+  };
+
+  const [state, effect] = update(
+    Action.UpdateStatisticsFromConnections(timerId),
+    initialState,
+  );
+
+  t.deepEqual(state.statistics, {
+    [timerId]: {
+      connections: 1,
+      mobbers: 0,
+      goals: 0,
+    },
+  });
+
+  t.deepEqual(effect, effects.none());
+});
+
+test('removes timer statistics when there are no connections', (t) => {
+  const timerId = 'foo';
+  const initialState = {
+    statistics: {
+      [timerId]: {
+        connections: 1,
+        mobbers: 0,
+        goals: 0,
+      },
+    },
+    connections: [],
+  };
+
+  const [state, effect] = update(
+    Action.UpdateStatisticsFromConnections(timerId),
+    initialState,
+  );
+
+  t.deepEqual(state.statistics, {});
+  t.deepEqual(effect, effects.none());
 });

@@ -9,5 +9,8 @@ export default enumerize({
   MessageTimer: [Any, String, Any],
   MessageTimerOwner: [Any, String, Any],
 
+  UpdateStatisticsFromMessage: [String, Any],
+  UpdateStatisticsFromConnections: [String],
+
   SetTimerOwner: [String],
 });
