@@ -321,20 +321,6 @@ app({
         }),
       ]),
 
-      //h(fullButton, {
-        //onclick: actions.RequestNotificationPermission,
-        //class: {
-          //'hidden': !(!state.allowNotification && ('Notification' in window)),
-          //'bg-green-500': true,
-          //'hover:bg-green-700': true,
-          //'uppercase': true,
-          //'font-light': true,
-          //'tracking-widest': true,
-          //'rounded-tr-lg': true,
-          //'py-1': true,
-        //},
-      //}, 'Enable Notifications'),
-
       state.prompt.visible && h(appPrompt, {
         ...state.prompt,
       }),

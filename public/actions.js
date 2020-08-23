@@ -71,7 +71,10 @@ export const Init = (_, timerId) => ({
   websocket: null,
 });
 
-export const SetCurrentTime = (state, currentTime) => {
+export const SetCurrentTime = (state, {
+  currentTime,
+  documentElement,
+}) => {
   const nextState = {
     ...state,
     currentTime,
@@ -80,7 +83,10 @@ export const SetCurrentTime = (state, currentTime) => {
 
   return [
     nextState,
-    effects.UpdateTitleWithTime({ remainingTime }),
+    effects.UpdateTitleWithTime({
+      remainingTime,
+      documentElement,
+    }),
   ];
 };
 
@@ -198,24 +204,35 @@ export const DragCancel = (state) => ({
   drag: { ...emptyDrag },
 });
 
-export const EndTurn = (state) => [
+export const EndTurn = (state, {
+  documentElement,
+  Notification,
+}) => [
   {
     ...state,
     timerStartedAt: null,
     timerDuration: 0,
   },
   [
-    effects.UpdateTitleWithTime({ remainingTime: 0 }),
+    effects.UpdateTitleWithTime({
+      remainingTime: 0,
+      documentElement,
+    }),
     effects.Notify({
       notification: state.allowNotification,
       sound: state.allowSound,
       title: 'Mobtime',
       text: 'The timer is up!',
+      Notification,
     }),
   ],
 ];
 
-export const Completed = (state, { isEndOfTurn }) => {
+export const Completed = (state, {
+  isEndOfTurn,
+  documentElement,
+  Notification,
+}) => {
   const nextState = {
     ...state,
     timerStartedAt: null,
@@ -227,7 +244,10 @@ export const Completed = (state, { isEndOfTurn }) => {
     extraEffects.push(
       effects.andThen({
         action: EndTurn,
-        props: {},
+        props: {
+          documentElement,
+          Notification,
+        },
       }),
     );
   }
@@ -244,8 +264,9 @@ export const Completed = (state, { isEndOfTurn }) => {
   return [
     nextState,
     [
-      effects.UpdateTitleWithTime({ remainingTime: 0 }),
-      effects.CompleteTimer({ websocket: state.websocket }),
+      effects.CompleteTimer({
+        websocket: state.websocket,
+      }),
       ...extraEffects,
     ],
   ];
@@ -533,7 +554,10 @@ export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
   }),
 ];
 
-export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
+export const StartTimer = (state, {
+  timerStartedAt,
+  timerDuration,
+}) => [
   {
     ...state,
     timerStartedAt,
@@ -553,10 +577,11 @@ export const SetNotificationPermissions = (state, notificationPermissions) => [
   },
 ];
 
-export const RequestNotificationPermission = (state) => [
+export const RequestNotificationPermission = (state, Notification) => [
   state,
   effects.NotificationPermission({
     SetNotificationPermissions,
+    Notification,
   }),
 ];
 
@@ -619,7 +644,14 @@ export const BroadcastJoin = (state) => [
   }),
 ];
 
-export const UpdateByWebsocketData = (state, payload) => {
+export const UpdateByWebsocketData = (
+  state,
+  {
+    payload,
+    documentElement,
+    Notification,
+  },
+) => {
   const { type, ...data } = payload;
 
   switch (type) {
@@ -658,7 +690,10 @@ export const UpdateByWebsocketData = (state, payload) => {
         },
         effects.andThen({
           action: EndTurn,
-          props: {},
+          props: {
+            Notification,
+            documentElement,
+          },
         }),
       ];
 
@@ -678,7 +713,7 @@ export const UpdateByWebsocketData = (state, payload) => {
       return [
         state,
         [
-          state.timerDuration > 0 && effects.StartTimer({ websocket: state.websocket, timerDuration: calculateTimeRemaining(state) }),
+          state.timerStartedAt > 0 && effects.StartTimer({ websocket: state.websocket, timerDuration: calculateTimeRemaining(state) }),
           effects.UpdateMob({ websocket: state.websocket, mob: state.mob }),
           effects.UpdateGoals({ websocket: state.websocket, goals: state.goals }),
           effects.UpdateSettings({ websocket: state.websocket, settings: state.settings }),

@@ -50,7 +50,14 @@ export const timeRemaining = (props) => {
         }, timerRemainingDisplay(remainingTime)),
         remainingTime > 0 && h(deleteButton, {
           size: '24px',
-          onclick: [actions.Completed, { isEndOfTurn: false }],
+          onclick: [
+            actions.Completed,
+            {
+              isEndOfTurn: false,
+              documentElement: document,
+              Notification: window.Notification,
+            },
+          ],
         }),
       ]),
 
