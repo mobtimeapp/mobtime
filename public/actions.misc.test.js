@@ -4,7 +4,6 @@ import * as actions from './actions';
 import * as effects from './effects';
 
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
-
 test('can set websocket', (t) => {
   const websocket = { send: () => {} };
   const state = actions.SetWebsocket({}, { websocket });
@@ -30,10 +29,57 @@ test('can set allow notification', (t) => {
 
 test('can set current time', (t) => {
   const currentTime = 47323743746;
-  const [state, effect] = actions.SetCurrentTime({}, currentTime);
+  const documentElement = {};
+  const [state, effect] = actions.SetCurrentTime({}, {
+    currentTime,
+    documentElement,
+  });
 
   const remainingTime = calculateTimeRemaining(state);
 
   t.deepEqual(state, { currentTime });
-  t.deepEqual(effect, effects.UpdateTitleWithTime({ remainingTime }));
+  t.deepEqual(effect, effects.UpdateTitleWithTime({
+    remainingTime,
+    documentElement,
+  }));
+});
+
+test('can end turn', (t) => {
+  const documentElement = {};
+  const Notification = {};
+
+  const initialState = {
+    timerStartedAt: 1000,
+    timerDuration: 10,
+    allowNotification: true,
+    allowSound: true,
+  };
+
+  const [state, effect] = actions.EndTurn(
+    initialState,
+    {
+      documentElement,
+      Notification,
+    },
+  );
+
+  t.deepEqual(state, {
+    ...initialState,
+    timerStartedAt: null,
+    timerDuration: 0,
+  });
+
+  t.deepEqual(effect, [
+    effects.UpdateTitleWithTime({
+      remainingTime: 0,
+      documentElement,
+    }),
+    effects.Notify({
+      notification: initialState.allowNotification,
+      sound: initialState.allowSound,
+      title: 'Mobtime',
+      text: 'The timer is up!',
+      Notification,
+    }),
+  ]);
 });
