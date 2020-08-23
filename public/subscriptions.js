@@ -13,12 +13,19 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     if (cancel) return;
 
     const currentTime = Date.now();
-    dispatch(actions.SetCurrentTime, currentTime);
+    dispatch(actions.SetCurrentTime, {
+      currentTime,
+      documentElement: document,
+    });
     const elapsed = currentTime - timerStartedAt;
 
     if (elapsed >= timerDuration) {
       cleanup();
-      dispatch(actions.Completed, { isEndOfTurn: true });
+      dispatch(actions.Completed, {
+        isEndOfTurn: true,
+        documentElement: document,
+        Notification: window.Notification,
+      });
       return;
     }
 
@@ -57,15 +64,19 @@ const WebsocketFX = (dispatch, {
     });
 
     socket.addEventListener('message', (event) => {
-      const message = JSON.parse(event.data);
+      const payload = JSON.parse(event.data);
 
       dispatch(
         actions.UpdateByWebsocketData,
-        message,
+        {
+          payload,
+          documentElement: document,
+          Notification: window.Notification,
+        },
       );
     });
 
-    socket.addEventListener('close', (event) => {
+    socket.addEventListener('close', () => {
       if (cancel) return;
 
       setTimeout(connect, 1000);

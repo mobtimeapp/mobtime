@@ -5,6 +5,8 @@ import * as effects from './effects';
 
 test('can complete a timer', (t) => {
   const websocket = {};
+  const documentElement = {};
+  const Notification = {};
   const initialState = {
     isOwner: true,
     allowNotification: true,
@@ -14,7 +16,11 @@ test('can complete a timer', (t) => {
     websocket,
   };
 
-  const [state, effect] = actions.Completed(initialState, { isEndOfTurn: true });
+  const [state, effect] = actions.Completed(initialState, {
+    isEndOfTurn: true,
+    documentElement,
+    Notification,
+  });
 
   t.deepEqual(state, {
     isOwner: true,
@@ -26,11 +32,15 @@ test('can complete a timer', (t) => {
   });
 
   t.deepEqual(effect, [
-    effects.UpdateTitleWithTime({ remainingTime: 0 }),
-    effects.CompleteTimer({ websocket }),
+    effects.CompleteTimer({
+      websocket,
+    }),
     effects.andThen({
       action: actions.EndTurn,
-      props: {},
+      props: {
+        documentElement,
+        Notification,
+      },
     }),
     effects.andThen({
       action: actions.CycleMob,

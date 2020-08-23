@@ -8,8 +8,12 @@ import { calculateTimeRemaining } from './lib/calculateTimeRemaining';
 test('can update settings from websocket message', (t) => {
   const settings = { foo: 'bar' };
   const state = actions.UpdateByWebsocketData({}, {
-    type: 'settings:update',
-    settings,
+    payload: {
+      type: 'settings:update',
+      settings,
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.deepEqual(state, {
@@ -23,8 +27,12 @@ test('can update timer from websocket message', (t) => {
     timerDuration: 999,
   };
   const state = actions.UpdateByWebsocketData({}, {
-    type: 'timer:update',
-    ...data,
+    payload: {
+      type: 'timer:update',
+      ...data,
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.deepEqual(state, {
@@ -41,8 +49,12 @@ test('can start timer from websocket message', (t) => {
 
   const now = Date.now();
   const state = actions.UpdateByWebsocketData(initialState, {
-    type: 'timer:start',
-    timerDuration,
+    payload: {
+      type: 'timer:start',
+      timerDuration,
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.like(state, {
@@ -61,8 +73,12 @@ test('can pause timer from websocket message', (t) => {
   };
 
   const state = actions.UpdateByWebsocketData(initialState, {
-    type: 'timer:pause',
-    timerDuration,
+    payload: {
+      type: 'timer:pause',
+      timerDuration,
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.deepEqual(state, {
@@ -77,8 +93,15 @@ test('can complete timer from websocket message', (t) => {
     timerDuration: 5000,
   };
 
+  const documentElement = {};
+  const Notification = {};
+
   const [state, effect] = actions.UpdateByWebsocketData(initialState, {
-    type: 'timer:complete',
+    payload: {
+      type: 'timer:complete',
+    },
+    documentElement,
+    Notification,
   });
 
   t.deepEqual(state, {
@@ -87,15 +110,22 @@ test('can complete timer from websocket message', (t) => {
   });
   t.deepEqual(effect, effects.andThen({
     action: actions.EndTurn,
-    props: {},
+    props: {
+      documentElement,
+      Notification,
+    },
   }));
 });
 
 test('can update goals from websocket message', (t) => {
   const goals = ['foo'];
   const state = actions.UpdateByWebsocketData({}, {
-    type: 'goals:update',
-    goals,
+    payload: {
+      type: 'goals:update',
+      goals,
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.deepEqual(state, {
@@ -106,8 +136,12 @@ test('can update goals from websocket message', (t) => {
 test('can update mob from websocket message', (t) => {
   const mob = ['foo'];
   const state = actions.UpdateByWebsocketData({}, {
-    type: 'mob:update',
-    mob,
+    payload: {
+      type: 'mob:update',
+      mob,
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.deepEqual(state, {
@@ -127,7 +161,11 @@ test('can share timer state when recieving client:new from websocket message', (
     websocket,
   };
   const [state, effect] = actions.UpdateByWebsocketData(initialState, {
-    type: 'client:new',
+    payload: {
+      type: 'client:new',
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.is(state, initialState);
@@ -139,11 +177,43 @@ test('can share timer state when recieving client:new from websocket message', (
   ]);
 });
 
+test('does not start timer if timer is not running when recieving client:new from websocket message', (t) => {
+  const websocket = {};
+  const initialState = {
+    timerStartedAt: null,
+    timerDuration: 10,
+    mob: [],
+    goals: [],
+    settings: {},
+    remainingTime: 5,
+    websocket,
+  };
+  const [state, effect] = actions.UpdateByWebsocketData(initialState, {
+    payload: {
+      type: 'client:new',
+    },
+    documentElement: {},
+    Notification: {},
+  });
+
+  t.is(state, initialState);
+  t.deepEqual(effect, [
+    false,
+    effects.UpdateMob({ websocket, mob: state.mob }),
+    effects.UpdateGoals({ websocket, goals: state.goals }),
+    effects.UpdateSettings({ websocket, settings: state.settings }),
+  ]);
+});
+
 test('can update ownership from websocket message', (t) => {
   const isOwner = false;
   const state = actions.UpdateByWebsocketData({}, {
-    type: 'timer:ownership',
-    isOwner,
+    payload: {
+      type: 'timer:ownership',
+      isOwner,
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.deepEqual(state, {
@@ -154,7 +224,11 @@ test('can update ownership from websocket message', (t) => {
 test('does nothing from unknown type from websocket message', (t) => {
   const initialState = {};
   const state = actions.UpdateByWebsocketData(initialState, {
-    type: 'foobarbaz',
+    payload: {
+      type: 'foobarbaz',
+    },
+    documentElement: {},
+    Notification: {},
   });
 
   t.is(state, initialState);
