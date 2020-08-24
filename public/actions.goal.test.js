@@ -48,6 +48,43 @@ test('can add multiple goals at once', (t) => {
   t.deepEqual(stateGoalsTextArray, expectedGoals);
 });
 
+
+test('whitespace is trimmed when multiple goals added', (t) => {
+  const goalTextToAdd = 'foo  ; bar ; wow \n ';
+  const expectedGoals = ['foo', 'bar', 'wow'];
+  const initialState = {
+    goals: [],
+  };
+
+  const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
+
+  t.like(state.goals[0], {
+    text: expectedGoals[0], completed: false,
+  });
+  t.is(state.goal, '');
+
+  const stateGoalsTextArray = state.goals.map(goal => goal.text);
+  t.deepEqual(stateGoalsTextArray, expectedGoals);
+});
+
+test('empty goals do not get added when multiple goals added', (t) => {
+  const goalTextToAdd = 'foo;;bar;  ;wow;;;\n;;\r\n;';
+  const expectedGoals = ['foo', 'bar', 'wow'];
+  const initialState = {
+    goals: [],
+  };
+
+  const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
+
+  t.like(state.goals[0], {
+    text: expectedGoals[0], completed: false,
+  });
+  t.is(state.goal, '');
+
+  const stateGoalsTextArray = state.goals.map(goal => goal.text);
+  t.deepEqual(stateGoalsTextArray, expectedGoals);
+});
+
 test('can complete goal', (t) => {
   const websocket = {};
   const goalTextToAdd = 'foo';
