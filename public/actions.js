@@ -418,11 +418,18 @@ export const MoveMob = (state, { from, to }) => {
 };
 
 export const AddGoal = (state) => {
-  const goals = state.goals.concat({
-    id: Math.random().toString(36).slice(2),
-    text: state.goal,
-    completed: false,
-  });
+  var newGoals = state.goal.split(";");
+  var goals = state.goals;
+  for (let i = 0; i < newGoals.length; i++) {
+    var newGoal = newGoals[i];
+    if (newGoal.length > 0) {
+      goals = goals.concat({
+        id: Math.random().toString(36).slice(2),
+        text: newGoal,
+        completed: false,
+      });
+    }
+  }
 
   return [
     {

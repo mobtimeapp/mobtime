@@ -35,7 +35,7 @@ export const addGoal = (props) => h(section, null, [
     }, h(input, {
       value: props.goal,
       oninput: [actions.UpdateGoalText, (e) => e.target.value],
-      placeholder: 'Add Goal',
+      placeholder: 'Add Goals',
 
       class: {
         'text-3xl': true,
