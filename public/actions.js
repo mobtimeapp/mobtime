@@ -454,7 +454,7 @@ export const AddMultipleGoals = (state, goals) => {
   return [
     {
       ...state,
-      allGoals,
+      goals: allGoals,
       goal: '',
     },
     effects.UpdateGoals({
