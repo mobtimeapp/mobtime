@@ -440,6 +440,7 @@ export const AddMultipleGoals = (state) => {
   const goals = state.goals.concat(
     state.goal
       .split(";")
+      .map(text => text.trim())
       .filter(text => text.length > 0)
       .map(text => {
         return {
