@@ -421,7 +421,7 @@ export const AddGoal = (state) => {
   var newGoals = state.goal.split(";");
   var goals = state.goals;
   for (let i = 0; i < newGoals.length; i++) {
-    var newGoal = newGoals[i];
+    var newGoal = newGoals[i].trim();
     if (newGoal.length > 0) {
       goals = goals.concat({
         id: Math.random().toString(36).slice(2),
