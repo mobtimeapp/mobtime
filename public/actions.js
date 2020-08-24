@@ -436,9 +436,9 @@ export const AddGoal = (state) => {
     }),
   ];
 };
-export const AddMultipleGoals = (state) => {
-  const goals = state.goals.concat(
-    state.goal
+export const AddMultipleGoals = (state, goals) => {
+  const allGoals = state.goals.concat(
+    goals
       .split(";")
       .map(text => text.trim())
       .filter(text => text.length > 0)
@@ -454,12 +454,12 @@ export const AddMultipleGoals = (state) => {
   return [
     {
       ...state,
-      goals,
+      allGoals,
       goal: '',
     },
     effects.UpdateGoals({
       websocket: state.websocket,
-      goals,
+      allGoals,
     }),
   ];
 
