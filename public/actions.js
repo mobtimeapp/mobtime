@@ -459,7 +459,7 @@ export const AddMultipleGoals = (state, goals) => {
     },
     effects.UpdateGoals({
       websocket: state.websocket,
-      allGoals,
+      goals: allGoals,
     }),
   ];
 
