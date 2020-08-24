@@ -39,13 +39,10 @@ test('can add multiple goals at once', (t) => {
 
   const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
 
-  t.like(state.goals[0], {
-    text: expectedGoals[0], completed: false,
+  t.is(state.goals.length, expectedGoals.length);
+  expectedGoals.forEach((text, index) => {
+    t.like(state.goals[index], { text, completed: false });
   });
-  t.is(state.goal, '');
-
-  const stateGoalsTextArray = state.goals.map(goal => goal.text);
-  t.deepEqual(stateGoalsTextArray, expectedGoals);
 });
 
 
@@ -58,13 +55,10 @@ test('whitespace is trimmed when multiple goals added', (t) => {
 
   const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
 
-  t.like(state.goals[0], {
-    text: expectedGoals[0], completed: false,
+  t.is(state.goals.length, expectedGoals.length);
+  expectedGoals.forEach((text, index) => {
+    t.like(state.goals[index], { text, completed: false });
   });
-  t.is(state.goal, '');
-
-  const stateGoalsTextArray = state.goals.map(goal => goal.text);
-  t.deepEqual(stateGoalsTextArray, expectedGoals);
 });
 
 test('empty goals do not get added when multiple goals added', (t) => {
@@ -76,13 +70,10 @@ test('empty goals do not get added when multiple goals added', (t) => {
 
   const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
 
-  t.like(state.goals[0], {
-    text: expectedGoals[0], completed: false,
+  t.is(state.goals.length, expectedGoals.length);
+  expectedGoals.forEach((text, index) => {
+    t.like(state.goals[index], { text, completed: false });
   });
-  t.is(state.goal, '');
-
-  const stateGoalsTextArray = state.goals.map(goal => goal.text);
-  t.deepEqual(stateGoalsTextArray, expectedGoals);
 });
 
 test('can complete goal', (t) => {
