@@ -418,8 +418,28 @@ export const MoveMob = (state, { from, to }) => {
 };
 
 export const AddGoal = (state) => {
+  const goals = state.goals.concat({
+    id: Math.random().toString(36).slice(2),
+    text: state.goal,
+    completed: false,
+  });
+
+  return [
+    {
+      ...state,
+      goals,
+      goal: '',
+    },
+    effects.UpdateGoals({
+      websocket: state.websocket,
+      goals,
+    }),
+  ];
+};
+export const AddMultipleGoals = (state) => {
   const goals = state.goals.concat(
-    state.goal.split(";")
+    state.goal
+      .split(";")
       .filter(text => text.length > 0)
       .map(text => {
         return {
@@ -441,7 +461,8 @@ export const AddGoal = (state) => {
       goals,
     }),
   ];
-};
+
+}
 export const CompleteGoal = (state, { id, completed }) => {
   const goals = state.goals.map((g) => ({
     ...g,
