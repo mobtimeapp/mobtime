@@ -436,6 +436,34 @@ export const AddGoal = (state) => {
     }),
   ];
 };
+export const AddMultipleGoals = (state, goals) => {
+  const allGoals = state.goals.concat(
+    goals
+      .split(";")
+      .map(text => text.trim())
+      .filter(text => text.length > 0)
+      .map(text => {
+        return {
+          id: Math.random().toString(36).slice(2),
+          text: text,
+          completed: false,
+        };
+      })
+  );
+
+  return [
+    {
+      ...state,
+      goals: allGoals,
+      goal: '',
+    },
+    effects.UpdateGoals({
+      websocket: state.websocket,
+      goals: allGoals,
+    }),
+  ];
+
+}
 export const CompleteGoal = (state, { id, completed }) => {
   const goals = state.goals.map((g) => ({
     ...g,
