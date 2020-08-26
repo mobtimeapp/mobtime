@@ -64,11 +64,17 @@ export const Init = (_, timerId) => ({
   currentTime: null,
   name: '',
   goal: '',
+  addMultiple: false,
   allowNotification: initialNotificationPermission === 'granted',
   allowSound: false,
   notificationPermissions: initialNotificationPermission,
   pendingSettings: {},
   websocket: null,
+});
+
+export const SetAddMultiple = (state, addMultiple) => ({
+  ...state,
+  addMultiple: Boolean(addMultiple),
 });
 
 export const SetCurrentTime = (state, {
@@ -436,19 +442,19 @@ export const AddGoal = (state) => {
     }),
   ];
 };
-export const AddMultipleGoals = (state, goals) => {
+export const AddGoals = (state, goals) => {
   const allGoals = state.goals.concat(
     goals
-      .split(";")
-      .map(text => text.trim())
-      .filter(text => text.length > 0)
-      .map(text => {
-        return {
+      .split('\n')
+      .map((text) => text.trim())
+      .filter((text) => text.length > 0)
+      .map((text) => (
+        {
           id: Math.random().toString(36).slice(2),
-          text: text,
+          text,
           completed: false,
-        };
-      })
+        }
+      )),
   );
 
   return [
@@ -462,8 +468,8 @@ export const AddMultipleGoals = (state, goals) => {
       goals: allGoals,
     }),
   ];
+};
 
-}
 export const CompleteGoal = (state, { id, completed }) => {
   const goals = state.goals.map((g) => ({
     ...g,
