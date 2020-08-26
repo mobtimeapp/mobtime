@@ -205,6 +205,7 @@ app({
         }),
         h(addGoal, {
           goal: state.goal,
+          addMultiple: state.addMultiple,
         }),
       ],
 

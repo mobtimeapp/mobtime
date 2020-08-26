@@ -31,15 +31,15 @@ test('can add goal', (t) => {
 });
 
 test('can add multiple goals at once', (t) => {
-  const goalTextToAdd = 'foo;bar;wow';
+  const goalTextToAdd = 'foo\nbar\nwow';
   const expectedGoals = ['foo', 'bar', 'wow'];
-  const websocket = {}
+  const websocket = {};
   const initialState = {
     goals: [],
-    websocket: websocket,
+    websocket,
   };
 
-  const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
+  const [state, effect] = actions.AddGoals(initialState, goalTextToAdd);
 
   t.is(state.goals.length, expectedGoals.length);
   expectedGoals.forEach((text, index) => {
@@ -47,22 +47,22 @@ test('can add multiple goals at once', (t) => {
   });
 
   t.deepEqual(effect, effects.UpdateGoals({
-    websocket: websocket,
+    websocket,
     goals: state.goals,
   }));
 });
 
 
 test('whitespace is trimmed when multiple goals added', (t) => {
-  const goalTextToAdd = 'foo  ; bar ; wow \n ';
+  const goalTextToAdd = 'foo  \n bar \n wow \n ';
   const expectedGoals = ['foo', 'bar', 'wow'];
-  const websocket = {}
+  const websocket = {};
   const initialState = {
     goals: [],
-    websocket: websocket
+    websocket,
   };
 
-  const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
+  const [state, effect] = actions.AddGoals(initialState, goalTextToAdd);
 
   t.is(state.goals.length, expectedGoals.length);
   expectedGoals.forEach((text, index) => {
@@ -70,22 +70,21 @@ test('whitespace is trimmed when multiple goals added', (t) => {
   });
 
   t.deepEqual(effect, effects.UpdateGoals({
-    websocket: websocket,
+    websocket,
     goals: state.goals,
   }));
-
 });
 
 test('empty goals do not get added when multiple goals added', (t) => {
-  const goalTextToAdd = 'foo;;bar;  ;wow;;;\n;;\r\n;';
+  const goalTextToAdd = 'foo\n\nbar\n  \nwow\n\n\n\n\r\n';
   const expectedGoals = ['foo', 'bar', 'wow'];
-  const websocket = {}
+  const websocket = {};
   const initialState = {
     goals: [],
-    websocket: websocket,
+    websocket,
   };
 
-  const [state, effect] = actions.AddMultipleGoals(initialState, goalTextToAdd);
+  const [state, effect] = actions.AddGoals(initialState, goalTextToAdd);
 
   t.is(state.goals.length, expectedGoals.length);
   expectedGoals.forEach((text, index) => {
