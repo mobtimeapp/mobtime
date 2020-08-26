@@ -235,7 +235,7 @@ test('can skip a notification when notification is false', (t) => {
 
 test('can play a sound', (t) => {
   const play = sinon.fake();
-  const parentElement = {
+  const documentElement = {
     querySelector: () => ({
       play,
     }),
@@ -243,7 +243,7 @@ test('can play a sound', (t) => {
 
   runEffect(effects.Notify({
     sound: true,
-    parentElement,
+    documentElement,
   }));
 
   t.truthy(play.calledOnceWithExactly());

@@ -90,16 +90,17 @@ export const Notify = fx(function NotifyFX(_dispatch, {
   notification = true,
   sound = false,
   Notification,
-  parentElement,
+  documentElement,
 }) {
   if (notification && Notification) {
-    new Notification(title, { // eslint-disable-line no-new
+    const n = new Notification(title, { // eslint-disable-line no-new
       body: text,
       vibrate: [100, 100, 100],
     });
   }
-  if (sound && parentElement) {
-    parentElement.querySelector('#timer-complete').play();
+  if (sound && documentElement) {
+    const timerComplete = documentElement.querySelector('#timer-complete');
+    timerComplete.play();
   }
 });
 
