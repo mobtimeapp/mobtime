@@ -4,6 +4,7 @@ import * as actions from './actions';
 import * as effects from './effects';
 
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
+
 test('can set websocket', (t) => {
   const websocket = { send: () => {} };
   const state = actions.SetWebsocket({}, { websocket });
@@ -82,4 +83,16 @@ test('can end turn', (t) => {
       Notification,
     }),
   ]);
+});
+
+test('it can toggle addMultiple', (t) => {
+  const initialState = {
+    addMultiple: false,
+  };
+
+  const state = actions.SetAddMultiple(initialState, true);
+
+  t.deepEqual(state, {
+    addMultiple: true,
+  });
 });
