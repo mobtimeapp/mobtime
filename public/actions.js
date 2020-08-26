@@ -717,6 +717,10 @@ export const UpdateByWebsocketData = (
       };
 
     case 'timer:complete':
+      if (state.timerStartedAt === null) {
+        return state;
+      }
+
       return [
         {
           ...state,
@@ -747,7 +751,10 @@ export const UpdateByWebsocketData = (
       return [
         state,
         [
-          state.timerStartedAt > 0 && effects.StartTimer({ websocket: state.websocket, timerDuration: calculateTimeRemaining(state) }),
+          state.timerStartedAt > 0 && effects.StartTimer({
+            websocket: state.websocket,
+            timerDuration: calculateTimeRemaining(state),
+          }),
           effects.UpdateMob({ websocket: state.websocket, mob: state.mob }),
           effects.UpdateGoals({ websocket: state.websocket, goals: state.goals }),
           effects.UpdateSettings({ websocket: state.websocket, settings: state.settings }),
