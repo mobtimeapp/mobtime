@@ -230,6 +230,7 @@ export const EndTurn = (state, {
       title: 'Mobtime',
       text: 'The timer is up!',
       Notification,
+      documentElement,
     }),
   ],
 ];
@@ -722,10 +723,7 @@ export const UpdateByWebsocketData = (
       }
 
       return [
-        {
-          ...state,
-          timerStartedAt: null,
-        },
+        state,
         effects.andThen({
           action: EndTurn,
           props: {
