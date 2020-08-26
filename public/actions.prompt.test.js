@@ -13,14 +13,14 @@ test('can open a prompt', (t) => {
   });
   t.deepEqual(state.prompt, {
     text: 'Foo',
-    defaultValue: '',
+    value: '',
     OnValue: actions.Noop,
     context,
     visible: true,
   });
 });
 
-test('can ok a prompt', (t) => {
+test('can update value of a prompt', (t) => {
   const context = {};
 
   const action = () => {};
@@ -32,9 +32,26 @@ test('can ok a prompt', (t) => {
     context,
   });
 
-  const [state, effect] = actions.PromptOK(initialState, {
-    value: 'test',
+  const state = actions.PromptValueChange(initialState, 'hello');
+
+  t.like(state.prompt, {
+    value: 'hello',
   });
+});
+
+test('can ok a prompt', (t) => {
+  const context = {};
+
+  const action = () => {};
+
+  const initialState = actions.PromptOpen({}, {
+    text: 'Foo',
+    defaultValue: 'test',
+    OnValue: action,
+    context,
+  });
+
+  const [state, effect] = actions.PromptOK(initialState);
 
   t.like(state.prompt, {
     visible: false,

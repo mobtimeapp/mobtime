@@ -19,7 +19,7 @@ const emptyDrag = {
 
 const emptyPrompt = {
   text: '',
-  defaultValue: '',
+  value: '',
   context: null,
   OnValue: Noop,
   visible: false,
@@ -115,14 +115,22 @@ export const PromptOpen = (state, {
   ...state,
   prompt: {
     text,
-    defaultValue,
+    value: defaultValue,
     OnValue,
     context,
     visible: true,
   },
 });
 
-export const PromptOK = (state, { value }) => [
+export const PromptValueChange = (state, value) => ({
+  ...state,
+  prompt: {
+    ...state.prompt,
+    value,
+  },
+});
+
+export const PromptOK = (state) => [
   {
     ...state,
     prompt: { ...emptyPrompt },
@@ -131,7 +139,7 @@ export const PromptOK = (state, { value }) => [
     action: state.prompt.OnValue,
     props: {
       ...state.prompt.context,
-      value,
+      value: state.prompt.value,
     },
   }),
 ];
