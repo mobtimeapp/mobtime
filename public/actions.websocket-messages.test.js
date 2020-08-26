@@ -104,10 +104,7 @@ test('can complete timer from websocket message', (t) => {
     Notification,
   });
 
-  t.deepEqual(state, {
-    ...initialState,
-    timerStartedAt: null,
-  });
+  t.deepEqual(state, initialState);
   t.deepEqual(effect, effects.andThen({
     action: actions.EndTurn,
     props: {

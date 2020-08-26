@@ -81,6 +81,7 @@ test('can end turn', (t) => {
       title: 'Mobtime',
       text: 'The timer is up!',
       Notification,
+      documentElement,
     }),
   ]);
 });
