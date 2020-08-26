@@ -38,7 +38,11 @@ export const appPrompt = (props) => h(modal, {
     h(input, {
       id: 'mobtime-prompt',
       name: 'value',
-      value: props.defaultValue,
+      value: props.value,
+      oninput: [
+        actions.PromptValueChange,
+        (e) => e.target.value,
+      ],
       autocomplete: 'off',
       class: {
         'block': true,
