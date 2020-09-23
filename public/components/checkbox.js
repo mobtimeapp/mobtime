@@ -19,19 +19,24 @@ export const checkbox = (props, children) => h('div', {
       'sr-only': true,
     },
   }),
-  h('span', {
-    class: {
-      'fa-stack': true,
-    },
-  }, [
-    h('i', { class: 'far fa-circle fa-stack-2x' }),
-    props.checked && h('i', { class: 'fas fa-check fa-stack-1x text-green-500' }),
-  ]),
   children && h('label', {
     for: props.id,
     class: {
       'flex-grow': true,
       'leading-tight': true,
+      'flex': true,
+      'flex-row': true,
+      'items-center': true,
     },
-  }, children),
+  }, [
+    h('span', {
+      class: {
+        'fa-stack': true,
+      },
+    }, [
+      h('i', { class: 'far fa-circle fa-stack-2x' }),
+      props.checked && h('i', { class: 'fas fa-check fa-stack-1x text-green-500' }),
+    ]),
+    ...children,
+  ]),
 ]);
