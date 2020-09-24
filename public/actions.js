@@ -333,7 +333,7 @@ export const UpdateName = (state, name) => ({
 export const ShuffleMob = (state) => {
   const mob = [...state.mob];
   for (let index = mob.length - 1; index > 0; index -= 1) {
-    const otherIndex = Math.floor(Math.random() * index);
+    const otherIndex = Math.round(Math.random() * index);
     const old = mob[index];
     mob[index] = mob[otherIndex];
     mob[otherIndex] = old;
