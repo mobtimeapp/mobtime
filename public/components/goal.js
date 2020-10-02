@@ -10,6 +10,7 @@ export const goal = (props) => h('div', {
     'justify-between': true,
     'mb-2': true,
     'w-full': true,
+    'break-words': true,
     'truncate': props.truncate,
   },
 }, [
