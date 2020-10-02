@@ -45,6 +45,7 @@ export const goal = (props) => h('div', {
   h('label', {
     for: `goal-${props.id}`,
     class: {
+      'pr-1': true,
       'text-4xl': true,
       'flex-grow': true,
       'leading-tight': true,
