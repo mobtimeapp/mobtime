@@ -6,7 +6,7 @@ if (typeof window !== 'undefined' && 'Notification' in window) {
   initialNotificationPermission = Notification.permission;
 }
 
-export const Noop = (state) => state;
+export const Noop = state => state;
 
 const emptyDrag = {
   active: false,
@@ -29,16 +29,9 @@ const collectionMove = (collection, { from, to }) => {
   const newCollection = collection.reduce((memo, item, index) => {
     if (index === from) return memo;
     if (index === to) {
-      return [
-        ...memo,
-        collection[from],
-        item,
-      ];
+      return [...memo, collection[from], item];
     }
-    return [
-      ...memo,
-      item,
-    ];
+    return [...memo, item];
   }, []);
   if (to >= newCollection.length) {
     newCollection.push(collection[from]);
@@ -54,7 +47,7 @@ export const Init = (_, timerId) => ({
   goals: [],
   settings: {
     mobOrder: 'Navigator,Driver',
-    duration: (5 * 60 * 1000),
+    duration: 5 * 60 * 1000,
   },
   expandedReorderable: null,
   timerTab: 'overview',
@@ -77,10 +70,7 @@ export const SetAddMultiple = (state, addMultiple) => ({
   addMultiple: Boolean(addMultiple),
 });
 
-export const SetCurrentTime = (state, {
-  currentTime,
-  documentElement,
-}) => {
+export const SetCurrentTime = (state, { currentTime, documentElement }) => {
   const nextState = {
     ...state,
     currentTime,
@@ -106,12 +96,10 @@ export const ExpandReorderable = (state, { expandedReorderable }) => ({
   expandedReorderable,
 });
 
-export const PromptOpen = (state, {
-  text,
-  defaultValue,
-  OnValue,
-  context,
-}) => ({
+export const PromptOpen = (
+  state,
+  { text, defaultValue, OnValue, context },
+) => ({
   ...state,
   prompt: {
     text,
@@ -130,7 +118,7 @@ export const PromptValueChange = (state, value) => ({
   },
 });
 
-export const PromptOK = (state) => [
+export const PromptOK = state => [
   {
     ...state,
     prompt: { ...emptyPrompt },
@@ -144,7 +132,7 @@ export const PromptOK = (state) => [
   }),
 ];
 
-export const PromptCancel = (state) => ({
+export const PromptCancel = state => ({
   ...state,
   prompt: { ...emptyPrompt },
 });
@@ -154,12 +142,7 @@ export const SetTimerTab = (state, timerTab) => ({
   timerTab,
 });
 
-export const DragSelect = (state, {
-  type,
-  from,
-  clientX,
-  clientY,
-}) => ({
+export const DragSelect = (state, { type, from, clientX, clientY }) => ({
   ...state,
   drag: {
     active: false,
@@ -171,14 +154,11 @@ export const DragSelect = (state, {
   },
 });
 
-export const DragMove = (state, {
-  clientX,
-  clientY,
-}) => {
+export const DragMove = (state, { clientX, clientY }) => {
   if (!state.drag.active) {
     const diffX = state.drag.clientX - clientX;
     const diffY = state.drag.clientY - clientY;
-    const distance = Math.sqrt((diffX * diffX) + (diffY * diffY));
+    const distance = Math.sqrt(diffX * diffX + diffY * diffY);
     if (distance < 5) {
       return state;
     }
@@ -213,15 +193,12 @@ export const DragTo = (state, { to }) => ({
   },
 });
 
-export const DragCancel = (state) => ({
+export const DragCancel = state => ({
   ...state,
   drag: { ...emptyDrag },
 });
 
-export const EndTurn = (state, {
-  documentElement,
-  Notification,
-}) => [
+export const EndTurn = (state, { documentElement, Notification }) => [
   {
     ...state,
     timerStartedAt: null,
@@ -243,11 +220,10 @@ export const EndTurn = (state, {
   ],
 ];
 
-export const Completed = (state, {
-  isEndOfTurn,
-  documentElement,
-  Notification,
-}) => {
+export const Completed = (
+  state,
+  { isEndOfTurn, documentElement, Notification },
+) => {
   const nextState = {
     ...state,
     timerStartedAt: null,
@@ -288,7 +264,7 @@ export const Completed = (state, {
 };
 
 export const RenameUser = (state, { id, value }) => {
-  const mob = state.mob.map((m) => ({
+  const mob = state.mob.map(m => ({
     ...m,
     name: m.id === id ? value : m.name,
   }));
@@ -306,7 +282,7 @@ export const RenameUser = (state, { id, value }) => {
 };
 
 export const RenameUserPrompt = (state, { id }) => {
-  const user = state.mob.find((m) => m.id === id);
+  const user = state.mob.find(m => m.id === id);
   if (!user) return state;
 
   return [
@@ -330,7 +306,7 @@ export const UpdateName = (state, name) => ({
   name,
 });
 
-export const ShuffleMob = (state) => {
+export const ShuffleMob = state => {
   const mob = [...state.mob];
   for (let index = mob.length - 1; index > 0; index -= 1) {
     const otherIndex = Math.round(Math.random() * index);
@@ -351,7 +327,7 @@ export const ShuffleMob = (state) => {
   ];
 };
 
-export const CycleMob = (state) => {
+export const CycleMob = state => {
   if (state.mob.length === 0) {
     return state;
   }
@@ -368,10 +344,12 @@ export const CycleMob = (state) => {
   ];
 
   if (shouldComplete) {
-    effectsToRun.push(effects.andThen({
-      action: Completed,
-      props: { isEndOfTurn: true },
-    }));
+    effectsToRun.push(
+      effects.andThen({
+        action: Completed,
+        props: { isEndOfTurn: true },
+      }),
+    );
   }
 
   return [
@@ -383,9 +361,11 @@ export const CycleMob = (state) => {
   ];
 };
 
-export const AddNameToMob = (state) => {
+export const AddNameToMob = state => {
   const mob = state.mob.concat({
-    id: Math.random().toString(36).slice(2),
+    id: Math.random()
+      .toString(36)
+      .slice(2),
     name: state.name,
   });
 
@@ -403,7 +383,7 @@ export const AddNameToMob = (state) => {
 };
 
 export const RemoveFromMob = (state, id) => {
-  const mob = state.mob.filter((m) => m.id !== id);
+  const mob = state.mob.filter(m => m.id !== id);
 
   return [
     {
@@ -432,9 +412,11 @@ export const MoveMob = (state, { from, to }) => {
   ];
 };
 
-export const AddGoal = (state) => {
+export const AddGoal = state => {
   const goals = state.goals.concat({
-    id: Math.random().toString(36).slice(2),
+    id: Math.random()
+      .toString(36)
+      .slice(2),
     text: state.goal,
     completed: false,
   });
@@ -455,15 +437,15 @@ export const AddGoals = (state, goals) => {
   const allGoals = state.goals.concat(
     goals
       .split('\n')
-      .map((text) => text.trim())
-      .filter((text) => text.length > 0)
-      .map((text) => (
-        {
-          id: Math.random().toString(36).slice(2),
-          text,
-          completed: false,
-        }
-      )),
+      .map(text => text.trim())
+      .filter(text => text.length > 0)
+      .map(text => ({
+        id: Math.random()
+          .toString(36)
+          .slice(2),
+        text,
+        completed: false,
+      })),
   );
 
   return [
@@ -480,7 +462,7 @@ export const AddGoals = (state, goals) => {
 };
 
 export const CompleteGoal = (state, { id, completed }) => {
-  const goals = state.goals.map((g) => ({
+  const goals = state.goals.map(g => ({
     ...g,
     completed: g.id === id ? completed : g.completed,
   }));
@@ -497,7 +479,7 @@ export const CompleteGoal = (state, { id, completed }) => {
   ];
 };
 export const RemoveGoal = (state, id) => {
-  const goals = state.goals.filter((g) => g.id !== id);
+  const goals = state.goals.filter(g => g.id !== id);
   return [
     {
       ...state,
@@ -525,7 +507,7 @@ export const MoveGoal = (state, { from, to }) => {
 };
 
 export const RenameGoal = (state, { id, value }) => {
-  const goals = state.goals.map((g) => ({
+  const goals = state.goals.map(g => ({
     ...g,
     text: g.id === id ? value : g.text,
   }));
@@ -541,7 +523,7 @@ export const RenameGoal = (state, { id, value }) => {
   ];
 };
 export const RenameGoalPrompt = (state, { id }) => {
-  const goal = state.goals.find((g) => g.id === id);
+  const goal = state.goals.find(g => g.id === id);
   if (!goal) return state;
 
   return [
@@ -597,10 +579,7 @@ export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
   }),
 ];
 
-export const StartTimer = (state, {
-  timerStartedAt,
-  timerDuration,
-}) => [
+export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
   {
     ...state,
     timerStartedAt,
@@ -613,25 +592,54 @@ export const StartTimer = (state, {
   }),
 ];
 
-export const SetNotificationPermissions = (state, notificationPermissions) => [
+export const SetAllowNotification = (
+  state,
+  { allowNotification, Notification, documentElement },
+) => [
+  {
+    ...state,
+    allowNotification,
+  },
+  allowNotification &&
+    effects.Notify({
+      title: 'Mobtime Config',
+      text: 'You have allowed notifications',
+      sound: false,
+      Notification,
+      documentElement,
+    }),
+];
+
+export const SetNotificationPermissions = (
+  state,
+  { notificationPermissions, Notification, documentElement },
+) => [
   {
     ...state,
     notificationPermissions,
   },
+  notificationPermissions === 'granted' &&
+    effects.andThen({
+      action: SetAllowNotification,
+      props: {
+        allowNotification: true,
+        Notification,
+        documentElement,
+      },
+    }),
 ];
 
-export const RequestNotificationPermission = (state, Notification) => [
+export const RequestNotificationPermission = (
+  state,
+  { Notification, documentElement },
+) => [
   state,
   effects.NotificationPermission({
     SetNotificationPermissions,
     Notification,
+    documentElement,
   }),
 ];
-
-export const SetAllowNotification = (state, allowNotification) => ({
-  ...state,
-  allowNotification,
-});
 
 export const SetAllowSound = (state, allowSound) => [
   {
@@ -648,7 +656,7 @@ export const ShowNotification = (state, message) => [
   }),
 ];
 
-export const PendingSettingsReset = (state) => ({
+export const PendingSettingsReset = state => ({
   ...state,
   pendingSettings: {},
 });
@@ -661,7 +669,7 @@ export const PendingSettingsSet = (state, { key, value }) => ({
   },
 });
 
-export const UpdateSettings = (state) => {
+export const UpdateSettings = state => {
   const settings = {
     ...state.settings,
     ...state.pendingSettings,
@@ -680,7 +688,7 @@ export const UpdateSettings = (state) => {
   ];
 };
 
-export const BroadcastJoin = (state) => [
+export const BroadcastJoin = state => [
   state,
   effects.BroadcastJoin({
     websocket: state.websocket,
@@ -689,11 +697,7 @@ export const BroadcastJoin = (state) => [
 
 export const UpdateByWebsocketData = (
   state,
-  {
-    payload,
-    documentElement,
-    Notification,
-  },
+  { payload, documentElement, Notification },
 ) => {
   const { type, ...data } = payload;
 
@@ -757,13 +761,20 @@ export const UpdateByWebsocketData = (
       return [
         state,
         [
-          state.timerStartedAt > 0 && effects.StartTimer({
-            websocket: state.websocket,
-            timerDuration: calculateTimeRemaining(state),
-          }),
+          state.timerStartedAt > 0 &&
+            effects.StartTimer({
+              websocket: state.websocket,
+              timerDuration: calculateTimeRemaining(state),
+            }),
           effects.UpdateMob({ websocket: state.websocket, mob: state.mob }),
-          effects.UpdateGoals({ websocket: state.websocket, goals: state.goals }),
-          effects.UpdateSettings({ websocket: state.websocket, settings: state.settings }),
+          effects.UpdateGoals({
+            websocket: state.websocket,
+            goals: state.goals,
+          }),
+          effects.UpdateSettings({
+            websocket: state.websocket,
+            settings: state.settings,
+          }),
         ],
       ];
 
@@ -779,10 +790,11 @@ export const UpdateByWebsocketData = (
   }
 };
 
-export const DragEnd = (state) => {
-  const badDrag = !state.drag.active
-    || state.drag.to === null
-    || state.drag.to === state.drag.from;
+export const DragEnd = state => {
+  const badDrag =
+    !state.drag.active ||
+    state.drag.to === null ||
+    state.drag.to === state.drag.from;
 
   if (badDrag) {
     return { ...state, drag: { ...emptyDrag } };
