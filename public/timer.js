@@ -76,6 +76,8 @@ app({
           flex: true,
           'items-start': true,
           'justify-center': true,
+          'bg-indigo-700': true,
+          'min-h-screen': true,
         },
       },
       [
@@ -90,7 +92,7 @@ app({
               'sm:w-8/12': true,
               'md:w-10/12': true,
               'lg:w-6/12': true,
-              'xl:w-4/12': true,
+              'xl:w-6/12': true,
               shadow: false,
               'sm:shadow-lg': true,
               'pt-2': false,
