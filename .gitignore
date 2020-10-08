@@ -3,4 +3,4 @@ deploy/*.sh
 deploy/config.js
 storage
 .nyc_output
-public/styles/index.css
+public/styles/*
