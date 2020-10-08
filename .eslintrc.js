@@ -4,15 +4,10 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    node: true
+    node: true,
   },
-  extends: [
-    'eslint:recommended',
-    'airbnb-base',
-  ],
-  plugins: [
-    'import',
-  ],
+  extends: ['eslint:recommended', 'airbnb-base', 'prettier'],
+  plugins: ['import'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
@@ -28,5 +23,5 @@ module.exports = {
     'no-restricted-syntax': ['off'],
     'no-continue': ['off'],
     'quote-props': ['warn', 'consistent-as-needed'],
-  }
+  },
 };

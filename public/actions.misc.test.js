@@ -5,47 +5,86 @@ import * as effects from './effects';
 
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
-test('can set websocket', (t) => {
+test('can set websocket', t => {
   const websocket = { send: () => {} };
   const state = actions.SetWebsocket({}, { websocket });
   t.deepEqual(state, { websocket });
 });
 
-test('can set expand reorderable', (t) => {
+test('can set expand reorderable', t => {
   const expandedReorderable = { foo: 'bar' };
   const state = actions.ExpandReorderable({}, { expandedReorderable });
   t.deepEqual(state, { expandedReorderable });
 });
 
-test('can set timer tab', (t) => {
+test('can set timer tab', t => {
   const timerTab = 'foo-bar-baz';
   const state = actions.SetTimerTab({}, timerTab);
   t.deepEqual(state, { timerTab });
 });
 
-test('can set allow notification', (t) => {
-  const state = actions.SetAllowNotification({}, true);
+test('can allow notifications', t => {
+  const Notification = {};
+  const documentElement = {};
+
+  const [state, fx] = actions.SetAllowNotification(
+    {},
+    {
+      allowNotification: true,
+      Notification,
+      documentElement,
+    },
+  );
   t.deepEqual(state, { allowNotification: true });
+  t.deepEqual(
+    fx,
+    effects.Notify({
+      title: 'Mobtime Config',
+      text: 'You have allowed notifications',
+      sound: false,
+      Notification,
+      documentElement,
+    }),
+  );
 });
 
-test('can set current time', (t) => {
+test('can disallow notifications', t => {
+  const [state, fx] = actions.SetAllowNotification(
+    {},
+    {
+      allowNotification: false,
+      Notification: {},
+      documentElement: {},
+    },
+  );
+  t.deepEqual(state, { allowNotification: false });
+  t.deepEqual(fx, false);
+});
+
+test('can set current time', t => {
   const currentTime = 47323743746;
   const documentElement = {};
-  const [state, effect] = actions.SetCurrentTime({}, {
-    currentTime,
-    documentElement,
-  });
+  const [state, effect] = actions.SetCurrentTime(
+    {},
+    {
+      currentTime,
+      documentElement,
+    },
+  );
 
   const remainingTime = calculateTimeRemaining(state);
 
   t.deepEqual(state, { currentTime });
-  t.deepEqual(effect, effects.UpdateTitleWithTime({
-    remainingTime,
-    documentElement,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateTitleWithTime({
+      remainingTime,
+      documentElement,
+    }),
+  );
 });
 
-test('can end turn', (t) => {
+test('can end turn', t => {
   const documentElement = {};
   const Notification = {};
 
@@ -56,13 +95,10 @@ test('can end turn', (t) => {
     allowSound: true,
   };
 
-  const [state, effect] = actions.EndTurn(
-    initialState,
-    {
-      documentElement,
-      Notification,
-    },
-  );
+  const [state, effect] = actions.EndTurn(initialState, {
+    documentElement,
+    Notification,
+  });
 
   t.deepEqual(state, {
     ...initialState,
@@ -86,7 +122,7 @@ test('can end turn', (t) => {
   ]);
 });
 
-test('it can toggle addMultiple', (t) => {
+test('it can toggle addMultiple', t => {
   const initialState = {
     addMultiple: false,
   };
