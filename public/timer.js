@@ -1,35 +1,29 @@
-import { app, h } from '/vendor/hyperapp.js';
-
 import * as actions from '/actions.js';
+import {badge} from '/components/badge.js';
+import {button} from '/components/button.js';
+import {card} from '/components/card.js';
+import {checkbox} from '/components/checkbox.js';
+import {overviewHeading} from '/components/overviewHeading.js';
+import {appPrompt} from '/components/prompt.js';
+import {section} from '/components/section.js';
+import {settings} from '/components/settings.js';
+import {tab} from '/components/tab.js';
+import {addGoal} from '/sections/addGoal.js';
+import {addParticipant} from '/sections/addParticipant.js';
+import {goalList} from '/sections/goalList.js';
+import {header} from '/sections/header.js';
+import {mobActions} from '/sections/mobActions.js';
+import {mobParticipants} from '/sections/mobParticipants.js';
+import {qrShare} from '/sections/qrShare.js';
+import {timeRemaining} from '/sections/timeRemaining.js';
+import {mobOrder} from '/settings/mobOrder.js';
+import {setLength} from '/settings/setLength.js';
 import * as subscriptions from '/subscriptions.js';
-
-import { card } from '/components/card.js';
-import { section } from '/components/section.js';
-import { tab } from '/components/tab.js';
-import { settings } from '/components/settings.js';
-import { badge } from '/components/badge.js'; import { button } from '/components/button.js';
-import { overviewHeading } from '/components/overviewHeading.js';
-import { appPrompt } from '/components/prompt.js';
-import { checkbox } from '/components/checkbox.js';
-
-import { header } from '/sections/header.js';
-import { timeRemaining } from '/sections/timeRemaining.js';
-
-import { goalList } from '/sections/goalList.js';
-import { addGoal } from '/sections/addGoal.js';
-
-import { mobParticipants } from '/sections/mobParticipants.js';
-import { addParticipant } from '/sections/addParticipant.js';
-import { mobActions } from '/sections/mobActions.js';
-
-import { setLength } from '/settings/setLength.js';
-import { mobOrder } from '/settings/mobOrder.js';
-
-import { qrShare } from '/sections/qrShare.js';
+import {app, h} from '/vendor/hyperapp.js';
 
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 
-const getGoalsDetails = ({ goals }) => {
+const getGoalsDetails = ({goals}) => {
   const total = goals.length;
 
   if (total === 0) {
@@ -41,33 +35,33 @@ const getGoalsDetails = ({ goals }) => {
   return h(badge, {}, `${completed}/${total}`);
 };
 
-const connectionStatus = ({ websocket }) => {
+const connectionStatus = ({websocket}) => {
   if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
     return 'will-connect';
   }
-  return websocket.readyState === WebSocket.OPEN
-    ? 'connected' : 'will-reconnect';
+  return websocket.readyState === WebSocket.OPEN ? 'connected'
+                                                 : 'will-reconnect';
 };
 
 const websocketStatusClass = {
-  'will-connect': {
-    'bg-transparent': true,
-    'text-gray-400': true,
+  'will-connect' : {
+    'bg-transparent' : true,
+    'text-gray-400' : true,
   },
-  'connected': {
-    'bg-transparent': true,
-    'text-gray-400': true,
+  'connected' : {
+    'bg-transparent' : true,
+    'text-gray-400' : true,
   },
-  'will-reconnect': {
-    'bg-red-500': true,
-    'text-white': true,
+  'will-reconnect' : {
+    'bg-red-500' : true,
+    'text-white' : true,
   },
 };
 
 const websocketStatusMessage = {
-  'will-connect': 'Websocket connecting...',
-  'connected': 'Websocket Connection established',
-  'will-reconnect': 'Websocket reconnecting...',
+  'will-connect' : 'Websocket connecting...',
+  'connected' : 'Websocket Connection established',
+  'will-reconnect' : 'Websocket reconnecting...',
 };
 
 app({
@@ -273,7 +267,11 @@ app({
               inputProps: {
                 onchange: (_, event) => [
                   actions.SetAllowNotification,
-                  event.target.checked,
+                  {
+                    allowNotification: event.target.checked,
+                    Notification: window.Notification,
+                    documentElement: document,
+                  },
                 ],
                 disabled: state.notificationPermissions === '',
               },
@@ -286,7 +284,13 @@ app({
               'text-white': true,
               'flex-grow': true,
             },
-            onclick: actions.RequestNotificationPermission,
+            onclick: [
+              actions.RequestNotificationPermission,
+              {
+                Notification: window.Notification,
+                documentElement: document,
+              }
+            ],
           }, 'Request notification permission'),
         ]),
       ]),
