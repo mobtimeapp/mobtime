@@ -7,117 +7,101 @@ const makeWebsocket = () => ({
   send: sinon.fake(),
 });
 
-const runEffect = ([fn, props], dispatch = () => {}) => (
-  fn(dispatch, props)
-);
+const runEffect = ([fn, props], dispatch = () => {}) => fn(dispatch, props);
 
-test('can send update settings message', (t) => {
+test('can send update settings message', t => {
   const payload = {
     type: 'settings:update',
     settings: { foo: 'bar' },
   };
   const websocket = makeWebsocket();
-  runEffect(effects.UpdateSettings({
-    websocket,
-    settings: payload.settings,
-  }));
-
-  t.truthy(
-    websocket.send.calledOnceWithExactly(JSON.stringify(
-      payload,
-    )),
+  runEffect(
+    effects.UpdateSettings({
+      websocket,
+      settings: payload.settings,
+    }),
   );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('can send broadcast join message', (t) => {
+test('can send broadcast join message', t => {
   const payload = { type: 'client:new' };
   const websocket = makeWebsocket();
-  runEffect(effects.BroadcastJoin({
-    websocket,
-  }));
-
-  t.truthy(
-    websocket.send.calledOnceWithExactly(JSON.stringify(
-      payload,
-    )),
+  runEffect(
+    effects.BroadcastJoin({
+      websocket,
+    }),
   );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('can send start timer message', (t) => {
+test('can send start timer message', t => {
   const payload = { type: 'timer:start', timerDuration: 1000 };
   const websocket = makeWebsocket();
-  runEffect(effects.StartTimer({
-    websocket,
-    timerDuration: payload.timerDuration,
-  }));
-
-  t.truthy(
-    websocket.send.calledOnceWithExactly(JSON.stringify(
-      payload,
-    )),
+  runEffect(
+    effects.StartTimer({
+      websocket,
+      timerDuration: payload.timerDuration,
+    }),
   );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('can send pause timer message', (t) => {
+test('can send pause timer message', t => {
   const payload = { type: 'timer:pause', timerDuration: 1000 };
   const websocket = makeWebsocket();
-  runEffect(effects.PauseTimer({
-    websocket,
-    timerDuration: payload.timerDuration,
-  }));
-
-  t.truthy(
-    websocket.send.calledOnceWithExactly(JSON.stringify(
-      payload,
-    )),
+  runEffect(
+    effects.PauseTimer({
+      websocket,
+      timerDuration: payload.timerDuration,
+    }),
   );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('can send complete timer message', (t) => {
+test('can send complete timer message', t => {
   const payload = { type: 'timer:complete' };
   const websocket = makeWebsocket();
-  runEffect(effects.CompleteTimer({
-    websocket,
-  }));
-
-  t.truthy(
-    websocket.send.calledOnceWithExactly(JSON.stringify(
-      payload,
-    )),
+  runEffect(
+    effects.CompleteTimer({
+      websocket,
+    }),
   );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('can send update goals message', (t) => {
+test('can send update goals message', t => {
   const payload = { type: 'goals:update', goals: [] };
   const websocket = makeWebsocket();
-  runEffect(effects.UpdateGoals({
-    websocket,
-    goals: payload.goals,
-  }));
-
-  t.truthy(
-    websocket.send.calledOnceWithExactly(JSON.stringify(
-      payload,
-    )),
+  runEffect(
+    effects.UpdateGoals({
+      websocket,
+      goals: payload.goals,
+    }),
   );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('can send update mob message', (t) => {
+test('can send update mob message', t => {
   const payload = { type: 'mob:update', mob: [] };
   const websocket = makeWebsocket();
-  runEffect(effects.UpdateMob({
-    websocket,
-    mob: payload.mob,
-  }));
-
-  t.truthy(
-    websocket.send.calledOnceWithExactly(JSON.stringify(
-      payload,
-    )),
+  runEffect(
+    effects.UpdateMob({
+      websocket,
+      mob: payload.mob,
+    }),
   );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('cannot request notification permission when no notification object given', (t) => {
+test('cannot request notification permission when no notification object given', t => {
   const SetNotificationPermissions = sinon.fake();
   const fakeState = {};
   const dispatch = (action, props) => action(fakeState, props);
@@ -127,17 +111,21 @@ test('cannot request notification permission when no notification object given',
     dispatch,
   );
 
-  t.truthy(SetNotificationPermissions.calledOnceWithExactly(
-    fakeState,
-    'denied',
-  ));
+  t.truthy(
+    SetNotificationPermissions.calledOnceWithExactly(fakeState, {
+      notificationPermissions: 'denied',
+      Notification: undefined,
+      documentElement: undefined,
+    }),
+  );
 });
 
-test('can request notification permission, and send value back to action', async (t) => {
+test('can request notification permission, and send value back to action', async t => {
   const SetNotificationPermissions = sinon.fake();
   const Notification = {
     requestPermission: () => Promise.resolve('denied'),
   };
+  const documentElement = {};
   const fakeState = {};
   const dispatch = (action, props) => action(fakeState, props);
 
@@ -145,23 +133,28 @@ test('can request notification permission, and send value back to action', async
     effects.NotificationPermission({
       SetNotificationPermissions,
       Notification,
+      documentElement,
     }),
     dispatch,
   );
 
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise(resolve => setTimeout(resolve, 0));
 
-  t.truthy(SetNotificationPermissions.calledOnceWithExactly(
-    fakeState,
-    'denied',
-  ));
+  t.truthy(
+    SetNotificationPermissions.calledOnceWithExactly(fakeState, {
+      notificationPermissions: 'denied',
+      Notification,
+      documentElement,
+    }),
+  );
 });
 
-test('can request notification permission, and handle exception', async (t) => {
+test('can request notification permission, and handle exception', async t => {
   const SetNotificationPermissions = sinon.fake();
   const Notification = {
     requestPermission: () => Promise.reject(new Error('foo')),
   };
+  const documentElement = {};
   const fakeState = {};
   const dispatch = (action, props) => action(fakeState, props);
 
@@ -169,19 +162,24 @@ test('can request notification permission, and handle exception', async (t) => {
     effects.NotificationPermission({
       SetNotificationPermissions,
       Notification,
+      documentElement,
     }),
     dispatch,
   );
 
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise(resolve => setTimeout(resolve, 0));
 
-  t.truthy(SetNotificationPermissions.calledOnceWithExactly(
-    fakeState,
-    '',
-  ));
+  // t.truthy(SetNotificationPermissions.calledOnceWithExactly(fakeState, ''));
+  t.truthy(
+    SetNotificationPermissions.calledOnceWithExactly(fakeState, {
+      notificationPermissions: 'denied',
+      Notification,
+      documentElement,
+    }),
+  );
 });
 
-test('can create a notification', (t) => {
+test('can create a notification', t => {
   const Notification = sinon.fake(function _Notification(title, options) {
     this.title = title;
     this.options = options;
@@ -191,23 +189,24 @@ test('can create a notification', (t) => {
   const title = 'Test';
   const text = '1 2 3';
 
-  runEffect(effects.Notify({
-    title,
-    text,
-    notification: true,
-    Notification,
-  }));
+  runEffect(
+    effects.Notify({
+      title,
+      text,
+      notification: true,
+      Notification,
+    }),
+  );
 
-  t.truthy(Notification.calledOnceWithExactly(
-    title,
-    {
+  t.truthy(
+    Notification.calledOnceWithExactly(title, {
       body: text,
       vibrate: [100, 100, 100],
-    },
-  ));
+    }),
+  );
 });
 
-test('can skip a notification when notification is false', (t) => {
+test('can skip a notification when notification is false', t => {
   const Notification = sinon.fake(function _Notification(title, options) {
     this.title = title;
     this.options = options;
@@ -217,23 +216,24 @@ test('can skip a notification when notification is false', (t) => {
   const title = 'Test';
   const text = '1 2 3';
 
-  runEffect(effects.Notify({
-    title,
-    text,
-    notification: false,
-    Notification,
-  }));
+  runEffect(
+    effects.Notify({
+      title,
+      text,
+      notification: false,
+      Notification,
+    }),
+  );
 
-  t.falsy(Notification.calledOnceWithExactly(
-    title,
-    {
+  t.falsy(
+    Notification.calledOnceWithExactly(title, {
       body: text,
       vibrate: [100, 100, 100],
-    },
-  ));
+    }),
+  );
 });
 
-test('can play a sound', (t) => {
+test('can play a sound', t => {
   const play = sinon.fake();
   const documentElement = {
     querySelector: () => ({
@@ -241,49 +241,54 @@ test('can play a sound', (t) => {
     }),
   };
 
-  runEffect(effects.Notify({
-    sound: true,
-    documentElement,
-  }));
+  runEffect(
+    effects.Notify({
+      sound: true,
+      documentElement,
+    }),
+  );
 
   t.truthy(play.calledOnceWithExactly());
 });
 
-test('can update the document title from remainingTime', (t) => {
+test('can update the document title from remainingTime', t => {
   const documentElement = { title: '' };
 
-  runEffect(effects.UpdateTitleWithTime({
-    remainingTime: 1000,
-    documentElement,
-  }));
+  runEffect(
+    effects.UpdateTitleWithTime({
+      remainingTime: 1000,
+      documentElement,
+    }),
+  );
 
   t.is(documentElement.title, '00:01 - mobtime');
 });
 
-test('can update the document title with no remaining time', (t) => {
+test('can update the document title with no remaining time', t => {
   const documentElement = { title: '' };
 
-  runEffect(effects.UpdateTitleWithTime({
-    remainingTime: 0,
-    documentElement,
-  }));
+  runEffect(
+    effects.UpdateTitleWithTime({
+      remainingTime: 0,
+      documentElement,
+    }),
+  );
 
   t.is(documentElement.title, 'mobtime');
 });
 
-test('can schedule the next action', (t) => {
+test('can schedule the next action', t => {
   const dispatch = sinon.fake();
   const action = () => {};
   const props = {};
 
-  runEffect(effects.andThen({
-    action,
-    props,
-  }), dispatch);
+  runEffect(
+    effects.andThen({
+      action,
+      props,
+    }),
+    dispatch,
+  );
 
-  t.truthy(dispatch.calledOnceWithExactly(
-    action,
-    props,
-  ));
-
+  t.truthy(dispatch.calledOnceWithExactly(action, props));
 });
