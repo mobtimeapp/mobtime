@@ -20,6 +20,7 @@ import { mobOrder } from '/settings/mobOrder.js';
 import { setLength } from '/settings/setLength.js';
 import * as subscriptions from '/subscriptions.js';
 import { app, h } from '/vendor/hyperapp.js';
+import { removeCompletedGoals } from './sections/removeCompletedGoals.js';
 
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 
@@ -252,6 +253,7 @@ app({
                 goal: state.goal,
                 addMultiple: state.addMultiple,
               }),
+              h(removeCompletedGoals, {}),
             ],
 
             state.timerTab === 'timer-settings' &&
