@@ -47,7 +47,7 @@ export const removeCompletedGoals = (props) => {
           },
         }, [
           h('i', { class: 'fas fa-trash mr-3' }),
-          'Remove completed goals',
+          'Clear completed goals',
         ]),
       ]),
     ]),
