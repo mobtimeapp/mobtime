@@ -253,7 +253,7 @@ app({
                 goal: state.goal,
                 addMultiple: state.addMultiple,
               }),
-              h(removeCompletedGoals, {}),
+              h(removeCompletedGoals, { goals: state.goals }),
             ],
 
             state.timerTab === 'timer-settings' &&
