@@ -4,3 +4,4 @@ deploy/config.js
 storage
 .nyc_output
 public/styles/*
+.idea/
