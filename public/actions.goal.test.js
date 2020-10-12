@@ -8,6 +8,11 @@ const makeGoal = (text) => ({
   text,
   completed: false,
 });
+const makeCompletedGoal = (text) => ({
+  id: Math.random().toString(36).slice(2),
+  text,
+  completed: true,
+});
 
 test('can add goal', (t) => {
   const websocket = {};
@@ -133,6 +138,42 @@ test('can remove goal', (t) => {
   };
 
   const [state, effect] = actions.RemoveGoal(initialState, initialState.goals[0].id);
+
+  t.deepEqual(state.goals, []);
+
+  t.deepEqual(effect, effects.UpdateGoals({
+    websocket,
+    goals: state.goals,
+  }));
+});
+
+test('keeps uncompleted goals after removing completed goals', (t) => {
+  const websocket = {};
+  const initialState = {
+    goals: [
+      makeGoal('foo'),
+    ],
+    websocket,
+  };
+
+  const [state, effect] = actions.RemoveCompletedGoals(initialState);
+
+  t.deepEqual(state.goals, initialState.goals);
+
+  t.is(effect, undefined);
+});
+
+test('removes completed goals', (t) => {
+  const websocket = {};
+  const initialState = {
+    goals: [
+      makeCompletedGoal('foo'),
+    ],
+    websocket,
+  };
+
+  const [state, effect] = actions.RemoveCompletedGoals(initialState);
+
 
   t.deepEqual(state.goals, []);
 
