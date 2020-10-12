@@ -492,7 +492,7 @@ export const RemoveGoal = (state, id) => {
   ];
 };
 
-export function RemoveCompletedGoals(state) {
+export const RemoveCompletedGoals = (state) => {
   const incompleteGoals = state.goals.filter(g => !g.completed);
   const goalsAreRemoved = incompleteGoals.length < state.goals.length;
   return [
@@ -507,7 +507,7 @@ export function RemoveCompletedGoals(state) {
         })
       : undefined,
   ];
-}
+};
 
 
 export const MoveGoal = (state, { from, to }) => {
