@@ -76,6 +76,6 @@
     }
   },
   "lint-staged": {
-    "*.js": "prettier-eslint --cache --fix"
+    "*.js": "prettier-eslint --write"
   }
 }
