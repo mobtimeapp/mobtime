@@ -5,10 +5,15 @@ export const classes = {
   'px-4': true,
 };
 
-export const section = (props, children) => h('section', {
-  ...props,
-  class: {
-    ...classes,
-    ...(props.class || {}),
-  },
-}, children);
+export const section = (props, children) =>
+  h(
+    'section',
+    {
+      ...props,
+      class: {
+        ...classes,
+        ...(props.class || {}),
+      },
+    },
+    children,
+  );
