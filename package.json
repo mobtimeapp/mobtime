@@ -15,10 +15,7 @@
     "lint": "prettier-eslint .",
     "deploy": "node ./deploy/index.js",
     "test": "ava",
-    "test:coverage": "nyc ava",
-    "postinstall": "husky install",
-    "prepublish": "pinst --disable",
-    "postpublish": "pinst --enable"
+    "test:coverage": "nyc ava"
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
