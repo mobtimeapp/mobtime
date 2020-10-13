@@ -3,13 +3,16 @@ import test from 'ava';
 import * as actions from './actions';
 import * as effects from './effects';
 
-test('can start a drag', (t) => {
-  const state = actions.DragSelect({}, {
-    type: 'foo',
-    from: 0,
-    clientX: 100,
-    clientY: 200,
-  });
+test('can start a drag', t => {
+  const state = actions.DragSelect(
+    {},
+    {
+      type: 'foo',
+      from: 0,
+      clientX: 100,
+      clientY: 200,
+    },
+  );
 
   t.deepEqual(state.drag, {
     active: false,
@@ -21,14 +24,17 @@ test('can start a drag', (t) => {
   });
 });
 
-test('can move an inactive drag', (t) => {
-  const initialState = actions.DragSelect({}, {
-    type: 'foo',
-    from: 0,
-    active: false,
-    clientX: 100,
-    clientY: 200,
-  });
+test('can move an inactive drag', t => {
+  const initialState = actions.DragSelect(
+    {},
+    {
+      type: 'foo',
+      from: 0,
+      active: false,
+      clientX: 100,
+      clientY: 200,
+    },
+  );
 
   const state = actions.DragMove(initialState, {
     clientX: 500,
@@ -43,7 +49,7 @@ test('can move an inactive drag', (t) => {
   });
 });
 
-test('can move an active drag', (t) => {
+test('can move an active drag', t => {
   const initialState = {
     drag: {
       type: 'foo',
@@ -66,13 +72,16 @@ test('can move an active drag', (t) => {
   });
 });
 
-test('does not move the drag if the mouse has not moved at least 5 pixels', (t) => {
-  const initialState = actions.DragSelect({}, {
-    type: 'foo',
-    from: 0,
-    clientX: 100,
-    clientY: 200,
-  });
+test('does not move the drag if the mouse has not moved at least 5 pixels', t => {
+  const initialState = actions.DragSelect(
+    {},
+    {
+      type: 'foo',
+      from: 0,
+      clientX: 100,
+      clientY: 200,
+    },
+  );
 
   const state = actions.DragMove(initialState, {
     clientX: 101,
@@ -88,7 +97,7 @@ test('does not move the drag if the mouse has not moved at least 5 pixels', (t) 
   });
 });
 
-test('can move a drag to an index', (t) => {
+test('can move a drag to an index', t => {
   const initialState = {
     drag: {
       from: 2,
@@ -106,7 +115,7 @@ test('can move a drag to an index', (t) => {
   });
 });
 
-test('can cancel a drag', (t) => {
+test('can cancel a drag', t => {
   const initialState = { drag: {} };
 
   const state = actions.DragCancel(initialState);
@@ -121,7 +130,7 @@ test('can cancel a drag', (t) => {
   });
 });
 
-test('can end a good mob drag', (t) => {
+test('can end a good mob drag', t => {
   const initialState = {
     drag: {
       type: 'mob',
@@ -142,13 +151,16 @@ test('can end a good mob drag', (t) => {
     clientY: null,
   });
 
-  t.deepEqual(effect, effects.andThen({
-    action: actions.MoveMob,
-    props: initialState.drag,
-  }));
+  t.deepEqual(
+    effect,
+    effects.andThen({
+      action: actions.MoveMob,
+      props: initialState.drag,
+    }),
+  );
 });
 
-test('can end a good goal drag', (t) => {
+test('can end a good goal drag', t => {
   const initialState = {
     drag: {
       type: 'goal',
@@ -169,13 +181,16 @@ test('can end a good goal drag', (t) => {
     clientY: null,
   });
 
-  t.deepEqual(effect, effects.andThen({
-    action: actions.MoveGoal,
-    props: initialState.drag,
-  }));
+  t.deepEqual(
+    effect,
+    effects.andThen({
+      action: actions.MoveGoal,
+      props: initialState.drag,
+    }),
+  );
 });
 
-test('can end a bad drag', (t) => {
+test('can end a bad drag', t => {
   const initialState = {
     drag: {
       type: 'goal',

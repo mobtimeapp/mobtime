@@ -5,42 +5,48 @@ import * as effects from './effects';
 
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining';
 
-test('can update settings from websocket message', (t) => {
+test('can update settings from websocket message', t => {
   const settings = { foo: 'bar' };
-  const state = actions.UpdateByWebsocketData({}, {
-    payload: {
-      type: 'settings:update',
-      settings,
+  const state = actions.UpdateByWebsocketData(
+    {},
+    {
+      payload: {
+        type: 'settings:update',
+        settings,
+      },
+      documentElement: {},
+      Notification: {},
     },
-    documentElement: {},
-    Notification: {},
-  });
+  );
 
   t.deepEqual(state, {
     settings,
   });
 });
 
-test('can update timer from websocket message', (t) => {
+test('can update timer from websocket message', t => {
   const data = {
     timerStartedAt: Date.now(),
     timerDuration: 999,
   };
-  const state = actions.UpdateByWebsocketData({}, {
-    payload: {
-      type: 'timer:update',
-      ...data,
+  const state = actions.UpdateByWebsocketData(
+    {},
+    {
+      payload: {
+        type: 'timer:update',
+        ...data,
+      },
+      documentElement: {},
+      Notification: {},
     },
-    documentElement: {},
-    Notification: {},
-  });
+  );
 
   t.deepEqual(state, {
     ...data,
   });
 });
 
-test('can start timer from websocket message', (t) => {
+test('can start timer from websocket message', t => {
   const timerDuration = 1000;
 
   const initialState = {
@@ -64,7 +70,7 @@ test('can start timer from websocket message', (t) => {
   t.truthy(isNearNow, 'timerStartedAt within 50ms of now');
 });
 
-test('can pause timer from websocket message', (t) => {
+test('can pause timer from websocket message', t => {
   const timerDuration = 1000;
 
   const initialState = {
@@ -87,7 +93,7 @@ test('can pause timer from websocket message', (t) => {
   });
 });
 
-test('can complete timer from websocket message', (t) => {
+test('can complete timer from websocket message', t => {
   const initialState = {
     timerStartedAt: Date.now(),
     timerDuration: 5000,
@@ -105,16 +111,19 @@ test('can complete timer from websocket message', (t) => {
   });
 
   t.deepEqual(state, initialState);
-  t.deepEqual(effect, effects.andThen({
-    action: actions.EndTurn,
-    props: {
-      documentElement,
-      Notification,
-    },
-  }));
+  t.deepEqual(
+    effect,
+    effects.andThen({
+      action: actions.EndTurn,
+      props: {
+        documentElement,
+        Notification,
+      },
+    }),
+  );
 });
 
-test('can skip complete timer from websocket message if timer already over', (t) => {
+test('can skip complete timer from websocket message if timer already over', t => {
   const initialState = {
     timerStartedAt: null,
     timerDuration: 0,
@@ -134,39 +143,45 @@ test('can skip complete timer from websocket message if timer already over', (t)
   t.is(state, initialState);
 });
 
-test('can update goals from websocket message', (t) => {
+test('can update goals from websocket message', t => {
   const goals = ['foo'];
-  const state = actions.UpdateByWebsocketData({}, {
-    payload: {
-      type: 'goals:update',
-      goals,
+  const state = actions.UpdateByWebsocketData(
+    {},
+    {
+      payload: {
+        type: 'goals:update',
+        goals,
+      },
+      documentElement: {},
+      Notification: {},
     },
-    documentElement: {},
-    Notification: {},
-  });
+  );
 
   t.deepEqual(state, {
     goals,
   });
 });
 
-test('can update mob from websocket message', (t) => {
+test('can update mob from websocket message', t => {
   const mob = ['foo'];
-  const state = actions.UpdateByWebsocketData({}, {
-    payload: {
-      type: 'mob:update',
-      mob,
+  const state = actions.UpdateByWebsocketData(
+    {},
+    {
+      payload: {
+        type: 'mob:update',
+        mob,
+      },
+      documentElement: {},
+      Notification: {},
     },
-    documentElement: {},
-    Notification: {},
-  });
+  );
 
   t.deepEqual(state, {
     mob,
   });
 });
 
-test('can share timer state when recieving client:new from websocket message', (t) => {
+test('can share timer state when recieving client:new from websocket message', t => {
   const websocket = {};
   const initialState = {
     timerStartedAt: 100,
@@ -187,14 +202,17 @@ test('can share timer state when recieving client:new from websocket message', (
 
   t.is(state, initialState);
   t.deepEqual(effect, [
-    effects.StartTimer({ websocket, timerDuration: calculateTimeRemaining(state) }),
+    effects.StartTimer({
+      websocket,
+      timerDuration: calculateTimeRemaining(state),
+    }),
     effects.UpdateMob({ websocket, mob: state.mob }),
     effects.UpdateGoals({ websocket, goals: state.goals }),
     effects.UpdateSettings({ websocket, settings: state.settings }),
   ]);
 });
 
-test('does not start timer if timer is not running when recieving client:new from websocket message', (t) => {
+test('does not start timer if timer is not running when recieving client:new from websocket message', t => {
   const websocket = {};
   const initialState = {
     timerStartedAt: null,
@@ -222,23 +240,26 @@ test('does not start timer if timer is not running when recieving client:new fro
   ]);
 });
 
-test('can update ownership from websocket message', (t) => {
+test('can update ownership from websocket message', t => {
   const isOwner = false;
-  const state = actions.UpdateByWebsocketData({}, {
-    payload: {
-      type: 'timer:ownership',
-      isOwner,
+  const state = actions.UpdateByWebsocketData(
+    {},
+    {
+      payload: {
+        type: 'timer:ownership',
+        isOwner,
+      },
+      documentElement: {},
+      Notification: {},
     },
-    documentElement: {},
-    Notification: {},
-  });
+  );
 
   t.deepEqual(state, {
     isOwner,
   });
 });
 
-test('does nothing from unknown type from websocket message', (t) => {
+test('does nothing from unknown type from websocket message', t => {
   const initialState = {};
   const state = actions.UpdateByWebsocketData(initialState, {
     payload: {
