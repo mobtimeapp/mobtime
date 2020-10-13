@@ -12,10 +12,13 @@
     "tailwind:dev": "postcss ./src/styles/index.css -o ./public/styles/styles.css",
     "tailwind:prod": "cross-env NODE_ENV=production postcss ./src/styles/index.css -o ./public/styles/styles.css",
     "start": "node ./index.js",
-    "lint": "eslint .",
+    "lint": "prettier-eslint .",
     "deploy": "node ./deploy/index.js",
     "test": "ava",
-    "test:coverage": "nyc ava"
+    "test:coverage": "nyc ava",
+    "postinstall": "husky install",
+    "prepublish": "pinst --disable",
+    "postpublish": "pinst --enable"
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
@@ -40,6 +43,8 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-import": "^2.20.1",
+    "husky": ">=4",
+    "lint-staged": ">=10",
     "nyc": "^15.1.0",
     "resolve": "^1.15.1",
     "sinon": "^9.0.3"
@@ -64,5 +69,13 @@
     "trailingComma": "all",
     "bracketSpacing": true
   },
-  "private": true
+  "private": true,
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": "prettier-eslint --cache --fix"
+  }
 }
