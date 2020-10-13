@@ -3,18 +3,22 @@ import test from 'ava';
 import * as actions from './actions';
 import * as effects from './effects';
 
-const makeGoal = (text) => ({
-  id: Math.random().toString(36).slice(2),
+const makeGoal = text => ({
+  id: Math.random()
+    .toString(36)
+    .slice(2),
   text,
   completed: false,
 });
-const makeCompletedGoal = (text) => ({
-  id: Math.random().toString(36).slice(2),
+const makeCompletedGoal = text => ({
+  id: Math.random()
+    .toString(36)
+    .slice(2),
   text,
   completed: true,
 });
 
-test('can add goal', (t) => {
+test('can add goal', t => {
   const websocket = {};
   const goalTextToAdd = 'foo';
   const initialState = {
@@ -26,16 +30,20 @@ test('can add goal', (t) => {
   const [state, effect] = actions.AddGoal(initialState);
 
   t.like(state.goals[0], {
-    text: goalTextToAdd, completed: false,
+    text: goalTextToAdd,
+    completed: false,
   });
   t.is(state.goal, '');
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket,
-    goals: state.goals,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-test('can add multiple goals at once', (t) => {
+test('can add multiple goals at once', t => {
   const goalTextToAdd = 'foo\nbar\nwow';
   const expectedGoals = ['foo', 'bar', 'wow'];
   const websocket = {};
@@ -51,14 +59,16 @@ test('can add multiple goals at once', (t) => {
     t.like(state.goals[index], { text, completed: false });
   });
 
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket,
-    goals: state.goals,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-
-test('whitespace is trimmed when multiple goals added', (t) => {
+test('whitespace is trimmed when multiple goals added', t => {
   const goalTextToAdd = 'foo  \n bar \n wow \n ';
   const expectedGoals = ['foo', 'bar', 'wow'];
   const websocket = {};
@@ -74,13 +84,16 @@ test('whitespace is trimmed when multiple goals added', (t) => {
     t.like(state.goals[index], { text, completed: false });
   });
 
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket,
-    goals: state.goals,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-test('empty goals do not get added when multiple goals added', (t) => {
+test('empty goals do not get added when multiple goals added', t => {
   const goalTextToAdd = 'foo\n\nbar\n  \nwow\n\n\n\n\r\n';
   const expectedGoals = ['foo', 'bar', 'wow'];
   const websocket = {};
@@ -96,20 +109,20 @@ test('empty goals do not get added when multiple goals added', (t) => {
     t.like(state.goals[index], { text, completed: false });
   });
 
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket: websocket,
-    goals: state.goals,
-  }));
-
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-test('can complete goal', (t) => {
+test('can complete goal', t => {
   const websocket = {};
   const goalTextToAdd = 'foo';
   const initialState = {
-    goals: [
-      makeGoal('foo'),
-    ],
+    goals: [makeGoal('foo')],
     websocket,
   };
 
@@ -119,40 +132,46 @@ test('can complete goal', (t) => {
   });
 
   t.like(state.goals[0], {
-    text: goalTextToAdd, completed: true,
+    text: goalTextToAdd,
+    completed: true,
   });
 
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket,
-    goals: state.goals,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-test('can remove goal', (t) => {
+test('can remove goal', t => {
   const websocket = {};
   const initialState = {
-    goals: [
-      makeGoal('foo'),
-    ],
+    goals: [makeGoal('foo')],
     websocket,
   };
 
-  const [state, effect] = actions.RemoveGoal(initialState, initialState.goals[0].id);
+  const [state, effect] = actions.RemoveGoal(
+    initialState,
+    initialState.goals[0].id,
+  );
 
   t.deepEqual(state.goals, []);
 
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket,
-    goals: state.goals,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-test('keeps uncompleted goals after removing completed goals', (t) => {
+test('keeps uncompleted goals after removing completed goals', t => {
   const websocket = {};
   const initialState = {
-    goals: [
-      makeGoal('foo'),
-    ],
+    goals: [makeGoal('foo')],
     websocket,
   };
 
@@ -163,33 +182,31 @@ test('keeps uncompleted goals after removing completed goals', (t) => {
   t.is(effect, undefined);
 });
 
-test('removes completed goals', (t) => {
+test('removes completed goals', t => {
   const websocket = {};
   const initialState = {
-    goals: [
-      makeCompletedGoal('foo'),
-    ],
+    goals: [makeCompletedGoal('foo')],
     websocket,
   };
 
   const [state, effect] = actions.RemoveCompletedGoals(initialState);
 
-
   t.deepEqual(state.goals, []);
 
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket,
-    goals: state.goals,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-test('can rename goal', (t) => {
+test('can rename goal', t => {
   const websocket = {};
   const renameGoalTo = 'bar';
   const initialState = {
-    goals: [
-      makeGoal('foo'),
-    ],
+    goals: [makeGoal('foo')],
     websocket,
   };
 
@@ -204,18 +221,19 @@ test('can rename goal', (t) => {
     completed: false,
   });
 
-  t.deepEqual(effect, effects.UpdateGoals({
-    websocket,
-    goals: state.goals,
-  }));
+  t.deepEqual(
+    effect,
+    effects.UpdateGoals({
+      websocket,
+      goals: state.goals,
+    }),
+  );
 });
 
-test('can prompt to rename goal', (t) => {
+test('can prompt to rename goal', t => {
   const websocket = {};
   const initialState = {
-    goals: [
-      makeGoal('foo'),
-    ],
+    goals: [makeGoal('foo')],
     websocket,
   };
 
@@ -225,15 +243,18 @@ test('can prompt to rename goal', (t) => {
 
   t.is(state, initialState);
 
-  t.deepEqual(effect, effects.andThen({
-    action: actions.PromptOpen,
-    props: {
-      text: 'Rename Goal',
-      defaultValue: initialState.goals[0].text,
-      OnValue: actions.RenameGoal,
-      context: {
-        id: initialState.goals[0].id,
+  t.deepEqual(
+    effect,
+    effects.andThen({
+      action: actions.PromptOpen,
+      props: {
+        text: 'Rename Goal',
+        defaultValue: initialState.goals[0].text,
+        OnValue: actions.RenameGoal,
+        context: {
+          id: initialState.goals[0].id,
+        },
       },
-    },
-  }));
+    }),
+  );
 });

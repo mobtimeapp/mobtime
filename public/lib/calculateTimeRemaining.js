@@ -1,4 +1,4 @@
-export const calculateTimeRemaining = (props) => {
+export const calculateTimeRemaining = props => {
   if (!props.timerStartedAt) {
     return props.timerDuration;
   }

@@ -50,7 +50,7 @@ const websocketStatusClass = {
     'bg-transparent': true,
     'text-gray-400': true,
   },
-  connected: {
+  "connected": {
     'bg-transparent': true,
     'text-gray-400': true,
   },
@@ -62,7 +62,7 @@ const websocketStatusClass = {
 
 const websocketStatusMessage = {
   'will-connect': 'Websocket connecting...',
-  connected: 'Websocket Connection established',
+  "connected": 'Websocket Connection established',
   'will-reconnect': 'Websocket reconnecting...',
 };
 
@@ -74,7 +74,7 @@ app({
       'div',
       {
         class: {
-          flex: true,
+          "flex": true,
           'items-start': true,
           'justify-center': true,
           'bg-indigo-700': true,
@@ -93,18 +93,18 @@ app({
               'sm:w-8/12': true,
               'md:w-10/12': true,
               'lg:w-6/12': true,
-              shadow: false,
+              "shadow": false,
               'sm:shadow-lg': true,
               'pt-2': false,
               'pt-0': true,
               'pb-12': true,
               'pb-1': false,
               'sm:mt-2': true,
-              rounded: false,
+              "rounded": false,
               'sm:rounded': true,
               'bg-indigo-600': true,
               'text-white': true,
-              relative: true,
+              "relative": true,
             },
           },
           [
@@ -116,7 +116,7 @@ app({
               'div',
               {
                 class: {
-                  flex: true,
+                  "flex": true,
                   'flex-row': true,
                   'flex-wrap': true,
                   'px-2': true,

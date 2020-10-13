@@ -3,7 +3,7 @@ import test from 'ava';
 import * as actions from './actions';
 import * as effects from './effects';
 
-test('can complete a timer', (t) => {
+test('can complete a timer', t => {
   const websocket = {};
   const documentElement = {};
   const Notification = {};
@@ -49,7 +49,7 @@ test('can complete a timer', (t) => {
   ]);
 });
 
-test('can pause the timer', (t) => {
+test('can pause the timer', t => {
   const websocket = {};
 
   const expectedTimerDuration = 1000;
@@ -73,13 +73,16 @@ test('can pause the timer', (t) => {
     timerDuration: expectedTimerDuration,
   });
 
-  t.deepEqual(effect, effects.PauseTimer({
-    websocket,
-    timerDuration: expectedTimerDuration,
-  }));
+  t.deepEqual(
+    effect,
+    effects.PauseTimer({
+      websocket,
+      timerDuration: expectedTimerDuration,
+    }),
+  );
 });
 
-test('can resume the timer', (t) => {
+test('can resume the timer', t => {
   const now = Date.now();
   const beforeNow = now - 100000;
   const websocket = {};
@@ -100,13 +103,16 @@ test('can resume the timer', (t) => {
     timerDuration: 1000000,
   });
 
-  t.deepEqual(effect, effects.StartTimer({
-    websocket,
-    timerDuration: 1000000,
-  }));
+  t.deepEqual(
+    effect,
+    effects.StartTimer({
+      websocket,
+      timerDuration: 1000000,
+    }),
+  );
 });
 
-test('can start the timer', (t) => {
+test('can start the timer', t => {
   const now = Date.now();
   const websocket = {};
   const timerDuration = 10000;
@@ -133,8 +139,11 @@ test('can start the timer', (t) => {
     },
   });
 
-  t.deepEqual(effect, effects.StartTimer({
-    websocket,
-    timerDuration,
-  }));
+  t.deepEqual(
+    effect,
+    effects.StartTimer({
+      websocket,
+      timerDuration,
+    }),
+  );
 });
