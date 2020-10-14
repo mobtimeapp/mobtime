@@ -1,38 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>MobTime</title>
-    <meta name="author" content="Alex Barry">
-    <meta name="description" content="Mobtime is a real-time collaborative mob programming timer. Best of all, it's free to use!">
-    <meta name="keywords" content="mobtime, mob time, mob programming, mobprogramming, timer, mob timer, collaborative, real-time">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Alex Barry" />
+    <meta
+      name="description"
+      content="Mobtime is a real-time collaborative mob programming timer. Best of all, it's free to use!"
+    />
+    <meta
+      name="keywords"
+      content="mobtime, mob time, mob programming, mobprogramming, timer, mob timer, collaborative, real-time"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <style type="text/css">
       body * {
         box-sizing: border-box;
       }
     </style>
-    <script src="https://kit.fontawesome.com/57cb566a11.js" crossorigin="anonymous"></script>
-    <link href="/styles/styles.css" rel="stylesheet">
+    <script
+      src="https://kit.fontawesome.com/57cb566a11.js"
+      crossorigin="anonymous"
+    ></script>
+    <link href="/styles/styles.css" rel="stylesheet" />
   </head>
   <body class="bg-gray-100">
-    <div class="flex flex-col items-center justify-center w-full h-screen px-2 overflow-hidden text-white bg-indigo-600 sm:px-0">
+    <div
+      class="flex flex-col items-center justify-center w-full h-screen px-2 overflow-hidden text-white bg-indigo-600 sm:px-0"
+    >
       <div class="flex-grow"></div>
       <div class="flex flex-row items-end justify-center mb-4">
         <i class="text-6xl fas fa-user-ninja"></i>
         <i class="text-6xl fas fa-user-tie"></i>
-        <i class="mb-2 text-green-400 fas fa-stopwatch" style="font-size: 8rem; margin-left: -12px; margin-right: -12px;"></i>
+        <i
+          class="mb-2 text-green-400 fas fa-stopwatch"
+          style="font-size: 8rem; margin-left: -12px; margin-right: -12px;"
+        ></i>
         <i class="text-6xl fas fa-user"></i>
         <i class="text-6xl fas fa-user-astronaut"></i>
       </div>
       <div class="w-full bg-indigo-500 sm:w-3/4 lg:w-1/2">
-        <h1 class="text-3xl font-bold leading-none tracking-wide text-center uppercase sm:text-4xl md:text-5xl sm:tracking-wider md:tracking-widest md:leading:wide">
+        <h1
+          class="text-3xl font-bold leading-none tracking-wide text-center uppercase sm:text-4xl md:text-5xl sm:tracking-wider md:tracking-widest md:leading:wide"
+        >
           A collaborative timer for your mob team
         </h1>
       </div>
       <form action="#" method="GET" class="w-full sm:w-3/4 md:w-1/2">
         <div class="w-full">
-          <div class="flex flex-row items-center justify-start w-full overflow-x-hidden text-3xl border-b-4 border-white sm:text-4xl">
+          <div
+            class="flex flex-row items-center justify-start w-full overflow-x-hidden text-3xl border-b-4 border-white sm:text-4xl"
+          >
             <div>mobti.me/</div>
             <div class="flex-grow">
               <input
@@ -44,9 +66,15 @@
                 maxlength="32"
                 autocomplete="organization"
               />
-              <label class="hidden" for="mobName">Enter your mob url path</label>
+              <label class="hidden" for="mobName"
+                >Enter your mob url path</label
+              >
             </div>
-            <button id="randomizeName" type="button" class="px-4 py-3 text-white bg-transparent fas fa-random"></button>
+            <button
+              id="randomizeName"
+              type="button"
+              class="px-4 py-3 text-white bg-transparent fas fa-random"
+            ></button>
           </div>
         </div>
         <button
@@ -54,9 +82,7 @@
           class="px-3 py-2 mt-2 text-white uppercase bg-green-500 rounded hover:bg-green-400 text-bold"
         >
           <i class="fas fa-stopwatch"></i>
-          &nbsp;
-          Get Started
-          &nbsp;
+          &nbsp; Get Started &nbsp;
           <i class="fas fa-arrow-right"></i>
         </button>
       </form>
@@ -67,12 +93,24 @@
       </div>
     </div>
 
-    <h1 class="my-6 text-6xl font-bold text-center">It's <span class="text-indigo-600 underline">MobTime</span></h1>
-    <p class="my-6 text-base text-center text-gray-600">&dash; Here's a quick list of things you should know &dash;<p>
+    <h1 class="my-6 text-6xl font-bold text-center">
+      It's <span class="text-indigo-600 underline">MobTime</span>
+    </h1>
+    <p class="my-6 text-base text-center text-gray-600">
+      &dash; Here's a quick list of things you should know &dash;
+    </p>
+    <p></p>
 
-    <div class="container flex-grow px-2 mx-auto my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-      <div class="pt-3 pb-3 mx-1 bg-white rounded shadow sm:pt-0 box-border sm:mx-0">
-        <img src="/images/business-money-pink-coins.webp" class="hidden w-full h-auto mb-4 sm:block" />
+    <div
+      class="container flex-grow px-2 mx-auto my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2"
+    >
+      <div
+        class="pt-3 pb-3 mx-1 bg-white rounded shadow sm:pt-0 box-border sm:mx-0"
+      >
+        <img
+          src="/images/business-money-pink-coins.webp"
+          class="hidden w-full h-auto mb-4 sm:block"
+        />
         <h1 class="mb-4 text-lg font-bold text-center">Free</h1>
         <ul class="px-3 ml-3 list-disc">
           <li>Basic features will be free forever</li>
@@ -80,8 +118,13 @@
           <li>Your data will never be shared</li>
         </ul>
       </div>
-      <div class="pt-3 pb-3 mx-1 bg-white rounded shadow sm:pt-0 box-border sm:mx-0">
-        <img src="/images/pexels-photo-3277808.jpeg" class="hidden w-full h-auto mb-4 sm:block" />
+      <div
+        class="pt-3 pb-3 mx-1 bg-white rounded shadow sm:pt-0 box-border sm:mx-0"
+      >
+        <img
+          src="/images/pexels-photo-3277808.jpeg"
+          class="hidden w-full h-auto mb-4 sm:block"
+        />
         <h1 class="mb-4 text-lg font-bold text-center">Collaborative</h1>
         <ul class="px-3 ml-3 list-disc">
           <li>Realtime websocket data</li>
@@ -89,68 +132,131 @@
           <li>Track the goals</li>
         </ul>
       </div>
-      <div class="pt-3 pb-3 mx-1 bg-white rounded shadow sm:pt-0 box-border sm:mx-0">
-        <img src="/images/pexels-photo-2004161.jpeg" class="hidden w-full h-auto mb-4 sm:block" />
+      <div
+        class="pt-3 pb-3 mx-1 bg-white rounded shadow sm:pt-0 box-border sm:mx-0"
+      >
+        <img
+          src="/images/pexels-photo-2004161.jpeg"
+          class="hidden w-full h-auto mb-4 sm:block"
+        />
         <h1 class="mb-4 text-lg font-bold text-center">Open-Source</h1>
         <ul class="px-3 ml-3 list-disc">
-          <li>Source on <a href="https://github.com/mrozbarry/mobtime" rel="noopener" target="_blank" class="text-indigo-600 underline">github</a></li>
-          <li>Free hosting by <a href="https://mrbarry.com" rel="noopener" target="_blank" class="text-indigo-600 underline">MrBarry.com</a></li>
+          <li>
+            Source on
+            <a
+              href="https://github.com/mrozbarry/mobtime"
+              rel="noopener"
+              target="_blank"
+              class="text-indigo-600 underline"
+              >github</a
+            >
+          </li>
+          <li>
+            Free hosting by
+            <a
+              href="https://mrbarry.com"
+              rel="noopener"
+              target="_blank"
+              class="text-indigo-600 underline"
+              >MrBarry.com</a
+            >
+          </li>
           <li>Can be self-hosted</li>
         </ul>
       </div>
     </div>
 
-    <div class="container w-full px-3 mx-auto my-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
-
-      <div class="flex flex-row items-end justify-start py-12 pl-6 bg-white" id="timers">
-        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">0</h2>
+    <div
+      class="container w-full px-3 mx-auto my-6 grid grid-cols-1 sm:grid-cols-2 gap-2"
+    >
+      <div
+        class="flex flex-row items-end justify-start py-12 pl-6 bg-white"
+        id="timers"
+      >
+        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">
+          0
+        </h2>
         <div>
           <span class="block text-2xl leading-none">Timers</span>
           <span class="text-sm leading-none text-gray-500">Live right now</span>
         </div>
       </div>
 
-      <div class="flex flex-row items-end justify-start py-12 pl-6 bg-white" id="connections">
-        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">0</h2>
+      <div
+        class="flex flex-row items-end justify-start py-12 pl-6 bg-white"
+        id="connections"
+      >
+        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">
+          0
+        </h2>
         <div>
           <span class="block text-2xl leading-none">Live Users</span>
-          <span class="text-sm leading-none text-gray-500"><span class="average">0</span> per timer</span>
+          <span class="text-sm leading-none text-gray-500"
+            ><span class="average">0</span> per timer</span
+          >
         </div>
       </div>
 
-      <div class="flex flex-row items-end justify-start py-12 pl-6 bg-white" id="mobbers">
-        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">0</h2>
+      <div
+        class="flex flex-row items-end justify-start py-12 pl-6 bg-white"
+        id="mobbers"
+      >
+        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">
+          0
+        </h2>
         <div>
           <span class="block text-2xl leading-none">In a Mob</span>
-          <span class="text-sm leading-none text-gray-500"><span class="average">0</span> per timer</span>
+          <span class="text-sm leading-none text-gray-500"
+            ><span class="average">0</span> per timer</span
+          >
         </div>
       </div>
 
-      <div class="flex flex-row items-end justify-start py-12 pl-6 bg-white" id="goals">
-        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">0</h2>
+      <div
+        class="flex flex-row items-end justify-start py-12 pl-6 bg-white"
+        id="goals"
+      >
+        <h2 class="inline-block mr-2 text-6xl font-bold leading-none count">
+          0
+        </h2>
         <div>
           <span class="block text-2xl leading-none">Live Goals</span>
-          <span class="text-sm leading-none text-gray-500"><span class="average">0</span> per timer</span>
+          <span class="text-sm leading-none text-gray-500"
+            ><span class="average">0</span> per timer</span
+          >
         </div>
       </div>
-
     </div>
 
     <div class="px-3 py-4 mt-6 text-sm text-center text-gray-600">
-      Created with love by <a href="https://mrbarry.com" rel="noopener" target="_blank" class="text-indigo-600 underline bold">Alex Barry</a>, and friends at <a href="https://vehikl.com/team" rel="noopener" target="_blank" class="text-indigo-600 underline bold">Vehikl Inc</a>.
+      Created with love by
+      <a
+        href="https://mrbarry.com"
+        rel="noopener"
+        target="_blank"
+        class="text-indigo-600 underline bold"
+        >Alex Barry</a
+      >, and friends at
+      <a
+        href="https://vehikl.com/team"
+        rel="noopener"
+        target="_blank"
+        class="text-indigo-600 underline bold"
+        >Vehikl Inc</a
+      >.
     </div>
     <script type="module">
       const mobName = document.querySelector('#mobName');
-      mobName.addEventListener('input', (event) => {
+      mobName.addEventListener('input', event => {
         event.target.value = event.target.value.replace(/ +/, '-');
       });
 
-      const shuffleOnce = (source) => {
+      const shuffleOnce = source => {
         const array = source.slice();
         let currentIndex = array.length;
         let temporaryValue, randomIndex;
 
-        for(currentIndex = array.length; currentIndex > 0; currentIndex--) {
+        for (currentIndex = array.length; currentIndex > 0; currentIndex--) {
           randomIndex = Math.floor(Math.random() * currentIndex);
 
           temporaryValue = array[currentIndex - 1];
@@ -160,24 +266,34 @@
 
         return array;
       };
-      const shuffle = (source) => Array.from({ length: 5 }, () => null)
-        .reduce(shuffleOnce, source);
+      const shuffle = source =>
+        Array.from({ length: 5 }, () => null).reduce(shuffleOnce, source);
 
-      const adjectives = shuffle('big,hairy,purple,tall,round,tough,ticklish,frustrated,guarded,helpful,happy,arrested,friendly,mysterious,calm,tilted,predictable'.split(','));
-      const nouns = shuffle('human,monkey,car,trailer,house,grass,keyboard,grid,mullet,hippy,friend,shoe,detective,harp,piano,tree,egg,lock,gas,condo,mouse,planet,dust,bow,juice'.split(','));
-      const randomFromArray = (source) => source[Math.floor(Math.random() * source.length)];
+      const adjectives = shuffle(
+        'big,hairy,purple,tall,round,tough,ticklish,frustrated,guarded,helpful,happy,arrested,friendly,mysterious,calm,tilted,predictable'.split(
+          ',',
+        ),
+      );
+      const nouns = shuffle(
+        'human,monkey,car,trailer,house,grass,keyboard,grid,mullet,hippy,friend,shoe,detective,harp,piano,tree,egg,lock,gas,condo,mouse,planet,dust,bow,juice'.split(
+          ',',
+        ),
+      );
+      const randomFromArray = source =>
+        source[Math.floor(Math.random() * source.length)];
 
       const timerForm = document.querySelector('form');
       const mobNameElement = document.querySelector('#mobName');
       let timeout = null;
       let interaction = false;
 
-      const setMobNameValue = (value) => {
+      const setMobNameValue = value => {
         mobNameElement.value = value;
         timerForm.action = value ? `/${value}` : '#';
       };
 
-      const randomMobName = () => [randomFromArray(adjectives), randomFromArray(nouns)].join('-');
+      const randomMobName = () =>
+        [randomFromArray(adjectives), randomFromArray(nouns)].join('-');
 
       const typeNewAdjectiveNounPairMobName = () => {
         const mobName = randomMobName();
@@ -220,14 +336,14 @@
       };
 
       mobNameElement.addEventListener('focus', stopMobName);
-      mobNameElement.addEventListener('blur', (event) => {
+      mobNameElement.addEventListener('blur', event => {
         if (event.target.value !== '') return;
         setTimeout(() => {
           interaction = false;
-          typeNewAdjectiveNounPairMobName()
+          typeNewAdjectiveNounPairMobName();
         }, 3000);
       });
-      mobNameElement.addEventListener('input', (event) => {
+      mobNameElement.addEventListener('input', event => {
         setMobNameValue(event.target.value);
       });
       setTimeout(typeNewAdjectiveNounPairMobName, 0);
@@ -243,28 +359,31 @@
         mobbers: document.querySelector('#mobbers'),
         goals: document.querySelector('#goals'),
       };
-      const fetchStatistics = () => fetch('/api/statistics', {
-        headers: {
-          'Accept': 'application/json',
-        },
-      })
-        .then((r) => {
-          if (!r.ok) {
-            throw new Error('Unable to get statistics');
-          }
-          return r.json();
+      const fetchStatistics = () =>
+        fetch('/api/statistics', {
+          headers: {
+            Accept: 'application/json',
+          },
         })
-        .then((statistics) => {
-          Object.keys(statistics).forEach((key) => {
-            const element = elements[key];
-            const count = element.querySelector('.count');
-            const average = element.querySelector('.average');
-            count.innerText = statistics[key];
-            if (average && statistics.timers > 0) {
-              average.innerText = (statistics[key] / statistics.timers).toFixed(2);
+          .then(r => {
+            if (!r.ok) {
+              throw new Error('Unable to get statistics');
             }
+            return r.json();
+          })
+          .then(statistics => {
+            Object.keys(statistics).forEach(key => {
+              const element = elements[key];
+              const count = element.querySelector('.count');
+              const average = element.querySelector('.average');
+              count.innerText = statistics[key];
+              if (average && statistics.timers > 0) {
+                average.innerText = (
+                  statistics[key] / statistics.timers
+                ).toFixed(2);
+              }
+            });
           });
-        });
 
       fetchStatistics();
     </script>
