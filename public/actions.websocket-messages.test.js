@@ -162,6 +162,27 @@ test('can update goals from websocket message', t => {
   });
 });
 
+test('can start a break timer from websocket message', t => {
+  const now = new Date();
+  const initialState = {
+    breakTimerStartedAt: null,
+    currentTime: now,
+  };
+
+  const state = actions.UpdateByWebsocketData(initialState, {
+    payload: {
+      type: 'break:start-timer',
+    },
+  });
+
+  const isNearOriginalBreakTimerStart =
+    Math.abs(now - state.breakTimerStartedAt) < 50;
+  t.truthy(
+    isNearOriginalBreakTimerStart,
+    'breakTimerStartedAt within 50ms of original break timer start',
+  );
+});
+
 test('can update mob from websocket message', t => {
   const mob = ['foo'];
   const state = actions.UpdateByWebsocketData(
