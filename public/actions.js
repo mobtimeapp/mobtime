@@ -43,6 +43,7 @@ export const Init = (_, timerId) => ({
   isOwner: false,
   timerStartedAt: null,
   timerDuration: 0,
+  breakTimerStartedAt: null,
   mob: [],
   goals: [],
   settings: {
