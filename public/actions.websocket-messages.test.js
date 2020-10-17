@@ -242,7 +242,7 @@ test('does not start timer if timer is not running when recieving client:new fro
 
 test('can update ownership from websocket message', t => {
   const isOwner = false;
-  const state = actions.UpdateByWebsocketData(
+  const [state] = actions.UpdateByWebsocketData(
     {},
     {
       payload: {
@@ -260,7 +260,7 @@ test('can update ownership from websocket message', t => {
 });
 
 test('completes initial loading when becoming the timer owner', t => {
-  const state = actions.UpdateByWebsocketData(
+  const [state] = actions.UpdateByWebsocketData(
     {
       initialLoadingComplete: false
     },
@@ -280,7 +280,7 @@ test('completes initial loading when becoming the timer owner', t => {
 });
 
 test('initial loading is not changed to true when losing timer ownership', t => {
-  const state = actions.UpdateByWebsocketData(
+  const [state] = actions.UpdateByWebsocketData(
     {
       initialLoadingComplete: false
     },
@@ -300,7 +300,7 @@ test('initial loading is not changed to true when losing timer ownership', t => 
 });
 
 test('initial loading is not changed to false when losing timer ownership', t => {
-  const state = actions.UpdateByWebsocketData(
+  const [state] = actions.UpdateByWebsocketData(
     {
       initialLoadingComplete: true
     },

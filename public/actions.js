@@ -798,11 +798,11 @@ export const UpdateByWebsocketData = (
       ];
 
     case 'timer:ownership':
-      return {
+      return [{
         ...state,
         isOwner: data.isOwner,
         initialLoadingComplete: data.isOwner ? true : state.initialLoadingComplete,
-      };
+      }];
 
     default:
       console.warn('Unknown websocket data', payload); // eslint-disable-line no-console
