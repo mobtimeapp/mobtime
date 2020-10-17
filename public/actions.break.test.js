@@ -36,3 +36,21 @@ test('does not start the break timer if breaks are disabled', t => {
 
   t.deepEqual(state, initialState);
 });
+
+test('does not start the break timer if it is already running', t => {
+  const websocket = {};
+  const now = new Date();
+
+  const initialState = {
+    breakTimerStartedAt: new Date('2020-10-10'),
+    currentTime: now,
+    settings: {
+      breaksEnabled: true,
+    },
+    websocket,
+  };
+
+  const [state] = actions.StartBreakTimer(initialState);
+
+  t.deepEqual(state, initialState);
+});

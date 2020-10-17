@@ -572,6 +572,7 @@ export const UpdateGoalText = (state, goal) => [
 
 export const StartBreakTimer = state => {
   if (!state.settings.breaksEnabled) return [{ ...state }];
+  if (state.breakTimerStartedAt !== null) return [{ ...state }];
   return [
     {
       ...state,
