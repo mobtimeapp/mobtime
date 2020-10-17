@@ -4,8 +4,13 @@ import { checkbox } from '/components/checkbox.js';
 
 import { base } from '/settings/base.js';
 
-export const breaks = () =>
-  h(
+import * as actions from '/actions.js';
+
+import { getSettings } from '/settings/getSettings.js';
+
+export const breaks = props => {
+  const breaksEnabled = getSettings('breaksEnabled', props);
+  return h(
     base,
     {
       title: 'Breaks',
@@ -15,9 +20,18 @@ export const breaks = () =>
         checkbox,
         {
           id: 'breaks-enabled',
-          checked: false,
+          checked: breaksEnabled,
           inputProps: {
-            readonly: true,
+            onchange: [
+              actions.PendingSettingsSet,
+              e => {
+                e.preventDefault();
+                return {
+                  key: 'breaksEnabled',
+                  value: e.target.checked,
+                };
+              },
+            ],
           },
         },
         h(
@@ -25,8 +39,9 @@ export const breaks = () =>
           {
             class: 'text-4xl',
           },
-          'Breaks are disabled',
+          `Breaks are ${breaksEnabled ? 'enabled' : 'disabled'}`,
         ),
       ),
     ],
   );
+};
