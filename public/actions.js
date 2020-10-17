@@ -49,7 +49,7 @@ export const Init = (_, timerId) => ({
     mobOrder: 'Navigator,Driver',
     duration: 5 * 60 * 1000,
     breaksEnabled: false,
-    breakDuration: null,
+    breakCadence: 45 * 60 * 1000,
   },
   expandedReorderable: null,
   timerTab: 'overview',
