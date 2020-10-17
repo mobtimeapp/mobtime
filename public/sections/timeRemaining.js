@@ -67,7 +67,7 @@ export const timeRemaining = props => {
                   'bg-green-600': true,
                   'text-white': true,
                 },
-                onclick: [actions.ResetBreak],
+                onclick: [actions.FinishBreak],
               },
               [
                 h('i', {

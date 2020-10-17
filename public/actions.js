@@ -581,7 +581,7 @@ export const StartBreakTimer = state => {
   ];
 };
 
-export const ResetBreak = state => ({
+export const FinishBreak = state => ({
   ...state,
   breakTimerStartedAt: null,
 });
