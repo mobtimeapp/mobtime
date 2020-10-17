@@ -183,6 +183,21 @@ test('can start a break timer from websocket message', t => {
   );
 });
 
+test('can finish a break from websocket message', t => {
+  const now = new Date();
+  const initialState = {
+    breakTimerStartedAt: now,
+  };
+
+  const state = actions.UpdateByWebsocketData(initialState, {
+    payload: {
+      type: 'break:finish',
+    },
+  });
+
+  t.deepEqual(state, { breakTimerStartedAt: null });
+});
+
 test('can update mob from websocket message', t => {
   const mob = ['foo'];
   const state = actions.UpdateByWebsocketData(

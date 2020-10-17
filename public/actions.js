@@ -799,6 +799,12 @@ export const UpdateByWebsocketData = (
         breakTimerStartedAt: state.currentTime,
       };
 
+    case 'break:finish':
+      return {
+        ...state,
+        breakTimerStartedAt: null,
+      };
+
     case 'goals:update':
       return {
         ...state,
