@@ -94,7 +94,7 @@ test('can resume the timer', t => {
     timerDuration: 1000000,
   };
 
-  const [state, effect] = actions.ResumeTimer(initialState, now);
+  const [state, effect] = actions.ResumeTimer(initialState);
 
   t.deepEqual(state, {
     websocket,

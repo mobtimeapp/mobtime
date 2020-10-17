@@ -592,8 +592,8 @@ export const FinishBreak = state => [
   effects.FinishBreak({ websocket: state.websocket }),
 ];
 
-export const PauseTimer = (state, currentTime = Date.now()) => {
-  const elapsed = currentTime - state.timerStartedAt;
+export const PauseTimer = state => {
+  const elapsed = state.currentTime - state.timerStartedAt;
   const timerDuration = Math.max(0, state.timerDuration - elapsed);
 
   return [
@@ -601,7 +601,6 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
       ...state,
       timerStartedAt: null,
       timerDuration,
-      currentTime,
     },
     effects.PauseTimer({
       websocket: state.websocket,
@@ -610,11 +609,10 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
   ];
 };
 
-export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
+export const ResumeTimer = state => [
   {
     ...state,
-    timerStartedAt,
-    currentTime: timerStartedAt,
+    timerStartedAt: state.currentTime,
   },
   effects.StartTimer({
     websocket: state.websocket,
