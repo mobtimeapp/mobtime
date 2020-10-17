@@ -24,18 +24,25 @@ test('can finish a break', t => {
 
 test('starts a break timer now if breaks are enabled', t => {
   const now = new Date();
+  const websocket = {};
   const initialState = {
     breakTimerStartedAt: null,
     currentTime: now,
     settings: {
       breaksEnabled: true,
     },
+    websocket,
   };
 
   const [state, effect] = actions.StartBreakTimer(initialState);
 
   t.is(state.breakTimerStartedAt, now);
-  t.is(effect, undefined);
+  t.deepEqual(
+    effect,
+    effects.StartBreakTimer({
+      websocket,
+    }),
+  );
 });
 
 test('does not start a break timer if breaks are disabled', t => {

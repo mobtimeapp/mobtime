@@ -578,6 +578,9 @@ export const StartBreakTimer = state => {
       ...state,
       breakTimerStartedAt: state.currentTime,
     },
+    effects.StartBreakTimer({
+      websocket: state.websocket,
+    }),
   ];
 };
 
