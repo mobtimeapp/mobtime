@@ -581,10 +581,13 @@ export const StartBreakTimer = state => {
   ];
 };
 
-export const FinishBreak = state => ({
-  ...state,
-  breakTimerStartedAt: null,
-});
+export const FinishBreak = state => [
+  {
+    ...state,
+    breakTimerStartedAt: null,
+  },
+  effects.FinishBreak({ websocket: state.websocket }),
+];
 
 export const PauseTimer = (state, currentTime = Date.now()) => {
   const elapsed = currentTime - state.timerStartedAt;
