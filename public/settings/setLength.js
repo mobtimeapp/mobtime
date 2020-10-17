@@ -5,12 +5,8 @@ import { base } from '/settings/base.js';
 
 import * as actions from '/actions.js';
 
-const isNumber = value => Number(value) == value; // eslint-disable-line eqeqeq
-
-const toMinutes = value =>
-  isNumber(value) ? parseInt(value / 60000, 10) : value;
-
-const toSeconds = value => (isNumber(value) ? value * 60000 : value);
+import { toMinutes } from '/lib/toMinutes.js';
+import { toSeconds } from '/lib/toSeconds.js';
 
 const value = (key, { pendingSettings, settings }) =>
   key in pendingSettings ? pendingSettings[key] : settings[key];
