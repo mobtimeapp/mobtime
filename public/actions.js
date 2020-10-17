@@ -49,6 +49,7 @@ export const Init = (_, timerId) => ({
     mobOrder: 'Navigator,Driver',
     duration: 5 * 60 * 1000,
   },
+  initialLoadingComplete: false,
   expandedReorderable: null,
   timerTab: 'overview',
   drag: { ...emptyDrag },
