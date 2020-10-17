@@ -12,6 +12,7 @@ import { addGoal } from '/sections/addGoal.js';
 import { addParticipant } from '/sections/addParticipant.js';
 import { goalList } from '/sections/goalList.js';
 import { header } from '/sections/header.js';
+import { nextBreak } from '/sections/nextBreak.js';
 import { mobActions } from '/sections/mobActions.js';
 import { mobParticipants } from '/sections/mobParticipants.js';
 import { qrShare } from '/sections/qrShare.js';
@@ -206,6 +207,26 @@ app({
                 ),
                 mobOrder: state.settings.mobOrder,
               }),
+
+              ...(state.settings.breaksEnabled
+                ? [
+                    h(
+                      overviewHeading,
+                      {
+                        rightAction: h(
+                          button,
+                          {
+                            type: 'button',
+                            onclick: [actions.SetTimerTab, 'timer-settings'],
+                          },
+                          'Edit Break',
+                        ),
+                      },
+                      'Next break',
+                    ),
+                    h(nextBreak, {}),
+                  ]
+                : []),
 
               h(
                 overviewHeading,
