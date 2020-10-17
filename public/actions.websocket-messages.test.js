@@ -279,6 +279,46 @@ test('completes initial loading when becoming the timer owner', t => {
   });
 });
 
+test('initial loading is not changed to true when losing timer ownership', t => {
+  const state = actions.UpdateByWebsocketData(
+    {
+      initialLoadingComplete: false
+    },
+    {
+      payload: {
+        type: 'timer:ownership',
+        isOwner: false,
+      },
+      documentElement: {},
+      Notification: {},
+    },
+  );
+
+  t.like(state, {
+    initialLoadingComplete: false
+  });
+});
+
+test('initial loading is not changed to false when losing timer ownership', t => {
+  const state = actions.UpdateByWebsocketData(
+    {
+      initialLoadingComplete: true
+    },
+    {
+      payload: {
+        type: 'timer:ownership',
+        isOwner: false,
+      },
+      documentElement: {},
+      Notification: {},
+    },
+  );
+
+  t.like(state, {
+    initialLoadingComplete: true
+  });
+});
+
 test('does nothing from unknown type from websocket message', t => {
   const initialState = {};
   const state = actions.UpdateByWebsocketData(initialState, {
