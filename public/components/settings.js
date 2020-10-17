@@ -19,22 +19,7 @@ export const settings = (props, children) =>
       onsubmit: [actions.UpdateSettings, formDecoder],
     },
     [
-      h(
-        'div',
-        {
-          class: {
-            "grid": true,
-            'gap-2': true,
-            // 'sm:grid-cols-2': true,
-            'px-8': true,
-            'mb-4': true,
-          },
-          style: {
-            gridTemplateColumns: '35% auto',
-          },
-        },
-        children,
-      ),
+      h('div', {}, children),
       Object.keys(props.pendingSettings).length > 0 &&
         h(
           'div',
