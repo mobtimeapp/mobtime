@@ -801,6 +801,7 @@ export const UpdateByWebsocketData = (
       return {
         ...state,
         isOwner: data.isOwner,
+        initialLoadingComplete: true
       };
 
     default:

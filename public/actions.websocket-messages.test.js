@@ -254,8 +254,28 @@ test('can update ownership from websocket message', t => {
     },
   );
 
-  t.deepEqual(state, {
+  t.like(state, {
     isOwner,
+  });
+});
+
+test('completes initial loading when becoming the timer owner', t => {
+  const state = actions.UpdateByWebsocketData(
+    {
+      initialLoadingComplete: false
+    },
+    {
+      payload: {
+        type: 'timer:ownership',
+        isOwner: true,
+      },
+      documentElement: {},
+      Notification: {},
+    },
+  );
+
+  t.like(state, {
+    initialLoadingComplete: true
   });
 });
 
