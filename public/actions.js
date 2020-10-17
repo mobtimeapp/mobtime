@@ -570,6 +570,10 @@ export const UpdateGoalText = (state, goal) => [
   },
 ];
 
+export const StartBreakTimer = state => ({
+  ...state,
+});
+
 export const PauseTimer = (state, currentTime = Date.now()) => {
   const elapsed = currentTime - state.timerStartedAt;
   const timerDuration = Math.max(0, state.timerDuration - elapsed);
@@ -611,6 +615,9 @@ export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
     effects.StartTimer({
       websocket: state.websocket,
       timerDuration,
+    }),
+    effects.andThen({
+      action: StartBreakTimer,
     }),
   ],
 ];

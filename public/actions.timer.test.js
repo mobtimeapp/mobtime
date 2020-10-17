@@ -144,5 +144,8 @@ test('can start the timer', t => {
       websocket,
       timerDuration,
     }),
+    effects.andThen({
+      action: actions.StartBreakTimer,
+    }),
   ]);
 });
