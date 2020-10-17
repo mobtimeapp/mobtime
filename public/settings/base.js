@@ -24,6 +24,7 @@ export const base = (props, children) =>
             "flex": true,
             'items-center': true,
             'sm:justify-end': true,
+            'sm:text-right': true,
             'text-2xl': true,
             'font-bold': true,
             "uppercase": true,
