@@ -224,7 +224,11 @@ app({
                       },
                       'Next break',
                     ),
-                    h(nextBreak, {}),
+                    h(nextBreak, {
+                      breakTimerStartedAt: state.breakTimerStartedAt,
+                      currentTime: state.currentTime,
+                      breakCadence: state.settings.breakCadence,
+                    }),
                   ]
                 : []),
 
