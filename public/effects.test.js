@@ -75,6 +75,18 @@ test('can send complete timer message', t => {
   t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
+test('can send finish break message', t => {
+  const payload = { type: 'break:finish' };
+  const websocket = makeWebsocket();
+  runEffect(
+    effects.FinishBreak({
+      websocket,
+    }),
+  );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+});
+
 test('can send update goals message', t => {
   const payload = { type: 'goals:update', goals: [] };
   const websocket = makeWebsocket();
