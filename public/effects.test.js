@@ -75,6 +75,18 @@ test('can send complete timer message', t => {
   t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
+test('can send start break timer message', t => {
+  const payload = { type: 'break:start-timer' };
+  const websocket = makeWebsocket();
+  runEffect(
+    effects.StartBreakTimer({
+      websocket,
+    }),
+  );
+
+  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+});
+
 test('can send finish break message', t => {
   const payload = { type: 'break:finish' };
   const websocket = makeWebsocket();

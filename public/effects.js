@@ -48,6 +48,13 @@ export const CompleteTimer = fx(function CompleteTimerFX(
   return sendMessage(websocket, 'timer:complete');
 });
 
+export const StartBreakTimer = fx(function StartBreakTimerFX(
+  _dispatch,
+  { websocket },
+) {
+  return sendMessage(websocket, 'break:start-timer');
+});
+
 export const FinishBreak = fx(function ResetBreakFX(_dispatch, { websocket }) {
   return sendMessage(websocket, 'break:finish');
 });
