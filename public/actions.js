@@ -607,10 +607,12 @@ export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
     currentTime: timerStartedAt,
     timerDuration,
   },
-  effects.StartTimer({
-    websocket: state.websocket,
-    timerDuration,
-  }),
+  [
+    effects.StartTimer({
+      websocket: state.websocket,
+      timerDuration,
+    }),
+  ],
 ];
 
 export const SetAllowNotification = (

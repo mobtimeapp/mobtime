@@ -139,11 +139,10 @@ test('can start the timer', t => {
     },
   });
 
-  t.deepEqual(
-    effect,
+  t.deepEqual(effect, [
     effects.StartTimer({
       websocket,
       timerDuration,
     }),
-  );
+  ]);
 });
