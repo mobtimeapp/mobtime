@@ -19,22 +19,18 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     });
     const elapsed = currentTime - timerStartedAt;
 
-    if (elapsed >= timerDuration) {
-      cleanup();
+    if (timerStartedAt !== null && elapsed >= timerDuration) {
       dispatch(actions.Completed, {
         isEndOfTurn: true,
         documentElement: document,
         Notification: window.Notification,
       });
-      return;
     }
 
     handle = setTimeout(tick, 100);
   };
 
-  if (timerStartedAt) {
-    handle = setTimeout(tick, 0);
-  }
+  handle = setTimeout(tick, 0);
 
   return cleanup;
 };
