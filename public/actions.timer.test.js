@@ -3,6 +3,8 @@ import test from 'ava';
 import * as actions from './actions';
 import * as effects from './effects';
 
+import { roundToSeconds } from './lib/roundToSeconds';
+
 test('can complete a timer', t => {
   const websocket = {};
   const documentElement = {};
@@ -53,9 +55,8 @@ test('can pause the timer', t => {
   const websocket = {};
 
   const expectedTimerDuration = 1000;
-  const now = Date.now();
-  const timerStartedAt = now - expectedTimerDuration;
-  const currentTime = now - 5;
+  const currentTime = roundToSeconds(new Date());
+  const timerStartedAt = currentTime - expectedTimerDuration;
 
   const initialState = {
     websocket,
@@ -64,12 +65,12 @@ test('can pause the timer', t => {
     timerDuration: 2000,
   };
 
-  const [state, effect] = actions.PauseTimer(initialState, now);
+  const [state, effect] = actions.PauseTimer(initialState, currentTime);
 
   t.deepEqual(state, {
     websocket,
     timerStartedAt: null,
-    currentTime: now,
+    currentTime,
     timerDuration: expectedTimerDuration,
   });
 
