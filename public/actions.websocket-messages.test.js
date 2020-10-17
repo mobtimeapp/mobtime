@@ -260,10 +260,8 @@ test('can update ownership from websocket message', t => {
 });
 
 test('completes initial loading when becoming the timer owner', t => {
-  const [state] = actions.UpdateByWebsocketData(
-    {
-      initialLoadingComplete: false
-    },
+  const [state, effect] = actions.UpdateByWebsocketData(
+    {},
     {
       payload: {
         type: 'timer:ownership',
@@ -274,16 +272,16 @@ test('completes initial loading when becoming the timer owner', t => {
     },
   );
 
-  t.like(state, {
-    initialLoadingComplete: true
-  });
+  t.deepEqual(effect, [
+    effects.andThen({
+      action: actions.CompleteInitialLoading,
+    }),
+  ]);
 });
 
 test('initial loading is not changed to true when losing timer ownership', t => {
-  const [state] = actions.UpdateByWebsocketData(
-    {
-      initialLoadingComplete: false
-    },
+  const [state, effect] = actions.UpdateByWebsocketData(
+    {},
     {
       payload: {
         type: 'timer:ownership',
@@ -294,16 +292,12 @@ test('initial loading is not changed to true when losing timer ownership', t => 
     },
   );
 
-  t.like(state, {
-    initialLoadingComplete: false
-  });
+  t.deepEqual(effect, []);
 });
 
 test('initial loading is not changed to false when losing timer ownership', t => {
-  const [state] = actions.UpdateByWebsocketData(
-    {
-      initialLoadingComplete: true
-    },
+  const [state, effect] = actions.UpdateByWebsocketData(
+    {},
     {
       payload: {
         type: 'timer:ownership',
@@ -314,9 +308,7 @@ test('initial loading is not changed to false when losing timer ownership', t =>
     },
   );
 
-  t.like(state, {
-    initialLoadingComplete: true
-  });
+  t.deepEqual(effect, []);
 });
 
 test('does nothing from unknown type from websocket message', t => {

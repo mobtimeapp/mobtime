@@ -307,6 +307,11 @@ export const UpdateName = (state, name) => ({
   name,
 });
 
+export const CompleteInitialLoading = state => ({
+  ...state,
+  initialLoadingComplete: true,
+});
+
 export const ShuffleMob = state => {
   const mob = [...state.mob];
   for (let index = mob.length - 1; index > 0; index -= 1) {
@@ -798,11 +803,19 @@ export const UpdateByWebsocketData = (
       ];
 
     case 'timer:ownership':
-      return [{
-        ...state,
-        isOwner: data.isOwner,
-        initialLoadingComplete: data.isOwner ? true : state.initialLoadingComplete,
-      }];
+      return [
+        {
+          ...state,
+          isOwner: data.isOwner,
+        },
+        data.isOwner
+          ? [
+              effects.andThen({
+                action: CompleteInitialLoading,
+              }),
+            ]
+          : [],
+      ];
 
     default:
       console.warn('Unknown websocket data', payload); // eslint-disable-line no-console
