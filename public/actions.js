@@ -581,6 +581,11 @@ export const StartBreakTimer = state => {
   ];
 };
 
+export const ResetBreak = state => ({
+  ...state,
+  breakTimerStartedAt: null,
+});
+
 export const PauseTimer = (state, currentTime = Date.now()) => {
   const elapsed = currentTime - state.timerStartedAt;
   const timerDuration = Math.max(0, state.timerDuration - elapsed);

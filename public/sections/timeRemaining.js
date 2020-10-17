@@ -12,6 +12,79 @@ import * as actions from '/actions.js';
 export const timeRemaining = props => {
   const isPaused = props.timerStartedAt === null;
   const remainingTime = calculateTimeRemaining(props);
+  const breakComingUp =
+    props.breakTimerStartedAt !== null &&
+    props.breakTimerStartedAt -
+      props.currentTime +
+      props.settings.breakCadence <=
+      0;
+
+  if (breakComingUp && isPaused) {
+    return h(section, null, [
+      h(
+        'div',
+        {
+          class: {
+            "flex": true,
+            'flex-row': true,
+            'items-center': true,
+            'justify-between': true,
+          },
+        },
+        [
+          h(
+            'h3',
+            {
+              class: {
+                "flex": true,
+                'flex-row': true,
+                'items-start': true,
+                'justify-start': true,
+              },
+            },
+            [
+              h(
+                'span',
+                {
+                  class: {
+                    'text-4xl': true,
+                    'font-extrabold': true,
+                    'leading-none': true,
+                  },
+                  style: {
+                    fontFamily: "'Working Sans', sans-serif",
+                  },
+                },
+                'Time for a break!',
+              ),
+            ],
+          ),
+          [
+            h(
+              button,
+              {
+                class: {
+                  'bg-green-600': true,
+                  'text-white': true,
+                },
+                onclick: [actions.ResetBreak],
+              },
+              [
+                h('i', {
+                  class: {
+                    "fas": true,
+                    'fa-play': true,
+                    'mr-4': true,
+                  },
+                }),
+                'Finish',
+              ],
+            ),
+          ],
+        ],
+      ),
+    ]);
+  }
 
   return h(section, null, [
     h(
