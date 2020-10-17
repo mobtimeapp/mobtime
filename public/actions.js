@@ -570,9 +570,11 @@ export const UpdateGoalText = (state, goal) => [
   },
 ];
 
-export const StartBreakTimer = state => ({
-  ...state,
-});
+export const StartBreakTimer = state => [
+  {
+    ...state,
+  },
+];
 
 export const PauseTimer = (state, currentTime = Date.now()) => {
   const elapsed = currentTime - state.timerStartedAt;
