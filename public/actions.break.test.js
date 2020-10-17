@@ -21,3 +21,46 @@ test('can finish a break', t => {
     }),
   );
 });
+
+test('starts a break timer now if breaks are enabled', t => {
+  const now = new Date();
+  const initialState = {
+    breakTimerStartedAt: null,
+    currentTime: now,
+    settings: {
+      breaksEnabled: true,
+    },
+  };
+
+  const [state, effect] = actions.StartBreakTimer(initialState);
+
+  t.is(state.breakTimerStartedAt, now);
+  t.is(effect, undefined);
+});
+
+test('does not start a break timer if breaks are disabled', t => {
+  const initialState = {
+    settings: {
+      breaksEnabled: false,
+    },
+  };
+
+  const [state, effect] = actions.StartBreakTimer(initialState);
+
+  t.is(state.breakTimerStartedAt, initialState.breakTimerStartedAt);
+  t.is(effect, undefined);
+});
+
+test('does not start a break timer if one is already running', t => {
+  const initialState = {
+    breakTimerStartedAt: new Date(),
+    settings: {
+      breaksEnabled: true,
+    },
+  };
+
+  const [state, effect] = actions.StartBreakTimer(initialState);
+
+  t.is(state.breakTimerStartedAt, initialState.breakTimerStartedAt);
+  t.is(effect, undefined);
+});
