@@ -26,7 +26,7 @@
     <link href="/styles/styles.css" rel="stylesheet" />
   </head>
 <body>
-  <header class="relative w-full p-10 bg-gray-200">
+  <header class="relative w-full p-10 mb-24 bg-gray-200">
     <article class="container mx-auto">
       <section class="w-full py-32 lg:w-1/2">
         <h1 class="mb-2 text-5xl font-semibold text-gray-800 leading-10">A collaborative timer</h1>
@@ -39,10 +39,55 @@
         <a href="https://lmgtfy.app/?q=mobbing" class="block text-indigo-500">Learn more about mobbing</a>
       </section>
     </article>
-    <div style="width: 285px; height: 384px; background-color: red; bottom: -65px; right: 377px;" class="absolute hidden lg:block">Character 7</div>
-    <div style="width: 285px; height: 384px; background-color: #f0f; bottom: 65px; right: 80px;" class="absolute hidden lg:block">Character 12</div>
+    <div style="width: 285px; height: 384px; background-color: red; bottom: -65px; right: 377px;" class="absolute hidden xl:block">Character 7</div>
+    <div style="width: 285px; height: 384px; background-color: #f0f; bottom: 65px; right: 80px;" class="absolute hidden xl:block">Character 12</div>
   </header>
 
+  <section class="w-full py-24">
+    <div class="container mx-auto text-center">
+      <h2 class="mb-16 text-3xl font-semibold">Some humans and groups who use Mobtime</h2>
+      <div class="mb-16 grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <a href="https://vehikl.com" target="_blank" class="flex items-center justify-center w-full">
+          <svg width="190" height="48" viewBox="0 0 190 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0)">
+              <path d="M8.02377 48C3.52452 48 0 44.3639 0 39.7213V8.28072C0 3.63609 3.52452 2.56342e-06 8.02377 2.56342e-06C8.32837 -0.000240485 8.63274 0.0168 8.93543 0.0510425L34.5329 2.85824C38.2304 3.26656 41.1262 6.88427 41.1262 11.1022V36.906C41.1262 41.1239 38.2304 44.7437 34.5329 45.1479L8.93543 47.949C8.63274 47.9832 8.32837 48.0002 8.02377 48ZM8.02377 3.92804C5.68156 3.92804 3.91523 5.79814 3.91523 8.27868V39.7193C3.91523 42.1998 5.68156 44.0699 8.02377 44.0699C8.18693 44.0702 8.34998 44.0613 8.51216 44.0434L34.1076 41.2403C35.7905 41.0565 37.2109 39.0701 37.2109 36.9019V11.094C37.2109 8.92587 35.7865 6.93939 34.1076 6.75565L8.51216 3.95458C8.34998 3.93669 8.18693 3.92782 8.02377 3.92804Z" fill="#E26700"/>
+              <path d="M31.4479 14.2912C31.1875 12.8253 30.0764 11.4329 28.599 11.1185C27.2153 10.8327 25.7725 11.5922 25.1254 13.0172C24.344 14.7362 24.8507 16.9371 26.2914 18.0783C26.3679 18.1314 26.4278 18.2054 26.4638 18.2915C26.4999 18.3776 26.5107 18.4722 26.4949 18.5642C26.4684 18.8541 26.4644 19.1502 26.4359 19.4401C26.2548 21.206 25.4937 22.5351 24.057 23.3354C23.4744 23.6556 22.8722 23.9386 22.2541 24.1827C21.1308 24.6359 19.9811 25.0524 18.8232 25.4995C18.5912 25.5873 18.3694 25.7037 18.1232 25.8221C18.1232 25.7221 18.1109 25.6547 18.1109 25.5873V15.4977C18.1053 15.4188 18.1227 15.3398 18.161 15.2706C18.1993 15.2014 18.2569 15.1448 18.3266 15.1078C19.8651 14.0441 20.4043 11.8678 19.6005 10.0242C18.7723 8.11941 16.7801 7.03124 14.9527 7.5743C13.4448 8.02754 12.5108 9.12387 12.3256 10.8409C12.2221 11.6085 12.325 12.39 12.6238 13.1044C12.9225 13.8187 13.4062 14.4399 14.0248 14.9036C14.1048 14.9554 14.1698 15.0273 14.2134 15.1123C14.257 15.1972 14.2775 15.2921 14.273 15.3875C14.2649 21.1244 14.2649 26.8613 14.273 32.5982C14.2814 32.6934 14.2643 32.7892 14.2235 32.8757C14.1827 32.9622 14.1198 33.0362 14.0411 33.0902C12.4701 34.2784 11.8515 36.5282 12.6166 38.2963C13.396 40.1133 15.2946 40.985 17.0935 40.3379C18.5993 39.8009 19.5639 38.676 19.8874 37.0305C20.211 35.3849 19.7633 34.0273 18.5647 33.0698C18.1577 32.7513 18.0967 32.4307 18.117 31.9551C18.1659 30.873 18.6054 30.0768 19.5151 29.6195C20.1255 29.3132 20.736 29.007 21.3567 28.7579C22.7486 28.1944 24.1425 27.7106 25.4266 26.9736C27.0498 26.074 28.3221 24.6501 29.0365 22.9332C29.5638 21.6124 29.8439 20.2054 29.8627 18.7827C29.8627 18.5622 29.8627 18.3744 30.0662 18.2192C31.1834 17.3944 31.7206 15.8326 31.4479 14.2912ZM16.2246 38.4555C15.1542 38.5453 14.271 37.6695 14.273 36.5099C14.2751 35.3502 15.1379 34.3968 16.2042 34.3315C17.2705 34.2661 18.0967 35.1481 18.1008 36.2608C18.1048 37.3735 17.2664 38.3698 16.2246 38.4555ZM16.2246 13.6705C15.1501 13.6174 14.2751 12.6354 14.2771 11.4717C14.2792 10.308 15.146 9.47095 16.2103 9.54444C17.2746 9.61794 18.1109 10.5999 18.1109 11.7208C18.1109 12.8416 17.2603 13.7236 16.2205 13.6787L16.2246 13.6705ZM28.19 16.8942C27.258 16.8452 26.501 15.9408 26.503 14.8648C26.5051 13.7889 27.2702 12.9682 28.2022 13.0274C29.1342 13.0866 29.8688 13.9829 29.8709 15.0363C29.8729 16.0898 29.1118 16.9452 28.1859 16.8942H28.19Z" fill="#E26700"/>
+              <path d="M60.8448 39.2579L47.9554 8.42974H56.8563L63.0079 25.6792C63.0622 25.8602 63.1775 26.2992 63.3538 26.996C63.5302 27.6929 63.7568 28.63 64.0335 29.8073C64.2574 28.8668 64.4676 28.0175 64.6643 27.2594C64.8611 26.5013 65.0076 25.9745 65.1039 25.6792L71.2087 8.42974H80.1095L67.2202 39.2579H60.8448ZM80.1543 39.2579V8.42974H98.9836V15.1874H88.3165V20.5364H98.9836V27.1532H88.3165V32.3552H98.9795V39.2619L80.1543 39.2579ZM101.352 39.2579V8.42974H109.728V20.416H120.894V8.42566H129.292V39.2538H120.894V26.7061H109.728V39.2579H101.352ZM131.73 39.2579V8.42974H140.189V39.2579H131.73ZM142.649 39.2579V8.42974H150.942V22.4351L160.661 8.42974H170.428L159.071 23.4681L170.801 39.2619H160.339L150.942 25.426V39.2619L142.649 39.2579Z" fill="black"/>
+              <path d="M170.752 39.2579V8.42975H179.128V32.0531H189.539V39.2538L170.752 39.2579Z" fill="black"/>
+            </g>
+            <defs>
+              <clipPath id="clip0">
+                <rect width="189.538" height="48" fill="white"/>
+              </clipPath>
+            </defs>
+          </svg>
+        </a>
+
+        <a href="https://github.com/mrozbarry/mobtime/issues/164" target="_blank" class="flex items-center justify-center w-full h-12 border border-indigo-400">
+          <img alt="Your Logo Here" class="text-center" />
+        </a>
+        <a href="https://github.com/mrozbarry/mobtime/issues/164" target="_blank" class="flex items-center justify-center w-full h-12 border border-indigo-400">
+          <img alt="Your Logo Here" class="text-center" />
+        </a>
+        <a href="https://github.com/mrozbarry/mobtime/issues/164" target="_blank" class="flex items-center justify-center w-full h-12 border border-indigo-400">
+          <img alt="Your Logo Here" class="text-center" />
+        </a>
+
+      </div>
+      <a href="https://github.com/mrozbarry/mobtime/issues/164" target="_blank" class="pb-1 mx-auto text-base font-semibold text-indigo-600 border-b-2 border-indigo-600">Interested in having your logo here?</a>
+    </div>
+  </section>
+
+  <section class="w-full py-24 bg-gray-200">
+    <div class="container mx-auto text-center">
+      <h2 class="mb-16 text-3xl font-semibold">Feature packed mobbing life</h2>
+      <span class="text-base font-semibold">
+        Are we missing something?
+        <a href="https://github.com/mrozbarry/mobtime/issues/164" target="_blank" class="pb-1 mx-auto ml-1 text-base font-semibold text-indigo-600 border-b-2 border-indigo-600">Submit a feature request!</a>
+      </span>
+    </div>
+  </section>
 </body>
 </html>
 
