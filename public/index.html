@@ -19,11 +19,23 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <script
-      src="https://kit.fontawesome.com/57cb566a11.js"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://kit.fontawesome.com/57cb566a11.js" crossorigin="anonymous"></script>
     <link href="/styles/styles.css" rel="stylesheet" />
+    <script type="module">
+      const onCreateMob = (form) => {
+        const data = new FormData(form);
+        const timerId = data.get('timerId');
+        window.location = `/${timerId}`;
+      };
+
+      Array.from(document.querySelectorAll('form[data-start-mob]'))
+        .forEach((form) => {
+          form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            onCreateMob(event.target);
+          });
+        });
+    </script>
   </head>
 <body>
   <header class="relative w-full p-10 mb-24 bg-gray-200">
@@ -31,11 +43,11 @@
       <section class="w-full py-32 lg:w-1/2">
         <h1 class="mb-2 text-5xl font-semibold text-gray-800 leading-10">A collaborative timer</h1>
         <h2 class="mb-6 text-3xl font-normal text-gray-700">for your mob team</h2>
-        <div class="flex items-center w-full pr-2 mb-4 bg-white border border-gray-400 rounded lg:inline-flex lg:w-96">
-          <label for="foobar" class="flex-none hidden px-3 py-4 text-gray-700 bg-gray-300 border-r border-gray-400 md:inline-block">mobti.me/</label>
-          <input id="foobar" placeholder="your awesome mob" class="flex-grow min-w-0 px-3 py-4 mr-1 rounded">
-          <button class="flex-none inline-block px-6 py-2 font-semibold text-indigo-100 bg-indigo-600 rounded">START</button>
-        </div>
+        <form action="#" method="get" class="flex items-center w-full pr-2 mb-4 bg-white border border-gray-400 rounded lg:inline-flex lg:w-96" data-start-mob="true">
+          <label for="hero-timer-id" class="flex-none hidden px-3 py-4 text-gray-700 bg-gray-300 border-r border-gray-400 md:inline-block">mobti.me/</label>
+          <input name="timerId" id="hero-timer-id" placeholder="your awesome mob" class="flex-grow min-w-0 px-3 py-4 mr-1 rounded" required>
+          <button class="flex-none inline-block px-6 py-2 font-semibold text-indigo-100 bg-indigo-600 rounded" type="submit">START</button>
+        </form>
         <a href="https://lmgtfy.app/?q=mobbing" class="block text-indigo-500">Learn more about mobbing</a>
       </section>
     </article>
@@ -44,7 +56,7 @@
   </header>
 
   <section class="w-full py-24">
-    <div class="container mx-auto text-center">
+    <div class="container px-4 mx-auto text-center lg:px-0">
       <h2 class="mb-16 text-3xl font-semibold">Some humans and groups who use Mobtime</h2>
       <div class="mb-16 grid grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -80,14 +92,129 @@
   </section>
 
   <section class="w-full py-24 bg-gray-200">
-    <div class="container mx-auto text-center">
+    <div class="container px-4 mx-auto text-center lg:px-0">
       <h2 class="mb-16 text-3xl font-semibold">Feature packed mobbing life</h2>
+
+      <div class="flex flex-row flex-wrap justify-center">
+
+        <article class="flex flex-row items-start justify-center w-full mb-16 lg:w-1/3">
+          <img src="//placehold.it/64x64" alt="" class="flex-shrink mr-6" />
+          <div class="flex-grow text-left">
+            <header class="mb-3 text-xl font-semibold">Simple</header>
+            <p class="text-lg">Open up a timer, add your team member names, and click "Start Timer." It doesn't get any more simple than this, folks!</p>
+          </div>
+        </article>
+
+        <article class="flex flex-row items-start justify-center w-full mb-16 lg:w-1/3">
+          <img src="//placehold.it/64x64" alt="" class="flex-shrink mr-6" />
+          <div class="flex-grow text-left">
+            <header class="mb-3 text-xl font-semibold">Collaborative</header>
+            <p class="text-lg">Open up a timer, add your team member names, and click "Start Timer." It doesn't get any more simple than this, folks!</p>
+          </div>
+        </article>
+
+        <article class="flex flex-row items-start justify-center w-full mb-16 lg:w-1/3">
+          <img src="//placehold.it/64x64" alt="" class="flex-shrink mr-6" />
+          <div class="flex-grow text-left">
+            <header class="mb-3 text-xl font-semibold">Increase Productivity</header>
+            <p class="text-lg">Open up a timer, add your team member names, and click "Start Timer." It doesn't get any more simple than this, folks!</p>
+          </div>
+        </article>
+
+        <article class="flex flex-row items-start justify-center w-full mb-16 lg:w-1/3">
+          <img src="//placehold.it/64x64" alt="" class="flex-shrink mr-6" />
+          <div class="flex-grow text-left">
+            <header class="mb-3 text-xl font-semibold">Own your data</header>
+            <p class="text-lg">Open up a timer, add your team member names, and click "Start Timer." It doesn't get any more simple than this, folks!</p>
+          </div>
+        </article>
+
+        <article class="flex flex-row items-start justify-center w-full mb-16 lg:w-1/3">
+          <img src="//placehold.it/64x64" alt="" class="flex-shrink mr-6" />
+          <div class="flex-grow text-left">
+            <header class="mb-3 text-xl font-semibold">Free to use</header>
+            <p class="text-lg">Open up a timer, add your team member names, and click "Start Timer." It doesn't get any more simple than this, folks!</p>
+          </div>
+        </article>
+
+      </div>
+
       <span class="text-base font-semibold">
         Are we missing something?
         <a href="https://github.com/mrozbarry/mobtime/issues/164" target="_blank" class="pb-1 mx-auto ml-1 text-base font-semibold text-indigo-600 border-b-2 border-indigo-600">Submit a feature request!</a>
       </span>
     </div>
   </section>
+
+  <section class="w-full py-24">
+    <div class="container px-4 mx-auto text-center lg:px-0">
+      <h2 class="mb-16 text-3xl font-semibold">Have Questions?</h2>
+
+      <div class="mb-16 grid lg:grid-cols-3 gap-6">
+
+        <article class="flex flex-row items-start justify-center">
+          <div class="flex-grow text-left">
+            <header class="pl-3 mb-3 text-xl font-semibold border-l-2 border-indigo-600">
+              Can you add an integration for my issue tracker?
+            </header>
+            <p class="text-lg">No, I won't be supporting external services in the timer, but there are plans to allow users to add integrations through an SDK and bots, we'll keep you posted!</p>
+          </div>
+        </article>
+
+        <article class="flex flex-row items-start justify-center">
+          <div class="flex-grow text-left">
+            <header class="pl-3 mb-3 text-xl font-semibold border-l-2 border-indigo-600">
+              Do I need to create an account?
+            </header>
+            <p class="text-lg">Nope, just start mobbing. In the future, there may be options to create accounts, but I have no plans currently to make that required to use a timer.</p>
+          </div>
+        </article>
+
+        <article class="flex flex-row items-start justify-center">
+          <div class="flex-grow text-left">
+            <header class="pl-3 mb-3 text-xl font-semibold border-l-2 border-indigo-600">
+              Can I self-host mobtime?
+            </header>
+            <p class="text-lg">Absolutely! You can grab the source code from <a class="text-indigo-600 border-b-2 border-indigo-600" href="https://github.com/mrozbarry/mobtime" target="_blank">github.com/mrozbarry/mobtime</a>, install the dependencies, and host it wherever you would like. If it is a public host that you'd like to share, let me know, and I'll link to it.</p>
+          </div>
+        </article>
+
+      </div>
+
+      <span class="text-base font-semibold">
+        Don't see your question here?
+        <a href="mailto:mobtime@mrbarry.com" class="pb-1 mx-auto ml-1 text-base font-semibold text-indigo-600 border-b-2 border-indigo-600">Email us</a>
+      </span>
+    </div>
+  </section>
+
+  <section class="w-full py-24 bg-indigo-500">
+    <div class="container px-4 mx-auto text-center lg:px-0">
+      <h2 class="mb-4 text-3xl font-semibold text-white">Get Started</h2>
+
+      <p class="mb-8 text-lg text-white">Ready to mob? Name your timer, and get started!</p>
+
+      <form action="#" method="get" class="flex items-center pr-2 mb-4 bg-white border border-gray-400 rounded lg:inline-flex lg:w-1/3" data-start-mob="true">
+        <label for="cta-timerId" class="flex-none hidden px-3 py-4 text-gray-700 bg-gray-300 border-r border-gray-400 md:inline-block">mobti.me/</label>
+        <input name="timerId" id="cta-timerId" placeholder="your awesome mob" class="flex-grow min-w-0 px-3 py-4 mr-1 rounded">
+        <button class="flex-none inline-block px-6 py-2 font-semibold text-indigo-100 bg-indigo-600 rounded">START</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="w-full py-24">
+    <div class="container flex flex-row items-center justify-between px-4 mx-auto lg:px-0">
+      <div class="flex-grow">
+        Mobtime, Created by <a href="https://mrbarry.com/" target="_blank" class="font-semibold text-indigo-600">Alex Barry</a>, with <a href="https://vehikl.com/" target="_blank" class="font-semibold text-indigo-600">Friends at Vehikl</a>, and <a href="https://github.com/mrozbarry/mobtime/graphs/contributors" target="_blank" class="font-semibold text-indigo-600">other contributors</a>.
+      </div>
+      <div class="flex flex-row items-center justify-end">
+        <div class="w-6 h-6 ml-4 bg-indigo-600 rounded-full"></div>
+        <div class="w-6 h-6 ml-4 bg-indigo-600 rounded-full"></div>
+        <div class="w-6 h-6 ml-4 bg-indigo-600 rounded-full"></div>
+      </div>
+  </section>
+
+
 </body>
 </html>
 
