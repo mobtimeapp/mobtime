@@ -59,6 +59,128 @@
   </header>
 
   <section class="w-full py-24">
+    <div class="container px-4 mx-auto">
+      <h2 class="mb-16 text-3xl font-semibold text-center">It works across all of your devices</h2>
+
+      <div class="flex flex-col items-center justify-center lg:flex-row">
+
+        <div class="flex flex-col max-w-full mx-4 mb-6 border border-gray-500 shadow-lg" style="width: 1024px">
+          <div class="flex flex-row items-center justify-start w-full px-1 bg-gray-800">
+            <div class="w-2 h-2 mr-1 bg-gray-200 rounded-full"></div>
+            <div class="w-2 h-2 mr-1 bg-gray-200 rounded-full"></div>
+            <div class="w-2 h-2 mr-4 bg-gray-200 rounded-full"></div>
+            <div class="flex items-center justify-start px-2 py-1 mt-1 text-xs text-white border-l border-r border-gray-500 rounded-t-md">
+              <div class="mr-2 text-sm">⏱️</div>
+              <span class="mr-2">Mobtime</span>
+              <span>&times;</span>
+            </div>
+          </div>
+          <div class="flex flex-row items-center justify-start w-full h-6 px-1 bg-gray-600">
+            <div class="w-4 h-4 mr-1 bg-gray-400 rounded-full"></div>
+            <div class="w-4 h-4 mr-1 bg-gray-400 rounded-full"></div>
+            <div class="w-4 h-4 mr-1 bg-gray-400 rounded-full"></div>
+            <div class="flex-grow w-64 h-4 bg-white border border-gray-500"></div>
+          </div>
+          <img class="w-full h-auto" alt="Mobtime on desktop" src="/images/screenshot-desktop.png" />
+        </div>
+
+        <div class="flex flex-col items-center justify-center max-w-full p-2 mx-4 mb-6 bg-white border border-red-200 rounded-lg shadow-lg" style="width: 300px">
+          <div class="w-1 h-1 m-1 bg-black rounded-full"></div>
+          <div class="flex items-center justify-center mb-4">
+            <div class="w-2 h-2 m-1 bg-black rounded-full"></div>
+            <div class="w-12 h-1 m-1 bg-black rounded-full"></div>
+          </div>
+          <div style="height: 28rem;" class="mb-2 overflow-x-hidden overflow-y-auto">
+            <img class="w-full h-auto" alt="Mobtime on mobile" src="/images/screenshot-mobile.png" />
+          </div>
+          <div class="w-10 h-10 bg-white border border-red-900 rounded-full"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="w-full py-24 bg-gray-200">
+    <div class="container px-4 mx-auto text-center lg:px-0">
+      <h2 class="mb-16 text-3xl font-semibold">People are using it right now!</h2>
+
+      <div id="activity" class="flex items-end justify-start w-full h-64 pt-2 mb-4 overflow-hidden bg-gray-100" data-max="0"></div>
+      <div class="mb-4 text-left grid lg:grid-cols-4 gap-2 lg:text-center">
+        <div>
+          <div class="inline-block w-4 h-4 mr-2 bg-red-500 border border-black"></div>
+          Number of mobs
+        </div>
+        <div>
+          <div class="inline-block w-4 h-4 mr-2 bg-green-500 border border-black"></div>
+          Number of mob participants
+        </div>
+        <div>
+          <div class="inline-block w-4 h-4 mr-2 bg-yellow-500 border border-black"></div>
+          Number of users looking at timers
+        </div>
+        <div>
+          <div class="inline-block w-4 h-4 mr-2 bg-blue-500 border border-black"></div>
+          Number of goals set
+        </div>
+      </div>
+      <p class="text-sm text-gray-700">This is live, showing newest (left) snapshot to oldest (right), using anonymized data.</p>
+
+      <script type="module">
+        const makeTimePoint = (statistics) => {
+          const container = document.createElement('div');
+          container.className = 'flex flex-row items-end justify-start h-full px-4 bg-gray-100 hover:bg-gray-300 transition-all';
+          container.setAttribute('data-timestamp', Date.now());
+          container.innerHTML = `
+            <div class="w-2 bg-red-500" data-value="${statistics.timers}" data-label="mobs"></div>
+            <div class="w-2 bg-green-500" data-value="${statistics.mobbers}" data-label="mobbers"></div>
+            <div class="w-2 bg-yellow-500" data-value="${statistics.connections}" data-label="connections"></div>
+            <div class="w-2 bg-blue-500" data-value="${statistics.goals}" data-label="goals"></div>
+          `;
+
+          return container;
+        };
+
+        const getStatistics = () => fetch('/api/statistics').then((response) => response.json());
+
+        const updateBar = (max, bar) => {
+          const value = Number(bar.getAttribute('data-value'));
+          const label = bar.getAttribute('data-label');
+          const percent = max < 1 ? 0 : (value / max * 100)
+          bar.style.height = `${Math.floor(percent)}%`;
+          bar.setAttribute('title', `${value} ${label}`);
+        }
+
+        const adjustHeightsOfTimepoint = (max, timepoint) => {
+          updateBar(max, timepoint.querySelector('[data-label="mobs"]'));
+          updateBar(max, timepoint.querySelector('[data-label="mobbers"]'));
+          updateBar(max, timepoint.querySelector('[data-label="connections"]'));
+          updateBar(max, timepoint.querySelector('[data-label="goals"]'));
+
+          return timepoint;
+        };
+
+        const appendGraph = (graph, statistics) => {
+          const timepoint = makeTimePoint(statistics);
+
+          const previousMax = Number(graph.getAttribute('data-max'));
+          const max = Math.max(previousMax, statistics.timers, statistics.mobbers, statistics.connections, statistics.goals);
+
+          graph.insertBefore(adjustHeightsOfTimepoint(max, timepoint), graph.firstChild);
+
+          graph.setAttribute('data-max', max);
+        };
+
+        const update = () => {
+          getStatistics()
+            .then((statistics) => appendGraph(document.querySelector('#activity'), statistics))
+            .then(() => setTimeout(update, 30000));
+        };
+        update();
+      </script>
+    </div>
+  </section>
+
+  <section class="w-full py-24">
     <div class="container px-4 mx-auto text-center lg:px-0">
       <h2 class="mb-16 text-3xl font-semibold">Some humans and groups who use Mobtime</h2>
       <div class="mb-16 grid grid-cols-2 lg:grid-cols-4 gap-4">
