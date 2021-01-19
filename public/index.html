@@ -123,7 +123,7 @@
           Number of goals set
         </div>
       </div>
-      <p class="text-sm text-gray-700">This is live, showing newest (left) snapshot to oldest (right), using anonymized data.</p>
+      <p class="text-sm text-gray-700">This is live, showing oldest (left) snapshot to newest (right), using anonymized data.</p>
 
       <script type="module">
         const makeTimePoint = (statistics) => {
@@ -165,15 +165,20 @@
           const previousMax = Number(graph.getAttribute('data-max'));
           const max = Math.max(previousMax, statistics.timers, statistics.mobbers, statistics.connections, statistics.goals);
 
-          graph.insertBefore(adjustHeightsOfTimepoint(max, timepoint), graph.firstChild);
+          graph.appendChild(adjustHeightsOfTimepoint(max, timepoint));
 
           graph.setAttribute('data-max', max);
+
+          graph.scrollTo({
+            left: graph.scrollWidth,
+            behavior: 'smooth',
+          });
         };
 
         const update = () => {
           getStatistics()
             .then((statistics) => appendGraph(document.querySelector('#activity'), statistics))
-            .then(() => setTimeout(update, 30000));
+            .then(() => setTimeout(update, 60000));
         };
         update();
       </script>
