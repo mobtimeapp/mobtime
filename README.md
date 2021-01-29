@@ -17,7 +17,7 @@ And your phone:
 ## Get up and running
 
 ```bash
-yarn && yarn start
+yarn && yarn tailwind:dev && yarn start
 ```
 
 ### Environment Variables
