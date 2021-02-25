@@ -10,7 +10,12 @@ import path from 'path';
 import fs from 'fs';
 import apiStatistics from './api/statistics';
 
-const HttpSub = (storage, action, host = 'localhost', port = 4321) => (dispatch) => {
+const HttpSub = (
+  storage,
+  action,
+  host = 'localhost',
+  port = 4321,
+) => dispatch => {
   const app = express();
   const server = http.createServer(app);
   const wss = new ws.Server({ server });
@@ -24,8 +29,12 @@ const HttpSub = (storage, action, host = 'localhost', port = 4321) => (dispatch)
     try {
       return next();
     } catch (err) {
+      console.log('error');
       console.log(err);
-      return response.status(500).json({ message: err.toString() }).end();
+      return response
+        .status(500)
+        .json({ message: err.toString() })
+        .end();
     }
   });
 
