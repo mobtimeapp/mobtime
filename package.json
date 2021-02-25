@@ -15,7 +15,8 @@
     "lint": "prettier-eslint .",
     "deploy": "node ./deploy/index.js",
     "test": "ava",
-    "test:coverage": "nyc ava"
+    "test:coverage": "nyc ava",
+    "postinstall": "husky install"
   },
   "dependencies": {
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
@@ -40,7 +41,7 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-import": "^2.20.1",
-    "husky": ">=4",
+    "husky": "^5",
     "lint-staged": ">=10",
     "morgan": "^1.10.0",
     "nyc": "^15.1.0",
