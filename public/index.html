@@ -48,13 +48,11 @@
           <input name="timerId" id="hero-timer-id" placeholder="your awesome mob" class="flex-grow min-w-0 px-3 py-4 mr-1 rounded" required>
           <button class="flex-none inline-block px-6 py-2 font-semibold text-indigo-100 bg-indigo-600 rounded" type="submit">START</button>
         </form>
-        <a href="https://lmgtfy.app/?q=mobbing" class="block text-indigo-500">Learn more about mobbing</a>
+        <a href="https://github.com/mobtimeapp/mobtime/discussions/176" target="github" class="block text-indigo-500">Learn more about mobbing</a>
       </section>
     </article>
-    <!--<div style="width: 285px; height: 384px; background-color: red; bottom: -65px; right: 377px;" class="absolute hidden xl:block">Character 7</div>-->
     <img style="width: 285px; height: 384px; bottom: -65px; right: 377px;" class="absolute hidden xl:block" src="./images/character 7.svg" alt="" />
 
-    <!--<div style="width: 285px; height: 384px; background-color: #f0f; bottom: 65px; right: 80px;" class="absolute hidden xl:block">Character 12</div>-->
     <img style="width: 285px; height: 384px; bottom: 65px; right: 80px;" class="absolute hidden xl:block" src="./images/character 12.svg" alt="" />
   </header>
 
@@ -102,84 +100,24 @@
 
   <section class="w-full py-24 bg-gray-200">
     <div class="container px-4 mx-auto text-center lg:px-0">
-      <h2 class="mb-16 text-3xl font-semibold">People are using it right now!</h2>
-
-      <div id="activity" class="flex items-end justify-start w-full h-64 pt-2 mb-4 overflow-hidden bg-gray-100" data-max="0"></div>
-      <div class="mb-4 text-left grid lg:grid-cols-4 gap-2 lg:text-center">
-        <div>
-          <div class="inline-block w-4 h-4 mr-2 bg-red-500 border border-black"></div>
-          Number of mobs
-        </div>
-        <div>
-          <div class="inline-block w-4 h-4 mr-2 bg-green-500 border border-black"></div>
-          Number of mob participants
-        </div>
-        <div>
-          <div class="inline-block w-4 h-4 mr-2 bg-yellow-500 border border-black"></div>
-          Number of users looking at timers
-        </div>
-        <div>
-          <div class="inline-block w-4 h-4 mr-2 bg-blue-500 border border-black"></div>
-          Number of goals set
-        </div>
-      </div>
-      <p class="text-sm text-gray-700">This is live, showing newest (left) snapshot to oldest (right), using anonymized data.</p>
+      <h2 class="text-3xl font-semibold"><span id="activityCount">0</span> People are using it right now!</h2>
 
       <script type="module">
-        const makeTimePoint = (statistics) => {
-          const container = document.createElement('div');
-          container.className = 'flex flex-row items-end justify-start h-full px-4 bg-gray-100 hover:bg-gray-300 transition-all';
-          container.setAttribute('data-timestamp', Date.now());
-          container.innerHTML = `
-            <div class="w-2 bg-red-500" data-value="${statistics.timers}" data-label="mobs"></div>
-            <div class="w-2 bg-green-500" data-value="${statistics.mobbers}" data-label="mobbers"></div>
-            <div class="w-2 bg-yellow-500" data-value="${statistics.connections}" data-label="connections"></div>
-            <div class="w-2 bg-blue-500" data-value="${statistics.goals}" data-label="goals"></div>
-          `;
-
-          return container;
+        const update = (props) => {
+          fetch('/api/statistics')
+            .then(response => response.json())
+            .then(statistics => {
+              console.log('update', { props, statistics });
+              document.querySelector('#activityCount').innerText = statistics.connections.toString();
+            })
+            .catch((error) => {
+              console.warn('Unable to update statistics', error);
+            })
+            .then(() => {
+              setTimeout(update, 30000, props);
+            });
         };
 
-        const getStatistics = () => fetch('/api/statistics').then((response) => response.json());
-
-        const updateBar = (max, bar) => {
-          const value = Number(bar.getAttribute('data-value'));
-          const label = bar.getAttribute('data-label');
-          const percent = max < 1 ? 0 : (value / max * 100)
-          bar.style.height = `${Math.floor(percent)}%`;
-          bar.setAttribute('title', `${value} ${label}`);
-        }
-
-        const adjustHeightsOfTimepoint = (max, timepoint) => {
-          updateBar(max, timepoint.querySelector('[data-label="mobs"]'));
-          updateBar(max, timepoint.querySelector('[data-label="mobbers"]'));
-          updateBar(max, timepoint.querySelector('[data-label="connections"]'));
-          updateBar(max, timepoint.querySelector('[data-label="goals"]'));
-
-          return timepoint;
-        };
-
-        const appendGraph = (graph, statistics) => {
-          const timepoint = makeTimePoint(statistics);
-
-          const previousMax = Number(graph.getAttribute('data-max'));
-          const max = Math.max(previousMax, statistics.timers, statistics.mobbers, statistics.connections, statistics.goals);
-
-          graph.appendChild(adjustHeightsOfTimepoint(max, timepoint));
-
-          graph.setAttribute('data-max', max);
-
-          graph.scrollTo({
-            left: graph.scrollWidth,
-            behavior: 'smooth',
-          });
-        };
-
-        const update = () => {
-          getStatistics()
-            .then((statistics) => appendGraph(document.querySelector('#activity'), statistics))
-            .then(() => setTimeout(update, 30000));
-        };
         update();
       </script>
     </div>
@@ -271,7 +209,7 @@
 
       <span class="text-base font-semibold">
         Are we missing something?
-        <a href="https://github.com/mrozbarry/mobtime/issues/164" target="_blank" class="pb-1 mx-auto ml-1 text-base font-semibold text-indigo-600 border-b-2 border-indigo-600">Submit a feature request!</a>
+        <a href="https://github.com/mobtimeapp/mobtime/issues/new" target="_blank" class="pb-1 mx-auto ml-1 text-base font-semibold text-indigo-600 border-b-2 border-indigo-600">Submit a feature request!</a>
       </span>
     </div>
   </section>
@@ -335,7 +273,7 @@
   <section class="w-full py-24">
     <div class="container flex flex-row items-center justify-between px-4 mx-auto lg:px-0">
       <div class="flex-grow">
-        Mobtime, Created by <a href="https://mrbarry.com/" target="_blank" class="font-semibold text-indigo-600">Alex Barry</a>, with <a href="https://vehikl.com/" target="_blank" class="font-semibold text-indigo-600">Friends at Vehikl</a>, and <a href="https://github.com/mrozbarry/mobtime/graphs/contributors" target="_blank" class="font-semibold text-indigo-600">other contributors</a>.
+        Mobtime, Created by <a href="https://mrbarry.com/" target="_blank" class="font-semibold text-indigo-600">Alex Barry</a>, with <a href="https://vehikl.com/" target="_blank" class="font-semibold text-indigo-600">Friends at Vehikl</a>, and <a href="https://github.com/mrozbarry/mobtime/graphs/contributors" target="_blank" class="font-semibold text-indigo-600">other wonderful contributors</a>.
       </div>
       <div class="flex flex-row items-center justify-end">
         <div class="w-6 h-6 ml-4 bg-indigo-600 rounded-full"></div>
