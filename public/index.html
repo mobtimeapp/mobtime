@@ -107,7 +107,6 @@
           fetch('/api/statistics')
             .then(response => response.json())
             .then(statistics => {
-              console.log('update', { props, statistics });
               document.querySelector('#activityCount').innerText = statistics.connections.toString();
             })
             .catch((error) => {
