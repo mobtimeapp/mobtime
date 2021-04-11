@@ -29,6 +29,7 @@ export const removeCompletedGoals = props => {
           'justify-start': true,
           'w-full': true,
         },
+        autocomplete: 'off',
       },
       [
         h(
