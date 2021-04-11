@@ -1,10 +1,9 @@
-import { h } from '/vendor/hyperapp.js';
+import { text } from '/vendor/hyperapp.js';
 
 import { listButton } from './listButton.js';
 
 export const deleteButton = props =>
-  h(
-    listButton,
+  listButton(
     {
       ...props,
       class: {
@@ -13,12 +12,5 @@ export const deleteButton = props =>
         ...(props.class || {}),
       },
     },
-    [
-      h('i', {
-        class: {
-          "fas": true,
-          'fa-times': true,
-        },
-      }),
-    ],
+    [text('×')],
   );

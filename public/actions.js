@@ -254,12 +254,10 @@ export const Completed = (
 
   return [
     nextState,
-    [
-      effects.CompleteTimer({
-        websocket: state.websocket,
-      }),
-      ...extraEffects,
-    ],
+    effects.CompleteTimer({
+      websocket: state.websocket,
+    }),
+    ...extraEffects,
   ];
 };
 

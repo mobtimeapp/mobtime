@@ -1,4 +1,5 @@
 module.exports = {
+  darkMode: 'class',
   future: {
     // removeDeprecatedGapUtilities: true,
     // purgeLayersByDefault: true,
@@ -13,6 +14,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        mono: ['Inter', 'monospace'],
       },
     },
   },
