@@ -1,27 +1,24 @@
-import { app } from 'ferp';
+import { app, sub } from 'ferp';
 import * as storage from './storage';
-import Action from './actions';
+import * as Action from './actions';
 import { Http } from './http';
 import { Websocket } from './websocket';
-import { update } from './update';
 
 const port = process.env.PORT || 1234;
 
 const Storage = storage.make();
 
 app({
-  init: update(Action.Init(), undefined),
+  init: Action.Init(),
 
-  update,
+  subscribe: state => [
+    Http(Storage, Action, 'localhost', port),
+    ...state.connections.map((connection) => (
+      Websocket(Action, connection, connection.timerId)
+    )),
+  ],
 
-  subscribe: state => {
+  observe: ([state], action) => {
     Storage.store(state);
-
-    return [
-      Http(Storage, Action, 'localhost', port),
-      ...state.connections.map((connection) => (
-        Websocket(Action, connection.getWebsocket, connection.timerId)
-      )),
-    ];
   },
 });
