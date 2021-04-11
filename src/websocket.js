@@ -1,8 +1,9 @@
-import { effects, sub } from 'ferp';
+import { effects } from 'ferp';
+import { memoize } from './memoize.js';
 
-const { act, none, thunk } = effects;
+const { none, thunk } = effects;
 
-const WebsocketSub = (dispatch, action, connection, timerId) => {
+const WebsocketSub = (dispatch, actions, connection, timerId) => {
   const { websocket } = connection;
 
   let isClosed = false;
@@ -10,7 +11,7 @@ const WebsocketSub = (dispatch, action, connection, timerId) => {
     if (isClosed) return;
     isClosed = true;
 
-    dispatch(action.RemoveConnection(websocket, timerId), 'RemoveConnection');
+    dispatch(actions.RemoveConnection(websocket, timerId), 'RemoveConnection');
   });
 
   websocket.on('message', data => {
@@ -18,13 +19,13 @@ const WebsocketSub = (dispatch, action, connection, timerId) => {
 
     if (type === 'client:new') {
       return dispatch(
-        action.MessageTimerOwner(websocket, timerId, data),
+        actions.MessageTimerOwner(websocket, timerId, data),
         'MessageTimerOwner',
       );
     }
 
     return dispatch(
-      action.MessageTimer(websocket, timerId, data),
+      actions.MessageTimer(websocket, timerId, data),
       'MessageTimer',
     );
   });
@@ -35,21 +36,35 @@ const WebsocketSub = (dispatch, action, connection, timerId) => {
 };
 export const Websocket = (...props) => [WebsocketSub, ...props];
 
-export const SendOwnership = connection =>
-  thunk(() => {
-    connection.websocket.send(
-      JSON.stringify({
-        type: 'timer:ownership',
-        isOwner: connection.isOwner,
-      }),
-    );
+export const SendOwnership = memoize(
+  (connection, isOwner) =>
+    thunk(() => {
+      connection.websocket.send(
+        JSON.stringify({
+          type: 'timer:ownership',
+          isOwner,
+        }),
+      );
 
-    return none();
-  });
+      return none();
+    }),
+  10,
+);
 
-export const CloseWebsocket = websocket =>
+export const CloseWebsocket = memoize(websocket =>
   thunk(() => {
     websocket.close();
 
     return none();
-  });
+  }),
+);
+
+export const RelayMessage = memoize(
+  (connection, message) =>
+    thunk(() => {
+      connection.websocket.send(message);
+
+      return none();
+    }),
+  3,
+);

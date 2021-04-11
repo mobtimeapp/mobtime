@@ -1,7 +1,5 @@
-import { id } from './id';
-
-export const make = (websocket, timerId, isOwner = false) => ({
-  id: id(),
+export const make = (id, websocket, timerId, isOwner = false) => ({
+  id,
   timerId,
   websocket,
   isOwner,
