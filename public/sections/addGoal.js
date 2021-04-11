@@ -28,6 +28,7 @@ export const addGoal = props =>
           'justify-start': true,
           'w-full': true,
         },
+        autocomplete: 'off',
       },
       [
         !props.addMultiple && [
