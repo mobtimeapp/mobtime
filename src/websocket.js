@@ -1,5 +1,4 @@
 import { effects } from 'ferp';
-import { memoize } from './memoize.js';
 
 const { none, thunk } = effects;
 
@@ -36,35 +35,28 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
 };
 export const Websocket = (...props) => [WebsocketSub, ...props];
 
-export const SendOwnership = memoize(
-  (connection, isOwner) =>
-    thunk(() => {
-      connection.websocket.send(
-        JSON.stringify({
-          type: 'timer:ownership',
-          isOwner,
-        }),
-      );
+export const SendOwnership = (connection, isOwner) =>
+  thunk(() => {
+    connection.websocket.send(
+      JSON.stringify({
+        type: 'timer:ownership',
+        isOwner,
+      }),
+    );
 
-      return none();
-    }),
-  10,
-);
+    return none();
+  });
 
-export const CloseWebsocket = memoize(websocket =>
+export const CloseWebsocket = websocket =>
   thunk(() => {
     websocket.close();
 
     return none();
-  }),
-);
+  });
 
-export const RelayMessage = memoize(
-  (connection, message) =>
-    thunk(() => {
-      connection.websocket.send(message);
+export const RelayMessage = (connection, message) =>
+  thunk(() => {
+    connection.websocket.send(message);
 
-      return none();
-    }),
-  3,
-);
+    return none();
+  });
