@@ -27,6 +27,7 @@ export const addParticipant = props =>
           'justify-between': true,
           'w-full': true,
         },
+        autocomplete: 'off',
       },
       [
         h(
