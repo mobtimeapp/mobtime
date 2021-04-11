@@ -1,137 +1,102 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { button } from '/components/button.js';
-import { deleteButton } from '/components/deleteButton.js';
 
 import { calculateTimeRemaining } from '/lib/calculateTimeRemaining.js';
 
 import timerRemainingDisplay from '/formatTime.js';
+
 import * as actions from '/actions.js';
 
 export const timeRemaining = props => {
   const isPaused = props.timerStartedAt === null;
   const remainingTime = calculateTimeRemaining(props);
 
-  return h(section, null, [
+  return section({}, [
     h(
       'h2',
       {
-        class: {
-          'text-lg': true,
-          'font-bold': true,
-          "uppercase": true,
-        },
+        class: 'text-lg font-bold uppercase',
       },
-      'Remaining Time',
+      text('Timer'),
     ),
 
     h(
       'div',
       {
-        class: {
-          "flex": true,
-          'flex-row': true,
-          'items-center': true,
-          'justify-between': true,
-        },
+        class: 'flex flex-row items-center justify-between',
       },
       [
         h(
-          'h3',
+          'div',
           {
-            class: {
-              "flex": true,
-              'flex-row': true,
-              'items-start': true,
-              'justify-start': true,
-            },
+            class: 'flex flex-row items-center justify-start',
           },
           [
             h(
-              'span',
+              'h3',
               {
-                class: {
-                  'text-6xl': true,
-                  'font-extrabold': true,
-                  'leading-none': true,
-                },
-                style: {
-                  fontFamily: "'Working Sans', sans-serif",
-                },
+                class: 'text-4xl font-extrabold leading-none mr-1 font-mono',
               },
-              timerRemainingDisplay(remainingTime),
+              text(timerRemainingDisplay(remainingTime)),
             ),
+
             remainingTime > 0 &&
-              h(deleteButton, {
-                size: '24px',
-                onclick: [
-                  actions.Completed,
-                  {
-                    isEndOfTurn: false,
-                    documentElement: document,
-                    Notification: window.Notification,
+              button(
+                {
+                  size: 'md',
+                  shadow: false,
+                  onclick: state => {
+                    return actions.Completed(state, {
+                      isEndOfTurn: false,
+                      documentElement: document,
+                      Notification: window.Notification,
+                    });
                   },
-                ],
-              }),
+                },
+                text('🛑 End Turn'),
+              ),
           ],
         ),
 
-        !props.timerDuration && [
-          h(
-            button,
-            {
-              class: {
-                'bg-green-600': true,
-                'text-white': true,
-              },
-              onclick: [
-                actions.StartTimer,
-                () => ({
-                  timerStartedAt: Date.now(),
-                  timerDuration: props.settings.duration,
-                }),
-              ],
-            },
-            [
-              h('i', {
+        h('div', {}, [
+          !props.timerDuration &&
+            button(
+              {
                 class: {
-                  "fas": true,
-                  'fa-play': true,
-                  'mr-4': true,
+                  'bg-green-500': true,
+                  'text-gray-100': true,
+                  'hover:bg-green-400': true,
+                  'hover:text-gray-200': true,
                 },
-              }),
-              'Start Turn',
-            ],
-          ),
-        ],
+                onclick: state => {
+                  return actions.StartTimer(state, {
+                    timerStartedAt: Date.now(),
+                    timerDuration: props.settings.duration,
+                  });
+                },
+              },
+              text('🏁 Start'),
+            ),
 
-        !!props.timerDuration && [
-          h(
-            button,
-            {
-              class: {
-                'bg-white': true,
-                'text-green-600': true,
-              },
-              disabled: !props.timerDuration,
-              onclick: isPaused
-                ? [actions.ResumeTimer, undefined]
-                : [actions.PauseTimer, undefined],
-            },
-            [
-              h('i', {
+          !!props.timerDuration &&
+            button(
+              {
                 class: {
-                  "fas": true,
-                  'fa-pause': !isPaused,
-                  'fa-play': isPaused,
-                  'mr-4': true,
+                  'bg-white': true,
+                  'text-green-600': true,
                 },
-              }),
-              isPaused ? 'Resume' : 'Pause',
-            ],
-          ),
-        ],
+                disabled: !props.timerDuration,
+                onclick: state => {
+                  return isPaused
+                    ? actions.ResumeTimer(state, Date.now())
+                    : actions.PauseTimer(state, Date.now());
+                },
+              },
+              [text(isPaused ? '👍 Resume' : '✋ Pause')],
+            ),
+        ]),
       ],
     ),
   ]);
