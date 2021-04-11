@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import { effects } from 'ferp';
 import express from 'express';
 import bodyParser from 'body-parser';
 import ws from 'ws';
@@ -10,12 +11,15 @@ import path from 'path';
 import fs from 'fs';
 import apiStatistics from './api/statistics';
 
+const { act } = effects;
+
 const HttpSub = (
+  dispatch,
   storage,
   action,
   host = 'localhost',
   port = 4321,
-) => dispatch => {
+) => {
   const app = express();
   const server = http.createServer(app);
   const wss = new ws.Server({ server });
@@ -38,7 +42,7 @@ const HttpSub = (
     }
   });
 
-  router.use(apiStatistics(dispatch, action, storage));
+  router.use(apiStatistics(storage));
 
   app.use('/api', router);
 
@@ -63,9 +67,7 @@ const HttpSub = (
     const url = new URL(request.url, `http://${request.headers.host}`);
     const timerId = url.pathname.replace('/', '');
 
-    await dispatch(action.AddConnection(client, timerId));
-
-    return undefined;
+    await dispatch(action.AddConnection(client, timerId), 'AddConnection');
   });
 
   return () => {
