@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 
-import { effects } from 'ferp';
 import express from 'express';
 import bodyParser from 'body-parser';
 import ws from 'ws';
@@ -10,8 +9,6 @@ import { URL } from 'url';
 import path from 'path';
 import fs from 'fs';
 import apiStatistics from './api/statistics';
-
-const { act } = effects;
 
 const HttpSub = (
   dispatch,
