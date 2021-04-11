@@ -24,7 +24,7 @@
     "body-parser": "^1.19.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "ferp": "^1.2.0",
+    "ferp": "^2.0.0-beta.2",
     "helmet": "^3.21.3",
     "nodemon": "^2.0.2",
     "postcss": "^8.1.1",
@@ -58,8 +58,7 @@
     "failWithoutAssertions": true,
     "require": [
       "esm"
-    ],
-    "verbose": true
+    ]
   },
   "prettier": {
     "tabWidth": 2,
