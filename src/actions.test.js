@@ -4,6 +4,17 @@ import * as Actions from './actions.js';
 import { SendOwnership, CloseWebsocket, RelayMessage } from './websocket';
 import { GenerateIdEffect } from './id.js';
 
+const fx = object => {
+  try {
+    return Object.keys(object).reduce((memo, key) => {
+      if (typeof key === 'symbol') return memo;
+      return { ...memo, [key]: fx(object[key]) };
+    });
+  } catch (err) {
+    return object;
+  }
+};
+
 test('Init resets connections and statistics, with no effect', t => {
   const nextId = 'foo';
   const [state, effect] = Actions.Init(nextId);
@@ -14,7 +25,7 @@ test('Init resets connections and statistics, with no effect', t => {
     nextId,
   });
 
-  t.deepEqual(effect, effects.none());
+  t.deepEqual(fx(effect), fx(effects.none()));
 });
 
 test('SetTimerOwner does nothing when there are no connections to a specified timerId', t => {
@@ -48,11 +59,13 @@ test('SetTimerOwner sets the first available connection to a timer as the owner'
   });
 
   t.deepEqual(
-    effect,
-    effects.batch([
-      SendOwnership({ ...connection, isOwner: true }, true),
-      SendOwnership(secondConnectionToTimer, false),
-    ]),
+    fx(effect),
+    fx(
+      effects.batch([
+        SendOwnership({ ...connection, isOwner: true }, true),
+        SendOwnership(secondConnectionToTimer, false),
+      ]),
+    ),
   );
 });
 
@@ -73,12 +86,14 @@ test('AddConnection adds the connection and updates timer ownership along with s
   });
 
   t.deepEqual(
-    effect,
-    effects.batch([
-      GenerateIdEffect(Actions.SetNextId),
-      effects.act(Actions.SetTimerOwner, timerId),
-      effects.act(Actions.UpdateStatisticsFromConnections, timerId),
-    ]),
+    fx(effect),
+    fx(
+      effects.batch([
+        GenerateIdEffect(Actions.SetNextId),
+        effects.act(Actions.SetTimerOwner, timerId),
+        effects.act(Actions.UpdateStatisticsFromConnections, timerId),
+      ]),
+    ),
   );
 });
 
@@ -98,12 +113,14 @@ test('RemoveConnection removes the connection and updates timer ownership along 
   });
 
   t.deepEqual(
-    effect,
-    effects.batch([
-      CloseWebsocket(websocket),
-      effects.act(Actions.SetTimerOwner, timerId),
-      effects.act(Actions.UpdateStatisticsFromConnections, timerId),
-    ]),
+    fx(effect),
+    fx(
+      effects.batch([
+        CloseWebsocket(websocket),
+        effects.act(Actions.SetTimerOwner, timerId),
+        effects.act(Actions.UpdateStatisticsFromConnections, timerId),
+      ]),
+    ),
   );
 });
 
@@ -128,11 +145,13 @@ test('MessageTimer relays a message from one connection to all other connections
   t.deepEqual(state, originalState);
 
   t.deepEqual(
-    effect,
-    effects.batch([
-      RelayMessage(secondConnectionToTimer, message),
-      effects.act(Actions.UpdateStatisticsFromMessage, timerId, message),
-    ]),
+    fx(effect),
+    fx(
+      effects.batch([
+        RelayMessage(secondConnectionToTimer, message),
+        effects.act(Actions.UpdateStatisticsFromMessage, timerId, message),
+      ]),
+    ),
   );
 });
 
@@ -156,7 +175,7 @@ test('MessageTimerOwner relays a message to the timer owner', t => {
   t.is(state, originalState);
   t.deepEqual(state, originalState);
 
-  t.deepEqual(effect, RelayMessage(connection, message));
+  t.deepEqual(fx(effect), fx(RelayMessage(connection, message)));
 });
 
 test('MessageTimerOwner does not relay a message to the timer owner if the message originated from the timer owner websocket', t => {
@@ -179,5 +198,5 @@ test('MessageTimerOwner does not relay a message to the timer owner if the messa
   t.is(state, originalState);
   t.deepEqual(state, originalState);
 
-  t.deepEqual(effect, effects.none());
+  t.deepEqual(fx(effect), fx(effects.none()));
 });
