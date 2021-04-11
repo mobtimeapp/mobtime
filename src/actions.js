@@ -38,11 +38,9 @@ export const Init = (nextId = id()) => [
 export const SetNextId = nextId => state => [{ ...state, nextId }, none()];
 
 export const SetTimerOwner = timerId => state => {
-  // Get any connection associated with this timer id
   const hasConnectionsOnTimerId = state.connections.some(
     c => c.timerId === timerId,
   );
-  // If no connections found at all, then there is no timer, so we don't have to do work
   if (!hasConnectionsOnTimerId) {
     return [state, effects.none()];
   }
