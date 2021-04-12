@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';
 
@@ -75,7 +75,7 @@ export const goal = props =>
             "truncate": props.truncate,
           },
         },
-        props.text,
+        text(props.text),
       ),
     ],
   );

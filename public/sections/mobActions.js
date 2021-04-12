@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { button } from '/components/button.js';
@@ -29,7 +29,7 @@ export const mobActions = () =>
           },
           onclick: actions.CycleMob,
         },
-        'Rotate',
+        text('Rotate'),
       ),
 
       h(
@@ -44,7 +44,7 @@ export const mobActions = () =>
           },
           onclick: actions.ShuffleMob,
         },
-        'Randomize',
+        text('Randomize'),
       ),
     ],
   );

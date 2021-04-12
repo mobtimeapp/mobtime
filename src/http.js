@@ -47,7 +47,11 @@ const HttpSub = (
   app.use(express.static(path.resolve(rootPath, 'public')));
 
   app.get('/:timerId', async (request, response) => {
-    const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
+    const htmlPayload = path.resolve(
+      rootPath,
+      'public',
+      'legacy' in request.query ? 'legacy.html' : 'timer.html',
+    );
     const html = (await fs.promises.readFile(htmlPayload, { encoding: 'utf8' }))
       .replace('REPLACE_TIMER_ID', request.params.timerId)
       .replace('REPLACE_DARK_MODE', 'dark' in request.query ? 'dark' : '');

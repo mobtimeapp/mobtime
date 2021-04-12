@@ -56,7 +56,7 @@ export const setLength = props =>
             "uppercase": true,
           },
         },
-        'minutes',
+        text('minutes'),
       ),
     ],
   );

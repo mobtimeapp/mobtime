@@ -2,8 +2,9 @@ import * as actions from '/actions.js';
 import { layout } from '/components/layout.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
+import { summary } from '/sections/summary.js';
 import * as subscriptions from '/subscriptions.js';
-import { app } from '/vendor/hyperapp.js';
+import { app, h, text } from '/vendor/hyperapp.js';
 
 const node = document.querySelector('#app');
 
@@ -11,7 +12,12 @@ app({
   init: actions.Init(null, node.getAttribute('data-timer-id')),
 
   view: state => {
-    return layout([header(), timeRemaining(state)]);
+    return layout([
+      header(),
+      timeRemaining(state),
+      summary(state),
+      h('pre', {}, h('code', {}, text(JSON.stringify(state, null, 2)))),
+    ]);
   },
 
   subscriptions: state => {

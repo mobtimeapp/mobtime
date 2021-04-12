@@ -1,6 +1,6 @@
 import { h } from '/vendor/hyperapp.js';
 
-export const card = (props, children) =>
+export const card = (props = {}, children = []) =>
   h(
     'div',
     {

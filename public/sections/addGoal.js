@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { input, textarea } from '/components/input.js';
@@ -8,7 +8,7 @@ import { checkbox } from '/components/checkbox.js';
 import * as actions from '/actions.js';
 
 export const addGoal = props =>
-  h(section, null, [
+  h(section, {}, [
     h(
       'form',
       {
@@ -92,7 +92,7 @@ export const addGoal = props =>
                   ],
                 },
               },
-              'Add multiple goals',
+              text('Add multiple goals'),
             ),
 
             h(
@@ -105,7 +105,7 @@ export const addGoal = props =>
                   'whitespace-no-wrap': true,
                 },
               },
-              [h('i', { class: 'fas fa-plus mr-3' }), 'Add'],
+              [h('i', { class: 'fas fa-plus mr-3' }), text('Add')],
             ),
           ],
         ),
