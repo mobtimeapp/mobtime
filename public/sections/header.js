@@ -11,7 +11,7 @@ export const header = () =>
         'items-center': true,
         'justify-start': true,
         "uppercase": true,
-        'tracker-widest': true,
+        'tracking-widest': true,
         'text-2xl': true,
       },
     },

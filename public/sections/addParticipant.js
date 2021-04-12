@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
@@ -7,7 +7,7 @@ import { button } from '/components/button.js';
 import * as actions from '/actions.js';
 
 export const addParticipant = props =>
-  h(section, null, [
+  h(section, {}, [
     h(
       'form',
       {
@@ -67,7 +67,7 @@ export const addParticipant = props =>
               'whitespace-no-wrap': true,
             },
           },
-          [h('i', { class: 'fas fa-plus mr-3' }), 'Add'],
+          [h('i', { class: 'fas fa-plus mr-3' }), text('Add')],
         ),
       ],
     ),

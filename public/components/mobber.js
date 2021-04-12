@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 
@@ -37,7 +37,7 @@ export const mobber = props =>
                 'mb-1': true,
               },
             },
-            props.position,
+            text(props.position),
           ),
           h(
             'div',
@@ -50,7 +50,7 @@ export const mobber = props =>
                 "truncate": props.truncate,
               },
             },
-            props.name || 'Empty',
+            text(props.name || 'Empty'),
           ),
         ],
       ),

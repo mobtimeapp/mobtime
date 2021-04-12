@@ -50,7 +50,7 @@ export const mobOrder = props =>
             {
               class: 'text-sm',
             },
-            'One or more comma separated list of positions',
+            text('One or more comma separated list of positions'),
           ),
         ],
       ),

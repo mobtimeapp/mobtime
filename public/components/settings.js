@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { button } from '/components/button.js';
 
@@ -57,7 +57,7 @@ export const settings = (props, children) =>
                 },
                 onclick: actions.PendingSettingsReset,
               },
-              'Cancel',
+              text('Cancel'),
             ),
             h(
               button,
@@ -69,7 +69,7 @@ export const settings = (props, children) =>
                 },
                 disable: Object.keys(props.pendingSettings).length === 0,
               },
-              'Save',
+              text('Save'),
             ),
           ],
         ),
@@ -81,7 +81,7 @@ export const settings = (props, children) =>
               'text-center': true,
             },
           },
-          ['Settings are up to date ', h('i', { class: 'fas fa-check' })],
+          [text('Settings are up to date '), h('i', { class: 'fas fa-check' })],
         ),
     ],
   );

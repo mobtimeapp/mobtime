@@ -19,7 +19,7 @@ export const goalList = props => {
     padding > 0 ? temporaryGoals.slice(-padding) : [],
   );
 
-  return h(section, null, [
+  return h(section, {}, [
     h(reorderable, {
       dragType: 'goal',
       expandedReorderable: props.expandedReorderable,

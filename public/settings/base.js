@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 export const base = (props, children) => [
   h(
@@ -15,7 +15,7 @@ export const base = (props, children) => [
         "uppercase": true,
       },
     },
-    props.title,
+    text(props.title),
   ),
   h(
     'div',

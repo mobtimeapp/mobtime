@@ -21,10 +21,10 @@ export const mobParticipants = props => {
     position: mobOrder[index] || 'mob',
   }));
 
-  return h(section, null, [
+  return h(section, {}, [
     h(
       'div',
-      null,
+      {},
       h(reorderable, {
         dragType: 'mob',
         expandedReorderable: props.expandedReorderable,
