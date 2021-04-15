@@ -13,7 +13,6 @@ const defaultStatistics = {
 
 const extractStatistics = message => {
   const { type, ...data } = JSON.parse(message);
-  console.log('message', message);
 
   switch (type) {
     case 'goals:update':
