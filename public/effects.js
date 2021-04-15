@@ -133,3 +133,31 @@ export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
 export const andThen = fx(function andThenFX(dispatch, { action, props }) {
   dispatch(action, props);
 });
+
+export const LoadProfile = fx(function LoadProfileFx(
+  dispatch,
+  { localStorage, onLoad },
+) {
+  const profileString = localStorage.getItem('mobtime_profile');
+  const profile = profileString
+    ? JSON.parse(profileString)
+    : {
+        firstTime: true,
+        name: 'Anonymous Mobber',
+        avatar: null,
+        id: Math.random()
+          .toString(36)
+          .slice(2),
+      };
+
+  if (!profileString) {
+    localStorage.setItem(
+      'mobtime_profile',
+      JSON.stringify({ ...profile, firstTime: false }),
+    );
+  }
+
+  console.log('LoadProfile', profile);
+
+  dispatch(onLoad, profile);
+});

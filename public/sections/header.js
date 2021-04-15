@@ -9,11 +9,26 @@ export const header = () =>
         "flex": true,
         'flex-row': true,
         'items-center': true,
-        'justify-start': true,
-        "uppercase": true,
-        'tracking-widest': true,
-        'text-2xl': true,
+        'justify-between': true,
       },
     },
-    [h('span', { class: 'mr-1' }, text('⏱️')), text('mobtime')],
+    [
+      h(
+        'div',
+        {
+          class: 'uppercase tracking-widest text-2xl',
+        },
+        [text('⏱️ mobtime')],
+      ),
+      h(
+        'div',
+        {
+          class: 'flex flex-row',
+        },
+        [
+          h('button', { type: 'button', class: 'mr-3' }, text('👤 Profile')),
+          h('button', { type: 'button', class: 'mr-3' }, text('✏️ Edit Timer')),
+        ],
+      ),
+    ],
   );
