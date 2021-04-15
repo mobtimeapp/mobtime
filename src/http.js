@@ -41,10 +41,10 @@ const HttpSub = (
 
   router.use(apiStatistics(storage));
 
-  app.use('/api', router);
-
   const rootPath = path.resolve(__dirname, '..');
   app.use(express.static(path.resolve(rootPath, 'public')));
+
+  app.use('/api', router);
 
   app.get('/:timerId', async (request, response) => {
     const htmlPayload = path.resolve(

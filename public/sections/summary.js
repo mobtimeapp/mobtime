@@ -1,40 +1,30 @@
-import { h, text } from '/vendor/hyperapp.js';
-import { section } from '../components/section.js';
+import { h } from '/vendor/hyperapp.js';
+import { participants } from './participants.js';
+import { goals } from './goals.js';
 
-const column = (title, children) =>
-  h('div', {}, [
-    h(
-      'h4',
-      {
-        class:
-          'text-lg font-bold uppercase tracking-widest block border-gray-100 border-b',
-      },
-      text(title),
-    ),
-    ...children,
-  ]);
-
-const activeParticipantList = ({ settings }, mob = []) =>
-  h(
-    'ol',
-    {},
-    (settings.mobOrder || []).map((position, index) =>
-      h(
-        'li',
+export const summary = ({ mob, goals: mobGoals, settings }) => {
+  const positions = (settings.mobOrder || 'Lead').split(',');
+  const activeMob = mob.slice(0, positions.length);
+  const passiveMob = mob.slice(positions.length);
+  return h(
+    'div',
+    {
+      class: 'grid sm:grid-cols-2 gap-1',
+    },
+    [
+      participants(
         {
-          class: 'mb-1',
+          activeMob,
+          passiveMob,
         },
-        [text(position), h('div', {}, text(mob[index].name || 'Empty'))],
+        positions,
       ),
-    ),
+      goals(
+        {
+          goals: mobGoals,
+        },
+        positions,
+      ),
+    ],
   );
-
-export const summary = ({ mob, settings }) =>
-  section({}, [
-    h('div', { class: 'grid sm:grid-cols-2 gap-4' }, [
-      column('Active Participants', [
-        // activeParticipantList({ settings }, mob),
-      ]),
-      column('Passive Team', []),
-    ]),
-  ]);
+};

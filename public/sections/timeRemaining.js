@@ -65,9 +65,9 @@ export const timeRemaining = props => {
             button(
               {
                 class: {
-                  'bg-green-500': true,
+                  'bg-green-800': true,
                   'text-gray-100': true,
-                  'hover:bg-green-400': true,
+                  'hover:bg-green-700': true,
                   'hover:text-gray-200': true,
                 },
                 onclick: state => {
@@ -77,7 +77,7 @@ export const timeRemaining = props => {
                   });
                 },
               },
-              text('🏁 Start'),
+              text('Begin Turn'),
             ),
 
           !!props.timerDuration &&
