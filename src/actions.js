@@ -3,7 +3,7 @@ import { SendOwnership, CloseWebsocket, RelayMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
 
-const { none, act, batch, thunk } = effects;
+const { none, act, batch } = effects;
 
 const defaultStatistics = {
   mobbers: 0,
@@ -13,6 +13,7 @@ const defaultStatistics = {
 
 const extractStatistics = message => {
   const { type, ...data } = JSON.parse(message);
+  console.log('message', message);
 
   switch (type) {
     case 'goals:update':

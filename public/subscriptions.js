@@ -1,4 +1,5 @@
 /* eslint-disable import/no-absolute-path, import/extensions, import/no-unresolved */
+import * as port from './port.js';
 
 const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
   let cancel = false;
@@ -15,7 +16,6 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
     const currentTime = Date.now();
     dispatch(actions.SetCurrentTime, {
       currentTime,
-      documentElement: document,
     });
     const elapsed = currentTime - timerStartedAt;
 
@@ -40,35 +40,72 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
 };
 export const Timer = props => [TimerFX, props];
 
-const WebsocketFX = (dispatch, { timerId, actions }) => {
+const WebsocketFX = (dispatch, { timerId, actions, websocketPort }) => {
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`;
 
   let socket = null;
   let cancel = false;
 
-  const connect = async () => {
+  port.on(websocketPort, 'send', event => {
+    if (cancel || !socket) return;
+    socket.send(JSON.stringify(event.data));
+  });
+
+  const connect = () => {
     if (cancel) return;
 
-    dispatch(actions.SetWebsocket, { websocket: null });
     socket = new WebSocket(websocketAddress);
 
     socket.addEventListener('open', () => {
-      dispatch(actions.SetWebsocket, { websocket: socket });
       dispatch(actions.BroadcastJoin);
     });
 
     socket.addEventListener('message', event => {
-      const payload = JSON.parse(event.data);
+      const { type, ...data } = JSON.parse(event.data);
+      switch (type) {
+        case 'settings:update':
+          return dispatch(actions.ReplaceSettings, data.settings);
 
-      dispatch(actions.UpdateByWebsocketData, {
-        payload,
-        documentElement: document,
-        Notification: window.Notification,
-      });
+        case 'timer:start':
+          return dispatch(actions.StartTimer, {
+            timerStartedAt: Date.now(),
+            timerDuration: data.timerDuration,
+          });
+
+        case 'timer:pause':
+          return dispatch(actions.PauseTimer, Date.now());
+
+        case 'timer:update':
+          return dispatch(actions.ReplaceTimer, {
+            timerStartedAt: data.timerStartedAt,
+            timerDuration: data.timerDuration,
+          });
+
+        case 'timer:complete':
+          return dispatch(actions.EndTurn);
+
+        case 'goals:update':
+          return dispatch(actions.SetGoals, data.goals);
+
+        case 'mob:update':
+          return dispatch(actions.SetMob, data.mob);
+
+        case 'client:new':
+          return dispatch(actions.ShareEverything);
+
+        case 'timer:ownership':
+          return dispatch(actions.SetOwnership, data.isOwner);
+
+        default:
+          console.warn('Unknown websocket data', event.data); // eslint-disable-line no-console
+          return null;
+      }
     });
 
     socket.addEventListener('close', () => {
+      socket = null;
+
       if (cancel) return;
 
       setTimeout(connect, 1000);
@@ -81,51 +118,11 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
     });
   };
 
-  requestAnimationFrame(() => {
-    connect();
-  });
+  connect();
 
   return () => {
     cancel = true;
-
-    dispatch(actions.SetWebsocket, { websocket: null });
-
     socket.close();
-    socket = null;
   };
 };
 export const Websocket = props => [WebsocketFX, props];
-
-const DragAndDropFX = (dispatch, props) => {
-  const onMove = event => {
-    dispatch(props.DragMove, {
-      clientX: event.pageX,
-      clientY: event.pageY,
-    });
-  };
-
-  const onMouseUp = event => {
-    if (props.active) {
-      event.preventDefault();
-    }
-    dispatch(props.DragEnd);
-  };
-
-  const onKeyUp = event => {
-    if (event.key !== 'Escape') {
-      return;
-    }
-    dispatch(props.DragCancel);
-  };
-
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('keyup', onKeyUp);
-  document.addEventListener('mouseup', onMouseUp);
-
-  return () => {
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onMouseUp);
-    document.removeEventListener('keyup', onKeyUp);
-  };
-};
-export const DragAndDrop = props => [DragAndDropFX, props];

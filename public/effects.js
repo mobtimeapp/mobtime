@@ -1,75 +1,65 @@
 /* eslint-disable prefer-arrow-callback */
 
 import formatTime from './formatTime.js';
+import * as port from './port.js';
 
 const fx = effect => props => [effect, props];
 
-const sendMessage = (websocket, type, json = {}) => {
-  websocket.send(
-    JSON.stringify({
-      type,
-      ...json,
-    }),
-  );
+const sendMessage = (websocketPort, type, json = {}) => {
+  port.expose(websocketPort).send({
+    ...json,
+    type,
+  });
 };
 
 export const UpdateSettings = fx(function UpdateSettingsFX(
   _dispatch,
-  { websocket, settings },
+  { websocketPort, settings },
 ) {
-  return sendMessage(websocket, 'settings:update', { settings });
+  return sendMessage(websocketPort, 'settings:update', { settings });
 });
 
 export const BroadcastJoin = fx(function UpdateSettingsFX(
   _dispatch,
-  { websocket },
+  { websocketPort },
 ) {
-  return sendMessage(websocket, 'client:new');
+  return sendMessage(websocketPort, 'client:new');
 });
 
 export const StartTimer = fx(function StartTimerFX(
   _dispatch,
-  { websocket, timerDuration },
+  { websocketPort, timerDuration },
 ) {
-  return sendMessage(websocket, 'timer:start', { timerDuration });
+  return sendMessage(websocketPort, 'timer:start', { timerDuration });
 });
 
 export const PauseTimer = fx(function StartTimerFX(
   _dispatch,
-  { websocket, timerDuration },
+  { websocketPort, timerDuration },
 ) {
-  return sendMessage(websocket, 'timer:pause', { timerDuration });
+  return sendMessage(websocketPort, 'timer:pause', { timerDuration });
 });
 
 export const CompleteTimer = fx(function CompleteTimerFX(
   _dispatch,
-  { websocket },
+  { websocketPort },
 ) {
-  return sendMessage(websocket, 'timer:complete');
+  return sendMessage(websocketPort, 'timer:complete');
 });
 
 export const UpdateGoals = fx(function UpdateGoalsFX(
   _dispatch,
-  { websocket, goals },
+  { websocketPort, goals },
 ) {
-  websocket.send(
-    JSON.stringify({
-      type: 'goals:update',
-      goals,
-    }),
-  );
+  return sendMessage(websocketPort, 'goals:update', { goals });
 });
 
 export const UpdateMob = fx(function UpdateMobFX(
   _dispatch,
-  { websocket, mob },
+  { websocketPort, mob },
 ) {
-  websocket.send(
-    JSON.stringify({
-      type: 'mob:update',
-      mob,
-    }),
-  );
+  console.log('effects.updateMob', { websocketPort, mob });
+  return sendMessage(websocketPort, 'mob:update', { mob });
 });
 
 export const NotificationPermission = fx(function NotificationPermissionFX(
@@ -156,8 +146,6 @@ export const LoadProfile = fx(function LoadProfileFx(
       JSON.stringify({ ...profile, firstTime: false }),
     );
   }
-
-  console.log('LoadProfile', profile);
 
   dispatch(onLoad, profile);
 });
