@@ -1,4 +1,6 @@
-export const initial = (timerId, initialNotificationPermission) => ({
+import * as port from './port.js';
+
+export const initial = (timerId, externals = {}) => ({
   isOwner: false,
   timerStartedAt: null,
   timerDuration: 0,
@@ -15,9 +17,9 @@ export const initial = (timerId, initialNotificationPermission) => ({
   name: '',
   goal: '',
   allowSound: false,
-  allowNotification: initialNotificationPermission === 'granted',
-  notificationPermissions: initialNotificationPermission,
-  websocket: null,
+  allowNotification: false,
+  websocketPort: port.make(['send']),
+  externals,
 });
 
 export const dismissToastMessage = state => ({
@@ -28,11 +30,6 @@ export const dismissToastMessage = state => ({
 export const setCurrentTime = (state, currentTime) => ({
   ...state,
   currentTime,
-});
-
-export const setWebsocket = (state, websocket) => ({
-  ...state,
-  websocket,
 });
 
 export const endTurn = state => ({
@@ -167,3 +164,5 @@ export const mergePendingSettingsIntoSettings = state => ({
 
 export const setSettings = (state, settings) => ({ ...state, settings });
 export const getSettings = state => state.settings;
+
+export const setIsOwner = (state, isOwner) => ({ ...state, isOwner });

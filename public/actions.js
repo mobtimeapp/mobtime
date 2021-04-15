@@ -2,11 +2,6 @@ import * as State from './state.js';
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
-let initialNotificationPermission = '';
-if (typeof window !== 'undefined' && 'Notification' in window) {
-  initialNotificationPermission = Notification.permission;
-}
-
 export const SetAllowSound = (state, allowSound) => [
   {
     ...state,
@@ -60,9 +55,9 @@ export const SetProfile = (state, profile) => {
   ];
 };
 
-export const Init = (_, timerId) => [
+export const Init = (_, { timerId, externals }) => [
   {
-    ...State.initial(timerId, initialNotificationPermission),
+    ...State.initial(timerId, externals),
   },
   effects.LoadProfile({
     localStorage: window.localStorage,
@@ -70,7 +65,7 @@ export const Init = (_, timerId) => [
   }),
 ];
 
-export const SetCurrentTime = (state, { currentTime, documentElement }) => {
+export const SetCurrentTime = (state, { currentTime }) => {
   const nextState = State.setCurrentTime(state, currentTime);
   const remainingTime = calculateTimeRemaining(nextState);
 
@@ -78,54 +73,54 @@ export const SetCurrentTime = (state, { currentTime, documentElement }) => {
     nextState,
     effects.UpdateTitleWithTime({
       remainingTime,
-      documentElement,
+      documentElement: state.externals.documentElement,
     }),
   ];
 };
 
-export const SetWebsocket = (state, { websocket }) =>
-  State.setWebsocket(state, websocket);
+export const EndTurn = state => {
+  if (state.timerStartedAt === null) {
+    return state;
+  }
 
-export const EndTurn = (state, { documentElement, Notification }) => [
-  State.endTurn(state),
-  [
-    effects.UpdateTitleWithTime({
-      remainingTime: 0,
-      documentElement,
-    }),
-    effects.Notify({
-      notification: state.allowNotification,
-      sound: state.profile.allowSound,
-      title: 'Mobtime',
-      text: 'The timer is up!',
-      Notification,
-      documentElement,
-    }),
-  ],
-];
+  return [
+    State.endTurn(state),
+    [
+      effects.UpdateTitleWithTime({
+        remainingTime: 0,
+        documentElement: state.externals.documentElement,
+      }),
+      effects.Notify({
+        notification: state.allowNotification,
+        sound: state.profile.allowSound,
+        title: 'Mobtime',
+        text: 'The timer is up!',
+        Notification: state.externals.Notification,
+        documentElement: state.externals.documentElement,
+      }),
+    ],
+  ];
+};
 
-export const Completed = (
-  state,
-  { isEndOfTurn, documentElement, Notification },
-) => [
+export const Completed = (state, { isEndOfTurn }) => [
   State.cycleMob(State.endTurn(state)),
-  effects.CompleteTimer({
-    websocket: state.websocket,
-  }),
   isEndOfTurn &&
     effects.andThen({
       action: EndTurn,
-      props: {
-        documentElement,
-        Notification,
-      },
+      props: {},
     }),
 ];
+export const CompletedAndShare = (state, { isEndOfTurn }) =>
+  Completed(state, { isEndOfTurn }).concat(
+    effects.CompleteTimer({
+      websocketPort: state.websocketPort,
+    }),
+  );
 
 export const ShareMob = state => [
   state,
   effects.UpdateMob({
-    websocket: state.websocket,
+    websocketPort: state.websocketPort,
     mob: State.getMob(state),
   }),
 ];
@@ -138,6 +133,8 @@ export const RenameUser = (state, { id, value }) => {
 
   return ShareMob(State.setMob(state, mob));
 };
+
+export const SetMob = (state, mob) => State.setMob(state, mob);
 
 export const UpdateName = (state, name) => ({
   ...state,
@@ -166,7 +163,7 @@ export const RemoveFromMob = (state, id) =>
 export const ShareGoals = state => [
   state,
   effects.UpdateGoals({
-    websocket: state.websocket,
+    websocketPort: state.websocketPort,
     goals: State.getGoals(state),
   }),
 ];
@@ -188,6 +185,8 @@ export const RemoveCompletedGoals = state =>
 export const RenameGoal = (state, { id, value }) =>
   ShareGoals(State.editGoal(state, id, value));
 
+export const SetGoals = (state, goals) => State.setGoals(state, goals);
+
 export const UpdateGoalText = (state, goal) => [
   {
     ...state,
@@ -195,38 +194,49 @@ export const UpdateGoalText = (state, goal) => [
   },
 ];
 
-export const PauseTimer = (state, currentTime = Date.now()) => {
-  const nextState = State.pauseTimer(state, currentTime);
+export const PauseTimer = (state, currentTime = Date.now()) =>
+  State.pauseTimer(state, currentTime);
+export const PauseTimerAndShare = (state, currentTime = Date.now()) => {
+  const nextState = PauseTimer(state, currentTime);
 
   return [
     nextState,
     effects.PauseTimer({
-      websocket: state.websocket,
+      websocketPort: state.websocketPort,
       timerDuration: state.timerDuration,
     }),
   ];
 };
 
-export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
-  State.resumeTimer(state, timerStartedAt),
+export const ResumeTimer = (state, timerStartedAt = Date.now()) =>
+  State.resumeTimer(state, timerStartedAt);
+export const ResumeTimerAndShare = (state, timerStartedAt = Date.now()) => [
+  ResumeTimer(state, timerStartedAt),
   effects.StartTimer({
-    websocket: state.websocket,
+    websocketPort: state.websocketPort,
     timerDuration: state.timerDuration,
   }),
 ];
 
-export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
-  State.startTimer(state, timerStartedAt, timerDuration),
+export const StartTimer = (state, { timerStartedAt, timerDuration }) =>
+  State.startTimer(state, timerStartedAt, timerDuration);
+export const StartTimerAndShare = (
+  state,
+  { timerStartedAt, timerDuration },
+) => [
+  StartTimer(state, { timerStartedAt, timerDuration }),
   effects.StartTimer({
-    websocket: state.websocket,
+    websocketPort: state.websocketPort,
     timerDuration,
   }),
 ];
 
-export const SetAllowNotification = (
-  state,
-  { allowNotification, Notification, documentElement },
-) => [
+export const ReplaceTimer = (state, timerAttributes) => ({
+  ...state,
+  ...timerAttributes,
+});
+
+export const SetAllowNotification = (state, { allowNotification }) => [
   {
     ...state,
     allowNotification,
@@ -236,14 +246,14 @@ export const SetAllowNotification = (
       title: 'Mobtime Config',
       text: 'You have allowed notifications',
       sound: false,
-      Notification,
-      documentElement,
+      Notification: state.externals.Notification,
+      documentElement: state.externals.documentElement,
     }),
 ];
 
 export const SetNotificationPermissions = (
   state,
-  { notificationPermissions, Notification, documentElement },
+  { notificationPermissions },
 ) => [
   {
     ...state,
@@ -254,21 +264,18 @@ export const SetNotificationPermissions = (
       action: SetAllowNotification,
       props: {
         allowNotification: true,
-        Notification,
-        documentElement,
+        Notification: state.externals.Notification,
+        documentElement: state.externals.documentElement,
       },
     }),
 ];
 
-export const RequestNotificationPermission = (
-  state,
-  { Notification, documentElement },
-) => [
+export const RequestNotificationPermission = state => [
   state,
   effects.NotificationPermission({
     SetNotificationPermissions,
-    Notification,
-    documentElement,
+    Notification: state.Notification,
+    documentElement: state.documentElement,
   }),
 ];
 
@@ -288,7 +295,7 @@ export const PendingSettingsSet = (state, { key, value }) =>
 export const ShareSettings = state => [
   state,
   effects.UpdateSettings({
-    websocket: state.websocket,
+    websocketPort: state.websocketPort,
     settings: state.settings,
   }),
 ];
@@ -298,79 +305,36 @@ export const UpdateSettings = state =>
     State.pendingSettingsReset(State.mergePendingSettingsIntoSettings(state)),
   );
 
+export const ReplaceSettings = (state, settings) =>
+  State.setSettings(state, settings);
+
 export const BroadcastJoin = state => [
   state,
   effects.BroadcastJoin({
-    websocket: state.websocket,
+    websocketPort: state.websocketPort,
   }),
 ];
 
-export const UpdateByWebsocketData = (
+export const ShareEverything = state => [
   state,
-  { payload, documentElement, Notification },
-) => {
-  const { type, ...data } = payload;
+  effects.UpdateMob({
+    websocketPort: state.websocketPort,
+    mob: State.getMob(state),
+  }),
+  effects.UpdateGoals({
+    websocketPort: state.websocketPort,
+    goals: State.getGoals(state),
+  }),
+  effects.UpdateSettings({
+    websocketPort: state.websocketPort,
+    settings: State.getSettings(state),
+  }),
+  state.timerStartedAt > 0 &&
+    effects.StartTimer({
+      websocketPort: state.websocketPort,
+      timerDuration: calculateTimeRemaining(state),
+    }),
+];
 
-  switch (type) {
-    case 'settings:update':
-      return State.setSettings(state, data.settings);
-
-    case 'timer:start':
-      return State.startTimer(state, Date.now(), data.timerDuration);
-
-    case 'timer:pause':
-      return State.pauseTimer(state, Date.now());
-
-    case 'timer:update':
-      return {
-        ...state,
-        timerStartedAt: data.timerStartedAt,
-        timerDuration: data.timerDuration,
-      };
-
-    case 'timer:complete':
-      if (state.timerStartedAt === null) {
-        return state;
-      }
-
-      return EndTurn(state, {
-        Notification,
-        documentElement,
-      });
-
-    case 'goals:update':
-      return State.setGoals(state, data.goals);
-
-    case 'mob:update':
-      return State.setMob(state, data.mob);
-
-    case 'client:new':
-      return [
-        state,
-        state.timerStartedAt > 0 &&
-          effects.StartTimer({
-            websocket: state.websocket,
-            timerDuration: calculateTimeRemaining(state),
-          }),
-        effects.UpdateMob({ websocket: state.websocket, mob: state.mob }),
-        effects.UpdateGoals({
-          websocket: state.websocket,
-          goals: state.goals,
-        }),
-        effects.UpdateSettings({
-          websocket: state.websocket,
-          settings: state.settings,
-        }),
-      ];
-
-    case 'timer:ownership':
-      return {
-        ...state,
-        isOwner: data.isOwner,
-      };
-
-    default:
-      console.warn('Unknown websocket data', payload); // eslint-disable-line no-console
-      return state;
-  }
-};
+export const SetOwnership = (state, isOwner) =>
+  State.setIsOwner(state, isOwner);

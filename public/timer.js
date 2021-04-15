@@ -9,7 +9,16 @@ import { app, h, text } from '/vendor/hyperapp.js';
 const node = document.querySelector('#app');
 
 app({
-  init: actions.Init(null, node.getAttribute('data-timer-id')),
+  init: actions.Init(
+    {},
+    {
+      timerId: node.getAttribute('data-timer-id'),
+      externals: {
+        documentElement: window.document,
+        Notification: window.Notification,
+      },
+    },
+  ),
 
   view: state => {
     return layout(
@@ -25,31 +34,25 @@ app({
     );
   },
 
-  subscriptions: state => {
-    const { timerId } = state;
-
-    return [
-      timerId &&
-        subscriptions.Websocket({
-          actions,
-          timerId,
-        }),
-
-      subscriptions.Timer({
-        timerStartedAt: state.timerStartedAt,
-        timerDuration: state.timerDuration,
+  subscriptions: ({
+    timerId,
+    timerStartedAt,
+    timerDuration,
+    websocketPort,
+  }) => [
+    timerId &&
+      subscriptions.Websocket({
         actions,
+        timerId,
+        websocketPort,
       }),
 
-      // drag.type &&
-      // subscriptions.DragAndDrop({
-      // active: drag.active,
-      // DragMove: actions.DragMove,
-      // DragEnd: actions.DragEnd,
-      // DragCancel: actions.DragCancel,
-      // }),
-    ];
-  },
+    subscriptions.Timer({
+      timerStartedAt,
+      timerDuration,
+      actions,
+    }),
+  ],
 
   node,
 });

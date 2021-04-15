@@ -48,10 +48,8 @@ export const timeRemaining = props => {
                   size: 'md',
                   shadow: false,
                   onclick: state => {
-                    return actions.Completed(state, {
+                    return actions.CompletedAndShare(state, {
                       isEndOfTurn: false,
-                      documentElement: document,
-                      Notification: window.Notification,
                     });
                   },
                 },
@@ -71,7 +69,7 @@ export const timeRemaining = props => {
                   'hover:text-gray-200': true,
                 },
                 onclick: state => {
-                  return actions.StartTimer(state, {
+                  return actions.StartTimerAndShare(state, {
                     timerStartedAt: Date.now(),
                     timerDuration: props.settings.duration,
                   });
@@ -90,8 +88,8 @@ export const timeRemaining = props => {
                 disabled: !props.timerDuration,
                 onclick: state => {
                   return isPaused
-                    ? actions.ResumeTimer(state, Date.now())
-                    : actions.PauseTimer(state, Date.now());
+                    ? actions.ResumeTimerAndShare(state, Date.now())
+                    : actions.PauseTimerAndShare(state, Date.now());
                 },
               },
               [text(isPaused ? '👍 Resume' : '✋ Pause')],
