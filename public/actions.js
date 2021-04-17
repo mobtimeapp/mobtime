@@ -73,7 +73,7 @@ export const SetCurrentTime = (state, { currentTime }) => {
     nextState,
     effects.UpdateTitleWithTime({
       remainingTime,
-      documentElement: state.externals.documentElement,
+      externals: state.externals,
     }),
   ];
 };
@@ -85,25 +85,26 @@ export const EndTurn = state => {
 
   return [
     State.endTurn(state),
-    [
-      effects.UpdateTitleWithTime({
-        remainingTime: 0,
-        documentElement: state.externals.documentElement,
-      }),
-      effects.Notify({
-        notification: state.allowNotification,
-        sound: state.profile.allowSound,
-        title: 'Mobtime',
-        text: 'The timer is up!',
-        Notification: state.externals.Notification,
-        documentElement: state.externals.documentElement,
-      }),
-    ],
+    effects.UpdateTitleWithTime({
+      remainingTime: 0,
+      externals: state.externals,
+    }),
+    effects.Notify({
+      notification: state.allowNotification,
+      sound: state.profile.allowSound,
+      title: 'Mobtime',
+      text: 'The timer is up!',
+      externals: state.externals,
+    }),
   ];
 };
 
 export const Completed = (state, { isEndOfTurn }) => [
   State.cycleMob(State.endTurn(state)),
+  effects.UpdateTitleWithTime({
+    remainingTime: 0,
+    externals: state.externals,
+  }),
   isEndOfTurn &&
     effects.andThen({
       action: EndTurn,
@@ -246,8 +247,7 @@ export const SetAllowNotification = (state, { allowNotification }) => [
       title: 'Mobtime Config',
       text: 'You have allowed notifications',
       sound: false,
-      Notification: state.externals.Notification,
-      documentElement: state.externals.documentElement,
+      externals: state.externals,
     }),
 ];
 
@@ -264,8 +264,6 @@ export const SetNotificationPermissions = (
       action: SetAllowNotification,
       props: {
         allowNotification: true,
-        Notification: state.externals.Notification,
-        documentElement: state.externals.documentElement,
       },
     }),
 ];
