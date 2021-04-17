@@ -58,19 +58,17 @@ export const UpdateMob = fx(function UpdateMobFX(
   _dispatch,
   { websocketPort, mob },
 ) {
-  console.log('effects.updateMob', { websocketPort, mob });
   return sendMessage(websocketPort, 'mob:update', { mob });
 });
 
 export const NotificationPermission = fx(function NotificationPermissionFX(
   dispatch,
-  { SetNotificationPermissions, Notification, documentElement },
+  { SetNotificationPermissions, externals },
 ) {
   const dispatchSetNotificationPermissions = notificationPermissions => {
     dispatch(SetNotificationPermissions, {
       notificationPermissions,
-      Notification,
-      documentElement,
+      externals,
     });
   };
 
@@ -79,7 +77,7 @@ export const NotificationPermission = fx(function NotificationPermissionFX(
     return;
   }
 
-  Notification.requestPermission()
+  externals.Notification.requestPermission()
     .then(dispatchSetNotificationPermissions)
     .catch(() => {
       // eslint-disable-next-line no-console
@@ -89,35 +87,28 @@ export const NotificationPermission = fx(function NotificationPermissionFX(
 
 export const Notify = fx(function NotifyFX(
   _dispatch,
-  {
-    title,
-    text,
-    notification = true,
-    sound = false,
-    Notification,
-    documentElement,
-  },
+  { title, text, notification = true, sound = false, externals },
 ) {
-  if (notification && Notification) {
+  if (notification && externals.Notification) {
     // eslint-disable-next-line no-new
-    new Notification(title, {
+    new externals.Notification(title, {
       body: text,
       vibrate: [100, 100, 100],
     });
   }
-  if (sound && documentElement) {
-    const timerComplete = documentElement.querySelector('#timer-complete');
+  if (sound && externals.document) {
+    const timerComplete = externals.document.querySelector('#timer-complete');
     timerComplete.play();
   }
 });
 
 export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
   _dispatch,
-  { remainingTime, documentElement },
+  { remainingTime, externals },
 ) {
   // eslint-disable-next-line no-param-reassign
-  documentElement.title =
-    remainingTime > 0 ? `${formatTime(remainingTime)} - mobtime` : 'mobtime';
+  externals.document.title =
+    remainingTime > 0 ? `${formatTime(remainingTime)} - Mobtime` : 'Mobtime';
 });
 
 export const andThen = fx(function andThenFX(dispatch, { action, props }) {
