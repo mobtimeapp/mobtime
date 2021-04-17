@@ -88,7 +88,7 @@ export const layout = ({ toastMessages }, children) =>
         {
           class: 'w-full text-sm',
         },
-        toastMessages.slice(0, 1).map(n =>
+        (toastMessages || []).slice(0, 1).map(n =>
           h(
             'li',
             {

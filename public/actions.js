@@ -9,6 +9,7 @@ export const SetAllowSound = (state, allowSound) => [
   },
 ];
 
+export const AddToast = (state, toast) => State.concatToasts(state, toast);
 export const DismissToast = state => State.dismissToastMessage(state);
 
 const makeToastMessage = (message, actions) => ({
@@ -38,30 +39,13 @@ const toastMessages = {
   default: [],
 };
 
-export const SetProfile = (state, profile) => {
-  let messages = toastMessages.default;
-  if (profile.firstTime) {
-    messages = toastMessages.firstTime;
-  } else {
-    messages = [...(profile.allowSound ? toastMessages.activateSound : [])];
-  }
-
-  return [
-    {
-      ...state,
-      profile,
-      toastMessages: messages,
-    },
-  ];
-};
+export const SetProfile = (state, profile) => State.setProfile(state, profile);
 
 export const Init = (_, { timerId, externals }) => [
-  {
-    ...State.initial(timerId, externals),
-  },
+  State.initial(timerId, externals),
   effects.LoadProfile({
     localStorage: window.localStorage,
-    onLoad: SetProfile,
+    setProfile: SetProfile,
   }),
 ];
 
@@ -111,12 +95,12 @@ export const Completed = (state, { isEndOfTurn }) => [
       props: {},
     }),
 ];
-export const CompletedAndShare = (state, { isEndOfTurn }) =>
-  Completed(state, { isEndOfTurn }).concat(
-    effects.CompleteTimer({
-      websocketPort: state.websocketPort,
-    }),
-  );
+export const CompletedAndShare = (state, { isEndOfTurn }) => [
+  ...Completed(state, { isEndOfTurn }),
+  effects.CompleteTimer({
+    websocketPort: state.websocketPort,
+  }),
+];
 
 export const ShareMob = state => [
   state,
@@ -127,7 +111,7 @@ export const ShareMob = state => [
 ];
 
 export const RenameUser = (state, { id, value }) => {
-  const mob = state.mob.map(m => ({
+  const mob = State.getMob(state).map(m => ({
     ...m,
     name: m.id === id ? value : m.name,
   }));
@@ -136,11 +120,6 @@ export const RenameUser = (state, { id, value }) => {
 };
 
 export const SetMob = (state, mob) => State.setMob(state, mob);
-
-export const UpdateName = (state, name) => ({
-  ...state,
-  name,
-});
 
 export const ShuffleMob = state => ShareMob(State.shuffleMob(state));
 
@@ -197,6 +176,7 @@ export const UpdateGoalText = (state, goal) => [
 
 export const PauseTimer = (state, currentTime = Date.now()) =>
   State.pauseTimer(state, currentTime);
+
 export const PauseTimerAndShare = (state, currentTime = Date.now()) => {
   const nextState = PauseTimer(state, currentTime);
 
@@ -211,6 +191,7 @@ export const PauseTimerAndShare = (state, currentTime = Date.now()) => {
 
 export const ResumeTimer = (state, timerStartedAt = Date.now()) =>
   State.resumeTimer(state, timerStartedAt);
+
 export const ResumeTimerAndShare = (state, timerStartedAt = Date.now()) => [
   ResumeTimer(state, timerStartedAt),
   effects.StartTimer({
@@ -219,92 +200,95 @@ export const ResumeTimerAndShare = (state, timerStartedAt = Date.now()) => [
   }),
 ];
 
-export const StartTimer = (state, { timerStartedAt, timerDuration }) =>
-  State.startTimer(state, timerStartedAt, timerDuration);
-export const StartTimerAndShare = (
-  state,
-  { timerStartedAt, timerDuration },
-) => [
-  StartTimer(state, { timerStartedAt, timerDuration }),
-  effects.StartTimer({
-    websocketPort: state.websocketPort,
-    timerDuration,
-  }),
-];
+export const StartTimer = (state, timerStartedAt) => {
+  const { duration } = State.getShared(state);
+  return State.startTimer(state, timerStartedAt, duration);
+};
+
+export const StartTimerAndShare = (state, timerStartedAt) => {
+  const nextState = StartTimer(state, timerStartedAt);
+  return [
+    nextState,
+    effects.StartTimer({
+      websocketPort: state.websocketPort,
+      timerDuration: nextState.timerDuration,
+    }),
+  ];
+};
 
 export const ReplaceTimer = (state, timerAttributes) => ({
   ...state,
   ...timerAttributes,
 });
 
-export const SetAllowNotification = (state, { allowNotification }) => [
-  {
-    ...state,
-    allowNotification,
-  },
-  allowNotification &&
-    effects.Notify({
-      title: 'Mobtime Config',
-      text: 'You have allowed notifications',
-      sound: false,
-      externals: state.externals,
-    }),
-];
+// export const SetAllowNotification = (state, { allowNotification }) => [
+// {
+// ...state,
+// allowNotification,
+// },
+// allowNotification &&
+// effects.Notify({
+// title: 'Mobtime Config',
+// text: 'You have allowed notifications',
+// sound: false,
+// externals: state.externals,
+// }),
+// ];
 
-export const SetNotificationPermissions = (
-  state,
-  { notificationPermissions },
-) => [
-  {
-    ...state,
-    notificationPermissions,
-  },
-  notificationPermissions === 'granted' &&
-    effects.andThen({
-      action: SetAllowNotification,
-      props: {
-        allowNotification: true,
-      },
-    }),
-];
+// export const SetNotificationPermissions = (
+// state,
+// { notificationPermissions },
+// ) => [
+// {
+// ...state,
+// notificationPermissions,
+// },
+// notificationPermissions === 'granted' &&
+// effects.andThen({
+// action: SetAllowNotification,
+// props: {
+// allowNotification: true,
+// },
+// }),
+// ];
 
-export const RequestNotificationPermission = state => [
-  state,
-  effects.NotificationPermission({
-    SetNotificationPermissions,
-    Notification: state.Notification,
-    documentElement: state.documentElement,
-  }),
-];
+// export const RequestNotificationPermission = state => [
+// state,
+// effects.NotificationPermission({
+// SetNotificationPermissions,
+// Notification: state.Notification,
+// documentElement: state.documentElement,
+// }),
+// ];
 
-export const ShowNotification = (state, message) => [
-  state,
-  effects.DisplayNotification({
-    title: 'Cycle Complete',
-    text: message,
-  }),
-];
+// export const ShowNotification = (state, message) => [
+// state,
+// effects.DisplayNotification({
+// title: 'Cycle Complete',
+// text: message,
+// }),
+// ];
 
-export const PendingSettingsReset = state => State.pendingSettingsReset(state);
+// export const PendingSettingsReset = state => State.pendingSettingsReset(state);
 
-export const PendingSettingsSet = (state, { key, value }) =>
-  State.pendingSettingSet(state, key, value);
+// export const PendingSettingsSet = (state, { key, value }) =>
+// State.pendingSettingSet(state, key, value);
 
 export const ShareSettings = state => [
   state,
   effects.UpdateSettings({
     websocketPort: state.websocketPort,
-    settings: state.settings,
+    settings: State.getShared(state),
   }),
 ];
 
 export const UpdateSettings = state =>
   ShareSettings(
-    State.pendingSettingsReset(State.mergePendingSettingsIntoSettings(state)),
+    State.mergeShared(state, {}), // TODO: Where are the new settings coming from?
   );
 
 export const ReplaceSettings = (state, settings) =>
-  State.setSettings(state, settings);
+  State.setShared(state, settings);
 
 export const BroadcastJoin = state => [
   state,
@@ -325,7 +309,7 @@ export const ShareEverything = state => [
   }),
   effects.UpdateSettings({
     websocketPort: state.websocketPort,
-    settings: State.getSettings(state),
+    settings: State.getShared(state),
   }),
   state.timerStartedAt > 0 &&
     effects.StartTimer({
@@ -335,4 +319,4 @@ export const ShareEverything = state => [
 ];
 
 export const SetOwnership = (state, isOwner) =>
-  State.setIsOwner(state, isOwner);
+  State.mergeLocal(state, { isOwner });

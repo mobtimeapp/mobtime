@@ -45,35 +45,17 @@ const participant = ({ id, name, avatar, position }) =>
     ],
   );
 
-const activeParticipantList = ({ positions }, mob = []) =>
-  h(
-    'ol',
-    {
-      class: 'py-2',
-    },
-    [
-      ...positions.map((position, index) =>
-        participant({
-          position,
-          ...(mob[index] ? mob[index] : {}),
-        }),
-      ),
-    ],
-  );
-
-const passiveParticipantList = (mob = []) =>
-  h(
-    'ol',
-    {
-      class: 'py-2',
-    },
-    mob.map(({ name }) => participant({ name, position: 'Bench' })),
-  );
-
-export const participants = ({ activeMob, passiveMob }, positions) =>
+export const participants = members =>
   section({}, [
     h('div', { class: '' }, [
-      column('Participants', [activeParticipantList({ positions }, activeMob)]),
-      column('The Bench', [passiveParticipantList(passiveMob)]),
+      column('Participants', [
+        h(
+          'ol',
+          {
+            class: 'py-2',
+          },
+          members.map(participant),
+        ),
+      ]),
     ]),
   ]);
