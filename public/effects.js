@@ -1,7 +1,7 @@
 /* eslint-disable prefer-arrow-callback */
 
 import formatTime from './formatTime.js';
-import * as port from './port.js';
+import * as port from './lib/port.js';
 
 const fx = effect => props => [effect, props];
 
@@ -117,7 +117,7 @@ export const andThen = fx(function andThenFX(dispatch, { action, props }) {
 
 export const LoadProfile = fx(function LoadProfileFx(
   dispatch,
-  { localStorage, onLoad },
+  { localStorage, setProfile },
 ) {
   const profileString = localStorage.getItem('mobtime_profile');
   const profile = profileString
@@ -138,5 +138,5 @@ export const LoadProfile = fx(function LoadProfileFx(
     );
   }
 
-  dispatch(onLoad, profile);
+  dispatch(setProfile, profile);
 });

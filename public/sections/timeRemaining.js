@@ -1,17 +1,25 @@
-import { h, text } from '/vendor/hyperapp.js';
+import { h, text } from '../vendor/hyperapp.js';
 
-import { section } from '/components/section.js';
-import { button } from '/components/button.js';
+import { section } from '../components/section.js';
+import { button } from '../components/button.js';
 
-import { calculateTimeRemaining } from '/lib/calculateTimeRemaining.js';
+import timerRemainingDisplay from '../formatTime.js';
 
-import timerRemainingDisplay from '/formatTime.js';
+import * as actions from '../actions.js';
+import * as State from '../state.js';
 
-import * as actions from '/actions.js';
+const preventDefault = fn => {
+  return (state, event) => {
+    event.preventDefault();
+    const [action, props] = fn(event);
+    return action(state, props);
+  };
+};
 
-export const timeRemaining = props => {
-  const isPaused = props.timerStartedAt === null;
-  const remainingTime = calculateTimeRemaining(props);
+export const timeRemaining = state => {
+  const isPaused = State.isPaused(state);
+  const remainingTime = State.timeRemainingFrom(state);
+  const { timerDuration } = State.getTimer(state);
 
   return section({}, [
     h(
@@ -47,11 +55,10 @@ export const timeRemaining = props => {
                 {
                   size: 'md',
                   shadow: false,
-                  onclick: state => {
-                    return actions.CompletedAndShare(state, {
-                      isEndOfTurn: false,
-                    });
-                  },
+                  onclick: preventDefault(() => [
+                    actions.CompletedAndShare,
+                    { isEndOfTurn: false },
+                  ]),
                 },
                 text('🛑 End Turn'),
               ),
@@ -59,7 +66,7 @@ export const timeRemaining = props => {
         ),
 
         h('div', {}, [
-          !props.timerDuration &&
+          !timerDuration &&
             button(
               {
                 class: {
@@ -68,29 +75,27 @@ export const timeRemaining = props => {
                   'hover:bg-green-700': true,
                   'hover:text-gray-200': true,
                 },
-                onclick: state => {
-                  return actions.StartTimerAndShare(state, {
-                    timerStartedAt: Date.now(),
-                    timerDuration: props.settings.duration,
-                  });
-                },
+                onclick: preventDefault(() => [
+                  actions.StartTimerAndShare,
+                  Date.now(),
+                ]),
               },
               text('Begin Turn'),
             ),
 
-          !!props.timerDuration &&
+          !!timerDuration &&
             button(
               {
                 class: {
                   'bg-white': true,
                   'text-green-600': true,
                 },
-                disabled: !props.timerDuration,
-                onclick: state => {
-                  return isPaused
-                    ? actions.ResumeTimerAndShare(state, Date.now())
-                    : actions.PauseTimerAndShare(state, Date.now());
-                },
+                disabled: !timerDuration,
+                onclick: preventDefault(() =>
+                  isPaused
+                    ? [actions.ResumeTimerAndShare, Date.now()]
+                    : [actions.PauseTimerAndShare, Date.now()],
+                ),
               },
               [text(isPaused ? '👍 Resume' : '✋ Pause')],
             ),

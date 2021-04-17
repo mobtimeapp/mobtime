@@ -1,5 +1,5 @@
 /* eslint-disable import/no-absolute-path, import/extensions, import/no-unresolved */
-import * as port from './port.js';
+import * as port from './lib/port.js';
 
 const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
   let cancel = false;

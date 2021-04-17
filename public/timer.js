@@ -5,6 +5,7 @@ import { timeRemaining } from '/sections/timeRemaining.js';
 import { summary } from '/sections/summary.js';
 import * as subscriptions from '/subscriptions.js';
 import { app, h, text } from '/vendor/hyperapp.js';
+import * as State from '/state.js';
 
 const node = document.querySelector('#app');
 
@@ -23,7 +24,7 @@ app({
   view: state => {
     return layout(
       {
-        toastMessages: state.toastMessages,
+        toastMessages: State.getToasts(state),
       },
       [
         header(),
@@ -34,25 +35,21 @@ app({
     );
   },
 
-  subscriptions: ({
-    timerId,
-    timerStartedAt,
-    timerDuration,
-    websocketPort,
-  }) => [
-    timerId &&
+  subscriptions: state => [
+    State.getTimerId(state) &&
       subscriptions.Websocket({
+        timerId: State.getTimerId(state),
+        websocketPort: state.websocketPort,
         actions,
-        timerId,
-        websocketPort,
       }),
 
-    subscriptions.Timer({
-      timerStartedAt,
-      timerDuration,
-      actions,
-    }),
+    subscriptions.Timer({ ...State.getTimer(state), actions }),
   ],
+
+  // dispatch: (d) => (...params) => {
+  // console.log('dispatch', ...params);
+  // return d(...params);
+  // },
 
   node,
 });

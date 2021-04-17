@@ -1,45 +1,114 @@
-import * as port from './port.js';
+import * as port from './lib/port.js';
 
-export const initial = (timerId, externals = {}) => ({
-  isOwner: false,
-  timerStartedAt: null,
-  timerDuration: 0,
-  mob: [],
-  goals: [],
-  settings: {
-    mobOrder: 'Navigator,Driver,Next',
-    duration: 5 * 60 * 1000,
-  },
-  toastMessages: [],
-  profile: null,
-  timerId,
-  currentTime: null,
-  name: '',
-  goal: '',
-  allowSound: false,
-  allowNotification: false,
-  websocketPort: port.make(['send']),
-  externals,
-});
+const statePipe = (fnWithArgs, initialState = {}) =>
+  fnWithArgs.reduce((state, [fn, ...args]) => fn(state, ...args), initialState);
 
-export const dismissToastMessage = state => ({
-  ...state,
-  toastMessages: state.toastMessages.slice(1),
-});
+// export const initial_deprecated = (timerId, externals = {}) => ({
+// isOwner: false,
+// timerStartedAt: null,
+// timerDuration: 0,
+// mob: [],
+// goals: [],
+// settings: {
+// mobOrder: 'Navigator,Driver,Next',
+// duration: 5 * 60 * 1000,
+// },
+// toastMessages: [],
+// profile: null,
+// timerId,
+// currentTime: null,
+// name: '',
+// goal: '',
+// allowSound: false,
+// allowNotification: false,
+// websocketPort: port.make(['send']),
+// externals,
+// });
 
-export const setCurrentTime = (state, currentTime) => ({
-  ...state,
-  currentTime,
-});
+export const getTimerId = state => state.timerId;
+export const setTimerId = (state, timerId) => ({ ...state, timerId });
 
-export const endTurn = state => ({
-  ...state,
-  timerStartedAt: null,
-  timerDuration: 0,
-});
+export const getLocal = state => state.local;
+export const setLocal = (state, local) => ({ ...state, local });
+export const mergeLocal = (state, localPartial) =>
+  setLocal(state, { ...state.local, ...localPartial });
+export const setCurrentTime = (state, time) => mergeLocal(state, { time });
 
-export const getMob = state => state.mob;
-export const setMob = (state, mob) => ({ ...state, mob });
+export const getShared = state => state.shared;
+export const setShared = (state, shared) => ({ ...state, shared });
+export const mergeShared = (state, sharedPartial) =>
+  setShared(state, { ...state.shared, ...sharedPartial });
+
+export const getTimer = state => state.timer;
+export const setTimer = (state, timer) => ({ ...state, timer });
+export const mergeTimer = (state, timerPartial) =>
+  setTimer(state, { ...state.timer, ...timerPartial });
+export const endTurn = state =>
+  mergeTimer(state, { timerStartedAt: null, timerDuration: 0 });
+export const isPaused = state => getTimer(state).timerStartedAt === null;
+export const timeRemainingFrom = state => {
+  const { timerDuration, timerStartedAt } = getTimer(state);
+
+  if (!timerStartedAt) {
+    return timerDuration;
+  }
+
+  const { time } = getLocal(state);
+
+  const elapsed = time - timerStartedAt;
+  return timerDuration > 0 ? Math.max(0, timerDuration - elapsed) : 0;
+};
+
+export const getMob = state => getShared(state).mob;
+export const setMob = (state, mob) => mergeShared(state, { mob });
+
+export const getGoals = state => getShared(state).goals;
+export const setGoals = (state, goals) => mergeShared(state, { goals });
+
+export const getPositions = state => getShared(state).positions;
+export const setPositions = (state, positions) =>
+  mergeShared(state, { positions });
+
+export const getDuration = state => getShared(state).duration;
+export const setDuration = (state, duration) =>
+  mergeShared(state, { duration });
+
+export const getProfile = state => state.profile;
+export const setProfile = (state, profile) => ({ ...state, profile });
+
+export const getToasts = state => state.toasts;
+export const setToasts = (state, toasts) => ({ ...state, toasts });
+export const appendToasts = (state, toast) =>
+  setToasts(state, getToasts(state).concat(toast));
+export const dismissToastMessage = state =>
+  setToasts(state, getToasts(state).slice(1));
+
+export const getExternals = state => state.externals;
+export const setExternals = (state, externals) => ({ ...state, externals });
+
+export const initial = (timerId, externals = {}) =>
+  statePipe(
+    [
+      [setTimerId, timerId],
+      [setTimer, { timerStartedAt: null, timerDuration: 0 }],
+      [setLocal, { time: null, isOwner: false }],
+      [
+        setShared,
+        {
+          mob: [],
+          goals: [],
+          positions: 'Navigator,Driver',
+          duration: 5 * 60 * 1000,
+        },
+      ],
+      [setProfile, null],
+      [setToasts, []],
+      [setExternals, externals],
+    ],
+    {
+      websocketPort: port.make(['send']),
+    },
+  );
 
 export const cycleMob = state => {
   const oldMob = getMob(state);
@@ -78,9 +147,6 @@ export const removeFromMob = (state, id) =>
     getMob(state).filter(m => m.id !== id),
   );
 
-export const getGoals = state => state.goals;
-export const setGoals = (state, goals) => ({ ...state, goals });
-
 export const addToGoals = (state, goal) =>
   setGoals(
     state,
@@ -118,31 +184,25 @@ export const editGoal = (state, id, text) =>
   );
 
 export const pauseTimer = (state, currentTime) => {
-  const elapsed = currentTime - state.timerStartedAt;
-  const timerDuration = Math.max(0, state.timerDuration - elapsed);
+  const { timerStartedAt, timerDuration } = getTimer(state);
+  const elapsed = currentTime - timerStartedAt;
 
-  return {
-    ...state,
+  return mergeTimer(state, {
     timerStartedAt: null,
-    timerDuration,
-    currentTime,
-  };
+    timerDuration: Math.max(0, timerDuration - elapsed),
+  });
 };
 
-export const resumeTimer = (state, currentTime) => ({
-  ...state,
-  timerStartedAt: currentTime,
-  currentTime,
-});
+export const resumeTimer = (state, timerStartedAt) =>
+  mergeTimer(state, {
+    timerStartedAt,
+  });
 
 export const startTimer = (state, currentTime, timerDuration) =>
-  resumeTimer(
-    {
-      ...state,
-      timerDuration,
-    },
-    currentTime,
-  );
+  mergeTimer(state, {
+    timerDuration,
+    timerStartedAt: currentTime,
+  });
 
 export const pendingSettingsReset = state => ({
   ...state,
