@@ -117,9 +117,10 @@ export const andThen = fx(function andThenFX(dispatch, { action, props }) {
 
 export const LoadProfile = fx(function LoadProfileFx(
   dispatch,
-  { localStorage, setProfile },
+  { externals, setProfile },
 ) {
-  const profileString = localStorage.getItem('mobtime_profile');
+  const profileString = externals.localStorage.getItem('mobtime_profile');
+
   const profile = profileString
     ? JSON.parse(profileString)
     : {
@@ -129,14 +130,32 @@ export const LoadProfile = fx(function LoadProfileFx(
         id: Math.random()
           .toString(36)
           .slice(2),
+        enableSounds: false,
+        enableNotifications: false,
       };
 
-  if (!profileString) {
-    localStorage.setItem(
-      'mobtime_profile',
-      JSON.stringify({ ...profile, firstTime: false }),
-    );
-  }
-
   dispatch(setProfile, profile);
+});
+
+export const SaveProfile = fx(function SaveProfileFx(
+  dispatch,
+  { externals, profile, setProfile },
+) {
+  const { name, avatar, id, enableSounds, enableNotifications } = profile;
+
+  const validatedProfile = {
+    firstTime: false,
+    name,
+    avatar,
+    id,
+    enableSounds,
+    enableNotifications,
+  };
+
+  externals.localStorage.setItem(
+    'mobtime_profile',
+    JSON.stringify(validatedProfile),
+  );
+
+  dispatch(setProfile, validatedProfile);
 });

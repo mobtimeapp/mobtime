@@ -40,11 +40,21 @@ const toastMessages = {
 };
 
 export const SetProfile = (state, profile) => State.setProfile(state, profile);
+export const SaveProfile = state => [
+  state,
+  effects.SaveProfile({
+    externals: state.externals,
+    profile: State.getProfile(state),
+    setProfile: SetProfile,
+  }),
+];
+export const UpdateProfile = (state, profilePartial) =>
+  State.mergeProfile(state, profilePartial);
 
 export const Init = (_, { timerId, externals }) => [
   State.initial(timerId, externals),
   effects.LoadProfile({
-    localStorage: window.localStorage,
+    externals,
     setProfile: SetProfile,
   }),
 ];
