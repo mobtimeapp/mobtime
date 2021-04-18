@@ -1,12 +1,16 @@
 import { h, text } from '/vendor/hyperapp.js';
 
 export const column = (title, children) =>
-  h('div', {}, [
+  h('div', { class: 'mb-2' }, [
     h(
       'h4',
       {
-        class:
-          'text-lg font-bold uppercase tracking-widest block border-gray-100 border-b',
+        class: [
+          'block',
+          'text-lg font-bold uppercase tracking-widest',
+          'border-gray-200 border-b',
+          'mb-2',
+        ],
       },
       text(title),
     ),

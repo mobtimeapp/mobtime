@@ -8,13 +8,7 @@ import timerRemainingDisplay from '../formatTime.js';
 import * as actions from '../actions.js';
 import * as State from '../state.js';
 
-const preventDefault = fn => {
-  return (state, event) => {
-    event.preventDefault();
-    const [action, props] = fn(event);
-    return action(state, props);
-  };
-};
+import { preventDefault } from '../lib/preventDefault.js';
 
 export const timeRemaining = state => {
   const isPaused = State.isPaused(state);
