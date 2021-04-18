@@ -16,6 +16,7 @@ app({
     {
       timerId: node.getAttribute('data-timer-id'),
       externals: {
+        localStorage: window.localStorage,
         document: window.document,
         Notification: window.Notification,
       },

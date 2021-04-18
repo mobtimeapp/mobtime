@@ -3,28 +3,6 @@ import * as port from './lib/port.js';
 const statePipe = (fnWithArgs, initialState = {}) =>
   fnWithArgs.reduce((state, [fn, ...args]) => fn(state, ...args), initialState);
 
-// export const initial_deprecated = (timerId, externals = {}) => ({
-// isOwner: false,
-// timerStartedAt: null,
-// timerDuration: 0,
-// mob: [],
-// goals: [],
-// settings: {
-// mobOrder: 'Navigator,Driver,Next',
-// duration: 5 * 60 * 1000,
-// },
-// toastMessages: [],
-// profile: null,
-// timerId,
-// currentTime: null,
-// name: '',
-// goal: '',
-// allowSound: false,
-// allowNotification: false,
-// websocketPort: port.make(['send']),
-// externals,
-// });
-
 export const getTimerId = state => state.timerId;
 export const setTimerId = (state, timerId) => ({ ...state, timerId });
 
@@ -75,6 +53,8 @@ export const setDuration = (state, duration) =>
 
 export const getProfile = state => state.profile;
 export const setProfile = (state, profile) => ({ ...state, profile });
+export const mergeProfile = (state, profilePartial) =>
+  setProfile(state, { ...getProfile(state), ...profilePartial });
 
 export const getToasts = state => state.toasts;
 export const setToasts = (state, toasts) => ({ ...state, toasts });

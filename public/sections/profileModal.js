@@ -1,8 +1,12 @@
-import { h, text } from '/vendor/hyperapp.js';
+import { h, text } from '../vendor/hyperapp.js';
 
 import { modal } from '../components/modal.js';
 import { column } from '../components/column.js';
 import { participant } from '../components/participant.js';
+import { preventDefault } from '../lib/preventDefault.js';
+
+import * as State from '../state.js';
+import * as actions from '../actions.js';
 
 const labelToId = label =>
   label
@@ -34,7 +38,7 @@ const setting = (label, inputProps, actions = []) =>
       class: [
         'grid grid-cols-2',
         'px-1 py-2 mb-2',
-        'border-b border-gray-100 dark:border-gray-600',
+        'border-b border-gray-100 dark:border-gray-800',
       ],
     },
     [
@@ -67,12 +71,27 @@ const textInputProps = props => ({
   ],
   ...props,
   type: 'text',
+  oninput: preventDefault(event => [
+    actions.UpdateProfile,
+    { [props.name]: event.target.value },
+  ]),
 });
 
 const checkboxProps = props => ({
   ...props,
   type: 'checkbox',
+  oninput: preventDefault(event => [
+    actions.UpdateProfile,
+    { [props.name]: event.target.checked },
+  ]),
 });
+
+const hidden = (name, value) =>
+  h('input', {
+    type: 'hidden',
+    name,
+    value,
+  });
 
 const group = (title, children) =>
   h(
@@ -83,17 +102,33 @@ const group = (title, children) =>
     column(title, children),
   );
 
-export const profileModal = state =>
-  modal([
+export const profileModal = state => {
+  const profile = State.getProfile(state);
+
+  return modal([
     h(
       'form',
       {
         class: 'mt-4',
+        onsubmit: preventDefault(() => [actions.SaveProfile]),
       },
       [
+        hidden('id', profile.id),
         group('Profile Settings', [
-          setting('Name', textInputProps({})),
-          setting('Avatar', textInputProps({})),
+          setting(
+            'Name',
+            textInputProps({
+              name: 'name',
+              value: profile.name,
+            }),
+          ),
+          setting(
+            'Avatar',
+            textInputProps({
+              name: 'avatar',
+              value: profile.avatar,
+            }),
+          ),
 
           h(
             'ul',
@@ -102,8 +137,7 @@ export const profileModal = state =>
             },
             [
               participant({
-                name: 'Test',
-                avatar: '',
+                ...profile,
                 position: 'Preview',
               }),
             ],
@@ -111,10 +145,24 @@ export const profileModal = state =>
         ]),
 
         group('Application Settings', [
-          setting('Enable sounds', checkboxProps({}), [{ text: 'Play Sound' }]),
-          setting('Enable browser notifications', checkboxProps({}), [
-            { text: 'Test Notification' },
-          ]),
+          setting(
+            'Enable sounds',
+            checkboxProps({
+              name: 'enableSounds',
+              value: 1,
+              checked: !!profile.enableSounds,
+            }),
+            [{ text: 'Play Sound' }],
+          ),
+          setting(
+            'Enable browser notifications',
+            checkboxProps({
+              name: 'enableNotifications',
+              value: 1,
+              checked: !!profile.enableNotifications,
+            }),
+            [{ text: 'Test Notification' }],
+          ),
         ]),
 
         h(
@@ -128,9 +176,10 @@ export const profileModal = state =>
             }),
             h('div', { class: 'flex-grow' }),
             button('Cancel', {}),
-            button('Save', {}),
+            button('Save', { type: 'submit' }),
           ],
         ),
       ],
     ),
   ]);
+};
