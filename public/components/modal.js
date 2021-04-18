@@ -1,33 +1,25 @@
 import { h } from '/vendor/hyperapp.js';
 
 import { overlay } from '/components/overlay.js';
-import { card } from '/components/card.js';
 
-export const modal = (props, children) =>
-  h(
-    overlay,
-    {
-      ...props,
-      class: {
-        'pt-12': true,
-        'bg-gray-800': true,
-        'bg-opacity-25': true,
-        ...props.class,
-      },
-    },
-    [
-      h(
-        card,
-        {
-          class: {
-            'bg-indigo-500': true,
-            'text-white': true,
-            'px-2': true,
-            'max-w-full': true,
-            ...props.cardClass,
-          },
+export const modal = children =>
+  overlay([
+    h(
+      'div',
+      {
+        class: {
+          'p-2': true,
+          'pt-4': true,
+          'mx-2': true,
+          'w-full': true,
+          'sm:w-3/4': true,
+          'sm:mx-0': true,
+          'bg-white': true,
+          'text-gray-900': true,
+          'dark:bg-gray-900': true,
+          'dark:text-gray-200': true,
         },
-        children,
-      ),
-    ],
-  );
+      },
+      children,
+    ),
+  ]);
