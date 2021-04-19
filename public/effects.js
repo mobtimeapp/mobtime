@@ -2,6 +2,7 @@
 
 import formatTime from './formatTime.js';
 import * as port from './lib/port.js';
+import * as giphy from './lib/giphy.js';
 
 const fx = effect => props => [effect, props];
 
@@ -158,4 +159,23 @@ export const SaveProfile = fx(function SaveProfileFx(
   );
 
   dispatch(setProfile, validatedProfile);
+});
+
+export const SearchGiphy = fx(function SearchGiphyFx(
+  dispatch,
+  { profile, giphySearch, setResults },
+) {
+  giphy
+    .searchGifs(giphySearch)
+    .then(results => {
+      const current = { title: 'Saved Avatar', url: profile.avatar };
+      const transformed = results.data.map(result => ({
+        title: result.title,
+        url: result.images.original.webp,
+      }));
+      dispatch(setResults, [current, ...transformed]);
+    })
+    .catch(error => {
+      console.error('Oh no', error);
+    });
 });

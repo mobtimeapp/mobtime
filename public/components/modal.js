@@ -9,7 +9,6 @@ export const modal = children =>
       {
         class: {
           'p-2': true,
-          'pt-4': true,
           'mx-2': true,
           'w-full': true,
           'sm:w-3/4': true,

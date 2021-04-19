@@ -2,20 +2,28 @@ import { h, text } from '../vendor/hyperapp.js';
 
 export const participant = ({ id, name, avatar, position }) =>
   h(
-    'li',
+    'div',
     {
-      class:
-        'pb-2 mb-2 border-l-2 border-gray-100 dark:border-gray-700 px-2 bg-gray-100 dark:bg-gray-800 py-1 block',
+      class: [
+        'pb-2 mb-2 px-2 py-1',
+        'border-l-2 border-gray-100 dark:border-gray-700',
+        'bg-gray-100 dark:bg-gray-800',
+        'w-full',
+      ],
     },
     [
       position &&
         h(
           'h5',
           {
-            class:
-              'text-xs font-bold uppercase tracking-widest block text-gray-400',
+            class: [
+              'block',
+              'text-xs font-bold uppercase tracking-widest',
+              'text-gray-400',
+            ],
+            title: position,
           },
-          text(position),
+          text(position.length > 32 ? `${position.slice(0, 32)}...` : position),
         ),
       h(
         'div',
@@ -23,14 +31,14 @@ export const participant = ({ id, name, avatar, position }) =>
           class: 'block flex flex-row items-center justify-start',
         },
         [
-          h('div', {
-            class: 'w-8 h-8 rounded-full border-2 border-gray-700 mr-1',
-            style: {
-              backgroundImage: `url("${avatar ||
-                'https://media.giphy.com/media/UoYBS36tOHzCBUdRNf/giphy.gif'}")`,
-              backgroundSize: 'cover',
-            },
-          }),
+          avatar &&
+            h('div', {
+              class: 'w-8 h-8 rounded-full border-2 border-gray-700 mr-1',
+              style: {
+                backgroundImage: `url("${avatar}")`,
+                backgroundSize: 'cover',
+              },
+            }),
           h(
             'div',
             {
