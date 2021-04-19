@@ -12,7 +12,15 @@ export const participants = members =>
           {
             class: 'py-2',
           },
-          members.map(participant),
+          members.map(member =>
+            h(
+              'li',
+              {
+                class: ['block'],
+              },
+              participant(member),
+            ),
+          ),
         ),
       ]),
     ]),

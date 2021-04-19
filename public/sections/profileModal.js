@@ -3,7 +3,7 @@ import { h, text } from '../vendor/hyperapp.js';
 import { modal } from '../components/modal.js';
 import { column } from '../components/column.js';
 import { participant } from '../components/participant.js';
-import { preventDefault } from '../lib/preventDefault.js';
+import { preventDefault, withDefault } from '../lib/preventDefault.js';
 
 import * as State from '../state.js';
 import * as actions from '../actions.js';
@@ -31,40 +31,41 @@ const button = (label, props) =>
     text(label),
   );
 
-const setting = (label, inputProps, actions = []) =>
+const setting = (label, inputProps, actionButtons = []) =>
   h(
     'div',
     {
       class: [
-        'grid grid-cols-2',
+        'grid grid-cols-3',
         'px-1 py-2 mb-2',
         'border-b border-gray-100 dark:border-gray-800',
       ],
     },
     [
       h('label', { for: labelToId(label) }, text(label)),
-      h('div', { class: 'text-right' }, [
+      h('div', { class: 'flex w-full items-center justify-end col-span-2' }, [
         h('input', {
           type: 'text',
           id: labelToId(label),
           name: label,
-          class: 'text-left',
           ...inputProps,
         }),
       ]),
-      actions.length > 0 &&
+      actionButtons.length > 0 &&
         h(
           'div',
           {
             class: 'col-span-2 my-2 flex items-center justify-between',
           },
-          [...actions.map(action => button(action.text, {}))],
+          [...actionButtons.map(action => button(action.text, {}))],
         ),
     ],
   );
 
 const textInputProps = props => ({
   class: [
+    'w-full',
+    'flex-stretch',
     'p-1 mb-1',
     'bg-gray-100 dark:bg-gray-800',
     'border-b border-gray-900 dark:border-gray-200',
@@ -102,14 +103,43 @@ const group = (title, children) =>
     column(title, children),
   );
 
+const avatarPreview = (profile, avatar, title) => {
+  const isSelected = profile.avatar === avatar;
+
+  return h('li', { class: 'mb-4' }, [
+    h('label', { class: 'flex items-center justify-center' }, [
+      h('input', {
+        type: 'radio',
+        name: 'avatar',
+        value: avatar,
+        class: 'mr-2',
+        oninput: withDefault(event => [
+          actions.UpdateProfile,
+          { avatar: event.target.value },
+        ]),
+        checked: isSelected,
+      }),
+
+      h('div', { class: 'flex-grow' }, [
+        participant({
+          ...profile,
+          avatar,
+          position: title || 'Untitled GIFY',
+        }),
+      ]),
+    ]),
+  ]);
+};
+
 export const profileModal = state => {
   const profile = State.getProfile(state);
+  const { giphyResults } = State.getLocal(state);
 
   return modal([
     h(
       'form',
       {
-        class: 'mt-4',
+        class: 'mt-4 px-2 pb-2',
         onsubmit: preventDefault(() => [actions.SaveProfile]),
       },
       [
@@ -122,24 +152,35 @@ export const profileModal = state => {
               value: profile.name,
             }),
           ),
-          setting(
-            'Avatar',
-            textInputProps({
-              name: 'avatar',
-              value: profile.avatar,
-            }),
-          ),
 
           h(
             'ul',
             {
-              class: 'w-3/4 mx-auto',
+              class: 'w-3/4 mx-auto grid grid-cols-2 gap-4',
             },
             [
-              participant({
-                ...profile,
-                position: 'Preview',
-              }),
+              h('li', { class: 'col-span-2' }, [
+                h('input', {
+                  type: 'text',
+                  placeholder: 'Search avatars, Powered by GIPHY',
+                  class: [
+                    'w-full',
+                    'flex-stretch',
+                    'p-1 mb-1',
+                    'bg-gray-100 dark:bg-gray-800',
+                    'border-b border-gray-900 dark:border-gray-200',
+                  ],
+                  onchange: preventDefault(event => [
+                    actions.ProfileModalGiphySearch,
+                    event.target.value,
+                  ]),
+                }),
+              ]),
+              ...giphyResults.map(({ url, title }) =>
+                avatarPreview(profile, url, title),
+              ),
+
+              avatarPreview(profile, null, 'No Avatar'),
             ],
           ),
         ]),

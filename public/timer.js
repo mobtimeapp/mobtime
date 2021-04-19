@@ -33,7 +33,7 @@ app({
         timeRemaining(state),
         summary(state),
         // h('pre', {}, h('code', {}, text(JSON.stringify(state, null, 2)))),
-        profileModal(state),
+        state.local.modal && profileModal(state),
       ],
     );
   },

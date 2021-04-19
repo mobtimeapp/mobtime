@@ -20,28 +20,13 @@ const makeToastMessage = (message, actions) => ({
   })),
 });
 
-const toastMessages = {
-  firstTime: [
-    makeToastMessage('Mobtime sounds are turned off', [
-      { text: 'Turn on', onclick: s => s },
-      { text: `Leave off, and don't ask again`, onclick: s => s },
-    ]),
-    makeToastMessage('Mobtime notifications are turned off', [
-      { text: 'Request permission', onclick: s => s },
-      { text: `Leave off, and don't ask again`, onclick: s => s },
-    ]),
-  ],
-  activateSound: [
-    makeToastMessage('Mobtime sounds need to be activated', [
-      { text: 'Activate', onclick: state => SetAllowSound(state, true) },
-    ]),
-  ],
-  default: [],
-};
+export const SetProfile = (state, profile) =>
+  State.mergeLocal(State.setProfile(state, profile), {
+    giphyResults: [{ title: 'Saved Avatar', url: profile.avatar }],
+  });
 
-export const SetProfile = (state, profile) => State.setProfile(state, profile);
 export const SaveProfile = state => [
-  state,
+  State.setModal(state, null),
   effects.SaveProfile({
     externals: state.externals,
     profile: State.getProfile(state),
@@ -71,6 +56,20 @@ export const SetCurrentTime = (state, { currentTime }) => {
     }),
   ];
 };
+
+export const SetModal = (state, modal) => State.setModal(state, modal);
+export const ProfileModalSetGiphyResults = (state, giphyResults) =>
+  State.mergeLocal(state, { giphyResults });
+export const ProfileModalGiphySearch = (state, giphySearch) => [
+  State.mergeLocal(state, {
+    giphySearch,
+  }),
+  effects.SearchGiphy({
+    profile: State.getProfile(state),
+    giphySearch,
+    setResults: ProfileModalSetGiphyResults,
+  }),
+];
 
 export const EndTurn = state => {
   if (state.timerStartedAt === null) {

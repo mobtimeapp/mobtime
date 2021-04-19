@@ -11,6 +11,7 @@ export const setLocal = (state, local) => ({ ...state, local });
 export const mergeLocal = (state, localPartial) =>
   setLocal(state, { ...state.local, ...localPartial });
 export const setCurrentTime = (state, time) => mergeLocal(state, { time });
+export const setModal = (state, modal) => mergeLocal(state, { modal });
 
 export const getShared = state => state.shared;
 export const setShared = (state, shared) => ({ ...state, shared });
@@ -71,7 +72,16 @@ export const initial = (timerId, externals = {}) =>
     [
       [setTimerId, timerId],
       [setTimer, { timerStartedAt: null, timerDuration: 0 }],
-      [setLocal, { time: null, isOwner: false }],
+      [
+        setLocal,
+        {
+          time: null,
+          isOwner: false,
+          modal: null,
+          giphySearch: '',
+          giphyResults: [],
+        },
+      ],
       [
         setShared,
         {
