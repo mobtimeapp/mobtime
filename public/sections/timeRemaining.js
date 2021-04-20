@@ -3,7 +3,7 @@ import { h, text } from '../vendor/hyperapp.js';
 import { section } from '../components/section.js';
 import { button } from '../components/button.js';
 
-import timerRemainingDisplay from '../formatTime.js';
+import timerRemainingDisplay from '../lib/formatTime.js';
 
 import * as actions from '../actions.js';
 import * as State from '../state.js';

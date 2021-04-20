@@ -2,28 +2,62 @@ import * as State from './state.js';
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
-export const SetAllowSound = (state, allowSound) => [
-  {
-    ...state,
-    allowSound,
-  },
-];
+export const SetModal = (state, modal) => State.setModal(state, modal);
 
-export const AddToast = (state, toast) => State.concatToasts(state, toast);
 export const DismissToast = state => State.dismissToastMessage(state);
-
-const makeToastMessage = (message, actions) => ({
-  message,
-  actions: actions.map(a => ({
-    ...a,
-    onclick: state => a.onclick(DismissToast(state)),
-  })),
-});
-
-export const SetProfile = (state, profile) =>
-  State.mergeLocal(State.setProfile(state, profile), {
-    giphyResults: [{ title: 'Saved Avatar', url: profile.avatar }],
+export const AddToast = (state, { message, actions }) =>
+  State.appendToasts(state, {
+    message,
+    actions: actions.map(a => ({
+      ...a,
+      onclick: previousState => a.onclick(DismissToast(previousState)),
+    })),
   });
+
+export const SetProfile = (state, { profile, init }) => {
+  let setProfileEffects = [
+    init && profile.firstTime && effects.Act([SetModal, 'profile']),
+    init &&
+      !profile.firstTime &&
+      effects.Act([
+        AddToast,
+        {
+          message: `Hey ${profile.name}, would you like to join this session?`,
+          actions: [{ text: 'Yes, please', onclick: AddMeToMob }],
+        },
+      ]),
+  ].filter(v => v);
+  if (setProfileEffects.length === 0) {
+    setProfileEffects = [
+      init &&
+        profile.enableSounds &&
+        effects.Act([
+          AddToast,
+          {
+            message:
+              'To enable sounds in mobti.me, you must interact with the page',
+            actions: [],
+          },
+        ]),
+    ];
+  }
+  return [
+    State.mergeLocal(State.setProfile(state, profile), {
+      giphyResults: [{ title: 'Saved Avatar', url: profile.avatar }],
+    }),
+    ...setProfileEffects,
+  ];
+};
+
+export const ResetProfile = state => [
+  state,
+  effects.DeleteProfile({ externals: state.externals }),
+  effects.LoadProfile({
+    externals: state.externals,
+    setProfile: SetProfile,
+    init: false,
+  }),
+];
 
 export const SaveProfile = state => [
   State.setModal(state, null),
@@ -41,6 +75,7 @@ export const Init = (_, { timerId, externals }) => [
   effects.LoadProfile({
     externals,
     setProfile: SetProfile,
+    init: true,
   }),
 ];
 
@@ -57,7 +92,6 @@ export const SetCurrentTime = (state, { currentTime }) => {
   ];
 };
 
-export const SetModal = (state, modal) => State.setModal(state, modal);
 export const ProfileModalSetGiphyResults = (state, giphyResults) =>
   State.mergeLocal(state, { giphyResults });
 export const ProfileModalGiphySearch = (state, giphySearch) => [
@@ -145,6 +179,13 @@ export const AddNameToMob = state =>
   ShareMob(
     State.addToMob(state, 'Dudley', null), // TODO
   );
+
+export const AddMeToMob = state => {
+  const profile = State.getProfile(state);
+  return ShareMob(
+    State.addToMob(state, profile.name, profile.avatar, profile.id),
+  );
+};
 
 export const RemoveFromMob = (state, id) =>
   ShareMob(State.removeFromMob(state, id));

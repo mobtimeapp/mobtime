@@ -118,13 +118,15 @@ export const shuffleMob = state => {
   return setMob(state, mob);
 };
 
-export const addToMob = (state, name, avatar = null) => {
+export const addToMob = (state, name, avatar = null, id = null) => {
   return setMob(
     state,
     getMob(state).concat({
-      id: Math.ranom()
-        .toString(36)
-        .slice(2),
+      id:
+        id ||
+        Math.ranom()
+          .toString(36)
+          .slice(2),
       name,
       avatar,
     }),

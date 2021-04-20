@@ -8,7 +8,6 @@ export const preventDefault = fn => {
 
 export const withDefault = fn => {
   return (state, event) => {
-    console.log('withDefault', { state, event });
     const [action, props] = fn(event);
     return action(state, props);
   };

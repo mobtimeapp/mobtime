@@ -1,6 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
 
-import formatTime from './formatTime.js';
+import formatTime from './lib/formatTime.js';
 import * as port from './lib/port.js';
 import * as giphy from './lib/giphy.js';
 
@@ -116,9 +116,16 @@ export const andThen = fx(function andThenFX(dispatch, { action, props }) {
   dispatch(action, props);
 });
 
+export const DeleteProfile = fx(function DeleteProfileFx(
+  _dispatch,
+  { externals },
+) {
+  externals.localStorage.removeItem('mobtime_profile');
+});
+
 export const LoadProfile = fx(function LoadProfileFx(
   dispatch,
-  { externals, setProfile },
+  { externals, setProfile, init },
 ) {
   const profileString = externals.localStorage.getItem('mobtime_profile');
 
@@ -135,7 +142,7 @@ export const LoadProfile = fx(function LoadProfileFx(
         enableNotifications: false,
       };
 
-  dispatch(setProfile, profile);
+  dispatch(setProfile, { profile, init });
 });
 
 export const SaveProfile = fx(function SaveProfileFx(
@@ -158,7 +165,7 @@ export const SaveProfile = fx(function SaveProfileFx(
     JSON.stringify(validatedProfile),
   );
 
-  dispatch(setProfile, validatedProfile);
+  dispatch(setProfile, { profile: validatedProfile, init: false });
 });
 
 export const SearchGiphy = fx(function SearchGiphyFx(
@@ -178,4 +185,10 @@ export const SearchGiphy = fx(function SearchGiphyFx(
     .catch(error => {
       console.error('Oh no', error);
     });
+});
+
+export const Act = fx(function ActFx(dispatch, value) {
+  const [action, props] = Array.isArray(value) ? value : [value, null];
+
+  dispatch(action, props);
 });
