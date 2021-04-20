@@ -74,12 +74,6 @@ export const layout = ({ toastMessages }, children) =>
         'items-center': true,
         'justify-start': true,
         'min-h-screen': true,
-
-        'bg-white': true,
-        'text-gray-900': true,
-
-        'dark:bg-gray-900': true,
-        'dark:text-gray-200': true,
       },
     },
     [
