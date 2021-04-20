@@ -214,9 +214,12 @@ export const profileModal = state => {
           [
             button('Delete Profile', {
               class: ['bg-red-600 dark:bg-red-800 text-gray-100'],
+              onclick: preventDefault(() => [actions.ResetProfile]),
             }),
             h('div', { class: 'flex-grow' }),
-            button('Cancel', {}),
+            button('Cancel', {
+              onclick: preventDefault(() => [actions.SetModal, null]),
+            }),
             button('Save', { type: 'submit' }),
           ],
         ),
