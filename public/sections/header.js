@@ -38,7 +38,15 @@ export const header = () =>
             },
             text('👤 Profile'),
           ),
-          h('button', { type: 'button', class: 'mr-3' }, text('✏️ Edit Timer')),
+          h(
+            'button',
+            {
+              type: 'button',
+              class: 'mr-3',
+              onclick: preventDefault(() => [actions.SetModal, 'editTimer']),
+            },
+            text('✏️ Edit Timer'),
+          ),
         ],
       ),
     ],

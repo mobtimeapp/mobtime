@@ -4,9 +4,10 @@ import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
 import { summary } from '/sections/summary.js';
 import * as subscriptions from '/subscriptions.js';
-import { app, h, text } from '/vendor/hyperapp.js';
+import { app } from '/vendor/hyperapp.js';
 import * as State from '/state.js';
 import { profileModal } from '/sections/profileModal.js';
+import { editTimerModal } from '/sections/editTimerModal.js';
 
 const node = document.querySelector('#app');
 
@@ -32,8 +33,8 @@ app({
         header(),
         timeRemaining(state),
         summary(state),
-        // h('pre', {}, h('code', {}, text(JSON.stringify(state, null, 2)))),
-        state.local.modal && profileModal(state),
+        state.local.modal === 'profile' && profileModal(state),
+        state.local.modal === 'editTimer' && editTimerModal(state),
       ],
     );
   },
