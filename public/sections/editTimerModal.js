@@ -111,6 +111,44 @@ const participant = isEditable => ({ id, name, avatar, position }, index) => {
   );
 };
 
+const onKeyDown = (currentGoal, index) => (state, event) => {
+  if (index === 0) return state;
+
+  if (currentGoal.parentId && event.shiftKey && event.key === 'Tab') {
+    return actions.SetParentOfGoal(state, {
+      goal: currentGoal,
+      parent: null,
+    });
+  }
+  if (!currentGoal.parentId && event.key === 'Tab') {
+    const previousGoal = State.getGoals(state)[index - 1];
+    return actions.SetParentOfGoal(state, {
+      goal: currentGoal,
+      parent: previousGoal,
+    });
+  }
+};
+
+const goal = ({ id, text: goalText, completed }, index) => {
+  return h(
+    'fieldset',
+    {
+      class: 'mb-2',
+      key: `participant-${id}-${goalText}`,
+    },
+    [
+      hidden({ name: `goals[${index}][id]`, value: id }),
+      h(
+        'div',
+        {
+          class: 'flex items-start justify-start',
+        },
+        [h('textarea', { placeholder: 'Enter your goal' })],
+      ),
+    ],
+  );
+};
+
 const group = (title, children) =>
   section({}, [
     h(
@@ -150,6 +188,12 @@ export const editTimerModal = state => {
 
   const isEditable = p => State.isParticipantEditable(state, p);
 
+  const goals = State.getGoals(state).concat({
+    id: null,
+    text: '',
+    completed: false,
+  });
+
   return modal([
     h(
       'form',
@@ -174,7 +218,7 @@ export const editTimerModal = state => {
           },
           [
             group('Participants', mob.map(participant(isEditable, isOwner))),
-            group('Goals', []),
+            group('Goals', goals.map(goal)),
           ],
         ),
       ],

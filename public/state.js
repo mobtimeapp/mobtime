@@ -43,6 +43,28 @@ export const setMob = (state, mob) => mergeShared(state, { mob });
 
 export const getGoals = state => getShared(state).goals;
 export const setGoals = (state, goals) => mergeShared(state, { goals });
+export const goalsNested = flattenedGoals => {
+  return flattenedGoals
+    .filter(g => !g.parentId)
+    .map(g => ({
+      ...g,
+      children: flattenedGoals.filter(cg => cg.parentId === g.id),
+    }));
+};
+export const goalsFlattened = nestedGoals => {
+  return nestedGoals.reduce((flattened, { children, ...goal }) => {
+    return [...flattened, goal, ...children];
+  }, []);
+};
+export const goalSetParent = (state, { goal, parent }) => {
+  const goals = goalsNested(getGoals(state));
+  const index = goals.findIndex(g => g.id === parent.id);
+  if (index === false) {
+    return state;
+  }
+  goals[index].children.push(goal);
+  return setGoals(state, goalsFlattened(goals));
+};
 
 export const getPositions = state => getShared(state).positions;
 export const setPositions = (state, positions) =>
