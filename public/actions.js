@@ -67,8 +67,30 @@ export const SaveProfile = state => [
     setProfile: SetProfile,
   }),
 ];
-export const UpdateProfile = (state, profilePartial) =>
-  State.mergeProfile(state, profilePartial);
+/*
+ *
+      effects.Act([
+        AddToast,
+        {
+          message: `Hey ${profile.name}, would you like to join this session?`,
+          actions: [{ text: 'Yes, please', onclick: AddMeToMob }],
+        },
+      ]),
+      */
+export const UpdateProfile = (state, profilePartial) => {
+  const nextState = State.mergeProfile(state, profilePartial);
+  const profile = {
+    current: State.getProfile(state),
+    next: State.getProfile(nextState),
+  };
+  const mob = State.getMob(state);
+  const isInMobAlready = mob.some(m => m.id === profile.current.id);
+  if (!isInMobAlready) {
+    return nextState;
+  }
+
+  return [nextState, effects.Act(UpdateSelfInMob)];
+};
 
 export const Init = (_, { timerId, externals }) => [
   State.initial(timerId, externals),
@@ -153,14 +175,16 @@ export const ShareMob = state => [
   }),
 ];
 
-export const RenameUser = (state, { id, value }) => {
-  const mob = State.getMob(state).map(m => ({
-    ...m,
-    name: m.id === id ? value : m.name,
-  }));
+export const UpdateUser = (state, { id, ...update }) => {
+  const mob = State.getMob(state).map(m =>
+    m.id === id ? { ...m, ...update, id } : m,
+  );
 
   return ShareMob(State.setMob(state, mob));
 };
+
+export const RenameUser = (state, { id, value }) =>
+  UpdateUser(state, { id, name: value });
 
 export const SetMob = (state, mob) => State.setMob(state, mob);
 
@@ -182,13 +206,34 @@ export const AddNameToMob = state =>
 
 export const AddMeToMob = state => {
   const profile = State.getProfile(state);
+  const mob = State.getMob(state);
+  const isInMobAlready = mob.some(m => m.id === profile.id);
+
+  if (isInMobAlready) {
+    return state;
+  }
+
   return ShareMob(
     State.addToMob(state, profile.name, profile.avatar, profile.id),
   );
 };
 
-export const RemoveFromMob = (state, id) =>
-  ShareMob(State.removeFromMob(state, id));
+export const AddAnonymousToMob = (state, anonymous) => {
+  const profile = State.getProfile(state);
+  const id = `${profile.id}_${anonymous.id}`;
+  return ShareMob(State.addToMob(state, anonymous.name, anonymous.avatar, id));
+};
+
+export const UpdateAnonymousInMob = (state, anonymous) => {
+  const canEdit = State.isParticipantEditable(state, anonymous);
+  if (!canEdit) return state;
+  return ShareMob(State.updateInMob(state, anonymous));
+};
+export const UpdateSelfInMob = state =>
+  ShareMob(State.updateInMob(state, State.getProfile(state)));
+
+export const RemoveFromMob = (state, mobber) =>
+  ShareMob(State.removeFromMob(state, mobber.id));
 
 export const ShareGoals = state => [
   state,
@@ -331,6 +376,9 @@ export const ShareSettings = state => [
     settings: State.getShared(state),
   }),
 ];
+
+export const UpdatePositions = (state, positions) =>
+  ShareSettings(State.setPositions(state, positions));
 
 export const UpdateSettings = state =>
   ShareSettings(
