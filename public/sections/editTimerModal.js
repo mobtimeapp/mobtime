@@ -2,7 +2,7 @@ import { h, text } from '../vendor/hyperapp.js';
 
 import { modal } from '../components/modal.js';
 import { section } from '../components/section.js';
-import { preventDefault, withDefault } from '../lib/preventDefault.js';
+import { preventDefault } from '../lib/preventDefault.js';
 
 import * as State from '../state.js';
 import * as actions from '../actions.js';
@@ -54,20 +54,30 @@ const participant = isEditable => ({ id, name, avatar, position }, index) => {
     [
       hidden({ name: inputName('id'), value: id || '' }),
       hidden({ name: inputName('avatar'), value: avatar || '' }),
-      input({
-        name: 'positions[]',
-        value: position || '',
-        placeholder: 'Position',
-        class: ['uppercase text-sm tracking-widest'],
-        onchange: preventDefault(event => {
-          const formData = new FormData(event.target.form);
-          const positions = formData
-            .getAll('positions[]')
-            .filter(p => p)
-            .join(',');
-          return [actions.UpdatePositions, positions];
+      typeof position === 'string' &&
+        input({
+          name: 'positions[]',
+          value: position,
+          placeholder: 'Position',
+          class: ['uppercase text-sm tracking-widest'],
+          onchange: preventDefault(event => {
+            const formData = new FormData(event.target.form);
+            const positions = formData
+              .getAll('positions[]')
+              .filter(p => p)
+              .join(',');
+            return [actions.UpdatePositions, positions];
+          }),
         }),
-      }),
+      typeof position !== 'string' &&
+        h(
+          'div',
+          {
+            class:
+              'px-1 uppercase text-sm tracking-widest text-gray-200 dark:text-gray-700',
+          },
+          text('Bench'),
+        ),
       input({
         name: inputName('name'),
         readonly: !isEditable({ id, name, avatar }),
@@ -120,7 +130,7 @@ const group = (title, children) =>
 export const editTimerModal = state => {
   const isOwner = State.getIsOwner(state);
   const { positions } = State.getShared(state);
-  const mobPositions = positions.split(',');
+  const mobPositions = positions.split(',').concat('');
   const currentMob = State.getMob(state);
   const emptyParticipant = { id: null, name: null, avatar: null };
 
