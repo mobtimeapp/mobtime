@@ -269,6 +269,9 @@ export const UpdateGoalText = (state, goal) => [
   },
 ];
 
+export const SetParentOfGoal = (state, { goal, parent }) =>
+  ShareGoals(State.goalSetParent(state, { goal, parent }));
+
 export const PauseTimer = (state, currentTime = Date.now()) =>
   State.pauseTimer(state, currentTime);
 
