@@ -139,6 +139,14 @@ export const removeFromMob = (state, id) =>
     getMob(state).filter(m => m.id !== id),
   );
 
+export const updateInMob = (state, participantPartial) =>
+  setMob(
+    state,
+    getMob(state).map(m =>
+      m.id === participantPartial.id ? { ...m, ...participantPartial } : m,
+    ),
+  );
+
 export const addToGoals = (state, goal) =>
   setGoals(
     state,
@@ -217,4 +225,15 @@ export const mergePendingSettingsIntoSettings = state => ({
 export const setSettings = (state, settings) => ({ ...state, settings });
 export const getSettings = state => state.settings;
 
-export const setIsOwner = (state, isOwner) => ({ ...state, isOwner });
+export const setIsOwner = (state, isOwner) => mergeLocal(state, { isOwner });
+export const getIsOwner = state => getLocal(state).isOwner;
+export const isParticipantEditable = (state, participant) => {
+  const profile = getProfile(state);
+  const participantIsEmpty =
+    !participant.id && !participant.name && !participant.avatar;
+  const participantHasOwnerPrefix =
+    (participant.id || '').startsWith(profile.id) &&
+    participant.id !== profile.id;
+
+  return getIsOwner(state) && (participantIsEmpty || participantHasOwnerPrefix);
+};
