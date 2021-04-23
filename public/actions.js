@@ -218,17 +218,13 @@ export const AddMeToMob = state => {
   );
 };
 
-export const AddAnonymousToMob = (state, anonymous) => {
-  const profile = State.getProfile(state);
-  const id = `${profile.id}_${anonymous.id}`;
-  return ShareMob(State.addToMob(state, anonymous.name, anonymous.avatar, id));
-};
+export const AddAnonymousToMob = (state, anonymous) =>
+  ShareMob(
+    State.addToMob(state, anonymous.name, anonymous.avatar, anonymous.id),
+  );
 
-export const UpdateAnonymousInMob = (state, anonymous) => {
-  const canEdit = State.isParticipantEditable(state, anonymous);
-  if (!canEdit) return state;
-  return ShareMob(State.updateInMob(state, anonymous));
-};
+export const UpdateAnonymousInMob = (state, anonymous) =>
+  ShareMob(State.updateInMob(state, anonymous));
 export const UpdateSelfInMob = state =>
   ShareMob(State.updateInMob(state, State.getProfile(state)));
 
@@ -252,8 +248,8 @@ export const UpdateGoal = (state, { text: goalText, parentId, id }) =>
 export const CompleteGoal = (state, { id, completed }) =>
   ShareGoals(State.completeGoal(state, id, completed));
 
-export const RemoveGoal = (state, id) =>
-  ShareGoals(State.removeGoal(state, id));
+export const RemoveGoal = (state, goal) =>
+  ShareGoals(State.removeGoal(state, goal.id));
 
 export const RemoveCompletedGoals = state =>
   ShareGoals(State.removeCompletedGoals(state));

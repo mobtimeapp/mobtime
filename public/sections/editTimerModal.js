@@ -3,6 +3,7 @@ import { h, text } from '../vendor/hyperapp.js';
 import { modal } from '../components/modal.js';
 import { section } from '../components/section.js';
 import { preventDefault } from '../lib/preventDefault.js';
+import { button } from '../components/button.js';
 
 import * as State from '../state.js';
 import * as actions from '../actions.js';
@@ -57,78 +58,54 @@ const hidden = props =>
     ...props,
   });
 
-const participant = isEditable => ({ id, name, avatar, position }, index) => {
-  const namePrefix = `mob[${index}]`;
-  const inputName = field => `${namePrefix}[${field}]`;
+const participant = (isEditable, isInMob) => currentParticipant => {
   return h(
     'fieldset',
     {
       class: 'mb-2 block',
-      key: `participant-${id}-${name}`,
+      key: `participant-${currentParticipant.id}`,
     },
     [
-      hidden({ name: inputName('id'), value: id || '' }),
-      hidden({ name: inputName('avatar'), value: avatar || '' }),
-      typeof position === 'string' &&
-        input({
-          name: 'positions[]',
-          value: position,
-          placeholder: 'Position',
-          class: ['uppercase text-sm tracking-widest'],
-          onchange: preventDefault(event => {
-            const formData = new FormData(event.target.form);
-            const positions = formData
-              .getAll('positions[]')
-              .filter(p => p)
-              .join(',');
-            return [actions.UpdatePositions, positions];
-          }),
-        }),
-      typeof position !== 'string' &&
-        h(
-          'div',
-          {
-            class:
-              'px-1 uppercase text-sm tracking-widest text-gray-200 dark:text-gray-700',
-          },
-          text('Bench'),
-        ),
       input({
-        name: inputName('name'),
-        readonly: !isEditable({ id, name, avatar }),
-        value: name || '',
+        readonly: !isEditable(currentParticipant),
+        value: currentParticipant.name || '',
         placeholder: 'Participant name',
-        onchange: preventDefault(event => {
-          const formData = new FormData(event.target.form);
-          const data = Object.fromEntries(formData.entries());
-          const anonymous = Object.keys(data).reduce((memo, key) => {
-            if (!key.startsWith(namePrefix)) return memo;
-            const cleanKey = key
-              .replace(namePrefix, '')
-              .replace(/[^A-Za-z0-9_]/g, '');
-            return { ...memo, [cleanKey]: data[key] };
-          }, {});
-
-          const defaultAction = anonymous.name
+        oninput: preventDefault(event => [
+          isInMob(currentParticipant)
             ? actions.UpdateAnonymousInMob
-            : actions.RemoveFromMob;
-          const action =
-            !anonymous.id && anonymous.name
-              ? actions.AddAnonymousToMob
-              : defaultAction;
-
-          anonymous.id = anonymous.id || Date.now();
-
-          return [action, anonymous];
-        }),
+            : actions.AddAnonymousToMob,
+          { ...currentParticipant, name: event.target.value },
+        ]),
+        onblur: preventDefault(() => [
+          !currentParticipant.name ? actions.RemoveFromMob : s => s,
+          currentParticipant,
+        ]),
       }),
     ],
   );
 };
 
+const handleCtrlShift = keyActionMap => (state, event) => {
+  if (event.repeat || (!event.ctrlKey && !event.shiftKey)) {
+    return state;
+  }
+  console.log(event.key);
+  const action = keyActionMap[event.key];
+  if (!action) {
+    return state;
+  }
+  event.preventDefault();
+  return action(state, event);
+};
+
 const onKeyDown = (currentGoal, index) => (state, event) => {
   if (event.repeat || index === 0 || (!event.ctrlKey && !event.shiftKey))
     return state;
+
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    return actions.AddGoal(state, { text: '', parentId: currentGoal.id });
+  }
 
   if (event.key === 'ArrowLeft') {
     event.preventDefault();
@@ -189,7 +166,32 @@ const goal = (currentGoal, index) => {
                 currentGoal.id ? actions.UpdateGoal : actions.AddGoal,
                 { ...currentGoal, text: e.target.value },
               ]),
-              onkeydown: onKeyDown(currentGoal, index),
+              onkeydown: handleCtrlShift({
+                Enter: state =>
+                  currentGoal.id
+                    ? actions.AddGoal(state, {
+                        text: '',
+                        parentId: currentGoal.parentId || currentGoal.id,
+                      })
+                    : state,
+                ArrowLeft: state =>
+                  actions.UpdateGoal(state, { ...currentGoal, parentId: null }),
+                ArrowRight: state => {
+                  const previousGoal = State.getGoals(state)[index - 1];
+                  if (currentGoal.parentId || !previousGoal) {
+                    return state;
+                  }
+                  const parentId = previousGoal.parentId || previousGoal.id;
+                  return actions.UpdateGoal(state, {
+                    ...currentGoal,
+                    parentId,
+                  });
+                },
+              }),
+              onblur: preventDefault(() => [
+                currentGoal.text ? s => s : actions.RemoveGoal,
+                currentGoal,
+              ]),
             }),
           ]),
         ],
@@ -199,14 +201,15 @@ const goal = (currentGoal, index) => {
 };
 
 const group = (title, children) =>
-  section({}, [
+  section({ class: 'mb-4' }, [
     h(
       'h4',
       {
         class: [
-          'mb-4',
+          'mb-2',
           'text-lg',
-          'border-b border-gray-100 dark:border-gray-800',
+          'border-b border-gray-200 dark:border-gray-700',
+          'text-white',
           'w-full',
         ],
       },
@@ -217,26 +220,17 @@ const group = (title, children) =>
 
 export const editTimerModal = state => {
   const isOwner = State.getIsOwner(state);
-  const { positions } = State.getShared(state);
-  const mobPositions = positions.split(',').concat('');
-  const currentMob = State.getMob(state);
-  const emptyParticipant = { id: null, name: null, avatar: null };
+  // const { positions } = State.getShared(state);
+  // const mobPositions = positions.split(',').concat('');
+  const mob = State.getMob(state);
+  const emptyParticipant = {
+    id: `anonymous_${Date.now()}`,
+    name: '',
+    avatar: '',
+  };
 
-  const mob = Array.from(
-    {
-      length: Math.max(mobPositions.length, currentMob.length),
-    },
-    (_, index) => {
-      const member = currentMob[index] || emptyParticipant;
-      return { ...member, position: mobPositions[index] };
-    },
-  );
-  const anyEmpty = mob.some(m => !m.id && !m.name && !m.avatar && !m.position);
-  if (!anyEmpty) {
-    mob.push(emptyParticipant);
-  }
-
-  const isEditable = p => State.isParticipantEditable(state, p);
+  const isEditable = p => p.id.startsWith('anonymous_');
+  const isInMob = p => mob.some(m => m.id === p.id);
 
   const currentGoals = State.getGoals(state);
   const lastGoal = currentGoals.slice(-1)[0] || {};
@@ -249,30 +243,82 @@ export const editTimerModal = state => {
 
   return modal([
     h(
-      'form',
+      'div',
       {
-        class: ['mt-4 px-2 pb-2'],
-        onsubmit: preventDefault(() => [s => s]),
-        autocomplete: 'off',
+        class: ['mt-4 mb-2'],
       },
       [
-        isOwner &&
-          h(
-            'p',
-            {},
-            text(
-              `You are the timer owner, which gives you much more control over what can be changed.`,
-            ),
-          ),
+        group('Timer Configuration', [
+          h('label', { class: 'flex items-center justify-between mb-2' }, [
+            h('div', { class: 'mr-2' }, text('Turn Duration')),
+            input({ value: '5:00' }),
+          ]),
+          h('label', { class: 'flex items-center justify-between mb-2' }, [
+            h('div', { class: 'mr-2' }, text('Positions')),
+            input({ value: 'Navigator,Driver,Next' }),
+          ]),
+        ]),
         h(
           'div',
           {
             class: ['grid sm:grid-cols-2 gap-4 w-full'],
           },
           [
-            group('Participants', mob.map(participant(isEditable, isOwner))),
+            group(
+              'Participants',
+              mob
+                .concat(emptyParticipant)
+                .map(participant(isEditable, isInMob)),
+            ),
             group('Goals', goals.map(goal)),
           ],
+        ),
+      ],
+    ),
+
+    group('Session Persistance', [
+      h('div', { class: 'grid sm:grid-cols-2 gap-4' }, [
+        h('div', {}, [
+          h('label', { class: 'flex items-center justify-between mb-2' }, [
+            h('div', { class: 'mr-2' }, text('Auto-save timer session')),
+            h('input', { type: 'checkbox' }),
+          ]),
+
+          isOwner &&
+            h('label', { class: 'flex items-center justify-between mb-2' }, [
+              h('div', { class: 'mr-2' }, text('Saved YYYY-MM-DD HH:MM')),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  class:
+                    'px-2 py-1 border border-gray-100 dark:border-gray-800',
+                },
+                text('Load'),
+              ),
+            ]),
+        ]),
+      ]),
+    ]),
+    h(
+      'div',
+      {
+        class:
+          'flex items-center justify-center pt-2 border-t border-gray-100 dark:border-gray-800 mb-1',
+      },
+      [
+        button(
+          { color: 'indigo', contrast: 1, class: 'mr-2', size: 'md' },
+          text('Save to browser'),
+        ),
+        button({ class: 'mr-2', size: 'md' }, text('Save as...')),
+        h('div', { class: 'flex-grow' }),
+        button(
+          {
+            size: 'md',
+            onclick: preventDefault(() => [actions.SetModal, null]),
+          },
+          text('Close'),
         ),
       ],
     ),

@@ -48,7 +48,7 @@ export const timeRemaining = state => {
               button(
                 {
                   size: 'md',
-                  shadow: false,
+                  class: 'uppercase tracking-widest',
                   onclick: preventDefault(() => [
                     actions.CompletedAndShare,
                     { isEndOfTurn: false },
@@ -63,12 +63,9 @@ export const timeRemaining = state => {
           !timerDuration &&
             button(
               {
-                class: {
-                  'bg-green-800': true,
-                  'text-gray-100': true,
-                  'hover:bg-green-700': true,
-                  'hover:text-gray-200': true,
-                },
+                size: 'md',
+                color: 'green',
+                class: 'uppercase tracking-widest',
                 onclick: preventDefault(() => [
                   actions.StartTimerAndShare,
                   Date.now(),
@@ -80,10 +77,8 @@ export const timeRemaining = state => {
           !!timerDuration &&
             button(
               {
-                class: {
-                  'bg-white': true,
-                  'text-green-600': true,
-                },
+                size: 'md',
+                class: 'uppercase tracking-widest',
                 disabled: !timerDuration,
                 onclick: preventDefault(() =>
                   isPaused

@@ -4,6 +4,7 @@ import { modal } from '../components/modal.js';
 import { column } from '../components/column.js';
 import { participant } from '../components/participant.js';
 import { preventDefault, withDefault } from '../lib/preventDefault.js';
+import { button } from '../components/button.js';
 
 import * as State from '../state.js';
 import * as actions from '../actions.js';
@@ -14,22 +15,22 @@ const labelToId = label =>
     .replace(/__/g, '_')
     .toLowerCase();
 
-const button = (label, props) =>
-  h(
-    'button',
-    {
-      type: 'button',
-      ...props,
-      class: [
-        'text-sm',
-        'p-2 mr-1',
-        'shadow-sm rounded',
-        'bg-gray-200 dark:bg-gray-700',
-        ...(props.class || []),
-      ],
-    },
-    text(label),
-  );
+// const button = (label, props) =>
+// h(
+// 'button',
+// {
+// type: 'button',
+// ...props,
+// class: [
+// 'text-sm',
+// 'p-2 mr-1',
+// 'shadow-sm rounded',
+// 'bg-gray-200 dark:bg-gray-700',
+// ...(props.class || []),
+// ],
+// },
+// text(label),
+// );
 
 const setting = (label, inputProps, actionButtons = []) =>
   h(
@@ -57,7 +58,14 @@ const setting = (label, inputProps, actionButtons = []) =>
           {
             class: 'col-span-2 my-2 flex items-center justify-between',
           },
-          [...actionButtons.map(action => button(action.text, {}))],
+          [
+            ...actionButtons.map(action =>
+              button(
+                { size: 'md', color: 'gray', class: 'normal-case' },
+                text(action.text),
+              ),
+            ),
+          ],
         ),
     ],
   );
@@ -212,15 +220,28 @@ export const profileModal = state => {
             class: 'flex items-center justify-center',
           },
           [
-            button('Delete Profile', {
-              class: ['bg-red-600 dark:bg-red-800 text-gray-100'],
-              onclick: preventDefault(() => [actions.ResetProfile]),
-            }),
+            button(
+              {
+                color: 'red',
+                onclick: preventDefault(() => [actions.ResetProfile]),
+              },
+              text('Reset Profile'),
+            ),
             h('div', { class: 'flex-grow' }),
-            button('Cancel', {
-              onclick: preventDefault(() => [actions.SetModal, null]),
-            }),
-            button('Save', { type: 'submit' }),
+            button(
+              {
+                onclick: preventDefault(() => [actions.SetModal, null]),
+                class: 'ml-1',
+              },
+              text('Cancel'),
+            ),
+            button(
+              {
+                type: 'submit',
+                class: 'ml-1',
+              },
+              text('Save'),
+            ),
           ],
         ),
       ],
