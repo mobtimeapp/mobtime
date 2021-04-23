@@ -23,6 +23,7 @@ const input = props =>
           'w-64 max-w-full',
           'border-b border-gray-200 dark:border-gray-700',
           'px-2',
+          'bg-transparent',
           ...(props.class || []),
         ],
       }),
@@ -36,6 +37,20 @@ const input = props =>
     ],
   );
 
+const textarea = props =>
+  h('textarea', {
+    autocomplete: 'off',
+    ...props,
+    class: [
+      'block',
+      'border-b border-gray-200 dark:border-gray-700',
+      'px-2',
+      'resize-y',
+      'bg-transparent',
+      ...(props.class || []),
+    ],
+  });
+
 const hidden = props =>
   h('input', {
     type: 'hidden',
@@ -48,7 +63,7 @@ const participant = isEditable => ({ id, name, avatar, position }, index) => {
   return h(
     'fieldset',
     {
-      class: 'mb-2',
+      class: 'mb-2 block',
       key: `participant-${id}-${name}`,
     },
     [
@@ -112,38 +127,72 @@ const participant = isEditable => ({ id, name, avatar, position }, index) => {
 };
 
 const onKeyDown = (currentGoal, index) => (state, event) => {
-  if (index === 0) return state;
+  if (event.repeat || index === 0 || (!event.ctrlKey && !event.shiftKey))
+    return state;
 
-  if (currentGoal.parentId && event.shiftKey && event.key === 'Tab') {
-    return actions.SetParentOfGoal(state, {
-      goal: currentGoal,
-      parent: null,
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    return actions.UpdateGoal(state, {
+      ...currentGoal,
+      parentId: null,
     });
   }
-  if (!currentGoal.parentId && event.key === 'Tab') {
-    const previousGoal = State.getGoals(state)[index - 1];
-    return actions.SetParentOfGoal(state, {
-      goal: currentGoal,
-      parent: previousGoal,
-    });
+  if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    if (!currentGoal.parentId) {
+      const previousGoal = State.getGoals(state)[index - 1];
+      const parentId = previousGoal.parentId || previousGoal.id;
+      return actions.UpdateGoal(state, {
+        ...currentGoal,
+        parentId,
+      });
+    }
   }
+
+  return state;
 };
 
-const goal = ({ id, text: goalText, completed }, index) => {
+const goal = (currentGoal, index) => {
   return h(
     'fieldset',
     {
-      class: 'mb-2',
-      key: `participant-${id}-${goalText}`,
+      class: 'mb-2 w-full',
+      key: `goal-${index}`,
     },
     [
-      hidden({ name: `goals[${index}][id]`, value: id }),
+      hidden({ name: `goals[${index}][id]`, value: currentGoal.id }),
       h(
         'div',
         {
-          class: 'flex items-start justify-start',
+          class: [
+            'flex items-start justify-start',
+            currentGoal.parentId && 'pl-4',
+          ],
         },
-        [h('textarea', { placeholder: 'Enter your goal' })],
+        [
+          h('div', { class: 'w-4' }, [
+            h('input', {
+              type: 'checkbox',
+              disabled: true,
+              checked: currentGoal.completed,
+              class: 'flex-shrink',
+            }),
+          ]),
+          h('div', { class: 'flex-grow' }, [
+            textarea({
+              // class: ['w-full block'],
+              rows: 1,
+              placeholder: 'Add your goals...',
+              name: `goals[${index}][text]`,
+              value: currentGoal.text || '',
+              oninput: preventDefault(e => [
+                currentGoal.id ? actions.UpdateGoal : actions.AddGoal,
+                { ...currentGoal, text: e.target.value },
+              ]),
+              onkeydown: onKeyDown(currentGoal, index),
+            }),
+          ]),
+        ],
       ),
     ],
   );
@@ -158,6 +207,7 @@ const group = (title, children) =>
           'mb-4',
           'text-lg',
           'border-b border-gray-100 dark:border-gray-800',
+          'w-full',
         ],
       },
       text(title),
@@ -188,10 +238,13 @@ export const editTimerModal = state => {
 
   const isEditable = p => State.isParticipantEditable(state, p);
 
-  const goals = State.getGoals(state).concat({
+  const currentGoals = State.getGoals(state);
+  const lastGoal = currentGoals.slice(-1)[0] || {};
+  const goals = currentGoals.concat({
     id: null,
     text: '',
     completed: false,
+    parentId: lastGoal.parentId || null,
   });
 
   return modal([
@@ -214,7 +267,7 @@ export const editTimerModal = state => {
         h(
           'div',
           {
-            class: ['grid sm:grid-cols-2 gap-4'],
+            class: ['grid sm:grid-cols-2 gap-4 w-full'],
           },
           [
             group('Participants', mob.map(participant(isEditable, isOwner))),

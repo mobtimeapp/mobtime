@@ -42,20 +42,21 @@ export const getMob = state => getShared(state).mob;
 export const setMob = (state, mob) => mergeShared(state, { mob });
 
 export const getGoals = state => getShared(state).goals;
-export const setGoals = (state, goals) => mergeShared(state, { goals });
-export const goalsNested = flattenedGoals => {
-  return flattenedGoals
+export const goalsNested = flattenedGoals =>
+  flattenedGoals
     .filter(g => !g.parentId)
     .map(g => ({
       ...g,
       children: flattenedGoals.filter(cg => cg.parentId === g.id),
     }));
-};
-export const goalsFlattened = nestedGoals => {
-  return nestedGoals.reduce((flattened, { children, ...goal }) => {
-    return [...flattened, goal, ...children];
-  }, []);
-};
+export const goalsFlattened = nestedGoals =>
+  nestedGoals.reduce(
+    (flattened, { children, ...goal }) => [...flattened, goal, ...children],
+    [],
+  );
+export const goalsSorted = goals => goalsFlattened(goalsNested(goals));
+export const setGoals = (state, goals) =>
+  mergeShared(state, { goals: goalsSorted(goals) });
 export const goalSetParent = (state, { goal, parent }) => {
   const goals = goalsNested(getGoals(state));
   const index = goals.findIndex(g => g.id === parent.id);
@@ -169,7 +170,7 @@ export const updateInMob = (state, participantPartial) =>
     ),
   );
 
-export const addToGoals = (state, goal) =>
+export const addToGoals = (state, goal, parentId) =>
   setGoals(
     state,
     getGoals(state).concat({
@@ -178,7 +179,14 @@ export const addToGoals = (state, goal) =>
         .slice(2),
       text: goal,
       completed: false,
+      parentId,
     }),
+  );
+
+export const updateGoal = (state, id, text, parentId = null) =>
+  setGoals(
+    state,
+    getGoals(state).map(g => (g.id === id ? { ...g, text, parentId } : g)),
   );
 
 export const completeGoal = (state, id, completed = true) =>

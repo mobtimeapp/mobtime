@@ -1,8 +1,8 @@
 export const preventDefault = fn => {
   return (state, event) => {
     event.preventDefault();
-    const [action, props] = fn(event);
-    return action(state, props);
+    const output = fn(event);
+    return Array.isArray(output) ? output[0](state, output[1]) : output(state);
   };
 };
 
