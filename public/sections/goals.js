@@ -3,18 +3,25 @@ import { section } from '../components/section.js';
 import { column } from '../components/column.js';
 import * as actions from '../actions.js';
 
-const item = ({ id, text: goalText, completed }) =>
+const item = ({ id, text: goalText, completed, parentId }) =>
   h(
     'li',
     {
-      class:
-        'pb-2 mb-2 border-l-2 border-gray-100 dark:border-gray-700 px-2 bg-gray-100 dark:bg-gray-800 py-1 block',
+      class: [
+        'block',
+        'mb-2 px-2 py-1',
+        'border-l-2 border-gray-100 dark:border-gray-700',
+        'bg-gray-100 dark:bg-gray-800',
+      ],
     },
     [
       h(
         'label',
         {
-          class: 'block flex flex-row items-start justify-start',
+          class: [
+            'flex flex-row items-center justify-start',
+            parentId && 'ml-4',
+          ],
         },
         [
           h(

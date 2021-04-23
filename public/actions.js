@@ -243,10 +243,11 @@ export const ShareGoals = state => [
   }),
 ];
 
-export const AddGoal = state =>
-  ShareGoals(
-    State.addToGoals(state, 'Do better'), // TODO
-  );
+export const AddGoal = (state, { text: goalText, parentId }) =>
+  ShareGoals(State.addToGoals(state, goalText, parentId));
+
+export const UpdateGoal = (state, { text: goalText, parentId, id }) =>
+  ShareGoals(State.updateGoal(state, id, goalText, parentId));
 
 export const CompleteGoal = (state, { id, completed }) =>
   ShareGoals(State.completeGoal(state, id, completed));
