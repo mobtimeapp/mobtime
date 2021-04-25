@@ -1,6 +1,7 @@
 import { h, text } from '../vendor/hyperapp.js';
 
 import { handleKeydown } from '../lib/handleKeydown.js';
+import { formatTime } from '../lib/formatTime.js';
 
 import { modal } from '../components/modal.js';
 import { section } from '../components/section.js';
@@ -25,6 +26,7 @@ const input = props =>
           'block',
           'w-64 max-w-full',
           'border-b border-gray-200 dark:border-gray-700',
+          'invalid:border-red-600 dark:invalid:border-red-600',
           'px-2',
           'bg-transparent',
           ...(props.class || []),
@@ -179,8 +181,7 @@ const shortcut = (keyCombination, description) =>
 
 export const editTimerModal = state => {
   const isOwner = State.getIsOwner(state);
-  // const { positions } = State.getShared(state);
-  // const mobPositions = positions.split(',').concat('');
+  const { duration, positions } = State.getShared(state);
   const mob = State.getMob(state);
   const emptyParticipant = {
     id: `anonymous_${Math.random()
@@ -215,11 +216,38 @@ export const editTimerModal = state => {
         group('Timer Configuration', [
           h('label', { class: 'flex items-center justify-between mb-2' }, [
             h('div', { class: 'mr-2' }, text('Turn Duration')),
-            input({ value: '5:00' }),
+            input({
+              value: formatTime(duration).replace(/^0/, ''),
+              placeholder: 'mm:ss',
+              title: 'Duration formatted as m:ss or mm:ss',
+              oninput: preventDefault(({ target }) => {
+                const format = /\d{1,2}:\d{2}/;
+                if (!format.test(target.value)) {
+                  target.setCustomValidity(
+                    'Duration must by in the format of m:ss or mm:ss',
+                  );
+                  target.reportValidity();
+                  return [s => s];
+                }
+                const [minutes, seconds] = target.value
+                  .split(':')
+                  .map(v => parseInt(v.replace(/^0/, ''), 10));
+                const milliseconds = (minutes * 60 + seconds) * 1000 + 999;
+                target.setCustomValidity('');
+                target.reportValidity();
+                return [actions.UpdateSettings, { duration: milliseconds }];
+              }),
+            }),
           ]),
           h('label', { class: 'flex items-center justify-between mb-2' }, [
             h('div', { class: 'mr-2' }, text('Positions')),
-            input({ value: 'Navigator,Driver,Next' }),
+            input({
+              value: positions,
+              oninput: preventDefault(({ target }) => [
+                actions.UpdateSettings,
+                { positions: target.value },
+              ]),
+            }),
           ]),
         ]),
         h(

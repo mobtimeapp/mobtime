@@ -309,7 +309,9 @@ export const ResumeTimerAndShare = (state, timerStartedAt = Date.now()) => [
 
 export const StartTimer = (state, timerStartedAt) => {
   const { duration } = State.getShared(state);
-  return State.startTimer(state, timerStartedAt, duration);
+  return State.mergeLocal(State.startTimer(state, timerStartedAt, duration), {
+    time: timerStartedAt,
+  });
 };
 
 export const StartTimerAndShare = (state, timerStartedAt) => {
@@ -399,9 +401,9 @@ export const ShareSettings = state => [
 export const UpdatePositions = (state, positions) =>
   ShareSettings(State.setPositions(state, positions));
 
-export const UpdateSettings = state =>
+export const UpdateSettings = (state, sharedPartial) =>
   ShareSettings(
-    State.mergeShared(state, {}), // TODO: Where are the new settings coming from?
+    State.mergeShared(state, sharedPartial), // TODO: Where are the new settings coming from?
   );
 
 export const ReplaceSettings = (state, settings) =>
