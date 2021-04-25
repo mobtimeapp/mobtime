@@ -192,3 +192,17 @@ export const Act = fx(function ActFx(dispatch, value) {
 
   dispatch(action, props);
 });
+
+export const FocusInputAtEnd = fx(function FocusInputAtEndFx(
+  _dispatch,
+  selector,
+) {
+  setTimeout(() => {
+    const e = document.querySelector(selector);
+    if (!e) return;
+    e.focus();
+    const { value } = e;
+    e.value = '';
+    e.value = value;
+  }, 100);
+});

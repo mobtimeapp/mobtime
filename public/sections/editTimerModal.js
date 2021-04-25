@@ -52,12 +52,6 @@ const textarea = props =>
     ],
   });
 
-const hidden = props =>
-  h('input', {
-    type: 'hidden',
-    ...props,
-  });
-
 const participant = (isEditable, isInMob) => currentParticipant => {
   return h(
     'fieldset',
@@ -87,9 +81,11 @@ const participant = (isEditable, isInMob) => currentParticipant => {
 
 const handleCtrlShift = keyActionMap => (state, event) => {
   if (event.repeat || (!event.ctrlKey && !event.shiftKey)) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+    }
     return state;
   }
-  console.log(event.key);
   const action = keyActionMap[event.key];
   if (!action) {
     return state;
@@ -98,102 +94,65 @@ const handleCtrlShift = keyActionMap => (state, event) => {
   return action(state, event);
 };
 
-const onKeyDown = (currentGoal, index) => (state, event) => {
-  if (event.repeat || index === 0 || (!event.ctrlKey && !event.shiftKey))
-    return state;
-
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    return actions.AddGoal(state, { text: '', parentId: currentGoal.id });
-  }
-
-  if (event.key === 'ArrowLeft') {
-    event.preventDefault();
-    return actions.UpdateGoal(state, {
-      ...currentGoal,
-      parentId: null,
-    });
-  }
-  if (event.key === 'ArrowRight') {
-    event.preventDefault();
-    if (!currentGoal.parentId) {
-      const previousGoal = State.getGoals(state)[index - 1];
-      const parentId = previousGoal.parentId || previousGoal.id;
-      return actions.UpdateGoal(state, {
-        ...currentGoal,
-        parentId,
-      });
-    }
-  }
-
-  return state;
-};
-
-const goal = (currentGoal, index) => {
+const goal = isInGoals => (currentGoal, index) => {
   return h(
     'fieldset',
     {
       class: 'mb-2 w-full',
-      key: `goal-${index}`,
+      key: `goal-${index}-${currentGoal.id}`,
     },
     [
-      hidden({ name: `goals[${index}][id]`, value: currentGoal.id }),
       h(
         'div',
         {
-          class: [
-            'flex items-start justify-start',
-            currentGoal.parentId && 'pl-4',
-          ],
+          class: [currentGoal.parentId && 'pl-4'],
         },
         [
-          h('div', { class: 'w-4' }, [
-            h('input', {
-              type: 'checkbox',
-              disabled: true,
-              checked: currentGoal.completed,
-              class: 'flex-shrink',
+          textarea({
+            // class: ['w-full block'],
+            "class": [
+              currentGoal.completed &&
+                'line-through text-gray-400 dark:text-gray-600',
+            ],
+            "rows": 1,
+            "placeholder": 'Add your goals...',
+            "value": currentGoal.text || '',
+            'data-goal-id': currentGoal.id,
+            "oninput": preventDefault(e => [
+              isInGoals(currentGoal) ? actions.UpdateGoal : actions.AddGoal,
+              { ...currentGoal, text: e.target.value },
+            ]),
+            "onkeydown": handleCtrlShift({
+              Enter: state =>
+                isInGoals(currentGoal)
+                  ? actions.AddGoal(state, {
+                      text: '',
+                      parentId: currentGoal.parentId || currentGoal.id,
+                    })
+                  : state,
+              ArrowLeft: state =>
+                actions.UpdateGoal(state, { ...currentGoal, parentId: null }),
+              ArrowRight: state => {
+                const previousGoal = State.getGoals(state)[index - 1];
+                if (currentGoal.parentId || !previousGoal) {
+                  return state;
+                }
+                const parentId = previousGoal.parentId || previousGoal.id;
+                return actions.UpdateGoal(state, {
+                  ...currentGoal,
+                  parentId,
+                });
+              },
+              ArrowUp: state =>
+                actions.MoveGoal(state, { goal: currentGoal, direction: -1 }),
+              ArrowDown: state =>
+                actions.MoveGoal(state, { goal: currentGoal, direction: 1 }),
             }),
-          ]),
-          h('div', { class: 'flex-grow' }, [
-            textarea({
-              // class: ['w-full block'],
-              rows: 1,
-              placeholder: 'Add your goals...',
-              name: `goals[${index}][text]`,
-              value: currentGoal.text || '',
-              oninput: preventDefault(e => [
-                currentGoal.id ? actions.UpdateGoal : actions.AddGoal,
-                { ...currentGoal, text: e.target.value },
-              ]),
-              onkeydown: handleCtrlShift({
-                Enter: state =>
-                  currentGoal.id
-                    ? actions.AddGoal(state, {
-                        text: '',
-                        parentId: currentGoal.parentId || currentGoal.id,
-                      })
-                    : state,
-                ArrowLeft: state =>
-                  actions.UpdateGoal(state, { ...currentGoal, parentId: null }),
-                ArrowRight: state => {
-                  const previousGoal = State.getGoals(state)[index - 1];
-                  if (currentGoal.parentId || !previousGoal) {
-                    return state;
-                  }
-                  const parentId = previousGoal.parentId || previousGoal.id;
-                  return actions.UpdateGoal(state, {
-                    ...currentGoal,
-                    parentId,
-                  });
-                },
-              }),
-              onblur: preventDefault(() => [
-                currentGoal.text ? s => s : actions.RemoveGoal,
-                currentGoal,
-              ]),
-            }),
-          ]),
+            "onblur": preventDefault(() => [
+              currentGoal.text ? s => s : actions.RemoveGoal,
+              currentGoal,
+            ]),
+          }),
         ],
       ),
     ],
@@ -209,7 +168,7 @@ const group = (title, children) =>
           'mb-2',
           'text-lg',
           'border-b border-gray-200 dark:border-gray-700',
-          'text-white',
+          'text-black dark:text-white',
           'w-full',
         ],
       },
@@ -218,13 +177,25 @@ const group = (title, children) =>
     ...children,
   ]);
 
+const shortcut = (keyCombination, description) =>
+  h('div', {}, [
+    h(
+      'strong',
+      { class: 'block sm:inline sm:mr-2 text-black dark:text-white' },
+      text(keyCombination),
+    ),
+    text(description),
+  ]);
+
 export const editTimerModal = state => {
   const isOwner = State.getIsOwner(state);
   // const { positions } = State.getShared(state);
   // const mobPositions = positions.split(',').concat('');
   const mob = State.getMob(state);
   const emptyParticipant = {
-    id: `anonymous_${Date.now()}`,
+    id: `anonymous_${Math.random()
+      .toString(36)
+      .slice(2)}`,
     name: '',
     avatar: '',
   };
@@ -232,14 +203,17 @@ export const editTimerModal = state => {
   const isEditable = p => p.id.startsWith('anonymous_');
   const isInMob = p => mob.some(m => m.id === p.id);
 
-  const currentGoals = State.getGoals(state);
-  const lastGoal = currentGoals.slice(-1)[0] || {};
-  const goals = currentGoals.concat({
-    id: null,
+  const goals = State.getGoals(state);
+  const lastGoal = goals.slice(-1)[0] || {};
+  const emptyGoal = {
+    id: Math.random()
+      .toString(36)
+      .slice(2),
     text: '',
     completed: false,
     parentId: lastGoal.parentId || null,
-  });
+  };
+  const isInGoals = g => goals.some(({ id }) => g.id === id);
 
   return modal([
     h(
@@ -270,7 +244,59 @@ export const editTimerModal = state => {
                 .concat(emptyParticipant)
                 .map(participant(isEditable, isInMob)),
             ),
-            group('Goals', goals.map(goal)),
+            group('Goals', [
+              h(
+                'div',
+                { class: 'mb-4' },
+                goals.concat(emptyGoal).map(goal(isInGoals)),
+              ),
+              h(
+                'details',
+                {
+                  class: ['text-sm', 'mb-4'],
+                },
+                [
+                  h(
+                    'summary',
+                    { class: 'text-gray-400 dark:text-gray-600' },
+                    text('Keyboard controls'),
+                  ),
+                  h('ul', { class: 'ml-4 text-gray-700 dark:text-gray-300' }, [
+                    h(
+                      'li',
+                      {},
+                      shortcut('Ctrl+Shift+Enter', 'Add a child goal'),
+                    ),
+                    h(
+                      'li',
+                      {},
+                      shortcut(
+                        'Ctrl+Shift+Right Arrow',
+                        'Make this goal a child goal',
+                      ),
+                    ),
+                    h(
+                      'li',
+                      {},
+                      shortcut(
+                        'Ctrl+Shift+Left Arrow',
+                        'Make this goal a top-level goal',
+                      ),
+                    ),
+                    h(
+                      'li',
+                      {},
+                      shortcut('Ctrl+Shift+Up Arrow', 'Move goal up'),
+                    ),
+                    h(
+                      'li',
+                      {},
+                      shortcut('Ctrl+Shift+Down Arrow', 'Move goal down'),
+                    ),
+                  ]),
+                ],
+              ),
+            ]),
           ],
         ),
       ],

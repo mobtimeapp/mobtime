@@ -66,6 +66,32 @@ export const goalSetParent = (state, { goal, parent }) => {
   goals[index].children.push(goal);
   return setGoals(state, goalsFlattened(goals));
 };
+const moveGoalAtTo = (goals, atIndex, toIndex) => {
+  const lower = Math.min(atIndex, toIndex);
+  const upper = Math.max(atIndex, toIndex);
+
+  return []
+    .concat(goals.slice(0, lower))
+    .concat(goals[upper])
+    .concat(goals[lower])
+    .concat(goals.slice(upper + 1));
+};
+
+export const moveGoalUp = (state, goal) => {
+  const goals = getGoals(state);
+  const index = goals.findIndex(g => g.id === goal.id);
+  const isFirstOrNotFound = !index;
+  if (isFirstOrNotFound) return state;
+  return setGoals(state, moveGoalAtTo(goals, index, index - 1));
+};
+export const moveGoalDown = (state, goal) => {
+  const goals = getGoals(state);
+  const index = goals.findIndex(g => g.id === goal.id);
+  const notFound = index === false;
+  const isAtEnd = index === goals.length - 1;
+  if (notFound || isAtEnd) return state;
+  return setGoals(state, moveGoalAtTo(goals, index, index + 1));
+};
 
 export const getPositions = state => getShared(state).positions;
 export const setPositions = (state, positions) =>
@@ -170,16 +196,12 @@ export const updateInMob = (state, participantPartial) =>
     ),
   );
 
-export const addToGoals = (state, goal, parentId) =>
+export const addToGoals = (state, goal) =>
   setGoals(
     state,
     getGoals(state).concat({
-      id: Math.random()
-        .toString(36)
-        .slice(2),
-      text: goal,
       completed: false,
-      parentId,
+      ...goal,
     }),
   );
 
