@@ -62,45 +62,34 @@ export const UpdateMob = fx(function UpdateMobFX(
   return sendMessage(websocketPort, 'mob:update', { mob });
 });
 
-export const NotificationPermission = fx(function NotificationPermissionFX(
-  dispatch,
-  { SetNotificationPermissions, externals },
+export const PermitNotify = fx(function NotificationPermissionFX(
+  _dispatch,
+  { externals },
 ) {
-  const dispatchSetNotificationPermissions = notificationPermissions => {
-    dispatch(SetNotificationPermissions, {
-      notificationPermissions,
-      externals,
-    });
-  };
-
-  if (!Notification) {
-    dispatchSetNotificationPermissions('denied');
-    return;
-  }
+  if (!externals.Notification) return;
 
   externals.Notification.requestPermission()
-    .then(dispatchSetNotificationPermissions)
-    .catch(() => {
+    .then(result => {
+      console.log('set permissions', result);
+    })
+    .catch(e => {
       // eslint-disable-next-line no-console
-      dispatchSetNotificationPermissions('denied');
+      console.warn('Unable to request notification permissions', e);
     });
 });
 
 export const Notify = fx(function NotifyFX(
   _dispatch,
-  { title, text, notification = true, sound = false, externals },
+  { title, text, silent, actions, externals },
 ) {
-  if (notification && externals.Notification) {
-    // eslint-disable-next-line no-new
-    new externals.Notification(title, {
-      body: text,
-      vibrate: [100, 100, 100],
-    });
-  }
-  if (sound && externals.document) {
-    const timerComplete = externals.document.querySelector('#timer-complete');
-    timerComplete.play();
-  }
+  if (!externals.Notification) return;
+
+  // eslint-disable-next-line no-new
+  new externals.Notification(title, {
+    body: text,
+    silent: !!silent,
+    vibrate: [100, 100, 100],
+  });
 });
 
 export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
@@ -205,4 +194,8 @@ export const FocusInputAtEnd = fx(function FocusInputAtEndFx(
     e.value = '';
     e.value = value;
   }, 100);
+});
+
+export const PlayHonk = fx(function PlayHonkFx(_dispatch, honk) {
+  honk.play();
 });

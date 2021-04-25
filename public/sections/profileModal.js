@@ -1,5 +1,7 @@
 import { h, text } from '../vendor/hyperapp.js';
 
+import { handleKeydown } from '../lib/handleKeydown.js';
+
 import { modal } from '../components/modal.js';
 import { column } from '../components/column.js';
 import { participant } from '../components/participant.js';
@@ -56,12 +58,17 @@ const setting = (label, inputProps, actionButtons = []) =>
         h(
           'div',
           {
-            class: 'col-span-2 my-2 flex items-center justify-between',
+            class: 'col-span-2 my-2 flex items-center justify-start',
           },
           [
             ...actionButtons.map(action =>
               button(
-                { size: 'md', color: 'gray', class: 'normal-case' },
+                {
+                  size: 'md',
+                  color: 'gray',
+                  class: 'mr-2',
+                  onclick: preventDefault(() => action.onclick),
+                },
                 text(action.text),
               ),
             ),
@@ -178,7 +185,11 @@ export const profileModal = state => {
                     'bg-gray-100 dark:bg-gray-800',
                     'border-b border-gray-900 dark:border-gray-200',
                   ],
-                  onchange: preventDefault(event => [
+                  onkeydown: handleKeydown(e => !e.repeat, {
+                    Enter: (s, e) =>
+                      actions.ProfileModalGiphySearch(s, e.target.value),
+                  }),
+                  onblur: preventDefault(event => [
                     actions.ProfileModalGiphySearch,
                     event.target.value,
                   ]),
@@ -200,8 +211,12 @@ export const profileModal = state => {
               name: 'enableSounds',
               value: 1,
               checked: !!profile.enableSounds,
+              oninput: preventDefault(e => [
+                actions.UpdateProfile,
+                { enableSounds: e.target.checked },
+              ]),
             }),
-            [{ text: 'Play Sound' }],
+            [{ text: 'Play Sound', onclick: [actions.PlayHonk] }],
           ),
           setting(
             'Enable browser notifications',
@@ -209,8 +224,24 @@ export const profileModal = state => {
               name: 'enableNotifications',
               value: 1,
               checked: !!profile.enableNotifications,
+              oninput: preventDefault(e => [
+                actions.UpdateProfile,
+                { enableNotifications: e.target.checked },
+              ]),
             }),
-            [{ text: 'Test Notification' }],
+            [
+              profile.enableNotifications && {
+                text: 'Request Permission',
+                onclick: [actions.PermitNotify],
+              },
+              {
+                text: 'Test Notification',
+                onclick: [
+                  actions.Notify,
+                  { title: 'mobti.me test', text: 'Here is a notification' },
+                ],
+              },
+            ].filter(a => a),
           ),
         ]),
 

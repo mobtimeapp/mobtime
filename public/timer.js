@@ -20,6 +20,7 @@ app({
         localStorage: window.localStorage,
         document: window.document,
         Notification: window.Notification,
+        honk: new Audio('https://bigsoundbank.com/UPLOAD/mp3/1828.mp3'),
       },
     },
   ),
