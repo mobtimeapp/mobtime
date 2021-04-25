@@ -313,12 +313,10 @@ export const editTimerModal = state => {
           isOwner &&
             h('label', { class: 'flex items-center justify-between mb-2' }, [
               h('div', { class: 'mr-2' }, text('Saved YYYY-MM-DD HH:MM')),
-              h(
-                'button',
+              button(
                 {
                   type: 'button',
-                  class:
-                    'px-2 py-1 border border-gray-100 dark:border-gray-800',
+                  color: 'gray',
                 },
                 text('Load'),
               ),
@@ -334,7 +332,7 @@ export const editTimerModal = state => {
       },
       [
         button(
-          { color: 'indigo', contrast: 1, class: 'mr-2', size: 'md' },
+          { color: 'indigo', class: 'mr-2', size: 'md' },
           text('Save to browser'),
         ),
         button({ class: 'mr-2', size: 'md' }, text('Save as...')),
