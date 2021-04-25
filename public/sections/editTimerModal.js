@@ -1,5 +1,7 @@
 import { h, text } from '../vendor/hyperapp.js';
 
+import { handleKeydown } from '../lib/handleKeydown.js';
+
 import { modal } from '../components/modal.js';
 import { section } from '../components/section.js';
 import { preventDefault } from '../lib/preventDefault.js';
@@ -79,20 +81,8 @@ const participant = (isEditable, isInMob) => currentParticipant => {
   );
 };
 
-const handleCtrlShift = keyActionMap => (state, event) => {
-  if (event.repeat || (!event.ctrlKey && !event.shiftKey)) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-    }
-    return state;
-  }
-  const action = keyActionMap[event.key];
-  if (!action) {
-    return state;
-  }
-  event.preventDefault();
-  return action(state, event);
-};
+const ctrlShiftAcceptance = event =>
+  !event.repeat && event.ctrlKey && event.shiftKey;
 
 const goal = isInGoals => (currentGoal, index) => {
   return h(
@@ -122,7 +112,7 @@ const goal = isInGoals => (currentGoal, index) => {
               isInGoals(currentGoal) ? actions.UpdateGoal : actions.AddGoal,
               { ...currentGoal, text: e.target.value },
             ]),
-            "onkeydown": handleCtrlShift({
+            "onkeydown": handleKeydown(ctrlShiftAcceptance, {
               Enter: state =>
                 isInGoals(currentGoal)
                   ? actions.AddGoal(state, {

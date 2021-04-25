@@ -101,6 +101,11 @@ export const Init = (_, { timerId, externals }) => [
   }),
 ];
 
+export const PlayHonk = state => [
+  state,
+  effects.PlayHonk(state.externals.honk),
+];
+
 export const SetCurrentTime = (state, { currentTime }) => {
   const nextState = State.setCurrentTime(state, currentTime);
   const remainingTime = calculateTimeRemaining(nextState);
@@ -354,22 +359,29 @@ export const ReplaceTimer = (state, timerAttributes) => ({
 // }),
 // ];
 
-// export const RequestNotificationPermission = state => [
-// state,
-// effects.NotificationPermission({
-// SetNotificationPermissions,
-// Notification: state.Notification,
-// documentElement: state.documentElement,
-// }),
-// ];
+export const PermitNotify = state => [
+  state,
+  effects.PermitNotify({
+    externals: State.getExternals(state),
+  }),
+];
 
-// export const ShowNotification = (state, message) => [
-// state,
-// effects.DisplayNotification({
-// title: 'Cycle Complete',
-// text: message,
-// }),
-// ];
+export const Notify = (state, { title, text, silent, actions, icon }) => {
+  const profile = State.getProfile(state);
+  if (!profile.enableNotifications) return state;
+
+  return [
+    state,
+    effects.Notify({
+      title,
+      text,
+      icon,
+      silent,
+      actions,
+      externals: State.getExternals(state),
+    }),
+  ];
+};
 
 // export const PendingSettingsReset = state => State.pendingSettingsReset(state);
 
