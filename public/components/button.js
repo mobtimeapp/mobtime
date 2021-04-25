@@ -27,11 +27,13 @@ const combineClass = (...classes) =>
       {},
     );
 
-const buttonColorClasses = bgColorBase => [
-  `bg-${bgColorBase}-200 text-gray-900`,
-  `hover:bg-${bgColorBase}-300`,
-  `dark:bg-${bgColorBase}-800 dark:text-gray-200`,
-  `dark:hover:bg-${bgColorBase}-700`,
+const buttonColorClasses = (bgColorBase, textColor, transparent) => [
+  'transition-all',
+  transparent
+    ? 'bg-opacity-0 hover:bg-opacity-50 dark:bg-opacity-0 dark:hover:bg-opacity-50'
+    : 'bg-opacity-50 dark:bg-opacity-50 hover:bg-opacity-100 dark:hover:bg-opacity-100',
+  `bg-${bgColorBase}-200 dark:bg-${bgColorBase}-800`,
+  textColor ? `text-${textColor}` : 'text-gray-800 dark:text-gray-200',
 ];
 
 export const button = (props = {}, children) =>
@@ -43,7 +45,11 @@ export const button = (props = {}, children) =>
       class: combineClass(
         sizes[props.size] || sizes.lg,
         props.class,
-        buttonColorClasses(props.color || 'gray'),
+        buttonColorClasses(
+          props.color || 'gray',
+          props.textColor,
+          !!props.transparent,
+        ),
       ),
     },
     [].concat(children),

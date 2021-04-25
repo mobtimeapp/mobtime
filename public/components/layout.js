@@ -1,5 +1,6 @@
 import { h, text } from '/vendor/hyperapp.js';
 import { card } from './card.js';
+import { button } from './button.js';
 import * as Actions from '../actions.js';
 
 const containterClasses = {
@@ -32,28 +33,24 @@ const notification = ({ message, actions }) =>
 
           h('div', {}, [
             ...actions.map(action =>
-              h(
-                'button',
+              button(
                 {
-                  class: [
-                    'px-3 py-1 my-1 mr-2',
-                    'border border-white text-white',
-                    'hover:bg-white hover:text-blue-700',
-                  ],
+                  color: 'blue',
+                  textColor: 'white',
+                  transparent: true,
+                  class: ['mr-2', 'border border-white text-white'],
                   onclick: action.onclick,
                 },
                 text(action.text),
               ),
             ),
-            h(
-              'button',
+            button(
               {
                 type: 'button',
-                class: [
-                  'px-3 py-1 my-1 mr-2',
-                  'text-gray-300',
-                  'hover:text-gray-100',
-                ],
+                color: 'blue',
+                textColor: 'white',
+                transparent: true,
+                class: ['text-gray-300', 'hover:text-gray-100'],
                 onclick: Actions.DismissToast,
               },
               text('Dismiss'),
