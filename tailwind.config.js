@@ -1,3 +1,5 @@
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   darkMode: 'class',
   future: {
@@ -18,6 +20,18 @@ module.exports = {
       },
     },
   },
-  variants: {},
-  plugins: [],
+  variants: {
+    extend: {
+      borderColor: ['invalid'],
+    },
+  },
+  plugins: [
+    plugin(function addInvalidVariant({ addVariant, e }) {
+      addVariant('invalid', ({ modifySelectors, separator }) => {
+        modifySelectors(({ className }) => {
+          return `.${e(`invalid{separator}${className}`)}:invalid`;
+        });
+      });
+    }),
+  ],
 };

@@ -1,4 +1,4 @@
-const formatTime = milliseconds => {
+export const formatTime = milliseconds => {
   if (!milliseconds) {
     return '00:00';
   }

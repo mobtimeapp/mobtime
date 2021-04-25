@@ -137,7 +137,7 @@ export const initial = (timerId, externals = {}) =>
           mob: [],
           goals: [],
           positions: 'Navigator,Driver',
-          duration: 5 * 60 * 1000,
+          duration: 5 * 60 * 1000 + 999,
         },
       ],
       [setProfile, null],
