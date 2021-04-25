@@ -239,11 +239,18 @@ export const ShareGoals = state => [
   }),
 ];
 
-export const AddGoal = (state, { text: goalText, parentId }) =>
-  ShareGoals(State.addToGoals(state, goalText, parentId));
+export const AddGoal = (state, goal) =>
+  ShareGoals(State.addToGoals(state, goal));
 
 export const UpdateGoal = (state, { text: goalText, parentId, id }) =>
   ShareGoals(State.updateGoal(state, id, goalText, parentId));
+
+export const MoveGoal = (state, { goal, direction }) =>
+  ShareGoals(
+    Math.sign(direction) > 0
+      ? State.moveGoalDown(state, goal)
+      : State.moveGoalUp(state, goal),
+  ).concat([effects.FocusInputAtEnd(`[data-goal-id="${goal.id}"]`)]);
 
 export const CompleteGoal = (state, { id, completed }) =>
   ShareGoals(State.completeGoal(state, id, completed));
