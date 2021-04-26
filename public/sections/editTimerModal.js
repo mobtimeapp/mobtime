@@ -5,9 +5,8 @@ import { formatTime } from '../lib/formatTime.js';
 
 import { modal } from '../components/modal.js';
 import { group } from '../components/group.js';
-import { section } from '../components/section.js';
-import { preventDefault } from '../lib/preventDefault.js';
 import { button } from '../components/button.js';
+import { preventDefault } from '../lib/preventDefault.js';
 
 import * as State from '../state.js';
 import * as actions from '../actions.js';
@@ -61,7 +60,7 @@ const participant = (isEditable, isInMob) => currentParticipant => {
   return h(
     'fieldset',
     {
-      class: 'mb-2 block',
+      class: 'mb-2 block flex items-center justify-start',
       key: `participant-${currentParticipant.id}`,
     },
     [
@@ -80,6 +79,17 @@ const participant = (isEditable, isInMob) => currentParticipant => {
           currentParticipant,
         ]),
       }),
+      isInMob(currentParticipant) &&
+        button(
+          {
+            size: 'sm',
+            onclick: preventDefault(() => [
+              actions.RemoveFromMob,
+              currentParticipant,
+            ]),
+          },
+          text('🗑️'),
+        ),
     ],
   );
 };
@@ -163,7 +173,7 @@ const shortcut = (keyCombination, description) =>
   ]);
 
 export const editTimerModal = state => {
-  const isOwner = State.getIsOwner(state);
+  const profile = State.getProfile(state);
   const { duration, positions } = State.getShared(state);
   const mob = State.getMob(state);
   const emptyParticipant = {
@@ -189,6 +199,8 @@ export const editTimerModal = state => {
   };
   const isInGoals = g => goals.some(({ id }) => g.id === id);
 
+  const selfInMob = mob.some(m => m.id === profile.id);
+
   return modal(
     {
       left: [
@@ -211,7 +223,7 @@ export const editTimerModal = state => {
       h(
         'div',
         {
-          class: 'mt-4 mb-2',
+          class: 'mt-4 mb-2 w-full',
         },
         [
           group('Timer Configuration', [
@@ -257,12 +269,41 @@ export const editTimerModal = state => {
               class: ['grid sm:grid-cols-2 gap-4 w-full'],
             },
             [
-              group(
-                'Participants',
-                mob
-                  .concat(emptyParticipant)
-                  .map(participant(isEditable, isInMob)),
-              ),
+              group('Participants', [
+                h(
+                  'div',
+                  {},
+                  mob
+                    .concat(emptyParticipant)
+                    .map(participant(isEditable, isInMob)),
+                ),
+                h('div', { class: 'flex items-center justify-start' }, [
+                  !selfInMob &&
+                    button(
+                      {
+                        onclick: preventDefault(() => [actions.AddMeToMob]),
+                        class: 'mr-1',
+                      },
+                      text('Add yourself'),
+                    ),
+                  mob.length > 2 &&
+                    button(
+                      {
+                        onclick: preventDefault(() => [actions.ShuffleMob]),
+                        class: 'mr-1',
+                      },
+                      text('Shuffle'),
+                    ),
+                  mob.length > 1 &&
+                    button(
+                      {
+                        onclick: preventDefault(() => [actions.CycleMob]),
+                        class: 'mr-1',
+                      },
+                      text('Cycle'),
+                    ),
+                ]),
+              ]),
               group('Goals', [
                 h(
                   'div',

@@ -3,7 +3,7 @@ import { h, text } from '../vendor/hyperapp.js';
 import { section } from './section.js';
 
 export const group = (title, children) =>
-  section({ class: 'mb-4' }, [
+  section({ class: 'mb-4 w-full' }, [
     h(
       'h4',
       {

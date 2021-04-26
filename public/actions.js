@@ -220,7 +220,7 @@ export const SetMob = (state, mob) => State.setMob(state, mob);
 export const ShuffleMob = state => ShareMob(State.shuffleMob(state));
 
 export const CycleMob = state => [
-  ...ShareMob(State.shuffleMob(state)),
+  ...ShareMob(State.cycleMob(state)),
   state.timerStartedAt > 0 &&
     effects.andThen({
       action: Completed,
