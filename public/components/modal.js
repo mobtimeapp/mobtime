@@ -28,8 +28,11 @@ export const modal = (props, children) =>
         h(
           'div',
           {
-            class:
-              'overflow-y-auto sm:overflow-auto h-full sm:h-auto flex-grow',
+            class: [
+              'w-full max-w-screen',
+              'overflow-y-auto sm:overflow-auto',
+              'h-full sm:h-auto flex-grow',
+            ],
           },
           children,
         ),
@@ -45,48 +48,46 @@ export const modal = (props, children) =>
               ],
             },
             [
-              ...(
-                props.left || []
-              ).map(({ text: label, smText, color, action }) =>
-                button(
-                  {
-                    color,
-                    class: 'mr-2',
-                    size: 'md',
-                    onclick: preventDefault(() => action),
-                  },
-                  h('span', {}, [
-                    h('span', { class: 'hidden sm:inline' }, text(label)),
-                    h(
-                      'span',
-                      { class: 'inline sm:hidden' },
-                      text(smText || label),
-                    ),
-                  ]),
-                ),
+              ...(props.left || []).map(
+                ({ text: label, smText, color, action }) =>
+                  button(
+                    {
+                      color,
+                      class: 'mr-1',
+                      size: 'md',
+                      onclick: preventDefault(() => action),
+                    },
+                    h('span', {}, [
+                      h('span', { class: 'hidden sm:inline' }, text(label)),
+                      h(
+                        'span',
+                        { class: 'inline sm:hidden' },
+                        text(smText || label),
+                      ),
+                    ]),
+                  ),
               ),
 
               h('div', { class: 'flex-grow' }),
 
-              ...(
-                props.right || []
-              ).map(({ text: label, smText, color, action }) =>
-                button(
-                  {
-                    color,
-                    class: 'ml-2',
-                    size: 'md',
-                    onclick: preventDefault(() => action),
-                  },
-                  h('span', {}, [
-                    h('span', { class: 'hidden sm:inline' }, text(label)),
-                    h(
-                      'span',
-                      { class: 'inline sm:hidden' },
-                      text(smText || label),
-                    ),
-                  ]),
-                ),
+              ...(props.right || []).map(
+                ({ text: label, smText, color, action }) =>
+                  button(
+                    {
+                      color,
+                      class: 'ml-1',
+                      size: 'md',
+                      onclick: preventDefault(() => action),
+                    },
+                    h('span', {}, [
+                      h('span', { class: 'hidden sm:inline' }, text(label)),
+                      h(
+                        'span',
+                        { class: 'inline sm:hidden' },
+                        text(smText || label),
+                      ),
+                    ]),
+                  ),
               ),
             ],
           ),
