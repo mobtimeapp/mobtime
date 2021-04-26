@@ -1,16 +1,13 @@
-import { h } from '/vendor/hyperapp.js';
+import { h } from '../vendor/hyperapp.js';
+
+import { combineClass } from '../lib/combineClass.js';
 
 export const card = (props = {}, children = []) =>
   h(
     'div',
     {
       ...props,
-      class: {
-        'overflow-hidden': true,
-        'pt-2': true,
-        'pb-1': true,
-        ...(props.class || {}),
-      },
+      class: combineClass(['overflow-hidden', 'pt-2', 'pb-1'], props.class),
     },
     children,
   );

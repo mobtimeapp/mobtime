@@ -36,7 +36,10 @@ export const header = () =>
               class: 'mr-3',
               onclick: preventDefault(() => [actions.SetModal, 'profile']),
             },
-            text('👤 Profile'),
+            [
+              h('span', { class: 'hidden sm:inline sm:mr-1' }, text('👤')),
+              text('Profile'),
+            ],
           ),
           h(
             'button',
@@ -45,7 +48,10 @@ export const header = () =>
               class: 'mr-3',
               onclick: preventDefault(() => [actions.SetModal, 'editTimer']),
             },
-            text('✏️ Edit Timer'),
+            [
+              h('span', { class: 'hidden sm:inline sm:mr-1' }, text('✏️')),
+              text('Edit'),
+            ],
           ),
         ],
       ),

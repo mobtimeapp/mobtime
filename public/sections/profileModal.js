@@ -3,7 +3,7 @@ import { h, text } from '../vendor/hyperapp.js';
 import { handleKeydown } from '../lib/handleKeydown.js';
 
 import { modal } from '../components/modal.js';
-import { column } from '../components/column.js';
+import { group } from '../components/group.js';
 import { participant } from '../components/participant.js';
 import { preventDefault, withDefault } from '../lib/preventDefault.js';
 import { button } from '../components/button.js';
@@ -17,31 +17,14 @@ const labelToId = label =>
     .replace(/__/g, '_')
     .toLowerCase();
 
-// const button = (label, props) =>
-// h(
-// 'button',
-// {
-// type: 'button',
-// ...props,
-// class: [
-// 'text-sm',
-// 'p-2 mr-1',
-// 'shadow-sm rounded',
-// 'bg-gray-200 dark:bg-gray-700',
-// ...(props.class || []),
-// ],
-// },
-// text(label),
-// );
-
-const setting = (label, inputProps, actionButtons = []) =>
+const setting = (label, inputProps, actionButtons = [], border = true) =>
   h(
     'div',
     {
       class: [
         'grid grid-cols-3',
         'px-1 py-2 mb-2',
-        'border-b border-gray-100 dark:border-gray-800',
+        border && 'border-b border-gray-100 dark:border-gray-800',
       ],
     },
     [
@@ -102,22 +85,6 @@ const checkboxProps = props => ({
   ]),
 });
 
-const hidden = (name, value) =>
-  h('input', {
-    type: 'hidden',
-    name,
-    value,
-  });
-
-const group = (title, children) =>
-  h(
-    'div',
-    {
-      class: 'mb-8',
-    },
-    column(title, children),
-  );
-
 const avatarPreview = (profile, avatar, title) => {
   const isSelected = profile.avatar === avatar;
 
@@ -150,132 +117,116 @@ export const profileModal = state => {
   const profile = State.getProfile(state);
   const { giphyResults } = State.getLocal(state);
 
-  return modal([
-    h(
-      'form',
-      {
-        class: 'mt-4 px-2 pb-2',
-        onsubmit: preventDefault(() => [actions.SaveProfile]),
-      },
-      [
-        hidden('id', profile.id),
-        group('Profile Settings', [
-          setting(
-            'Name',
-            textInputProps({
-              name: 'name',
-              value: profile.name,
-            }),
-          ),
-
-          h(
-            'ul',
-            {
-              class: 'w-3/4 mx-auto grid grid-cols-2 gap-4',
-            },
-            [
-              h('li', { class: 'col-span-2' }, [
-                h('input', {
-                  type: 'text',
-                  placeholder: 'Search avatars, Powered by GIPHY',
-                  class: [
-                    'w-full',
-                    'flex-stretch',
-                    'p-1 mb-1',
-                    'bg-gray-100 dark:bg-gray-800',
-                    'border-b border-gray-900 dark:border-gray-200',
-                  ],
-                  onkeydown: handleKeydown(e => !e.repeat, {
-                    Enter: (s, e) =>
-                      actions.ProfileModalGiphySearch(s, e.target.value),
-                  }),
-                  onblur: preventDefault(event => [
-                    actions.ProfileModalGiphySearch,
-                    event.target.value,
-                  ]),
-                }),
-              ]),
-              ...giphyResults.map(({ url, title }) =>
-                avatarPreview(profile, url, title),
-              ),
-
-              avatarPreview(profile, null, 'No Avatar'),
-            ],
-          ),
-        ]),
-
-        group('Application Settings', [
-          setting(
-            'Enable sounds',
-            checkboxProps({
-              name: 'enableSounds',
-              value: 1,
-              checked: !!profile.enableSounds,
-              oninput: preventDefault(e => [
-                actions.UpdateProfile,
-                { enableSounds: e.target.checked },
-              ]),
-            }),
-            [{ text: 'Play Sound', onclick: [actions.PlayHonk] }],
-          ),
-          setting(
-            'Enable browser notifications',
-            checkboxProps({
-              name: 'enableNotifications',
-              value: 1,
-              checked: !!profile.enableNotifications,
-              oninput: preventDefault(e => [
-                actions.UpdateProfile,
-                { enableNotifications: e.target.checked },
-              ]),
-            }),
-            [
-              profile.enableNotifications && {
-                text: 'Request Permission',
-                onclick: [actions.PermitNotify],
-              },
-              {
-                text: 'Test Notification',
-                onclick: [
-                  actions.Notify,
-                  { title: 'mobti.me test', text: 'Here is a notification' },
-                ],
-              },
-            ].filter(a => a),
-          ),
-        ]),
-
-        h(
-          'div',
-          {
-            class: 'flex items-center justify-center',
-          },
-          [
-            button(
-              {
-                color: 'red',
-                onclick: preventDefault(() => [actions.ResetProfile]),
-              },
-              text('Reset Profile'),
-            ),
-            h('div', { class: 'flex-grow' }),
-            button(
-              {
-                onclick: preventDefault(() => [actions.SetModal, null]),
-                class: 'ml-1',
-              },
-              text('Cancel'),
-            ),
-            button(
-              {
-                type: 'submit',
-                class: 'ml-1',
-              },
-              text('Save'),
-            ),
-          ],
-        ),
+  return modal(
+    {
+      left: [
+        {
+          smText: 'Delete',
+          text: 'Reset Profile',
+          color: 'red',
+          action: [actions.ResetProfile],
+        },
       ],
-    ),
-  ]);
+      right: [
+        { text: 'Cancel', action: [actions.SetModal, null] },
+        { text: 'Save', action: [actions.SaveProfile] },
+      ],
+    },
+    [
+      h(
+        'div',
+        {
+          class: 'mt-4 mb-2',
+        },
+        [
+          group('Profile Settings', [
+            setting(
+              'Name',
+              textInputProps({
+                name: 'name',
+                value: profile.name,
+              }),
+            ),
+
+            h(
+              'ul',
+              {
+                class: 'w-3/4 mx-auto grid sm:grid-cols-2 gap-4',
+              },
+              [
+                h('li', { class: 'sm:col-span-2' }, [
+                  h('input', {
+                    type: 'text',
+                    placeholder: 'Search avatars, Powered by GIPHY',
+                    class: [
+                      'w-full',
+                      'flex-stretch',
+                      'p-1',
+                      'bg-gray-100 dark:bg-gray-800',
+                      'border-b border-gray-900 dark:border-gray-200',
+                    ],
+                    onkeydown: handleKeydown(e => !e.repeat, {
+                      Enter: (s, e) =>
+                        actions.ProfileModalGiphySearch(s, e.target.value),
+                    }),
+                    onblur: preventDefault(event => [
+                      actions.ProfileModalGiphySearch,
+                      event.target.value,
+                    ]),
+                  }),
+                ]),
+                ...giphyResults.map(({ url, title }) =>
+                  avatarPreview(profile, url, title),
+                ),
+
+                avatarPreview(profile, null, 'No Avatar'),
+              ],
+            ),
+          ]),
+
+          group('Application Settings', [
+            setting(
+              'Enable sounds',
+              checkboxProps({
+                name: 'enableSounds',
+                value: 1,
+                checked: !!profile.enableSounds,
+                oninput: preventDefault(e => [
+                  actions.UpdateProfile,
+                  { enableSounds: e.target.checked },
+                ]),
+              }),
+              [{ text: 'Play Sound', onclick: [actions.PlayHonk] }],
+            ),
+            setting(
+              'Enable browser notifications',
+              checkboxProps({
+                name: 'enableNotifications',
+                value: 1,
+                checked: !!profile.enableNotifications,
+                oninput: preventDefault(e => [
+                  actions.UpdateProfile,
+                  { enableNotifications: e.target.checked },
+                ]),
+              }),
+              [
+                profile.enableNotifications && {
+                  text: 'Request Permission',
+                  onclick: [actions.PermitNotify],
+                },
+                {
+                  text: 'Test',
+                  onclick: [
+                    actions.Notify,
+                    { title: 'mobti.me test', text: 'Here is a notification' },
+                  ],
+                },
+              ].filter(a => a),
+              false,
+            ),
+          ]),
+        ],
+      ),
+    ],
+  );
 };

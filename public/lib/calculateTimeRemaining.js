@@ -1,10 +1,13 @@
+import * as State from '../state.js';
+
 export const calculateTimeRemaining = props => {
-  if (!props.timerStartedAt) {
-    return props.timerDuration;
+  const { timerStartedAt, timerDuration } = State.getTimer(props);
+  const { time: currentTime } = State.getLocal(props);
+
+  if (!timerStartedAt) {
+    return timerDuration;
   }
 
-  const elapsed = props.currentTime - props.timerStartedAt;
-  return props.timerDuration > 0
-    ? Math.max(0, props.timerDuration - elapsed)
-    : 0;
+  const elapsed = currentTime - timerStartedAt;
+  return timerDuration > 0 ? Math.max(0, timerDuration - elapsed) : 0;
 };

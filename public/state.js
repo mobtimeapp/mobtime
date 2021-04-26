@@ -12,6 +12,18 @@ export const mergeLocal = (state, localPartial) =>
   setLocal(state, { ...state.local, ...localPartial });
 export const setCurrentTime = (state, time) => mergeLocal(state, { time });
 export const setModal = (state, modal) => mergeLocal(state, { modal });
+export const autoSaveTimerAdd = (state, timerId) =>
+  mergeLocal(state, {
+    autoSaveTimers: getLocal(state)
+      .autoSaveTimers.filter(t => t !== timerId)
+      .concat(timerId),
+  });
+export const autoSaveTimerRemove = (state, timerId) =>
+  mergeLocal(state, {
+    autoSaveTimers: getLocal(state).autoSaveTimers.filter(t => t !== timerId),
+  });
+export const autoSaveTimer = (state, timerId) =>
+  getLocal(state).autoSaveTimers.some(t => t === timerId);
 
 export const getShared = state => state.shared;
 export const setShared = (state, shared) => ({ ...state, shared });
@@ -129,6 +141,7 @@ export const initial = (timerId, externals = {}) =>
           modal: null,
           giphySearch: '',
           giphyResults: [],
+          autoSaveTimers: [],
         },
       ],
       [

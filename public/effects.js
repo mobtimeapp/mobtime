@@ -199,3 +199,38 @@ export const FocusInputAtEnd = fx(function FocusInputAtEndFx(
 export const PlayHonk = fx(function PlayHonkFx(_dispatch, honk) {
   honk.play();
 });
+
+export const LoadLocal = fx(function LoadLocalFx(
+  dispatch,
+  { externals, onLoad },
+) {
+  const settingsStr = externals.localStorage.getItem('mobtime_config');
+  const settings = settingsStr
+    ? JSON.parse(settingsStr)
+    : { autoSaveTimers: [] };
+
+  dispatch(onLoad, settings);
+});
+
+export const SaveLocal = fx(function SaveLocalFx(
+  _dispatch,
+  { externals, local },
+) {
+  const { autoSaveTimers } = local;
+  externals.localStorage.setItem(
+    'mobtime_config',
+    JSON.stringify({
+      autoSaveTimers,
+    }),
+  );
+});
+
+export const SaveTimer = fx(function SaveTimerFx(
+  _dispatch,
+  { externals, timerId, shared },
+) {
+  externals.localStorage.setItem(
+    `mobtime_timer_${timerId}`,
+    JSON.stringify({ shared, _savedAt: Date.now() }),
+  );
+});
