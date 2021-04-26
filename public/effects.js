@@ -234,3 +234,14 @@ export const SaveTimer = fx(function SaveTimerFx(
     JSON.stringify({ shared, _savedAt: Date.now() }),
   );
 });
+
+export const LoadTimer = fx(function LoadTimerFx(
+  dispatch,
+  { externals, timerId, onLoad },
+) {
+  const timerStr = externals.localStorage.getItem(`mobtime_timer_${timerId}`);
+  if (!timerStr) return;
+
+  const timer = JSON.parse(timerStr);
+  dispatch(onLoad, timer);
+});

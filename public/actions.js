@@ -228,11 +228,6 @@ export const CycleMob = state => [
     }),
 ];
 
-export const AddNameToMob = state =>
-  ShareMob(
-    State.addToMob(state, 'Dudley', null), // TODO
-  );
-
 export const AddMeToMob = state => {
   const profile = State.getProfile(state);
   const mob = State.getMob(state);
@@ -354,37 +349,6 @@ export const ReplaceTimer = (state, timerAttributes) => ({
   ...timerAttributes,
 });
 
-// export const SetAllowNotification = (state, { allowNotification }) => [
-// {
-// ...state,
-// allowNotification,
-// },
-// allowNotification &&
-// effects.Notify({
-// title: 'Mobtime Config',
-// text: 'You have allowed notifications',
-// sound: false,
-// externals: state.externals,
-// }),
-// ];
-
-// export const SetNotificationPermissions = (
-// state,
-// { notificationPermissions },
-// ) => [
-// {
-// ...state,
-// notificationPermissions,
-// },
-// notificationPermissions === 'granted' &&
-// effects.andThen({
-// action: SetAllowNotification,
-// props: {
-// allowNotification: true,
-// },
-// }),
-// ];
-
 export const PermitNotify = state => [
   state,
   effects.PermitNotify({
@@ -408,11 +372,6 @@ export const Notify = (state, { title, text, silent, actions, icon }) => {
     }),
   ];
 };
-
-// export const PendingSettingsReset = state => State.pendingSettingsReset(state);
-
-// export const PendingSettingsSet = (state, { key, value }) =>
-// State.pendingSettingSet(state, key, value);
 
 export const ShareSettings = state => [
   state,
@@ -461,9 +420,6 @@ export const ShareEverything = state => [
     }),
 ];
 
-export const SetOwnership = (state, isOwner) =>
-  State.mergeLocal(state, { isOwner });
-
 export const SaveTimer = state => [
   state,
   effects.SaveTimer({
@@ -472,3 +428,27 @@ export const SaveTimer = state => [
     shared: State.getShared(state),
   }),
 ];
+
+export const SetTimerFromStorage = (state, { shared }) => [
+  State.mergeShared(state, shared),
+  effects.Act(ShareEverything),
+];
+
+export const LoadTimer = state => [
+  state,
+  effects.LoadTimer({
+    externals: State.getExternals(state),
+    timerId: State.getTimerId(state),
+    onLoad: SetTimerFromStorage,
+  }),
+];
+
+export const SetOwnership = (state, isOwner) => {
+  const { mob, goals } = State.getShared(state);
+  const hasBeenModified = mob.length || goals.length;
+
+  return [
+    State.mergeLocal(state, { isOwner }),
+    isOwner && !hasBeenModified && effects.Act(LoadTimer),
+  ];
+};
