@@ -1,6 +1,10 @@
-import { h, text } from '/vendor/hyperapp.js';
+import { h, text } from '../vendor/hyperapp.js';
+
 import { card } from './card.js';
 import { button } from './button.js';
+
+import { combineClass } from '../lib/combineClass.js';
+
 import * as Actions from '../actions.js';
 
 const containterClasses = {
@@ -19,14 +23,11 @@ const notification = ({ message, actions }) =>
       h(
         'section',
         {
-          class: {
-            ...containterClasses,
-            'mx-auto': true,
-            'px-4': true,
-            "flex": true,
-            'items-center': true,
-            'justify-between': true,
-          },
+          class: combineClass(containterClasses, [
+            'mx-auto',
+            'px-4',
+            'flex items-center justify-between',
+          ]),
         },
         [
           h('div', { class: 'mr-2' }, text(message)),
@@ -61,17 +62,15 @@ const notification = ({ message, actions }) =>
     ],
   );
 
-export const layout = ({ toastMessages }, children) =>
+export const layout = ({ toastMessages, modal }, children) =>
   h(
     'div',
     {
-      class: {
-        "flex": true,
-        'flex-col': true,
-        'items-center': true,
-        'justify-start': true,
-        'min-h-screen': true,
-      },
+      class: [
+        'flex flex-col items-center justify-start',
+        'min-h-screen',
+        !!modal && 'overflow-hidden',
+      ],
     },
     [
       h(
@@ -91,16 +90,10 @@ export const layout = ({ toastMessages }, children) =>
       ),
       card(
         {
-          class: {
-            ...containterClasses,
-            'min-h-screen': true,
-            'sm:min-h-0': true,
-            'pt-2': false,
-            'pt-0': true,
-            'pb-12': true,
-            'pb-1': false,
-            'sm:mt-2': true,
-          },
+          class: combineClass(containterClasses, [
+            'min-h-screen sm:min-h-0',
+            'pt-2 px-2 pb-12 pb-1 sm:mt-2',
+          ]),
         },
         children,
       ),

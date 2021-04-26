@@ -4,6 +4,7 @@ import { handleKeydown } from '../lib/handleKeydown.js';
 import { formatTime } from '../lib/formatTime.js';
 
 import { modal } from '../components/modal.js';
+import { group } from '../components/group.js';
 import { section } from '../components/section.js';
 import { preventDefault } from '../lib/preventDefault.js';
 import { button } from '../components/button.js';
@@ -151,24 +152,6 @@ const goal = isInGoals => (currentGoal, index) => {
   );
 };
 
-const group = (title, children) =>
-  section({ class: 'mb-4' }, [
-    h(
-      'h4',
-      {
-        class: [
-          'mb-2',
-          'text-lg',
-          'border-b border-gray-200 dark:border-gray-700',
-          'text-black dark:text-white',
-          'w-full',
-        ],
-      },
-      text(title),
-    ),
-    ...children,
-  ]);
-
 const shortcut = (keyCombination, description) =>
   h('div', {}, [
     h(
@@ -206,163 +189,159 @@ export const editTimerModal = state => {
   };
   const isInGoals = g => goals.some(({ id }) => g.id === id);
 
-  return modal([
-    h(
-      'div',
-      {
-        class: ['mt-4 mb-2'],
-      },
-      [
-        group('Timer Configuration', [
-          h('label', { class: 'flex items-center justify-between mb-2' }, [
-            h('div', { class: 'mr-2' }, text('Turn Duration')),
-            input({
-              value: formatTime(duration).replace(/^0/, ''),
-              placeholder: 'mm:ss',
-              title: 'Duration formatted as m:ss or mm:ss',
-              oninput: preventDefault(({ target }) => {
-                const format = /\d{1,2}:\d{2}/;
-                if (!format.test(target.value)) {
-                  target.setCustomValidity(
-                    'Duration must by in the format of m:ss or mm:ss',
-                  );
-                  target.reportValidity();
-                  return [s => s];
-                }
-                const [minutes, seconds] = target.value
-                  .split(':')
-                  .map(v => parseInt(v.replace(/^0/, ''), 10));
-                const milliseconds = (minutes * 60 + seconds) * 1000 + 999;
-                target.setCustomValidity('');
-                target.reportValidity();
-                return [actions.UpdateSettings, { duration: milliseconds }];
-              }),
-            }),
-          ]),
-          h('label', { class: 'flex items-center justify-between mb-2' }, [
-            h('div', { class: 'mr-2' }, text('Positions')),
-            input({
-              value: positions,
-              oninput: preventDefault(({ target }) => [
-                actions.UpdateSettings,
-                { positions: target.value },
-              ]),
-            }),
-          ]),
-        ]),
-        h(
-          'div',
-          {
-            class: ['grid sm:grid-cols-2 gap-4 w-full'],
-          },
-          [
-            group(
-              'Participants',
-              mob
-                .concat(emptyParticipant)
-                .map(participant(isEditable, isInMob)),
-            ),
-            group('Goals', [
-              h(
-                'div',
-                { class: 'mb-4' },
-                goals.concat(emptyGoal).map(goal(isInGoals)),
-              ),
-              h(
-                'details',
-                {
-                  class: ['text-sm', 'mb-4'],
-                },
-                [
-                  h(
-                    'summary',
-                    { class: 'text-gray-400 dark:text-gray-600' },
-                    text('Keyboard controls'),
-                  ),
-                  h('ul', { class: 'ml-4 text-gray-700 dark:text-gray-300' }, [
-                    h(
-                      'li',
-                      {},
-                      shortcut('Ctrl+Shift+Enter', 'Add a child goal'),
-                    ),
-                    h(
-                      'li',
-                      {},
-                      shortcut(
-                        'Ctrl+Shift+Right Arrow',
-                        'Make this goal a child goal',
-                      ),
-                    ),
-                    h(
-                      'li',
-                      {},
-                      shortcut(
-                        'Ctrl+Shift+Left Arrow',
-                        'Make this goal a top-level goal',
-                      ),
-                    ),
-                    h(
-                      'li',
-                      {},
-                      shortcut('Ctrl+Shift+Up Arrow', 'Move goal up'),
-                    ),
-                    h(
-                      'li',
-                      {},
-                      shortcut('Ctrl+Shift+Down Arrow', 'Move goal down'),
-                    ),
-                  ]),
-                ],
-              ),
-            ]),
-          ],
-        ),
+  return modal(
+    {
+      left: [
+        {
+          smText: 'Save',
+          text: 'Save to Browser',
+          color: 'indigo',
+          action: [actions.SaveTimer],
+        },
+        {
+          smText: 'Load',
+          text: 'Load from Browser',
+          color: 'blue',
+          action: [actions.LoadTimer],
+        },
       ],
-    ),
-
-    group('Session Persistance', [
-      h('div', { class: 'grid sm:grid-cols-2 gap-4' }, [
-        h('div', {}, [
-          h('label', { class: 'flex items-center justify-between mb-2' }, [
-            h('div', { class: 'mr-2' }, text('Auto-save timer session')),
-            h('input', { type: 'checkbox' }),
-          ]),
-
-          isOwner &&
+      right: [{ text: 'Close', action: [actions.SetModal, null] }],
+    },
+    [
+      h(
+        'div',
+        {
+          class: 'mt-4 mb-2',
+        },
+        [
+          group('Timer Configuration', [
             h('label', { class: 'flex items-center justify-between mb-2' }, [
-              h('div', { class: 'mr-2' }, text('Saved YYYY-MM-DD HH:MM')),
-              button(
-                {
-                  type: 'button',
-                  color: 'gray',
-                },
-                text('Load'),
-              ),
+              h('div', { class: 'mr-2' }, text('Turn Duration')),
+              input({
+                value: formatTime(duration).replace(/^0/, ''),
+                placeholder: 'mm:ss',
+                title: 'Duration formatted as m:ss or mm:ss',
+                oninput: preventDefault(({ target }) => {
+                  const format = /\d{1,2}:\d{2}/;
+                  if (!format.test(target.value)) {
+                    target.setCustomValidity(
+                      'Duration must by in the format of m:ss or mm:ss',
+                    );
+                    target.reportValidity();
+                    return [s => s];
+                  }
+                  const [minutes, seconds] = target.value
+                    .split(':')
+                    .map(v => parseInt(v.replace(/^0/, ''), 10));
+                  const milliseconds = (minutes * 60 + seconds) * 1000 + 999;
+                  target.setCustomValidity('');
+                  target.reportValidity();
+                  return [actions.UpdateSettings, { duration: milliseconds }];
+                }),
+              }),
             ]),
+            h('label', { class: 'flex items-center justify-between mb-2' }, [
+              h('div', { class: 'mr-2' }, text('Positions')),
+              input({
+                value: positions,
+                oninput: preventDefault(({ target }) => [
+                  actions.UpdateSettings,
+                  { positions: target.value },
+                ]),
+              }),
+            ]),
+          ]),
+          h(
+            'div',
+            {
+              class: ['grid sm:grid-cols-2 gap-4 w-full'],
+            },
+            [
+              group(
+                'Participants',
+                mob
+                  .concat(emptyParticipant)
+                  .map(participant(isEditable, isInMob)),
+              ),
+              group('Goals', [
+                h(
+                  'div',
+                  { class: 'mb-4' },
+                  goals.concat(emptyGoal).map(goal(isInGoals)),
+                ),
+                h(
+                  'details',
+                  {
+                    class: ['text-sm', 'mb-4'],
+                  },
+                  [
+                    h(
+                      'summary',
+                      { class: 'text-gray-400 dark:text-gray-600' },
+                      text('Keyboard controls'),
+                    ),
+                    h(
+                      'ul',
+                      { class: 'ml-4 text-gray-700 dark:text-gray-300' },
+                      [
+                        h(
+                          'li',
+                          {},
+                          shortcut('Ctrl+Shift+Enter', 'Add a child goal'),
+                        ),
+                        h(
+                          'li',
+                          {},
+                          shortcut(
+                            'Ctrl+Shift+Right Arrow',
+                            'Make this goal a child goal',
+                          ),
+                        ),
+                        h(
+                          'li',
+                          {},
+                          shortcut(
+                            'Ctrl+Shift+Left Arrow',
+                            'Make this goal a top-level goal',
+                          ),
+                        ),
+                        h(
+                          'li',
+                          {},
+                          shortcut('Ctrl+Shift+Up Arrow', 'Move goal up'),
+                        ),
+                        h(
+                          'li',
+                          {},
+                          shortcut('Ctrl+Shift+Down Arrow', 'Move goal down'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ]),
+            ],
+          ),
+        ],
+      ),
+
+      group('Session Persistance', [
+        h('div', { class: 'grid sm:grid-cols-2 gap-4' }, [
+          h('div', {}, [
+            h('label', { class: 'flex items-center justify-between mb-2' }, [
+              h('div', { class: 'mr-2' }, text('Auto-save timer session')),
+              h('input', {
+                type: 'checkbox',
+                checked: State.autoSaveTimer(state, State.getTimerId(state)),
+                oninput: preventDefault(({ target: { checked } }) => [
+                  actions.AutoSaveTimer,
+                  checked,
+                ]),
+              }),
+            ]),
+          ]),
         ]),
       ]),
-    ]),
-    h(
-      'div',
-      {
-        class:
-          'flex items-center justify-center pt-2 border-t border-gray-100 dark:border-gray-800 mb-1',
-      },
-      [
-        button(
-          { color: 'indigo', class: 'mr-2', size: 'md' },
-          text('Save to browser'),
-        ),
-        button({ class: 'mr-2', size: 'md' }, text('Save as...')),
-        h('div', { class: 'flex-grow' }),
-        button(
-          {
-            size: 'md',
-            onclick: preventDefault(() => [actions.SetModal, null]),
-          },
-          text('Close'),
-        ),
-      ],
-    ),
-  ]);
+    ],
+  );
 };

@@ -1,31 +1,12 @@
-import { h } from '/vendor/hyperapp.js';
+import { h } from '../vendor/hyperapp.js';
+
+import { combineClass } from '../lib/combineClass.js';
 
 const sizes = {
   sm: 'px-1',
   md: 'py-1 px-2',
   lg: 'py-2 px-4',
 };
-
-const classToObject = myClass => {
-  if (typeof myClass === 'string') return classToObject(myClass.split(' '));
-  if (Array.isArray(myClass)) {
-    return myClass
-      .filter(str => str)
-      .reduce((obj, str) => ({ ...obj, [str]: true }), {});
-  }
-  return myClass;
-};
-
-const combineClass = (...classes) =>
-  classes
-    .filter(c => c)
-    .reduce(
-      (memo, currentClass) => ({
-        ...memo,
-        ...classToObject(currentClass),
-      }),
-      {},
-    );
 
 const buttonColorClasses = (bgColorBase, textColor, transparent) => [
   'transition-all',

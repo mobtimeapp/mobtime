@@ -7,11 +7,9 @@ export const overlay = children =>
     'div',
     {
       class: [
-        'absolute inset-0',
-        'min-h-screen h-full',
-        'flex items-start justify-center',
+        'fixed sm:absolute inset-0',
+        'flex flex-col items-center justify-center sm:justify-center',
         'bg-gray-900 dark:bg-gray-100 bg-opacity-20 dark:bg-opacity-20',
-        'overflow-y-auto',
       ],
       onclick: (state, event) => {
         if (event.target === event.currentTarget) {

@@ -22,7 +22,7 @@ export const SetProfile = (state, { profile, init }) => {
       effects.Act([
         AddToast,
         {
-          message: `Hey ${profile.name}, would you like to join this session?`,
+          message: `Join as ${profile.name}?`,
           actions: [{ text: 'Yes, please', onclick: AddMeToMob }],
         },
       ]),
@@ -67,6 +67,26 @@ export const SaveProfile = state => [
     setProfile: SetProfile,
   }),
 ];
+
+export const UpdateLocal = (state, localPartial) =>
+  State.mergeLocal(state, localPartial);
+
+export const SaveLocal = state => [
+  state,
+  effects.SaveLocal({
+    externals: State.getExternals(state),
+    local: State.getLocal(state),
+  }),
+];
+export const AutoSaveTimer = (state, autoSave) => {
+  const timerId = State.getTimerId(state);
+  return SaveLocal(
+    autoSave
+      ? State.autoSaveTimerAdd(state, timerId)
+      : State.autoSaveTimerRemove(state, timerId),
+  );
+};
+
 /*
  *
       effects.Act([
@@ -98,6 +118,10 @@ export const Init = (_, { timerId, externals }) => [
     externals,
     setProfile: SetProfile,
     init: true,
+  }),
+  effects.LoadLocal({
+    externals,
+    onLoad: UpdateLocal,
   }),
 ];
 
@@ -439,3 +463,12 @@ export const ShareEverything = state => [
 
 export const SetOwnership = (state, isOwner) =>
   State.mergeLocal(state, { isOwner });
+
+export const SaveTimer = state => [
+  state,
+  effects.SaveTimer({
+    externals: State.getExternals(state),
+    timerId: State.getTimerId(state),
+    shared: State.getShared(state),
+  }),
+];

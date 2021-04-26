@@ -23,7 +23,7 @@ export const summary = state => {
   return h(
     'div',
     {
-      class: 'grid sm:grid-cols-2 gap-1',
+      class: 'grid sm:grid-cols-2 gap-2 sm:gap-4',
     },
     [
       participants(mob),
