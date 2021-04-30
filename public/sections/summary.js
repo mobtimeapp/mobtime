@@ -26,7 +26,7 @@ export const summary = state => {
       class: 'grid sm:grid-cols-2 gap-2 sm:gap-4',
     },
     [
-      participants(mob),
+      participants(mob, State.getProfile(state) || {}),
       goals(
         {
           goals: State.getGoals(state),

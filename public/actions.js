@@ -90,6 +90,18 @@ export const AutoSaveTimer = (state, autoSave) =>
     autoSave
       ? State.localAutoSaveTimerAdd(state)
       : State.localAutoSaveTimerRemove(state),
+  ).concat(
+    autoSave
+      ? [effects.Act([SaveTimer])]
+      : [
+          effects.Act([
+            AddToast,
+            {
+              message: `Delete local timer data?`,
+              actions: [{ text: 'Yes please', onclick: DeleteTimer }],
+            },
+          ]),
+        ],
   );
 
 /*
@@ -133,7 +145,6 @@ export const AppendMessage = (state, message) => {
   );
 
   const hasLoaded = State.getLocalHasLoaded(nextState);
-  console.log('AppendMessage', { hasLoaded, nextState });
 
   return [
     nextState,
@@ -153,7 +164,7 @@ export const PlayHonk = state => [
 
 export const SetCurrentTime = (state, { currentTime }) => {
   const nextState = State.setLocalCurrentTime(state, currentTime);
-  const remainingTime = calculateTimeRemaining(nextState);
+  const remainingTime = calculateTimeRemaining(nextState, currentTime);
 
   return [
     nextState,
@@ -282,6 +293,12 @@ export const ShareGoals = state => [
     websocketPort: state.websocketPort,
     goals: State.getGoals(state),
   }),
+  State.isLocalAutoSaveTimer(state) &&
+    effects.SaveTimer({
+      externals: State.getExternals(state),
+      timerId: State.getTimerId(state),
+      shared: State.getShared(state),
+    }),
 ];
 
 export const AddGoal = (state, goal) =>
@@ -309,7 +326,15 @@ export const RemoveCompletedGoals = state =>
 export const RenameGoal = (state, { id, value }) =>
   ShareGoals(State.editGoal(state, id, value));
 
-export const SetGoals = (state, goals) => State.setGoals(state, goals);
+export const SetGoals = (state, goals) => [
+  State.setGoals(state, goals),
+  State.isLocalAutoSaveTimer(state) &&
+    effects.SaveTimer({
+      externals: State.getExternals(state),
+      timerId: State.getTimerId(state),
+      shared: State.getShared(state),
+    }),
+];
 
 export const UpdateGoalText = (state, goal) => [
   {
@@ -451,6 +476,14 @@ export const SaveTimer = state => [
 export const SetTimerFromStorage = (state, { shared }) => [
   State.mergeShared(state, shared),
   effects.Act(ShareEverything),
+];
+
+export const DeleteTimer = state => [
+  state,
+  effects.DeleteTimer({
+    externals: State.getExternals(state),
+    timerId: State.getTimerId(state),
+  }),
 ];
 
 export const LoadTimer = state => [

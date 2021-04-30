@@ -1,12 +1,15 @@
 import { h, text } from '../vendor/hyperapp.js';
 
-export const participant = ({ id, name, avatar, position }) =>
+export const participant = ({ id, name, avatar, position }, isSelf = false) =>
   h(
     'div',
     {
       class: [
         'pb-2 mb-2 px-2 py-1',
-        'border-l-2 border-gray-100 dark:border-gray-700',
+        'border-l-2',
+        isSelf
+          ? 'border-red-700 dark:border-red-700'
+          : 'border-gray-100 dark:border-gray-700',
         'bg-gray-100 dark:bg-gray-800',
         'w-full',
       ],
