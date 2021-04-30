@@ -3,7 +3,7 @@ import { section } from '../components/section.js';
 import { column } from '../components/column.js';
 import { participant } from '../components/participant.js';
 
-export const participants = members =>
+export const participants = (members, profile = {}) =>
   section({}, [
     h('div', { class: '' }, [
       column('Participants', [
@@ -18,7 +18,7 @@ export const participants = members =>
               {
                 class: ['block'],
               },
-              participant(member),
+              participant(member, profile.id === member.id),
             ),
           ),
         ),

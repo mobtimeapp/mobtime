@@ -102,7 +102,7 @@ const goal = isInGoals => (currentGoal, index) => {
     'fieldset',
     {
       class: 'mb-2 w-full',
-      key: `goal-${index}-${currentGoal.id}`,
+      key: `goal-${currentGoal.id}-${currentGoal.parentId}`,
     },
     [
       h(
@@ -112,23 +112,24 @@ const goal = isInGoals => (currentGoal, index) => {
         },
         [
           textarea({
-            // class: ['w-full block'],
-            "class": [
+            class: [
               currentGoal.completed &&
                 'line-through text-gray-400 dark:text-gray-600',
             ],
-            "rows": 1,
-            "placeholder": 'Add your goals...',
-            "value": currentGoal.text || '',
-            'data-goal-id': currentGoal.id,
-            "oninput": preventDefault(e => [
+            rows: 1,
+            placeholder: 'Add your goals...',
+            value: currentGoal.text || '',
+            oninput: preventDefault(e => [
               isInGoals(currentGoal) ? actions.UpdateGoal : actions.AddGoal,
               { ...currentGoal, text: e.target.value },
             ]),
-            "onkeydown": handleKeydown(ctrlShiftAcceptance, {
+            onkeydown: handleKeydown(ctrlShiftAcceptance, {
               Enter: state =>
                 isInGoals(currentGoal)
                   ? actions.AddGoal(state, {
+                      id: Math.random()
+                        .toString(36)
+                        .slice(2),
                       text: '',
                       parentId: currentGoal.parentId || currentGoal.id,
                     })
@@ -151,7 +152,7 @@ const goal = isInGoals => (currentGoal, index) => {
               ArrowDown: state =>
                 actions.MoveGoal(state, { goal: currentGoal, direction: 1 }),
             }),
-            "onblur": preventDefault(() => [
+            onblur: preventDefault(() => [
               currentGoal.text ? s => s : actions.RemoveGoal,
               currentGoal,
             ]),
@@ -215,6 +216,12 @@ export const editTimerModal = state => {
           text: 'Load from Browser',
           color: 'blue',
           action: [actions.LoadTimer],
+        },
+        {
+          smText: 'Delete',
+          text: 'Delete Saved Data',
+          color: 'blue',
+          action: [actions.DeleteTimer],
         },
       ],
       right: [{ text: 'Close', action: [actions.SetModal, null] }],

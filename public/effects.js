@@ -225,6 +225,13 @@ export const SaveLocal = fx(function SaveLocalFx(
   );
 });
 
+export const DeleteTimer = fx(function SaveTimerFx(
+  _dispatch,
+  { externals, timerId },
+) {
+  externals.localStorage.removeItem(`mobtime_timer_${timerId}`);
+});
+
 export const SaveTimer = fx(function SaveTimerFx(
   _dispatch,
   { externals, timerId, shared },
