@@ -11,6 +11,14 @@ import { editTimerModal } from '/sections/editTimerModal.js';
 
 const node = document.querySelector('#app');
 
+const modalMap = {
+  profile: profileModal,
+  editTimer: editTimerModal,
+  _: () => null,
+};
+const showModal = state =>
+  (modalMap[State.getLocalModal(state)] || modalMap._)(state);
+
 app({
   init: actions.Init(
     {},
@@ -25,20 +33,13 @@ app({
     },
   ),
 
-  view: state => {
-    return layout(
+  view: state =>
+    layout(
       {
         toastMessages: State.getToasts(state),
       },
-      [
-        header(),
-        timeRemaining(state),
-        summary(state),
-        state.local.modal === 'profile' && profileModal(state),
-        state.local.modal === 'editTimer' && editTimerModal(state),
-      ],
-    );
-  },
+      [header(), timeRemaining(state), summary(state), showModal(state)],
+    ),
 
   subscriptions: state => [
     State.getTimerId(state) &&
@@ -52,8 +53,8 @@ app({
   ],
 
   // dispatch: (d) => (...params) => {
-  // console.log('dispatch', ...params);
-  // return d(...params);
+  //   console.log('dispatch', ...params);
+  //   return d(...params);
   // },
 
   node,

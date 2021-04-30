@@ -13,7 +13,7 @@ import { preventDefault } from '../lib/preventDefault.js';
 export const timeRemaining = state => {
   const isPaused = State.isPaused(state);
   const remainingTime = State.timeRemainingFrom(state);
-  const { timerDuration } = State.getTimer(state);
+  const duration = State.getTimerRemainingDuration(state);
 
   return section({}, [
     h(
@@ -60,7 +60,7 @@ export const timeRemaining = state => {
         ),
 
         h('div', {}, [
-          !timerDuration &&
+          !duration &&
             button(
               {
                 size: 'md',
@@ -74,12 +74,12 @@ export const timeRemaining = state => {
               text('Begin Turn'),
             ),
 
-          !!timerDuration &&
+          !!duration &&
             button(
               {
                 size: 'md',
                 class: 'uppercase tracking-widest',
-                disabled: !timerDuration,
+                disabled: !duration,
                 onclick: preventDefault(() =>
                   isPaused
                     ? [actions.ResumeTimerAndShare, Date.now()]

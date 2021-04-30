@@ -2,7 +2,7 @@ import * as State from './state.js';
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
-export const SetModal = (state, modal) => State.setModal(state, modal);
+export const SetModal = (state, modal) => State.setLocalModal(state, modal);
 
 export const DismissToast = state => State.dismissToastMessage(state);
 export const AddToast = (state, { message, actions }) =>
@@ -15,36 +15,43 @@ export const AddToast = (state, { message, actions }) =>
   });
 
 export const SetProfile = (state, { profile, init }) => {
-  let setProfileEffects = [
-    init && profile.firstTime && effects.Act([SetModal, 'profile']),
+  const isInMobAlready = State.isInMob(state, profile.id);
+  const setProfileEffects = [
     init &&
-      !profile.firstTime &&
+      profile.firstTime &&
       effects.Act([
         AddToast,
         {
-          message: `Join as ${profile.name}?`,
+          message: `Customize profile?`,
+          actions: [
+            { text: 'Sounds good', onclick: s => SetModal(s, 'profile') },
+          ],
+        },
+      ]),
+    init &&
+      !isInMobAlready &&
+      effects.Act([
+        AddToast,
+        {
+          message: `Add yourself to the mob?`,
           actions: [{ text: 'Yes, please', onclick: AddMeToMob }],
         },
       ]),
-  ].filter(v => v);
-  if (setProfileEffects.length === 0) {
-    setProfileEffects = [
-      init &&
-        profile.enableSounds &&
-        effects.Act([
-          AddToast,
-          {
-            message:
-              'To enable sounds in mobti.me, you must interact with the page',
-            actions: [],
-          },
-        ]),
-    ];
-  }
+  ];
   return [
     State.mergeLocal(State.setProfile(state, profile), {
       giphyResults: [{ title: 'Saved Avatar', url: profile.avatar }],
     }),
+    init &&
+      profile.enableSounds &&
+      effects.Act([
+        AddToast,
+        {
+          message:
+            'To enable sounds in mobti.me, you must interact with the page',
+          actions: [{ text: 'Click here', onclick: s => [s] }],
+        },
+      ]),
     ...setProfileEffects,
   ];
 };
@@ -60,7 +67,7 @@ export const ResetProfile = state => [
 ];
 
 export const SaveProfile = state => [
-  State.setModal(state, null),
+  State.setLocalModal(state, null),
   effects.SaveProfile({
     externals: state.externals,
     profile: State.getProfile(state),
@@ -78,14 +85,12 @@ export const SaveLocal = state => [
     local: State.getLocal(state),
   }),
 ];
-export const AutoSaveTimer = (state, autoSave) => {
-  const timerId = State.getTimerId(state);
-  return SaveLocal(
+export const AutoSaveTimer = (state, autoSave) =>
+  SaveLocal(
     autoSave
-      ? State.autoSaveTimerAdd(state, timerId)
-      : State.autoSaveTimerRemove(state, timerId),
+      ? State.localAutoSaveTimerAdd(state)
+      : State.localAutoSaveTimerRemove(state),
   );
-};
 
 /*
  *
@@ -114,16 +119,32 @@ export const UpdateProfile = (state, profilePartial) => {
 
 export const Init = (_, { timerId, externals }) => [
   State.initial(timerId, externals),
-  effects.LoadProfile({
-    externals,
-    setProfile: SetProfile,
-    init: true,
-  }),
   effects.LoadLocal({
     externals,
     onLoad: UpdateLocal,
   }),
 ];
+
+export const AppendMessage = (state, message) => {
+  if (State.getLocalHasLoaded(state)) return state;
+
+  const nextState = State.setHasLoadedFromMessages(
+    State.appendLocalMessages(state, message),
+  );
+
+  const hasLoaded = State.getLocalHasLoaded(nextState);
+  console.log('AppendMessage', { hasLoaded, nextState });
+
+  return [
+    nextState,
+    hasLoaded &&
+      effects.LoadProfile({
+        externals: State.getExternals(nextState),
+        setProfile: SetProfile,
+        init: true,
+      }),
+  ];
+};
 
 export const PlayHonk = state => [
   state,
@@ -131,7 +152,7 @@ export const PlayHonk = state => [
 ];
 
 export const SetCurrentTime = (state, { currentTime }) => {
-  const nextState = State.setCurrentTime(state, currentTime);
+  const nextState = State.setLocalCurrentTime(state, currentTime);
   const remainingTime = calculateTimeRemaining(nextState);
 
   return [
@@ -339,15 +360,13 @@ export const StartTimerAndShare = (state, timerStartedAt) => {
     nextState,
     effects.StartTimer({
       websocketPort: state.websocketPort,
-      timerDuration: nextState.timerDuration,
+      timerDuration: State.getShared(nextState).duration,
     }),
   ];
 };
 
-export const ReplaceTimer = (state, timerAttributes) => ({
-  ...state,
-  ...timerAttributes,
-});
+export const ReplaceTimer = (state, timerAttributes) =>
+  State.mergeTimer(state, timerAttributes);
 
 export const PermitNotify = state => [
   state,
