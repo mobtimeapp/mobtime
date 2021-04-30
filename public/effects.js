@@ -69,9 +69,7 @@ export const PermitNotify = fx(function NotificationPermissionFX(
   if (!externals.Notification) return;
 
   externals.Notification.requestPermission()
-    .then(result => {
-      console.log('set permissions', result);
-    })
+    .then(result => result)
     .catch(e => {
       // eslint-disable-next-line no-console
       console.warn('Unable to request notification permissions', e);
