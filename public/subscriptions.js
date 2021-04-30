@@ -67,7 +67,6 @@ const WebsocketFX = (dispatch, { timerId, actions, websocketPort }) => {
 
     socket.addEventListener('message', event => {
       const { type, ...data } = JSON.parse(event.data);
-      console.log(type, data);
       switch (type) {
         case 'settings:update':
           return dispatchFromMessage(
