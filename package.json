@@ -22,6 +22,7 @@
     "@mrbarrysoftware/js-enumerize": "^1.1.0",
     "autoprefixer": "^10.0.1",
     "body-parser": "^1.19.0",
+    "cross-env": "^7.0.2",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "ferp": "^2.0.0-beta.4",
@@ -36,7 +37,6 @@
   },
   "devDependencies": {
     "ava": "^3.11.1",
-    "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-prettier": "^6.12.0",
