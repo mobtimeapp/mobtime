@@ -1,7 +1,10 @@
 /* eslint-disable import/no-absolute-path, import/extensions, import/no-unresolved */
 import * as port from './lib/port.js';
 
-const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
+const TimerFX = (
+  dispatch,
+  { startedAt: timerStartedAt, duration: timerDuration, actions },
+) => {
   let cancel = false;
   let handle = null;
 
@@ -57,50 +60,58 @@ const WebsocketFX = (dispatch, { timerId, actions, websocketPort }) => {
 
     socket = new WebSocket(websocketAddress);
 
-    socket.addEventListener('open', () => {
-      dispatch(actions.BroadcastJoin);
-    });
+    const dispatchFromMessage = (type, action, props) => {
+      dispatch(action, props);
+      dispatch(actions.AppendMessage, { type });
+    };
 
     socket.addEventListener('message', event => {
       const { type, ...data } = JSON.parse(event.data);
+      console.log(type, data);
       switch (type) {
         case 'settings:update':
-          return dispatch(actions.ReplaceSettings, data.settings);
+          return dispatchFromMessage(
+            type,
+            actions.ReplaceSettings,
+            data.settings,
+          );
 
         case 'timer:start':
-          return dispatch(actions.StartTimer, {
-            timerStartedAt: Date.now(),
-            timerDuration: data.timerDuration,
-          });
+          return dispatchFromMessage(type, actions.StartTimer, Date.now());
 
         case 'timer:pause':
-          return dispatch(actions.PauseTimer, Date.now());
+          return dispatchFromMessage(type, actions.PauseTimer, Date.now());
 
         case 'timer:update':
-          return dispatch(actions.ReplaceTimer, {
+          return dispatchFromMessage(type, actions.ReplaceTimer, {
             timerStartedAt: data.timerStartedAt,
             timerDuration: data.timerDuration,
           });
 
         case 'timer:complete':
-          return dispatch(actions.EndTurn);
+          return dispatchFromMessage(type, actions.EndTurn);
+          break;
 
         case 'goals:update':
-          return dispatch(actions.SetGoals, data.goals);
+          return dispatchFromMessage(type, actions.SetGoals, data.goals);
 
         case 'mob:update':
-          return dispatch(actions.SetMob, data.mob);
+          return dispatchFromMessage(type, actions.SetMob, data.mob);
 
         case 'client:new':
-          return dispatch(actions.ShareEverything);
+          return dispatchFromMessage(type, actions.ShareEverything);
 
         case 'timer:ownership':
-          return dispatch(actions.SetOwnership, data.isOwner);
+          return dispatchFromMessage(type, actions.SetOwnership, data.isOwner);
 
         default:
           console.warn('Unknown websocket data', event.data); // eslint-disable-line no-console
           return null;
       }
+    });
+
+    socket.addEventListener('open', () => {
+      setTimeout(() => dispatch(actions.BroadcastJoin), 1);
     });
 
     socket.addEventListener('close', () => {

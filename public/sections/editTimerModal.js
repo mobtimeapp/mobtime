@@ -373,10 +373,10 @@ export const editTimerModal = state => {
               h('div', { class: 'mr-2' }, text('Auto-save timer session')),
               h('input', {
                 type: 'checkbox',
-                checked: State.autoSaveTimer(state, State.getTimerId(state)),
-                oninput: preventDefault(({ target: { checked } }) => [
+                checked: State.isLocalAutoSaveTimer(state),
+                oninput: preventDefault(event => [
                   actions.AutoSaveTimer,
-                  checked,
+                  event.target.checked,
                 ]),
               }),
             ]),
