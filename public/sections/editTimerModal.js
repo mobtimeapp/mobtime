@@ -97,7 +97,7 @@ const participant = (isEditable, isInMob) => currentParticipant => {
 const ctrlShiftAcceptance = event =>
   !event.repeat && event.ctrlKey && event.shiftKey;
 
-const goal = isInGoals => (currentGoal, index) => {
+const goal = (isInGoals, makeId) => (currentGoal, index) => {
   return h(
     'fieldset',
     {
@@ -127,9 +127,7 @@ const goal = isInGoals => (currentGoal, index) => {
               Enter: state =>
                 isInGoals(currentGoal)
                   ? actions.AddGoal(state, {
-                      id: Math.random()
-                        .toString(36)
-                        .slice(2),
+                      id: makeId(),
                       text: '',
                       parentId: currentGoal.parentId || currentGoal.id,
                     })
@@ -174,13 +172,12 @@ const shortcut = (keyCombination, description) =>
   ]);
 
 export const editTimerModal = state => {
+  const { makeId } = State.getExternals(state);
   const profile = State.getProfile(state);
   const { duration, positions } = State.getShared(state);
   const mob = State.getMob(state);
   const emptyParticipant = {
-    id: `anonymous_${Math.random()
-      .toString(36)
-      .slice(2)}`,
+    id: `anonymous_${makeId()}`,
     name: '',
     avatar: '',
   };
@@ -191,9 +188,7 @@ export const editTimerModal = state => {
   const goals = State.getGoals(state);
   const lastGoal = goals.slice(-1)[0] || {};
   const emptyGoal = {
-    id: Math.random()
-      .toString(36)
-      .slice(2),
+    id: makeId(),
     text: '',
     completed: false,
     parentId: lastGoal.parentId || null,
@@ -315,7 +310,7 @@ export const editTimerModal = state => {
                 h(
                   'div',
                   { class: 'mb-4' },
-                  goals.concat(emptyGoal).map(goal(isInGoals)),
+                  goals.concat(emptyGoal).map(goal(isInGoals, makeId)),
                 ),
                 h(
                   'details',

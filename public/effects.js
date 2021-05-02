@@ -122,9 +122,7 @@ export const LoadProfile = fx(function LoadProfileFx(
         firstTime: true,
         name: 'Anonymous Mobber',
         avatar: null,
-        id: Math.random()
-          .toString(36)
-          .slice(2),
+        id: externals.makeId(),
         enableSounds: false,
         enableNotifications: false,
       };
