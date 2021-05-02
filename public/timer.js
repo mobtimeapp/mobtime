@@ -29,6 +29,10 @@ app({
         document: window.document,
         Notification: window.Notification,
         honk: new Audio('https://bigsoundbank.com/UPLOAD/mp3/1828.mp3'),
+        makeId: () =>
+          Math.random()
+            .toString(36)
+            .slice(2),
       },
     },
   ),
