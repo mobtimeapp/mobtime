@@ -29,22 +29,24 @@ rm -rf $APP_DIR/next/.git
 
 echo Installing dependencies...
 cd $APP_DIR/next
-yarn --prod --non-interactive
+yarn # --prod --non-interactive
 yarn tailwind:prod
 
 read -p "Are you sure you want to run this deploy? " -n 1 -r
 echo
-if [[ $REPLOY =~ ^[Yyy]$ ]]; then
-  # do dangerous stuff
-  echo Swapping fresh deploy with current code...
-  rm -rf $APP_DIR/previous
-  mv $APP_DIR/code $APP_DIR/previous
-  mv $APP_DIR/next $APP_DIR/code
-
-  echo Restarting passenger app...
-
-  # Restart app
-  passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running $RESTART_ARGS $APP_DIR/code
-
-  echo Done
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  rm -rf $APP_DIR/next
+  exit 1;
 fi
+# do dangerous stuff
+echo Swapping fresh deploy with current code...
+rm -rf $APP_DIR/previous
+mv $APP_DIR/code $APP_DIR/previous
+mv $APP_DIR/next $APP_DIR/code
+
+echo Restarting passenger app...
+
+# Restart app
+passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running $RESTART_ARGS $APP_DIR/code
+
+echo Done
