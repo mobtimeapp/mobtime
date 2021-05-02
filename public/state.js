@@ -1,13 +1,13 @@
 import * as port from './lib/port.js';
 
-const moveArrayAtTo = (array, atIndex, toIndex) => {
+const moveArrayAtDirection = (array, atIndex, direction) => {
+  const toIndex = atIndex + Math.sign(direction);
   const lower = Math.min(atIndex, toIndex);
   const upper = Math.max(atIndex, toIndex);
 
   return []
     .concat(array.slice(0, lower))
     .concat(array[upper])
-    .concat(array.slice(lower, upper))
     .concat(array[lower])
     .concat(array.slice(upper + 1));
 };
@@ -151,7 +151,7 @@ export const moveGoalUp = (state, goal) => {
   const index = goals.findIndex(g => g.id === goal.id);
   const isFirstOrNotFound = !index;
   if (isFirstOrNotFound) return state;
-  return setGoals(state, moveArrayAtTo(goals, index, index - 1));
+  return setGoals(state, moveArrayAtDirection(goals, index, -1));
 };
 export const moveGoalDown = (state, goal) => {
   const goals = getGoals(state);
@@ -159,7 +159,7 @@ export const moveGoalDown = (state, goal) => {
   const notFound = index === false;
   const isAtEnd = index === goals.length - 1;
   if (notFound || isAtEnd) return state;
-  return setGoals(state, moveArrayAtTo(goals, index, index + 1));
+  return setGoals(state, moveArrayAtDirection(goals, index, +1));
 };
 export const getPositions = state => getShared(state).positions;
 export const setPositions = (state, positions) =>
@@ -292,6 +292,7 @@ export const addToGoals = (state, goal) =>
     state,
     getGoals(state).concat({
       completed: false,
+      parentId: null,
       ...goal,
     }),
   );

@@ -41,3 +41,42 @@ test('manage shared state', t => {
     { name: 'B', avatar: 'test.foo', id: 'anonymous_b' },
   ]);
 });
+
+test('goals do not duplicate when moving', t => {
+  const goalTexts = ['First', 'Second', 'Third', 'Fourth'];
+  let state = goalTexts.reduce((nextState, text, index) => {
+    return State.addToGoals(nextState, { text, id: index + 1 });
+  }, State.initial('foo', {}));
+
+  state = State.moveGoalUp(state, { id: 3 });
+  t.deepEqual(State.getGoals(state), [
+    { id: 1, text: 'First', completed: false, parentId: null },
+    { id: 3, text: 'Third', completed: false, parentId: null },
+    { id: 2, text: 'Second', completed: false, parentId: null },
+    { id: 4, text: 'Fourth', completed: false, parentId: null },
+  ]);
+
+  state = State.updateGoal(state, 3, 'Third', 1);
+  t.deepEqual(State.getGoals(state), [
+    { id: 1, text: 'First', completed: false, parentId: null },
+    { id: 3, text: 'Third', completed: false, parentId: 1 },
+    { id: 2, text: 'Second', completed: false, parentId: null },
+    { id: 4, text: 'Fourth', completed: false, parentId: null },
+  ]);
+
+  state = State.moveGoalUp(state, { id: 4 });
+  t.deepEqual(State.getGoals(state), [
+    { id: 1, text: 'First', completed: false, parentId: null },
+    { id: 3, text: 'Third', completed: false, parentId: 1 },
+    { id: 4, text: 'Fourth', completed: false, parentId: null },
+    { id: 2, text: 'Second', completed: false, parentId: null },
+  ]);
+
+  state = State.updateGoal(state, 4, 'Fourth', 1);
+  t.deepEqual(State.getGoals(state), [
+    { id: 1, text: 'First', completed: false, parentId: null },
+    { id: 3, text: 'Third', completed: false, parentId: 1 },
+    { id: 4, text: 'Fourth', completed: false, parentId: 1 },
+    { id: 2, text: 'Second', completed: false, parentId: null },
+  ]);
+});
