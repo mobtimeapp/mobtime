@@ -26,6 +26,7 @@ const exec = (cmd, args = [], prefix = 'CMD') => new Promise((resolve, reject) =
       .split(/(\r|\n)+/)
       .map(line => line.trim())
       .filter(line => !!line)
+      .filter(line => !line.startsWith('+ echo'))
       .map(line => `[${prefix}|${from}] ${line}`);
   };
 
