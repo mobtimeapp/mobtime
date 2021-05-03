@@ -1,7 +1,7 @@
 import * as State from '../state.js';
 
 export const calculateTimeRemaining = props => {
-  const { timerStartedAt, timerDuration } = State.getTimer(props);
+  const { startedAt, remainingDuration } = State.getTimer(props);
   const { time: currentTime } = State.getLocal(props);
 
   if (!timerStartedAt) {
