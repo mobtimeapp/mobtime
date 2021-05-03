@@ -47,6 +47,7 @@ export const timeRemaining = state => {
             remainingTime > 0 &&
               button(
                 {
+                  shadow: true,
                   size: 'md',
                   class: 'uppercase tracking-widest',
                   onclick: preventDefault(() => [
@@ -63,6 +64,7 @@ export const timeRemaining = state => {
           !duration &&
             button(
               {
+                shadow: true,
                 size: 'md',
                 color: 'indigo',
                 class: 'uppercase tracking-widest',
@@ -77,6 +79,7 @@ export const timeRemaining = state => {
           !!duration &&
             button(
               {
+                shadow: true,
                 size: 'md',
                 class: 'uppercase tracking-widest',
                 disabled: !duration,
