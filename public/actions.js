@@ -1,6 +1,5 @@
 import * as State from './state.js';
 import * as effects from './effects.js';
-import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
 export const SetModal = (state, modal) => State.setLocalModal(state, modal);
 
@@ -164,7 +163,7 @@ export const PlayHonk = state => [
 
 export const SetCurrentTime = (state, { currentTime }) => {
   const nextState = State.setLocalCurrentTime(state, currentTime);
-  const remainingTime = calculateTimeRemaining(nextState, currentTime);
+  const remainingTime = State.calculateTimeRemaining(nextState, currentTime);
 
   return [
     nextState,
@@ -457,7 +456,7 @@ export const ShareEverything = state => [
   state.timerStartedAt > 0 &&
     effects.StartTimer({
       websocketPort: state.websocketPort,
-      timerDuration: calculateTimeRemaining(state),
+      timerDuration: State.calculateTimeRemaining(state),
     }),
 ];
 
