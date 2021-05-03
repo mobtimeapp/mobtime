@@ -17,7 +17,7 @@ const notification = ({ message, actions }) =>
   h(
     'div',
     {
-      class: 'p-1 bg-blue-700 text-white flex items-center justify-between',
+      class: 'p-1 bg-indigo-700 text-white flex items-center justify-between',
     },
     [
       h(

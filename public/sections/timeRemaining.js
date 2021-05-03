@@ -64,7 +64,7 @@ export const timeRemaining = state => {
             button(
               {
                 size: 'md',
-                color: 'green',
+                color: 'indigo',
                 class: 'uppercase tracking-widest',
                 onclick: preventDefault(() => [
                   actions.StartTimerAndShare,
