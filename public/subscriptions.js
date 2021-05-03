@@ -3,7 +3,7 @@ import * as port from './lib/port.js';
 
 const TimerFX = (
   dispatch,
-  { startedAt: timerStartedAt, duration: timerDuration, actions },
+  { startedAt: timerStartedAt, remainingDuration: timerDuration, actions },
 ) => {
   let cancel = false;
   let handle = null;
