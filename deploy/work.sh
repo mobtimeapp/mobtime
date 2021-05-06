@@ -53,14 +53,14 @@ cp -rf $APP_DIR/code $APP_DIR/previous || echo No previous deploy
   rm -rf $APP_DIR/code
 
   echo Swapping fresh deploy with current code...
-  cp -rf $APP_DIR/next $APP_DIR/code
-  rsync $APP_DIR/next $APP_DIR/code --exclude .git
+  # cp -rf $APP_DIR/next $APP_DIR/code
+  rsync -az $APP_DIR/next/ $APP_DIR/code --exclude .git
 
   echo Cleanup
   rm -rf $APP_DIR/previous
 } || {
   echo Something bad happened, reverting
-  rm -rf $APP_DIR/current
+  rm -rf $APP_DIR/code
   mv -f $APP_DIR/previous $APP_DIR/current
 }
 
@@ -68,6 +68,6 @@ cp -rf $APP_DIR/code $APP_DIR/previous || echo No previous deploy
 echo Restarting passenger app...
 
 # Restart app
-passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running $RESTART_ARGS $APP_DIR/code
+sudo passenger-config restart-app --ignore-app-not-running --ignore-passenger-not-running $RESTART_ARGS $APP_DIR/code
 
 echo Done
