@@ -24,11 +24,8 @@ const TimerFX = (
 
     if (elapsed >= timerDuration) {
       cleanup();
-      dispatch(actions.Completed, {
-        isEndOfTurn: true,
-        documentElement: document,
-        Notification: window.Notification,
-      });
+      dispatch(actions.Completed);
+      dispatch(actions.EndTurn);
       return;
     }
 
@@ -76,20 +73,16 @@ const WebsocketFX = (dispatch, { timerId, actions, websocketPort }) => {
           );
 
         case 'timer:start':
-          return dispatchFromMessage(type, actions.StartTimer, Date.now());
+          return dispatchFromMessage(type, actions.StartTimerAt, {
+            startedAt: data.timerStartedAt,
+            remainingDuration: data.timerDuration,
+          });
 
         case 'timer:pause':
           return dispatchFromMessage(type, actions.PauseTimer, Date.now());
 
-        case 'timer:update':
-          return dispatchFromMessage(type, actions.ReplaceTimer, {
-            timerStartedAt: data.timerStartedAt,
-            timerDuration: data.timerDuration,
-          });
-
         case 'timer:complete':
           return dispatchFromMessage(type, actions.EndTurn);
-          break;
 
         case 'goals:update':
           return dispatchFromMessage(type, actions.SetGoals, data.goals);

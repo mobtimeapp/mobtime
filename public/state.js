@@ -98,6 +98,7 @@ export const getShared = state => state.shared;
 export const setShared = (state, shared) => ({ ...state, shared });
 export const mergeShared = (state, sharedPartial) =>
   setShared(state, { ...state.shared, ...sharedPartial });
+export const getSharedDefaultDuration = state => getShared(state).duration;
 export const getMob = state => getShared(state).mob;
 export const setMob = (state, mob) => mergeShared(state, { mob });
 export const isInMob = (state, id) => getMob(state).find(m => m.id === id);
@@ -218,17 +219,16 @@ export const resumeTimer = (state, currentTime) =>
         state,
       )
     : state;
-export const startTimer = (state, currentTime) => {
-  const duration = getDuration(state);
-  return statePipe(
+export const startTimerAt = (state, currentTime, remainingDuration) =>
+  statePipe(
     [
+      [setTimerRemainingDuration, remainingDuration],
       [setTimerStartedAt, currentTime],
-      [setTimerRemainingDuration, duration],
-      [setLocalCurrentTime, currentTime],
     ],
     state,
   );
-};
+export const startTimer = (state, currentTime) =>
+  startTimerAt(state, currentTime, getDuration(state));
 export const timeRemainingFrom = state =>
   calculateTimeRemaining(state, getLocalCurrentTime(state));
 

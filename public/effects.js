@@ -1,8 +1,8 @@
 /* eslint-disable prefer-arrow-callback */
 
-import formatTime from './lib/formatTime.js';
 import * as port from './lib/port.js';
 import * as giphy from './lib/giphy.js';
+import timerRemainingDisplay from './lib/formatTime.js';
 
 const fx = effect => props => [effect, props];
 
@@ -29,12 +29,15 @@ export const BroadcastJoin = fx(function UpdateSettingsFX(
 
 export const StartTimer = fx(function StartTimerFX(
   _dispatch,
-  { websocketPort, timerDuration },
+  { websocketPort, timerDuration, timerStartedAt },
 ) {
-  return sendMessage(websocketPort, 'timer:start', { timerDuration });
+  return sendMessage(websocketPort, 'timer:start', {
+    timerDuration,
+    timerStartedAt,
+  });
 });
 
-export const PauseTimer = fx(function StartTimerFX(
+export const PauseTimer = fx(function PauseTimerFX(
   _dispatch,
   { websocketPort, timerDuration },
 ) {
@@ -78,7 +81,7 @@ export const PermitNotify = fx(function NotificationPermissionFX(
 
 export const Notify = fx(function NotifyFX(
   _dispatch,
-  { title, text, silent, actions, externals },
+  { title, text, silent, externals },
 ) {
   if (!externals.Notification) return;
 
@@ -96,7 +99,9 @@ export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
 ) {
   // eslint-disable-next-line no-param-reassign
   externals.document.title =
-    remainingTime > 0 ? `${formatTime(remainingTime)} - Mobtime` : 'Mobtime';
+    remainingTime > 0
+      ? `${timerRemainingDisplay(remainingTime)} - Mobtime`
+      : 'Mobtime';
 });
 
 export const andThen = fx(function andThenFX(dispatch, { action, props }) {

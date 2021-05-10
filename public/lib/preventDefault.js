@@ -1,14 +1,14 @@
+import * as effects from '../effects.js';
+
 export const preventDefault = fn => {
-  return (state, event) => {
+  return function PreventDefaultEventHandlerAction(state, event) {
     event.preventDefault();
-    const output = fn(event);
-    return Array.isArray(output) ? output[0](state, output[1]) : output(state);
+    return [state, effects.Act(fn(event))];
   };
 };
 
 export const withDefault = fn => {
-  return (state, event) => {
-    const [action, props] = fn(event);
-    return action(state, props);
+  return function DefaultEventHandlerAction(state, event) {
+    return [state, effects.Act(fn(event))];
   };
 };
