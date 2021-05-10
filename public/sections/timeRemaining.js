@@ -6,9 +6,10 @@ import { button } from '../components/button.js';
 import timerRemainingDisplay from '../lib/formatTime.js';
 
 import * as actions from '../actions.js';
+import * as effects from '../effects.js';
 import * as State from '../state.js';
 
-import { preventDefault } from '../lib/preventDefault.js';
+import { withEvent, reactions } from '../lib/withEvent.js';
 
 export const timeRemaining = state => {
   const isPaused = State.isPaused(state);
@@ -50,9 +51,15 @@ export const timeRemaining = state => {
                   shadow: true,
                   size: 'md',
                   class: 'uppercase tracking-widest',
-                  onclick: preventDefault(() => [
-                    actions.CompletedAndShare,
-                    { isEndOfTurn: false },
+                  onclick: withEvent([
+                    reactions.preventDefault(),
+                    reactions.act(() => [actions.Completed]),
+                    reactions.act([actions.EndTurn]),
+                    reactions.fx(() =>
+                      effects.CompleteTimer({
+                        websocketPort: state.websocketPort,
+                      }),
+                    ),
                   ]),
                 },
                 text('🛑 End Turn'),
@@ -68,28 +75,67 @@ export const timeRemaining = state => {
                 size: 'md',
                 color: 'indigo',
                 class: 'uppercase tracking-widest',
-                onclick: preventDefault(() => [
-                  actions.StartTimerAndShare,
-                  Date.now(),
+                onclick: withEvent([
+                  reactions.preventDefault(),
+                  reactions.act(() => [actions.StartTimer, Date.now()]),
+                  reactions.fx(() =>
+                    effects.StartTimer({
+                      websocketPort: state.websocketPort,
+                      timerDuration: State.getDuration(state),
+                      timerStartedAt: Date.now(),
+                    }),
+                  ),
                 ]),
               },
               text('Begin Turn'),
             ),
 
           !!duration &&
+            isPaused &&
             button(
               {
                 shadow: true,
                 size: 'md',
                 class: 'uppercase tracking-widest',
                 disabled: !duration,
-                onclick: preventDefault(() =>
-                  isPaused
-                    ? [actions.ResumeTimerAndShare, Date.now()]
-                    : [actions.PauseTimerAndShare, Date.now()],
-                ),
+                onclick: withEvent([
+                  reactions.preventDefault(),
+                  reactions.act(() => [actions.ResumeTimer, Date.now()]),
+                  reactions.fx(() =>
+                    effects.StartTimer({
+                      websocketPort: state.websocketPort,
+                      timerStartedAt: Date.now(),
+                      timerDuration: State.getTimerRemainingDuration(state),
+                    }),
+                  ),
+                ]),
               },
-              [text(isPaused ? '👍 Resume' : '✋ Pause')],
+              [text('👍 Resume')],
+            ),
+
+          !!duration &&
+            !isPaused &&
+            button(
+              {
+                shadow: true,
+                size: 'md',
+                class: 'uppercase tracking-widest',
+                disabled: !duration,
+                onclick: withEvent([
+                  reactions.preventDefault(),
+                  reactions.act(() => [actions.PauseTimer, Date.now()]),
+                  reactions.fx(() =>
+                    effects.PauseTimer({
+                      websocketPort: state.websocketPort,
+                      timerDuration: State.calculateTimeRemaining(
+                        state,
+                        Date.now(),
+                      ),
+                    }),
+                  ),
+                ]),
+              },
+              [text('✋ Pause')],
             ),
         ]),
       ],

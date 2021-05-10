@@ -108,13 +108,14 @@ const goal = (isInGoals, makeId) => (currentGoal, index) => {
       h(
         'div',
         {
-          class: [currentGoal.parentId && 'pl-4'],
+          class: [currentGoal.parentId && 'pl-4', 'w-full'],
         },
         [
           textarea({
             class: [
               currentGoal.completed &&
                 'line-through text-gray-400 dark:text-gray-600',
+              'w-full',
             ],
             rows: 1,
             placeholder: 'Add your goals...',

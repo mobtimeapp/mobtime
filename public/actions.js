@@ -208,7 +208,7 @@ export const EndTurn = state => {
   ];
 };
 
-export const Completed = (state, { isEndOfTurn }) => [
+export const Completed = state => [
   State.cycleMob(State.endTurn(state)),
   effects.UpdateTitleWithTime({
     remainingTime: 0,
@@ -220,12 +220,12 @@ export const Completed = (state, { isEndOfTurn }) => [
       props: {},
     }),
 ];
-export const CompletedAndShare = (state, { isEndOfTurn }) => [
-  ...Completed(state, { isEndOfTurn }),
-  effects.CompleteTimer({
-    websocketPort: state.websocketPort,
-  }),
-];
+// export const CompletedAndShare = (state, { isEndOfTurn }) => [
+// ...Completed(state, { isEndOfTurn }),
+// effects.CompleteTimer({
+// websocketPort: state.websocketPort,
+// }),
+// ];
 
 export const ShareMob = state => [
   state,
@@ -345,46 +345,18 @@ export const UpdateGoalText = (state, goal) => [
 export const PauseTimer = (state, currentTime = Date.now()) =>
   State.pauseTimer(state, currentTime);
 
-export const PauseTimerAndShare = (state, currentTime = Date.now()) => {
-  const nextState = PauseTimer(state, currentTime);
-
-  return [
-    nextState,
-    effects.PauseTimer({
-      websocketPort: state.websocketPort,
-      timerDuration: state.timerDuration,
-    }),
-  ];
-};
-
 export const ResumeTimer = (state, timerStartedAt = Date.now()) =>
   State.resumeTimer(state, timerStartedAt);
 
-export const ResumeTimerAndShare = (state, timerStartedAt = Date.now()) => [
-  ResumeTimer(state, timerStartedAt),
-  effects.StartTimer({
-    websocketPort: state.websocketPort,
-    timerDuration: state.timerDuration,
-  }),
-];
+export const StartTimerAt = (state, { startedAt, remainingDuration }) => {
+  return State.startTimerAt(state, startedAt, remainingDuration);
+};
 
-export const StartTimer = (state, timerStartedAt) => {
-  const { duration } = State.getShared(state);
-  return State.mergeLocal(State.startTimer(state, timerStartedAt, duration), {
-    time: timerStartedAt,
+export const StartTimer = (state, timerStartedAt) =>
+  StartTimerAt(state, {
+    startedAt: timerStartedAt,
+    remainingDuration: State.getDuration(state),
   });
-};
-
-export const StartTimerAndShare = (state, timerStartedAt) => {
-  const nextState = StartTimer(state, timerStartedAt);
-  return [
-    nextState,
-    effects.StartTimer({
-      websocketPort: state.websocketPort,
-      timerDuration: State.getShared(nextState).duration,
-    }),
-  ];
-};
 
 export const ReplaceTimer = (state, timerAttributes) =>
   State.mergeTimer(state, timerAttributes);
@@ -453,10 +425,11 @@ export const ShareEverything = state => [
     websocketPort: state.websocketPort,
     settings: State.getShared(state),
   }),
-  state.timerStartedAt > 0 &&
+  State.getTimerStartedAt(state) > 0 &&
     effects.StartTimer({
       websocketPort: state.websocketPort,
-      timerDuration: State.calculateTimeRemaining(state),
+      timerStartedAt: State.getTimerStartedAt(state),
+      timerDuration: State.getTimerRemainingDuration(state),
     }),
 ];
 
