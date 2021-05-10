@@ -56,26 +56,26 @@ app({
     subscriptions.Timer({ ...State.getTimer(state), actions }),
   ],
 
-  dispatch: d => (...params) => {
-    if (typeof params[0] === 'function') {
-      console.log(
-        '%caction',
-        'font-weight: bold;',
-        params[0].name,
-        params[1] || null,
-      );
-    } else if (Array.isArray(params[0])) {
-      const [s, ...e] = params[0];
-      console.log('state', s);
-      console.log(
-        'effects',
-        e.filter(fx => fx).map(([fx, props]) => [fx.name, props]),
-      );
-    } else {
-      console.log('state', params[0]);
-    }
-    return d(...params);
-  },
+  // dispatch: d => (...params) => {
+  // if (typeof params[0] === 'function') {
+  // console.log(
+  // '%caction',
+  // 'font-weight: bold;',
+  // params[0].name,
+  // params[1] || null,
+  // );
+  // } else if (Array.isArray(params[0])) {
+  // const [s, ...e] = params[0];
+  // console.log('state', s);
+  // console.log(
+  // 'effects',
+  // e.filter(fx => fx).map(([fx, props]) => [fx.name, props]),
+  // );
+  // } else {
+  // console.log('state', params[0]);
+  // }
+  // return d(...params);
+  // },
 
   node,
 });
