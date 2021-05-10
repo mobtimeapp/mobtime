@@ -214,19 +214,7 @@ export const Completed = state => [
     remainingTime: 0,
     externals: state.externals,
   }),
-  isEndOfTurn &&
-    effects.andThen({
-      action: EndTurn,
-      props: {},
-    }),
 ];
-// export const CompletedAndShare = (state, { isEndOfTurn }) => [
-// ...Completed(state, { isEndOfTurn }),
-// effects.CompleteTimer({
-// websocketPort: state.websocketPort,
-// }),
-// ];
-
 export const ShareMob = state => [
   state,
   effects.UpdateMob({
@@ -255,7 +243,12 @@ export const CycleMob = state => [
   state.timerStartedAt > 0 &&
     effects.andThen({
       action: Completed,
-      props: { isEndOfTurn: true },
+      props: {},
+    }),
+  state.timerStartedAt > 0 &&
+    effects.andThen({
+      action: EndTurn,
+      props: {},
     }),
 ];
 
