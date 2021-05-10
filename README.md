@@ -19,6 +19,11 @@ And your phone:
 ```bash
 yarn && yarn tailwind:dev && yarn start
 ```
+or
+
+```
+docker-compose up
+```
 
 ### Environment Variables
 
