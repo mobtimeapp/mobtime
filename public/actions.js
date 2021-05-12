@@ -293,6 +293,24 @@ export const ShareGoals = state => [
     }),
 ];
 
+export const UpdateGoalText = (state, text) =>
+  State.mergeLocal(state, { addGoal: text });
+export const AddGoalText = (state, id) =>
+  ShareGoals(
+    State.addToGoals(state, {
+      id,
+      text: State.getLocal(state).addGoal,
+      completed: false,
+    }),
+  );
+
+export const UpdateParticipantText = (state, text) =>
+  State.mergeLocal(state, { addParticipant: text });
+export const AddParticipantText = (state, id) =>
+  ShareGoals(
+    State.addToMob(state, State.getLocal(state).addParticipant, null, id),
+  );
+
 export const AddGoal = (state, goal) =>
   ShareGoals(State.addToGoals(state, goal));
 
@@ -326,13 +344,6 @@ export const SetGoals = (state, goals) => [
       timerId: State.getTimerId(state),
       shared: State.getShared(state),
     }),
-];
-
-export const UpdateGoalText = (state, goal) => [
-  {
-    ...state,
-    goal,
-  },
 ];
 
 export const PauseTimer = (state, currentTime = Date.now()) =>
@@ -384,6 +395,12 @@ export const ShareSettings = state => [
     websocketPort: state.websocketPort,
     settings: State.getShared(state),
   }),
+  State.isLocalAutoSaveTimer(state) &&
+    effects.SaveTimer({
+      externals: State.getExternals(state),
+      timerId: State.getTimerId(state),
+      shared: State.getShared(state),
+    }),
 ];
 
 export const UpdatePositions = (state, positions) =>
