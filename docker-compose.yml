@@ -1,0 +1,33 @@
+version: '3.7'
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mobtime
+    #container_name: mobtime-webapp
+    restart: unless-stopped
+    working_dir: /var/www
+    command: node -r esm src/fake.js
+    volumes:
+      - ./:/var/www
+    scale: 4
+
+  redis:
+    image: redis
+    networks:
+      - mobtime
+
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: mobtime-nginx
+    restart: unless-stopped
+    ports:
+      - 8001:80
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+
+networks:
+  mobtime:
+    driver: bridge
