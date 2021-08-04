@@ -1,9 +1,9 @@
 import * as effects from '../effects.js';
 
-const arrayOrFunc = v => (Array.isArray(v) ? v : v());
+const arrayOrFunc = (v, event) => (Array.isArray(v) ? v : v(event));
 
 export const reactions = {
-  act: actFn => () => effects.Act(arrayOrFunc(actFn)),
+  act: actFn => event => effects.Act(arrayOrFunc(actFn, event)),
   preventDefault: () => event => [
     function EventPreventDefaultFx() {
       event.preventDefault();
@@ -11,6 +11,13 @@ export const reactions = {
     {},
   ],
   fx: effectRunner => () => arrayOrFunc(effectRunner),
+  inlineFx: callback => event => [
+    (dispatch, e) => {
+      const value = callback(e);
+      return Array.isArray(value) ? dispatch(...value) : null;
+    },
+    event,
+  ],
 };
 
 export const withEvent = (reactionList = [reactions.preventDefault()]) => {

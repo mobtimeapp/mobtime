@@ -19,7 +19,7 @@ const item = ({ id, text: goalText, completed, parentId }) =>
         'label',
         {
           class: [
-            'flex flex-row items-center justify-start',
+            'flex flex-row items-start justify-start',
             parentId && 'ml-4',
           ],
         },
@@ -27,10 +27,11 @@ const item = ({ id, text: goalText, completed, parentId }) =>
           h(
             'div',
             {
-              class: 'w-8 h-8 flex items-center justify-center',
+              class: ['mr-2'],
             },
             [
               h('input', {
+                class: ['mt-1'],
                 type: 'checkbox',
                 checked: completed,
                 onchange: (state, event) => {

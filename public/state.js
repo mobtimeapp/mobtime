@@ -1,5 +1,3 @@
-import * as port from './lib/port.js';
-
 const moveArrayAtDirection = (array, atIndex, direction) => {
   const toIndex = atIndex + Math.sign(direction);
   const lower = Math.min(atIndex, toIndex);
@@ -249,6 +247,12 @@ export const dismissToastMessage = state =>
 /* Externals state */
 export const getExternals = state => state.externals;
 export const setExternals = (state, externals) => ({ ...state, externals });
+export const mergeExternals = (state, partialExternals) =>
+  setExternals(state, {
+    ...getExternals(state),
+    ...partialExternals,
+  });
+export const getWebsocketPort = state => getExternals(state).websocketPort;
 
 /* Full application state */
 export const initial = (timerId, externals = {}) =>
@@ -261,7 +265,9 @@ export const initial = (timerId, externals = {}) =>
         {
           time: null,
           isOwner: false,
-          modal: null,
+          modal: 'editTimer',
+          addParticipant: '',
+          addGoal: '',
           giphySearch: '',
           giphyResults: [],
           autoSaveTimers: [],
@@ -282,9 +288,7 @@ export const initial = (timerId, externals = {}) =>
       [setToasts, []],
       [setExternals, externals],
     ],
-    {
-      websocketPort: port.make(['send']),
-    },
+    {},
   );
 
 export const addToGoals = (state, goal) =>

@@ -218,7 +218,7 @@ export const Completed = state => [
 export const ShareMob = state => [
   state,
   effects.UpdateMob({
-    websocketPort: state.websocketPort,
+    websocketPort: State.getWebsocketPort(state),
     mob: State.getMob(state),
   }),
 ];
@@ -282,7 +282,7 @@ export const RemoveFromMob = (state, mobber) =>
 export const ShareGoals = state => [
   state,
   effects.UpdateGoals({
-    websocketPort: state.websocketPort,
+    websocketPort: State.getWebsocketPort(state),
     goals: State.getGoals(state),
   }),
   State.isLocalAutoSaveTimer(state) &&
@@ -392,7 +392,7 @@ export const Notify = (state, { title, text, silent, actions, icon }) => {
 export const ShareSettings = state => [
   state,
   effects.UpdateSettings({
-    websocketPort: state.websocketPort,
+    websocketPort: State.getWebsocketPort(state),
     settings: State.getShared(state),
   }),
   State.isLocalAutoSaveTimer(state) &&
@@ -417,27 +417,27 @@ export const ReplaceSettings = (state, settings) =>
 export const BroadcastJoin = state => [
   state,
   effects.BroadcastJoin({
-    websocketPort: state.websocketPort,
+    websocketPort: State.getWebsocketPort(state),
   }),
 ];
 
 export const ShareEverything = state => [
   state,
   effects.UpdateMob({
-    websocketPort: state.websocketPort,
+    websocketPort: State.getWebsocketPort(state),
     mob: State.getMob(state),
   }),
   effects.UpdateGoals({
-    websocketPort: state.websocketPort,
+    websocketPort: State.getWebsocketPort(state),
     goals: State.getGoals(state),
   }),
   effects.UpdateSettings({
-    websocketPort: state.websocketPort,
+    websocketPort: State.getWebsocketPort(state),
     settings: State.getShared(state),
   }),
   State.getTimerStartedAt(state) > 0 &&
     effects.StartTimer({
-      websocketPort: state.websocketPort,
+      websocketPort: State.getWebsocketPort(state),
       timerStartedAt: State.getTimerStartedAt(state),
       timerDuration: State.getTimerRemainingDuration(state),
     }),

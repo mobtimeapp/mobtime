@@ -1,4 +1,5 @@
 import * as actions from '/actions.js';
+import * as port from './lib/port.js';
 import { layout } from '/components/layout.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
@@ -19,6 +20,27 @@ const modalMap = {
 const showModal = state =>
   (modalMap[State.getLocalModal(state)] || modalMap._)(state);
 
+const dispatchDebug = d => (...params) => {
+  if (typeof params[0] === 'function') {
+    console.log(
+      '%caction',
+      'font-weight: bold;',
+      params[0].name,
+      params[1] || null,
+    );
+  } else if (Array.isArray(params[0])) {
+    const [s, ...e] = params[0];
+    console.log('state', s);
+    console.log(
+      'effects',
+      e.filter(fx => fx).map(([fx, props]) => [fx.name, props]),
+    );
+  } else {
+    console.log('state', params[0]);
+  }
+  return d(...params);
+};
+
 app({
   init: actions.Init(
     {},
@@ -33,6 +55,7 @@ app({
           Math.random()
             .toString(36)
             .slice(2),
+        websocketPort: port.make(['send']),
       },
     },
   ),
@@ -49,33 +72,14 @@ app({
     State.getTimerId(state) &&
       subscriptions.Websocket({
         timerId: State.getTimerId(state),
-        websocketPort: state.websocketPort,
+        websocketPort: State.getWebsocketPort(state),
         actions,
       }),
 
     subscriptions.Timer({ ...State.getTimer(state), actions }),
   ],
 
-  // dispatch: d => (...params) => {
-  // if (typeof params[0] === 'function') {
-  // console.log(
-  // '%caction',
-  // 'font-weight: bold;',
-  // params[0].name,
-  // params[1] || null,
-  // );
-  // } else if (Array.isArray(params[0])) {
-  // const [s, ...e] = params[0];
-  // console.log('state', s);
-  // console.log(
-  // 'effects',
-  // e.filter(fx => fx).map(([fx, props]) => [fx.name, props]),
-  // );
-  // } else {
-  // console.log('state', params[0]);
-  // }
-  // return d(...params);
-  // },
+  dispatch: dispatchDebug,
 
   node,
 });

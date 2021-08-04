@@ -57,7 +57,7 @@ export const timeRemaining = state => {
                     reactions.act([actions.EndTurn]),
                     reactions.fx(() =>
                       effects.CompleteTimer({
-                        websocketPort: state.websocketPort,
+                        websocketPort: State.getWebsocketPort(state),
                       }),
                     ),
                   ]),
@@ -80,7 +80,7 @@ export const timeRemaining = state => {
                   reactions.act(() => [actions.StartTimer, Date.now()]),
                   reactions.fx(() =>
                     effects.StartTimer({
-                      websocketPort: state.websocketPort,
+                      websocketPort: State.getWebsocketPort(state),
                       timerDuration: State.getDuration(state),
                       timerStartedAt: Date.now(),
                     }),
@@ -103,7 +103,7 @@ export const timeRemaining = state => {
                   reactions.act(() => [actions.ResumeTimer, Date.now()]),
                   reactions.fx(() =>
                     effects.StartTimer({
-                      websocketPort: state.websocketPort,
+                      websocketPort: State.getWebsocketPort(state),
                       timerStartedAt: Date.now(),
                       timerDuration: State.getTimerRemainingDuration(state),
                     }),
@@ -126,7 +126,7 @@ export const timeRemaining = state => {
                   reactions.act(() => [actions.PauseTimer, Date.now()]),
                   reactions.fx(() =>
                     effects.PauseTimer({
-                      websocketPort: state.websocketPort,
+                      websocketPort: State.getWebsocketPort(state),
                       timerDuration: State.calculateTimeRemaining(
                         state,
                         Date.now(),
