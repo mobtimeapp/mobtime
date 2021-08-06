@@ -124,7 +124,7 @@ test('RemoveConnection removes the connection and updates timer ownership along 
   );
 });
 
-test('MessageTimer relays a message from one connection to all other connections on the same timerId', t => {
+test.only('MessageTimer relays a message from one connection to all other connections on the same timerId', t => {
   const timerId = 'foo';
   const websocket = {};
   const message = 'hello world';
@@ -135,11 +135,7 @@ test('MessageTimer relays a message from one connection to all other connections
     connections: [otherConnection, connection, secondConnectionToTimer],
   };
 
-  const [state, effect] = Actions.MessageTimer(
-    websocket,
-    timerId,
-    message,
-  )(originalState);
+  const [state, effect] = Actions.MessageTimer(timerId, message)(originalState);
 
   t.is(state, originalState);
   t.deepEqual(state, originalState);
@@ -148,6 +144,7 @@ test('MessageTimer relays a message from one connection to all other connections
     fx(effect),
     fx(
       effects.batch([
+        RelayMessage(connection, message),
         RelayMessage(secondConnectionToTimer, message),
         effects.act(Actions.UpdateStatisticsFromMessage, timerId, message),
       ]),
@@ -167,7 +164,6 @@ test('MessageTimerOwner relays a message to the timer owner', t => {
   };
 
   const [state, effect] = Actions.MessageTimerOwner(
-    secondConnectionToTimer.websocket,
     timerId,
     message,
   )(originalState);

@@ -1,8 +1,15 @@
 import { effects } from 'ferp';
+import * as redis from 'redis';
 
 const { none, thunk } = effects;
 
-const WebsocketSub = (dispatch, actions, connection, timerId) => {
+const WebsocketSub = (
+  dispatch,
+  actions,
+  connection,
+  redisPublisher,
+  timerId,
+) => {
   const { websocket } = connection;
 
   let isClosed = false;
@@ -15,18 +22,11 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
 
   websocket.on('message', data => {
     const { type } = JSON.parse(data);
-
     if (type === 'client:new') {
-      return dispatch(
-        actions.MessageTimerOwner(websocket, timerId, data),
-        'MessageTimerOwner',
-      );
+      // Fetch timer state from redis cache?
+      return;
     }
-
-    return dispatch(
-      actions.MessageTimer(websocket, timerId, data),
-      'MessageTimer',
-    );
+    redisPublisher.publish(timerId, data);
   });
 
   return () => {

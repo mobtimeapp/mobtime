@@ -1,0 +1,9 @@
+#dev
+version: '3.7'
+services:
+  webapp:
+    scale: 2
+    command: yarn serve:dev
+    environment:
+      - REDIS_URL=redis://redis
+      - PORT=4321

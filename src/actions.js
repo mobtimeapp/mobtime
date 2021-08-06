@@ -2,8 +2,9 @@ import { effects } from 'ferp';
 import { SendOwnership, CloseWebsocket, RelayMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
+import { CacheTimerState } from './redis';
 
-const { none, act, batch, thunk } = effects;
+const { none, act, batch } = effects;
 
 const defaultStatistics = {
   mobbers: 0,
@@ -31,7 +32,13 @@ export const Init = (nextId = id()) => [
     connections: [],
     statistics: {},
     nextId,
+    redisConnection: null,
   },
+  none(),
+];
+
+export const SetRedisConnection = redisConnection => state => [
+  { ...state, redisConnection },
   none(),
 ];
 
@@ -45,23 +52,12 @@ export const SetTimerOwner = timerId => state => {
     return [state, effects.none()];
   }
 
-  const [futureTimerOwner, ...futureTimerOthers] = state.connections.filter(
+  const [timerOwner, ...timerOthers] = state.connections.filter(
     c => c.timerId === timerId,
   );
-  const timerOwner = { ...futureTimerOwner, isOwner: true };
-  const timerOthers = futureTimerOthers.map(fto => ({
-    ...fto,
-    isOwner: false,
-  }));
-  const otherConnections = state.connections.filter(c => c.timerId !== timerId);
-
-  const connections = [timerOwner, ...timerOthers, ...otherConnections];
 
   return [
-    {
-      ...state,
-      connections,
-    },
+    state,
     batch([
       SendOwnership(timerOwner, true),
       ...timerOthers.map(tc => SendOwnership(tc, false)),
@@ -84,6 +80,7 @@ export const UpdateStatisticsFromMessage = (timerId, message) => state => {
       ...state,
       statistics,
     },
+    // Update Redis cache for given timer
     none(),
   ];
 };
@@ -129,7 +126,7 @@ export const AddConnection = (websocket, timerId) => state => [
   },
   batch([
     GenerateIdEffect(SetNextId),
-    act(SetTimerOwner, timerId),
+    // act(SetTimerOwner, timerId),
     act(UpdateStatisticsFromConnections, timerId),
   ]),
 ];
@@ -141,15 +138,14 @@ export const RemoveConnection = (websocket, timerId) => state => [
   },
   batch([
     CloseWebsocket(websocket),
-    act(SetTimerOwner, timerId),
+    // act(SetTimerOwner, timerId),
     act(UpdateStatisticsFromConnections, timerId),
   ]),
 ];
 
-export const MessageTimer = (websocket, timerId, message) => state => {
+export const MessageTimer = (timerId, message) => state => {
   const connections = state.connections.filter(
-    connection =>
-      connection.timerId === timerId && connection.websocket !== websocket,
+    connection => connection.timerId === timerId,
   );
 
   return [
@@ -157,14 +153,7 @@ export const MessageTimer = (websocket, timerId, message) => state => {
     effects.batch([
       ...connections.map(c => RelayMessage(c, message)),
       act(UpdateStatisticsFromMessage, timerId, message),
+      CacheTimerState(state.redisConnection, message, timerId),
     ]),
   ];
-};
-
-export const MessageTimerOwner = (websocket, timerId, message) => state => {
-  const owner = state.connections.find(
-    c => c.timerId === timerId && c.isOwner && c.websocket !== websocket,
-  );
-
-  return [state, owner ? RelayMessage(owner, message) : none()];
 };

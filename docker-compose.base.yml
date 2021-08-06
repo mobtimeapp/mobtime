@@ -5,22 +5,25 @@ services:
       context: .
       dockerfile: Dockerfile
     image: mobtime
-    #container_name: mobtime-webapp
     restart: unless-stopped
     working_dir: /var/www
-    command: node -r esm src/fake.js
+    command: yarn serve
+    expose:
+      - 4321
     volumes:
       - ./:/var/www
+    networks:
+      - mobtime
     depends_on:
       - redis
-    links:
-      - redis
-    scale: 1
+    scale: 2
     environment:
       - REDIS_URL=redis://redis
 
   redis:
     image: redis
+    container_name: redis
+    restart: unless-stopped
     networks:
       - mobtime
 
@@ -29,8 +32,10 @@ services:
     restart: unless-stopped
     depends_on:
       - webapp
+    networks:
+      - mobtime
     ports:
-      - 8001:80
+      - 8002:80
     volumes:
       - ./:/var/www
       - ./docker/nginx:/etc/nginx/conf.d

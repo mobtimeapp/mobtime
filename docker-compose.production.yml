@@ -1,0 +1,7 @@
+#prod
+version: '3.7'
+services:
+  webapp:
+    scale: 2
+    environment:
+      - REDIS_URL=redis://redis
