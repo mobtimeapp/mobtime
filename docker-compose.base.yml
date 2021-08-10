@@ -8,8 +8,6 @@ services:
     restart: unless-stopped
     working_dir: /var/www
     command: yarn serve
-    expose:
-      - 4321
     volumes:
       - ./:/var/www
     networks:
@@ -19,6 +17,7 @@ services:
     scale: 2
     environment:
       - REDIS_URL=redis://redis
+      - PORT=4321
 
   redis:
     image: redis
@@ -34,11 +33,6 @@ services:
       - webapp
     networks:
       - mobtime
-    ports:
-      - 8002:80
-    volumes:
-      - ./:/var/www
-      - ./docker/nginx:/etc/nginx/conf.d
 
 networks:
   mobtime:

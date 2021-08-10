@@ -10,6 +10,8 @@
   "scripts": {
     "dev": "docker-compose -f ./docker-compose.base.yml -f ./docker-compose.dev.yml up",
     "serve:dev": "nodemon --ignore public ./index.js",
+    "prod": "docker-compose -f ./docker-compose.base.yml -f ./docker-compose.prod.yml up",
+    "serve:prod": "node -r esm ./index.js",
     "tailwind:dev": "postcss ./src/styles/index.css -o ./public/styles/styles.css",
     "tailwind:prod": "cross-env NODE_ENV=production postcss ./src/styles/index.css -o ./public/styles/styles.css",
     "start": "node ./index.js",

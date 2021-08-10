@@ -6,3 +6,5 @@ storage
 public/styles/*
 .idea/
 yarn-error.log
+docker/dev/redis
+docker/prod/redis

@@ -4,6 +4,17 @@ services:
   webapp:
     scale: 2
     command: yarn serve:dev
-    environment:
-      - REDIS_URL=redis://redis
-      - PORT=4321
+
+  redis:
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./docker/dev/redis:/data
+    entrypoint: redis-server --appendonly yes
+
+  nginx:
+    ports:
+      - 8002:80
+    volumes:
+      - ./:/var/www
+      - ./docker/dev/nginx:/etc/nginx/conf.d

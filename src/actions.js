@@ -2,7 +2,7 @@ import { effects } from 'ferp';
 import { SendOwnership, CloseWebsocket, RelayMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
-import { CacheTimerState } from './redis';
+import { WriteCacheTimerState, ShareCacheTimerState } from './redis';
 
 const { none, act, batch } = effects;
 
@@ -117,19 +117,21 @@ export const UpdateStatisticsFromConnections = timerId => state => {
   ];
 };
 
-export const AddConnection = (websocket, timerId) => state => [
-  {
-    ...state,
-    connections: state.connections.concat(
-      Connection.make(state.nextId, websocket, timerId),
-    ),
-  },
-  batch([
-    GenerateIdEffect(SetNextId),
-    // act(SetTimerOwner, timerId),
-    act(UpdateStatisticsFromConnections, timerId),
-  ]),
-];
+export const AddConnection = (websocket, timerId) => state => {
+  const connection = Connection.make(state.nextId, websocket, timerId);
+  return [
+    {
+      ...state,
+      connections: state.connections.concat(connection),
+    },
+    batch([
+      GenerateIdEffect(SetNextId),
+      // act(SetTimerOwner, timerId),
+      act(UpdateStatisticsFromConnections, timerId),
+      ShareCacheTimerState(connection, state.redisConnection, timerId),
+    ]),
+  ];
+};
 
 export const RemoveConnection = (websocket, timerId) => state => [
   {
@@ -153,7 +155,7 @@ export const MessageTimer = (timerId, message) => state => {
     effects.batch([
       ...connections.map(c => RelayMessage(c, message)),
       act(UpdateStatisticsFromMessage, timerId, message),
-      CacheTimerState(state.redisConnection, message, timerId),
+      WriteCacheTimerState(state.redisConnection, message, timerId),
     ]),
   ];
 };

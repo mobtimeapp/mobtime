@@ -1,21 +1,9 @@
 import * as redis from 'redis';
 import { effects } from 'ferp';
+import { promisify } from 'util';
+import { RelayMessage } from './websocket';
 
-const { thunk, none, act } = effects;
-
-// What happens when you connect to a timer:
-//
-// 1. { type: 'client:new' } => NodeJS/Mobtime Server
-// 2. Anyone on the timer? If so, who is the first connection ("owner")
-// 3. If there was an owner...
-// 3.a they will send the full timer state to you
-// 3.b { type: 'ownership', owner: false }
-// 4. If there was no owner, there is no timer, you are the owner
-// 4.a { type: 'ownership', owner: true }
-//
-//
-// NodeJS Server A [Bob, Greg]
-// NodeJS Server B [Joyce, Billy]
+const { batch, defer, thunk, none, act } = effects;
 
 const RedisSubscriberSub = (dispatch, actions, redisUrl, timerId) => {
   console.log('RedisSubscriber', 'at least one subscriber on timer', timerId);
@@ -42,7 +30,13 @@ const RedisPublisherSub = (dispatch, actions, redisUrl) => {
   const redisConnection = redis.createClient(redisUrl);
 
   redisConnection.on('ready', () => {
-    dispatch(actions.SetRedisConnection(redisConnection));
+    const redisProxy = {
+      get: promisify(redisConnection.get).bind(redisConnection),
+      set: promisify(redisConnection.set).bind(redisConnection),
+      expire: promisify(redisConnection.expire).bind(redisConnection),
+      publish: (...args) => redisConnection.publish(...args),
+    };
+    dispatch(actions.SetRedisConnection(redisProxy));
   });
 
   redisConnection.on('end', () => {
@@ -55,20 +49,75 @@ const RedisPublisherSub = (dispatch, actions, redisUrl) => {
 };
 export const RedisPublisher = (...props) => [RedisPublisherSub, ...props];
 
-export const WriteCacheTimerState = (redisConnection, partialState, timerId) =>
-  thunk(() => {
-    console.log('TODO: Write partial stuff and other stuff');
-    return none();
-  });
+const messageToPartialState = message => {
+  const json = JSON.parse(message);
+  switch (json.type) {
+    case 'mob:update':
+      return { mob: json.mob };
+    case 'goals:update':
+      return { goals: json.goals };
+    case 'settings:update':
+      return { settings: json.settings };
+    case 'timer:start':
+      return { timerDuration: json.timerDuration };
+    case 'timer:pause':
+      return { timerDuration: json.timerDuration };
+    case 'timer:complete':
+      return { timerDuration: null };
+    default:
+      return {};
+  }
+};
 
-export const ShareCacheTimerState = (
-  connection,
-  redisConnection,
-  partialState,
-  timerId,
-) =>
-  thunk(() => {
-    console.log('TODO: Read partial stuff and other stuff');
-    console.log('TODO: Send state to conneciton.websocket');
-    return none();
-  });
+export const WriteCacheTimerState = (redisConnection, message, timerId) =>
+  defer(
+    redisConnection
+      .get(timerId)
+      .then(timer => JSON.parse(timer ? timer.toString() : '{}'))
+      .then(timer =>
+        JSON.stringify({
+          ...timer,
+          ...messageToPartialState(message),
+        }),
+      )
+      .then(timer => redisConnection.set(timerId, timer))
+      .then(() => redisConnection.expire(timerId, 5 * 24 * 60 * 60))
+      .catch(err => {
+        console.log('WriteCacheTimerState.error', err.toString());
+        return null;
+      })
+      .then(() => none()),
+  );
+
+export const ShareCacheTimerState = (connection, redisConnection, timerId) =>
+  defer(
+    redisConnection
+      .get(timerId)
+      .then(timer => JSON.parse(timer.toString()))
+      .catch(() => ({}))
+      .then(timer =>
+        batch([
+          timer.mob
+            ? RelayMessage(
+                connection,
+                JSON.stringify({ type: 'mob:update', mob: timer.mob }),
+              )
+            : none(),
+          timer.goals
+            ? RelayMessage(
+                connection,
+                JSON.stringify({ type: 'goals:update', goals: timer.goals }),
+              )
+            : none(),
+          timer.settings
+            ? RelayMessage(
+                connection,
+                JSON.stringify({
+                  type: 'settings:update',
+                  settings: timer.settings,
+                }),
+              )
+            : none(),
+        ]),
+      ),
+  );
