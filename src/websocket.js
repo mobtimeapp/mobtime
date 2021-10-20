@@ -1,5 +1,4 @@
 import { effects } from 'ferp';
-import * as redis from 'redis';
 
 const { none, thunk } = effects;
 
@@ -23,10 +22,12 @@ const WebsocketSub = (
   websocket.on('message', data => {
     const { type } = JSON.parse(data);
     if (type === 'client:new') {
-      // Fetch timer state from redis cache?
-      return;
+      return dispatch(
+        actions.SyncTimerToWebsocket(websocket, timerId),
+        'SyncTimerToWebsocket',
+      );
     }
-    redisPublisher.publish(timerId, data);
+    return redisPublisher.publish(timerId, data);
   });
 
   return () => {
@@ -34,18 +35,6 @@ const WebsocketSub = (
   };
 };
 export const Websocket = (...props) => [WebsocketSub, ...props];
-
-export const SendOwnership = (connection, isOwner) =>
-  thunk(() => {
-    connection.websocket.send(
-      JSON.stringify({
-        type: 'timer:ownership',
-        isOwner,
-      }),
-    );
-
-    return none();
-  });
 
 export const CloseWebsocket = websocket =>
   thunk(() => {

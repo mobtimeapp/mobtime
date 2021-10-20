@@ -1,12 +1,7 @@
 import test from 'ava';
 import sinon from 'sinon';
 import { app, effects } from 'ferp';
-import {
-  SendOwnership,
-  CloseWebsocket,
-  RelayMessage,
-  Websocket,
-} from './websocket.js';
+import { CloseWebsocket, RelayMessage, Websocket } from './websocket.js';
 
 const runEffect = effect =>
   app({
@@ -41,25 +36,6 @@ const fakeWebsocket = () => {
     trigger,
   };
 };
-
-test('SendOwnership calls websocket send with expected data', t => {
-  const isOwner = true;
-  const connection = {
-    websocket: fakeWebsocket(),
-  };
-
-  runEffect(SendOwnership(connection, isOwner));
-
-  t.truthy(
-    connection.websocket.send.calledOnceWithExactly(
-      JSON.stringify({
-        type: 'timer:ownership',
-        isOwner,
-      }),
-    ),
-    'calls websocket send',
-  );
-});
 
 test('CloseWebsocket will close the websocket', t => {
   const websocket = fakeWebsocket();
@@ -100,7 +76,12 @@ test('WebsocketSub works', t => {
       { lastParams: [websocket, tId, data] },
       effects.none(),
     ],
+    SyncTimerToWebsocket: (websocket, tId) => () => [
+      { lastParams: [websocket, tId] },
+      effects.none(),
+    ],
   };
+  const redisConnection = { publish: sinon.fake() };
 
   const expectedStatesAndActionNames = [
     { state, actionName: 'ferpAppInitialize' },
@@ -112,7 +93,11 @@ test('WebsocketSub works', t => {
       state: {
         lastParams: [connection.websocket, timerId, '{"type":"client:new"}'],
       },
-      actionName: 'MessageTimerOwner',
+      actionName: 'MessageTimer',
+    },
+    {
+      state: { lastParams: [connection.websocket, timerId] },
+      actionName: 'SyncTimerToWebsocket',
     },
     {
       state: { lastParams: [connection.websocket, timerId] },
@@ -140,7 +125,7 @@ test('WebsocketSub works', t => {
       t.is(actionName, expectedActionName);
       t.deepEqual(tuple[0], expectedState);
     },
-    Websocket(actions, connection, timerId),
+    Websocket(actions, connection, redisConnection, timerId),
   );
 
   connection.websocket.trigger('message', '{}');

@@ -13,10 +13,10 @@ const RedisSubscriberSub = (dispatch, actions, redisUrl, timerId) => {
     console.log('RedisSubscriber.message', data);
     const { type } = JSON.parse(data);
 
-    return dispatch(actions.MessageTimer(timerId, data), 'MessageTimer');
+    // return dispatch(actions.MessageTimer(timerId, data), 'MessageTimer');
   });
 
-  redisConnection.subscribe(timerId);
+  // redisConnection.subscribe(timerId);
 
   return () => {
     console.log('RedisSubscriber', 'no more subscribers on timer', timerId);
@@ -27,6 +27,7 @@ const RedisSubscriberSub = (dispatch, actions, redisUrl, timerId) => {
 export const RedisSubscriber = (...props) => [RedisSubscriberSub, ...props];
 
 const RedisPublisherSub = (dispatch, actions, redisUrl) => {
+  console.log('RedisPublisher', 'creating shared publisher client');
   const redisConnection = redis.createClient(redisUrl);
 
   redisConnection.on('ready', () => {
@@ -44,6 +45,7 @@ const RedisPublisherSub = (dispatch, actions, redisUrl) => {
   });
 
   return () => {
+    console.log('RedisPublisher', 'removing shared publisher client');
     redisConnection.quit();
   };
 };
@@ -70,54 +72,65 @@ const messageToPartialState = message => {
 };
 
 export const WriteCacheTimerState = (redisConnection, message, timerId) =>
-  defer(
-    redisConnection
-      .get(timerId)
-      .then(timer => JSON.parse(timer ? timer.toString() : '{}'))
-      .then(timer =>
-        JSON.stringify({
-          ...timer,
-          ...messageToPartialState(message),
+  thunk(() =>
+    defer(
+      redisConnection
+        .get(timerId)
+        .then(timer => JSON.parse(timer ? timer.toString() : '{}'))
+        .then(timer =>
+          JSON.stringify({
+            ...timer,
+            ...messageToPartialState(message),
+          }),
+        )
+        .then(timer => redisConnection.set(timerId, timer))
+        .then(() => redisConnection.expire(timerId, 5 * 24 * 60 * 60))
+        .then(() => none())
+        .catch(err => {
+          console.log('WriteCacheTimerState.error', err.toString());
+          return none();
         }),
-      )
-      .then(timer => redisConnection.set(timerId, timer))
-      .then(() => redisConnection.expire(timerId, 5 * 24 * 60 * 60))
-      .catch(err => {
-        console.log('WriteCacheTimerState.error', err.toString());
-        return null;
-      })
-      .then(() => none()),
+    ),
   );
 
 export const ShareCacheTimerState = (connection, redisConnection, timerId) =>
-  defer(
-    redisConnection
-      .get(timerId)
-      .then(timer => JSON.parse(timer.toString()))
-      .catch(() => ({}))
-      .then(timer =>
-        batch([
-          timer.mob
-            ? RelayMessage(
-                connection,
-                JSON.stringify({ type: 'mob:update', mob: timer.mob }),
-              )
-            : none(),
-          timer.goals
-            ? RelayMessage(
-                connection,
-                JSON.stringify({ type: 'goals:update', goals: timer.goals }),
-              )
-            : none(),
-          timer.settings
-            ? RelayMessage(
-                connection,
-                JSON.stringify({
-                  type: 'settings:update',
-                  settings: timer.settings,
-                }),
-              )
-            : none(),
-        ]),
-      ),
+  thunk(() =>
+    defer(
+      redisConnection
+        .get(timerId)
+        .then(timer => JSON.parse(timer.toString()))
+        .catch(() => ({}))
+        .then(timer =>
+          batch([
+            timer.mob
+              ? RelayMessage(
+                  connection,
+                  JSON.stringify({ type: 'mob:update', mob: timer.mob }),
+                )
+              : none(),
+            timer.goals
+              ? RelayMessage(
+                  connection,
+                  JSON.stringify({ type: 'goals:update', goals: timer.goals }),
+                )
+              : none(),
+            timer.settings
+              ? RelayMessage(
+                  connection,
+                  JSON.stringify({
+                    type: 'settings:update',
+                    settings: timer.settings,
+                  }),
+                )
+              : none(),
+          ]),
+        )
+        .catch(err => {
+          console.log('ShareCacheTimerState.error', {
+            connection: { ...connection, websocket: undefined },
+            timerId,
+          });
+          return none();
+        }),
+    ),
   );

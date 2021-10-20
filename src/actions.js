@@ -1,5 +1,5 @@
 import { effects } from 'ferp';
-import { SendOwnership, CloseWebsocket, RelayMessage } from './websocket';
+import { CloseWebsocket, RelayMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
 import { WriteCacheTimerState, ShareCacheTimerState } from './redis';
@@ -44,27 +44,6 @@ export const SetRedisConnection = redisConnection => state => [
 
 export const SetNextId = nextId => state => [{ ...state, nextId }, none()];
 
-export const SetTimerOwner = timerId => state => {
-  const hasConnectionsOnTimerId = state.connections.some(
-    c => c.timerId === timerId,
-  );
-  if (!hasConnectionsOnTimerId) {
-    return [state, effects.none()];
-  }
-
-  const [timerOwner, ...timerOthers] = state.connections.filter(
-    c => c.timerId === timerId,
-  );
-
-  return [
-    state,
-    batch([
-      SendOwnership(timerOwner, true),
-      ...timerOthers.map(tc => SendOwnership(tc, false)),
-    ]),
-  ];
-};
-
 export const UpdateStatisticsFromMessage = (timerId, message) => state => {
   const statistics = {
     ...state.statistics,
@@ -80,7 +59,6 @@ export const UpdateStatisticsFromMessage = (timerId, message) => state => {
       ...state,
       statistics,
     },
-    // Update Redis cache for given timer
     none(),
   ];
 };
@@ -126,7 +104,6 @@ export const AddConnection = (websocket, timerId) => state => {
     },
     batch([
       GenerateIdEffect(SetNextId),
-      // act(SetTimerOwner, timerId),
       act(UpdateStatisticsFromConnections, timerId),
       ShareCacheTimerState(connection, state.redisConnection, timerId),
     ]),
@@ -140,7 +117,6 @@ export const RemoveConnection = (websocket, timerId) => state => [
   },
   batch([
     CloseWebsocket(websocket),
-    // act(SetTimerOwner, timerId),
     act(UpdateStatisticsFromConnections, timerId),
   ]),
 ];
@@ -153,9 +129,14 @@ export const MessageTimer = (timerId, message) => state => {
   return [
     state,
     effects.batch([
-      ...connections.map(c => RelayMessage(c, message)),
-      act(UpdateStatisticsFromMessage, timerId, message),
-      WriteCacheTimerState(state.redisConnection, message, timerId),
+      // ...connections.map(c => RelayMessage(c, message)),
+      // act(UpdateStatisticsFromMessage, timerId, message),
+      // WriteCacheTimerState(state.redisConnection, message, timerId),
     ]),
   ];
 };
+
+export const SyncTimerToWebsocket = (websocket, timerId) => state => [
+  state,
+  ShareCacheTimerState({ websocket }, state.redisConnection, timerId),
+];
