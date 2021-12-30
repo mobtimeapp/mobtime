@@ -1,6 +1,5 @@
-export const make = (id, websocket, timerId, isOwner = false) => ({
+export const make = (id, websocket, timerId) => ({
   id,
   timerId,
   websocket,
-  isOwner,
 });

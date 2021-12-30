@@ -1,24 +1,27 @@
 import { app, sub } from 'ferp';
-import * as storage from './storage';
 import * as Action from './actions';
 import { Http } from './http';
 import { Websocket } from './websocket';
+import { Queue } from './queue';
 
 const port = process.env.PORT || 1234;
 
-const Storage = storage.make();
-
 app({
-  init: Action.Init(),
+  init: Action.Init(new Queue()),
 
-  subscribe: state => [
-    Http(Storage, Action, 'localhost', port),
-    ...state.connections.map((connection) => (
-      Websocket(Action, connection, connection.timerId)
-    )),
-  ],
+  subscribe: state => {
+    const timerIds = Array.from(
+      new Set(state.connections.map(c => c.timerId))
+    ).sort();
 
-  observe: ([state], action) => {
-    Storage.store(state);
+    return [
+      Http(Storage, Action, 'localhost', port),
+      ...state.connections.map((connection) => (
+        Websocket(Action, connection, connection.timerId)
+      )),
+      ...timerIds.map((timerId) => (
+        state.queue.subscribeToTimer(timerId)
+      )),
+    ];
   },
 });

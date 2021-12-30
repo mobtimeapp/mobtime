@@ -16,13 +16,6 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
   websocket.on('message', data => {
     const { type } = JSON.parse(data);
 
-    if (type === 'client:new') {
-      return dispatch(
-        actions.MessageTimerOwner(websocket, timerId, data),
-        'MessageTimerOwner',
-      );
-    }
-
     return dispatch(
       actions.MessageTimer(websocket, timerId, data),
       'MessageTimer',
@@ -34,18 +27,6 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
   };
 };
 export const Websocket = (...props) => [WebsocketSub, ...props];
-
-export const SendOwnership = (connection, isOwner) =>
-  thunk(() => {
-    connection.websocket.send(
-      JSON.stringify({
-        type: 'timer:ownership',
-        isOwner,
-      }),
-    );
-
-    return none();
-  });
 
 export const CloseWebsocket = websocket =>
   thunk(() => {
