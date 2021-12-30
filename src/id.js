@@ -7,5 +7,5 @@ export const id = () =>
 
 export const GenerateIdEffect = action =>
   effects.thunk(() => {
-    return effects.act(action, id());
+    return effects.act(action(id()));
   });

@@ -1,5 +1,5 @@
 import { effects } from 'ferp';
-import { SendOwnership, CloseWebsocket, RelayMessage } from './websocket';
+import { CloseWebsocket, RelayMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
 
@@ -26,48 +26,17 @@ const extractStatistics = message => {
   }
 };
 
-export const Init = (nextId = id()) => [
+export const Init = (queue, nextId = id()) => [
   {
     connections: [],
     statistics: {},
+    queue,
     nextId,
   },
   none(),
 ];
 
 export const SetNextId = nextId => state => [{ ...state, nextId }, none()];
-
-export const SetTimerOwner = timerId => state => {
-  const hasConnectionsOnTimerId = state.connections.some(
-    c => c.timerId === timerId,
-  );
-  if (!hasConnectionsOnTimerId) {
-    return [state, effects.none()];
-  }
-
-  const [futureTimerOwner, ...futureTimerOthers] = state.connections.filter(
-    c => c.timerId === timerId,
-  );
-  const timerOwner = { ...futureTimerOwner, isOwner: true };
-  const timerOthers = futureTimerOthers.map(fto => ({
-    ...fto,
-    isOwner: false,
-  }));
-  const otherConnections = state.connections.filter(c => c.timerId !== timerId);
-
-  const connections = [timerOwner, ...timerOthers, ...otherConnections];
-
-  return [
-    {
-      ...state,
-      connections,
-    },
-    batch([
-      SendOwnership(timerOwner, true),
-      ...timerOthers.map(tc => SendOwnership(tc, false)),
-    ]),
-  ];
-};
 
 export const UpdateStatisticsFromMessage = (timerId, message) => state => {
   const statistics = {
@@ -129,8 +98,8 @@ export const AddConnection = (websocket, timerId) => state => [
   },
   batch([
     GenerateIdEffect(SetNextId),
-    act(SetTimerOwner, timerId),
-    act(UpdateStatisticsFromConnections, timerId),
+    act(UpdateStatisticsFromConnections(timerId)),
+    act(ShareTimerWith(websocket, timerId)),
   ]),
 ];
 
@@ -141,8 +110,7 @@ export const RemoveConnection = (websocket, timerId) => state => [
   },
   batch([
     CloseWebsocket(websocket),
-    act(SetTimerOwner, timerId),
-    act(UpdateStatisticsFromConnections, timerId),
+    act(UpdateStatisticsFromConnections(timerId)),
   ]),
 ];
 
@@ -161,10 +129,14 @@ export const MessageTimer = (websocket, timerId, message) => state => {
   ];
 };
 
-export const MessageTimerOwner = (websocket, timerId, message) => state => {
-  const owner = state.connections.find(
-    c => c.timerId === timerId && c.isOwner && c.websocket !== websocket,
-  );
-
-  return [state, owner ? RelayMessage(owner, message) : none()];
-};
+export const ShareTimerWith = (websocket, timerId) => state => [
+  state,
+  effects.defer(
+    state.queue
+      .getTimer(timerId)
+      .then(timer => {
+        websocket.send(JSON.stringify(timer));
+      })
+      .then(none),
+  ),
+];

@@ -1,12 +1,7 @@
 import test from 'ava';
 import sinon from 'sinon';
 import { app, effects } from 'ferp';
-import {
-  SendOwnership,
-  CloseWebsocket,
-  RelayMessage,
-  Websocket,
-} from './websocket.js';
+import { CloseWebsocket, RelayMessage, Websocket } from './websocket.js';
 
 const runEffect = effect =>
   app({
@@ -42,25 +37,6 @@ const fakeWebsocket = () => {
   };
 };
 
-test('SendOwnership calls websocket send with expected data', t => {
-  const isOwner = true;
-  const connection = {
-    websocket: fakeWebsocket(),
-  };
-
-  runEffect(SendOwnership(connection, isOwner));
-
-  t.truthy(
-    connection.websocket.send.calledOnceWithExactly(
-      JSON.stringify({
-        type: 'timer:ownership',
-        isOwner,
-      }),
-    ),
-    'calls websocket send',
-  );
-});
-
 test('CloseWebsocket will close the websocket', t => {
   const websocket = fakeWebsocket();
 
@@ -92,10 +68,6 @@ test('WebsocketSub works', t => {
       { lastParams: [websocket, tId] },
       effects.none(),
     ],
-    MessageTimerOwner: (websocket, tId, data) => () => [
-      { lastParams: [websocket, tId, data] },
-      effects.none(),
-    ],
     MessageTimer: (websocket, tId, data) => () => [
       { lastParams: [websocket, tId, data] },
       effects.none(),
@@ -107,12 +79,6 @@ test('WebsocketSub works', t => {
     {
       state: { lastParams: [connection.websocket, timerId, '{}'] },
       actionName: 'MessageTimer',
-    },
-    {
-      state: {
-        lastParams: [connection.websocket, timerId, '{"type":"client:new"}'],
-      },
-      actionName: 'MessageTimerOwner',
     },
     {
       state: { lastParams: [connection.websocket, timerId] },
@@ -144,7 +110,6 @@ test('WebsocketSub works', t => {
   );
 
   connection.websocket.trigger('message', '{}');
-  connection.websocket.trigger('message', '{"type":"client:new"}');
   connection.websocket.trigger('close');
   connection.websocket.trigger('close');
 

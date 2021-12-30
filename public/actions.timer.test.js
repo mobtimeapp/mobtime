@@ -8,7 +8,6 @@ test('can complete a timer', t => {
   const documentElement = {};
   const Notification = {};
   const initialState = {
-    isOwner: true,
     allowNotification: true,
     allowSound: false,
     timerStartedAt: Date.now(),
@@ -23,7 +22,6 @@ test('can complete a timer', t => {
   });
 
   t.deepEqual(state, {
-    isOwner: true,
     allowNotification: true,
     allowSound: false,
     timerStartedAt: null,

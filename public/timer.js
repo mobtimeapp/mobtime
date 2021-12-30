@@ -282,27 +282,6 @@ app({
                 },
                 'Connection Information',
               ),
-              h(section, {}, [
-                h(
-                  checkbox,
-                  {
-                    id: 'is-owner',
-                    checked: state.isOwner,
-                    inputProps: {
-                      readonly: true,
-                    },
-                  },
-                  h(
-                    'span',
-                    {
-                      class: 'text-4xl',
-                    },
-                    state.isOwner
-                      ? 'You are the timer owner'
-                      : 'You are not the timer owner',
-                  ),
-                ),
-              ]),
               h(
                 overviewHeading,
                 {

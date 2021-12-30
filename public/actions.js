@@ -40,7 +40,6 @@ const collectionMove = (collection, { from, to }) => {
 };
 
 export const Init = (_, timerId) => ({
-  isOwner: false,
   timerStartedAt: null,
   timerDuration: 0,
   mob: [],
@@ -773,33 +772,6 @@ export const UpdateByWebsocketData = (
       return {
         ...state,
         mob: data.mob,
-      };
-
-    case 'client:new':
-      return [
-        state,
-        [
-          state.timerStartedAt > 0 &&
-            effects.StartTimer({
-              websocket: state.websocket,
-              timerDuration: calculateTimeRemaining(state),
-            }),
-          effects.UpdateMob({ websocket: state.websocket, mob: state.mob }),
-          effects.UpdateGoals({
-            websocket: state.websocket,
-            goals: state.goals,
-          }),
-          effects.UpdateSettings({
-            websocket: state.websocket,
-            settings: state.settings,
-          }),
-        ],
-      ];
-
-    case 'timer:ownership':
-      return {
-        ...state,
-        isOwner: data.isOwner,
       };
 
     default:

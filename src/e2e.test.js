@@ -33,12 +33,16 @@ const fakeWebsocket = () => {
 
 test('Adding two connections together does not duplicate id', t => {
   let lastState = null;
+  const queue = {
+    getTimer: () => Promise.resolve({}),
+  };
+
   const done = runApp(
     [
-      { connections: [], statistics: {}, nextId: 'abc123' },
+      { connections: [], statistics: {}, nextId: 'abc123', queue },
       effects.batch([
-        effects.act(Actions.AddConnection, fakeWebsocket(), 'foo'),
-        effects.act(Actions.AddConnection, fakeWebsocket(), 'bar'),
+        effects.act(Actions.AddConnection(fakeWebsocket(), 'foo')),
+        effects.act(Actions.AddConnection(fakeWebsocket(), 'bar')),
       ]),
     ],
     ([state]) => {
