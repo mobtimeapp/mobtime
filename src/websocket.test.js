@@ -68,8 +68,8 @@ test('WebsocketSub works', t => {
       { lastParams: [websocket, tId] },
       effects.none(),
     ],
-    MessageTimer: (websocket, tId, data) => () => [
-      { lastParams: [websocket, tId, data] },
+    UpdateTimer: (tId, data) => () => [
+      { lastParams: [tId, data] },
       effects.none(),
     ],
   };
@@ -77,8 +77,8 @@ test('WebsocketSub works', t => {
   const expectedStatesAndActionNames = [
     { state, actionName: 'ferpAppInitialize' },
     {
-      state: { lastParams: [connection.websocket, timerId, '{}'] },
-      actionName: 'MessageTimer',
+      state: { lastParams: [timerId, '{}'] },
+      actionName: 'UpdateTimer',
     },
     {
       state: { lastParams: [connection.websocket, timerId] },

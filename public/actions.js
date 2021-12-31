@@ -705,13 +705,6 @@ export const UpdateSettings = state => {
   ];
 };
 
-export const BroadcastJoin = state => [
-  state,
-  effects.BroadcastJoin({
-    websocket: state.websocket,
-  }),
-];
-
 export const UpdateByWebsocketData = (
   state,
   { payload, documentElement, Notification },

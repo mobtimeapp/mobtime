@@ -35,6 +35,7 @@ test('Adding two connections together does not duplicate id', t => {
   let lastState = null;
   const queue = {
     getTimer: () => Promise.resolve({}),
+    mergeStatistics: () => Promise.resolve(),
   };
 
   const done = runApp(

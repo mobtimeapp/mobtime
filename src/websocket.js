@@ -13,13 +13,8 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
     dispatch(actions.RemoveConnection(websocket, timerId), 'RemoveConnection');
   });
 
-  websocket.on('message', data => {
-    const { type } = JSON.parse(data);
-
-    return dispatch(
-      actions.MessageTimer(websocket, timerId, data),
-      'MessageTimer',
-    );
+  websocket.on('message', payload => {
+    return dispatch(actions.UpdateTimer(timerId, payload), 'UpdateTimer');
   });
 
   return () => {
