@@ -100,7 +100,7 @@ export const UpdateTimer = (timerId, message) => state => {
           .getTimer(timerId)
           .then(timer => act(MessageTimer(timerId, JSON.stringify(timer)))),
       ),
-      act(UpdateStatisticsFromMessage, timerId, message),
+      act(UpdateStatisticsFromMessage(timerId, message)),
     ]),
   ];
 };

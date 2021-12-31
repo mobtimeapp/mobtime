@@ -3,13 +3,18 @@ import { effects } from 'ferp';
 
 export class Queue {
   constructor() {
-    this.client = createClient();
+    this._client = createClient();
+    this._clientPromise = this._client.connect();
     this.subscriptions = {};
+  }
+
+  client() {
+    return this._clientPromise.then(() => this._client);
   }
 
   _getSubscription(timerId) {
     if (!this.subscriptions[timerId]) {
-      this.subscriptions[timerId] = this.client.duplicate();
+      this.subscriptions[timerId] = this._client.duplicate();
       this.subscriptions[timerId].connect();
     }
     return this.subscriptions[timerId];
@@ -18,11 +23,9 @@ export class Queue {
   subscribeToTimer(timerId, onActivity) {
     return [
       Queue.subscribeFx,
-      {
-        timerId,
-        client: this._getSubscription(timerId),
-        onActivity,
-      },
+      timerId,
+      this._getSubscription(timerId),
+      onActivity,
     ];
   }
 
@@ -33,11 +36,13 @@ export class Queue {
   }
 
   getTimer(timerId) {
-    return this.client.get(`timer_${timerId}`).then(JSON.parse);
+    return this.client().then(c => c.get(`timer_${timerId}`).then(JSON.parse));
   }
 
   setTimer(timerId, data) {
-    return this.client.set(`timer_${timerId}`, JSON.stringify(data));
+    return this.client().then(c =>
+      c.set(`timer_${timerId}`, JSON.stringify(data)),
+    );
   }
 
   mergeTimer(timerId, mergeFn) {
@@ -47,24 +52,30 @@ export class Queue {
   }
 
   getStatistics() {
-    return this.client.get('statistics').then(JSON.parse);
+    return this.client()
+      .then(c => c.get('statistics'))
+      .then(JSON.parse)
+      .then(v => v || {});
   }
 
   setStatistics(statistics) {
-    return this.client.set('statistics', JSON.stringify(statistics));
+    return this.client().then(c =>
+      c.set('statistics', JSON.stringify(statistics)),
+    );
   }
 
   mergeStatistics(timerId, mergeFn) {
     return this.getStatistics()
       .then(statistics => ({
         ...statistics,
-        [timerId]: mergeFn(statistics[timerId]),
+        [timerId]: mergeFn(statistics[timerId] || {}),
       }))
       .then(statistics => this.setStatistics(statistics));
   }
 }
 
-Queue.subscribeFx = (dispatch, { timerId, client, onActivity }) => {
+Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
+  console.log('>>> subscribeFx', timerId);
   client.on('ready', () => {
     client.subscribe(timerId, (_channel, data) => {
       dispatch(onActivity(data));
@@ -72,8 +83,8 @@ Queue.subscribeFx = (dispatch, { timerId, client, onActivity }) => {
   });
 
   return () => {
+    console.log('>>> subscribeFx.cancel', timerId);
     client.unsubscribe(timerId);
-    client.quit();
   };
 };
 
