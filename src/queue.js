@@ -45,6 +45,14 @@ export class Queue {
     );
   }
 
+  setTimerTtl(timerId, ttl) {
+    return this.client().then(c =>
+      ttl > 0
+        ? c.expireAt(`timer_${timerId}`, parseInt(new Date() / 1000) + ttl)
+        : c.persist(`timer_${timerId}`),
+    );
+  }
+
   mergeTimer(timerId, mergeFn) {
     return this.getTimer(timerId)
       .then(mergeFn)
