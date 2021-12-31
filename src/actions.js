@@ -3,24 +3,19 @@ import { CloseWebsocket, RelayMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
 
-const { none, act, batch, thunk } = effects;
+const { none, act, batch, defer } = effects;
 
 const defaultStatistics = {
-  mobbers: 0,
-  goals: 0,
   connections: 0,
+  mobbers: 0,
 };
 
 const extractStatistics = message => {
   const { type, ...data } = JSON.parse(message);
 
   switch (type) {
-    case 'goals:update':
-      return { goals: data.goals.length };
-
     case 'mob:update':
       return { mobbers: data.mob.length };
-
     default:
       return {};
   }
@@ -29,7 +24,6 @@ const extractStatistics = message => {
 export const Init = (queue, nextId = id()) => [
   {
     connections: [],
-    statistics: {},
     queue,
     nextId,
   },
@@ -39,55 +33,33 @@ export const Init = (queue, nextId = id()) => [
 export const SetNextId = nextId => state => [{ ...state, nextId }, none()];
 
 export const UpdateStatisticsFromMessage = (timerId, message) => state => {
-  const statistics = {
-    ...state.statistics,
-    [timerId]: {
-      ...defaultStatistics,
-      ...state.statistics[timerId],
-      ...extractStatistics(message),
-    },
-  };
-
   return [
-    {
-      ...state,
-      statistics,
-    },
-    none(),
+    state,
+    defer(
+      state.queue
+        .mergeStatistics(timerId, stats => ({
+          ...defaultStatistics,
+          ...stats,
+          ...extractStatistics(message),
+        }))
+        .then(() => none()),
+    ),
   ];
 };
 
-export const UpdateStatisticsFromConnections = timerId => state => {
-  const connections = state.connections.filter(
-    connection => connection.timerId === timerId,
-  );
-
-  const { [timerId]: old, ...prevStatistics } = state.statistics;
-
-  const augment =
-    connections.length > 0
-      ? {
-          [timerId]: {
-            ...defaultStatistics,
-            ...old,
-            connections: connections.length,
-          },
-        }
-      : {};
-
-  const statistics = {
-    ...prevStatistics,
-    ...augment,
-  };
-
-  return [
-    {
-      ...state,
-      statistics,
-    },
-    none(),
-  ];
-};
+export const UpdateConnectionStatistics = timerId => state => [
+  state,
+  defer(
+    state.queue
+      .mergeStatistics(timerId, stats => ({
+        ...defaultStatistics,
+        ...stats,
+        connections: state.connections.filter(c => c.timerId === timerId)
+          .length,
+      }))
+      .then(() => none()),
+  ),
+];
 
 export const AddConnection = (websocket, timerId) => state => [
   {
@@ -98,7 +70,7 @@ export const AddConnection = (websocket, timerId) => state => [
   },
   batch([
     GenerateIdEffect(SetNextId),
-    act(UpdateStatisticsFromConnections(timerId)),
+    act(UpdateConnectionStatistics(timerId)),
     act(ShareTimerWith(websocket, timerId)),
   ]),
 ];
@@ -108,26 +80,39 @@ export const RemoveConnection = (websocket, timerId) => state => [
     ...state,
     connections: state.connections.filter(c => c.websocket !== websocket),
   },
-  batch([
-    CloseWebsocket(websocket),
-    act(UpdateStatisticsFromConnections(timerId)),
-  ]),
+  batch([CloseWebsocket(websocket), act(UpdateConnectionStatistics(timerId))]),
 ];
 
-export const MessageTimer = (websocket, timerId, message) => state => {
-  const connections = state.connections.filter(
-    connection =>
-      connection.timerId === timerId && connection.websocket !== websocket,
-  );
+export const UpdateTimer = (timerId, message) => state => {
+  const { type, ...data } = JSON.parse(message);
 
   return [
     state,
-    effects.batch([
-      ...connections.map(c => RelayMessage(c, message)),
+    batch([
+      defer(
+        state.queue.mergeTimer(timerId, timer => ({
+          ...timer,
+          ...data,
+        })),
+      ),
+      defer(
+        state.queue
+          .getTimer(timerId)
+          .then(timer => act(MessageTimer(timerId, JSON.stringify(timer)))),
+      ),
       act(UpdateStatisticsFromMessage, timerId, message),
     ]),
   ];
 };
+
+export const MessageTimer = (connections, timerId, message) => state => [
+  state,
+  effects.batch(
+    state.connections
+      .filter(c => c.timerId === timerId)
+      .map(c => RelayMessage(c, message)),
+  ),
+];
 
 export const ShareTimerWith = (websocket, timerId) => state => [
   state,

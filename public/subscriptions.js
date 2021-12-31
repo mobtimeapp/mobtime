@@ -55,7 +55,6 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
 
     socket.addEventListener('open', () => {
       dispatch(actions.SetWebsocket, { websocket: socket });
-      dispatch(actions.BroadcastJoin);
     });
 
     socket.addEventListener('message', event => {

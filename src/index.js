@@ -1,10 +1,12 @@
 import { app, sub } from 'ferp';
 import * as Action from './actions';
+import * as storage from './storage';
 import { Http } from './http';
 import { Websocket } from './websocket';
 import { Queue } from './queue';
 
 const port = process.env.PORT || 1234;
+const Storage = storage.make();
 
 app({
   init: Action.Init(new Queue()),
@@ -20,7 +22,10 @@ app({
         Websocket(Action, connection, connection.timerId)
       )),
       ...timerIds.map((timerId) => (
-        state.queue.subscribeToTimer(timerId)
+        state.queue.subscribeToTimer(
+          timerId,
+          Action.MessageTimer,
+        )
       )),
     ];
   },

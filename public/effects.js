@@ -20,13 +20,6 @@ export const UpdateSettings = fx(function UpdateSettingsFX(
   return sendMessage(websocket, 'settings:update', { settings });
 });
 
-export const BroadcastJoin = fx(function UpdateSettingsFX(
-  _dispatch,
-  { websocket },
-) {
-  return sendMessage(websocket, 'client:new');
-});
-
 export const StartTimer = fx(function StartTimerFX(
   _dispatch,
   { websocket, timerDuration },

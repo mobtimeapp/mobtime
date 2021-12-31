@@ -15,12 +15,13 @@ export class Queue {
     return this.subscriptions[timerId];
   }
 
-  subscribeToTimer(timerId) {
+  subscribeToTimer(timerId, onActivity) {
     return [
       Queue.subscribeFx,
       {
         timerId,
         client: this._getSubscription(timerId),
+        onActivity,
       },
     ];
   }
@@ -44,12 +45,29 @@ export class Queue {
       .then(mergeFn)
       .then(timer => this.setTimer(timerId, timer));
   }
+
+  getStatistics() {
+    return this.client.get('statistics').then(JSON.parse);
+  }
+
+  setStatistics(statistics) {
+    return this.client.set('statistics', JSON.stringify(statistics));
+  }
+
+  mergeStatistics(timerId, mergeFn) {
+    return this.getStatistics()
+      .then(statistics => ({
+        ...statistics,
+        [timerId]: mergeFn(statistics[timerId]),
+      }))
+      .then(statistics => this.setStatistics(statistics));
+  }
 }
 
 Queue.subscribeFx = (dispatch, { timerId, client, onActivity }) => {
   client.on('ready', () => {
     client.subscribe(timerId, (_channel, data) => {
-      dispatch(onActivity, data);
+      dispatch(onActivity(data));
     });
   });
 

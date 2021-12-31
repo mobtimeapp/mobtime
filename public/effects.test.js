@@ -25,18 +25,6 @@ test('can send update settings message', t => {
   t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
-test('can send broadcast join message', t => {
-  const payload = { type: 'client:new' };
-  const websocket = makeWebsocket();
-  runEffect(
-    effects.BroadcastJoin({
-      websocket,
-    }),
-  );
-
-  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
-});
-
 test('can send start timer message', t => {
   const payload = { type: 'timer:start', timerDuration: 1000 };
   const websocket = makeWebsocket();
