@@ -5,8 +5,8 @@ export default () => {
   const router = new express.Router();
   const queue = new Queue();
 
-  router.get('/statistics', (_request, response) => {
-    const stats = queue.getStatistics();
+  router.get('/statistics', async (_request, response) => {
+    const stats = await queue.getStatistics();
     const timerIds = Object.keys(stats || {});
     const timerStatistics = timerIds.reduce(
       (counts, id) => ({
