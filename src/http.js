@@ -10,13 +10,7 @@ import path from 'path';
 import fs from 'fs';
 import apiStatistics from './api/statistics';
 
-const HttpSub = (
-  dispatch,
-  storage,
-  action,
-  host = 'localhost',
-  port = 4321,
-) => {
+const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   const app = express();
   const server = http.createServer(app);
   const wss = new ws.Server({ server });
@@ -39,7 +33,7 @@ const HttpSub = (
     }
   });
 
-  router.use(apiStatistics(storage));
+  router.use(apiStatistics());
 
   app.use('/api', router);
 

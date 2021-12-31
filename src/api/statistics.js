@@ -1,16 +1,19 @@
 import express from 'express';
+import { Queue } from './queue';
 
-export default storage => {
+export default () => {
   const router = new express.Router();
+  const queue = new Queue();
 
   router.get('/statistics', (_request, response) => {
-    const state = storage.read();
-    const timerIds = Object.keys(state.statistics || {});
+    const stats = queue.getStatistics();
+    const timerIds = Object.keys(stats || {});
     const timerStatistics = timerIds.reduce(
       (counts, id) => ({
-        connections: counts.connections + state.statistics[id].connections,
+        connections: counts.connections + stats[id].connections,
+        mobbers: counts.mobbers + stats[id].connections,
       }),
-      { connections: 0 },
+      { connections: 0, mobbers: 0 },
     );
 
     return response
