@@ -1,5 +1,5 @@
 import express from 'express';
-import { Queue } from './queue';
+import { Queue } from '../queue';
 
 export default () => {
   const router = new express.Router();
