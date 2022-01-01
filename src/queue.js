@@ -2,8 +2,8 @@ import { createClient } from 'redis';
 import { effects } from 'ferp';
 
 export class Queue {
-  constructor() {
-    this._client = createClient();
+  constructor(createClientFn = createClient) {
+    this._client = createClientFn();
     this._clientPromise = this._client.connect();
     this.subscriptions = {};
   }
@@ -36,7 +36,10 @@ export class Queue {
   }
 
   getTimer(timerId) {
-    return this.client().then(c => c.get(`timer_${timerId}`).then(JSON.parse));
+    return this.client()
+      .then(c => c.get(`timer_${timerId}`)
+      .then(payload => payload || '{}')
+      .then(JSON.parse));
   }
 
   setTimer(timerId, data) {
@@ -62,8 +65,8 @@ export class Queue {
   getStatistics() {
     return this.client()
       .then(c => c.get('statistics'))
-      .then(JSON.parse)
-      .then(v => v || {});
+      .then(payload => payload || '{}')
+      .then(JSON.parse);
   }
 
   setStatistics(statistics) {
@@ -83,7 +86,6 @@ export class Queue {
 }
 
 Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
-  console.log('>>> subscribeFx', timerId);
   client.on('ready', () => {
     client.subscribe(timerId, (_channel, data) => {
       dispatch(onActivity(data));
@@ -91,7 +93,6 @@ Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
   });
 
   return () => {
-    console.log('>>> subscribeFx.cancel', timerId);
     client.unsubscribe(timerId);
   };
 };
@@ -108,3 +109,25 @@ Queue.publishFx = (timerId, data, client) => {
     });
   });
 };
+
+Queue.forTesting = () => {
+  const memory = {};
+  const makeClient = () => ({
+    connect: () => Promise.resolve(),
+    duplicate: () => makeClient(),
+    subscribe: () => {},
+    on: (_event, cb) => {
+      cb();
+    },
+    publish: () => Promise.resolve(),
+    set: (key, value) => {
+      memory[key] = value;
+      return Promise.resolve();
+    },
+    get: (key) => Promise.resolve(memory[key]),
+    persist: (_key) => {},
+    expireAt: (_key, _time) => {},
+  });
+
+  return new Queue(makeClient);
+}
