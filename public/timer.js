@@ -280,13 +280,6 @@ app({
                 {
                   rightAction: [],
                 },
-                'Connection Information',
-              ),
-              h(
-                overviewHeading,
-                {
-                  rightAction: [],
-                },
                 'Notifications',
               ),
               h(section, {}, [
