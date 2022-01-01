@@ -3,6 +3,7 @@ import { effects } from 'ferp';
 import * as Actions from './actions.js';
 import { CloseWebsocket, RelayMessage } from './websocket';
 import { GenerateIdEffect } from './id.js';
+import { Queue } from './queue.js';
 
 const fx = object => {
   switch (object.type.toString()) {
@@ -43,7 +44,8 @@ test('AddConnection adds the connection', t => {
   const timerId = 'foo';
   const websocket = fakeSocket;
   const nextId = 'testId';
-  const originalState = { connections: [], nextId };
+  const queue = Queue.forTesting();
+  const originalState = { connections: [], nextId, queue };
 
   const [state, _effect] = Actions.AddConnection(
     websocket,
@@ -53,6 +55,7 @@ test('AddConnection adds the connection', t => {
   t.deepEqual(state, {
     connections: [{ id: nextId, timerId, websocket }],
     nextId,
+    queue,
   });
 });
 
@@ -60,7 +63,8 @@ test('RemoveConnection removes the connection', t => {
   const timerId = 'foo';
   const websocket = fakeSocket();
   const connection = { id: 'test', timerId, websocket };
-  const originalState = { connections: [connection] };
+  const queue = Queue.forTesting();
+  const originalState = { connections: [connection], queue };
 
   const [state, _effect] = Actions.RemoveConnection(
     websocket,
@@ -69,6 +73,7 @@ test('RemoveConnection removes the connection', t => {
 
   t.deepEqual(state, {
     connections: [],
+    queue,
   });
 });
 

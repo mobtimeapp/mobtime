@@ -2,6 +2,7 @@ import test from 'ava';
 import sinon from 'sinon';
 import { app, effects } from 'ferp';
 import * as Actions from './actions.js';
+import { Queue } from './queue.js';
 
 const runApp = (init, observe) => {
   const QuitApp = () => [null, effects.none()];
@@ -33,10 +34,7 @@ const fakeWebsocket = () => {
 
 test('Adding two connections together does not duplicate id', t => {
   let lastState = null;
-  const queue = {
-    getTimer: () => Promise.resolve({}),
-    mergeStatistics: () => Promise.resolve(),
-  };
+  const queue = Queue.forTesting();
 
   const done = runApp(
     [
