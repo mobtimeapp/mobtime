@@ -30,9 +30,12 @@ export class Queue {
   }
 
   publishToTimer(timerId, data) {
-    return effects.defer(
-      Queue.publishFx(timerId, data, this._getSubscription(timerId)),
-    );
+    return this.client()
+      .then(c => c.publish(timerId, data))
+      .catch(err => {
+        console.error('Queue.publishFx', err);
+        throw err;
+      });
   }
 
   getTimer(timerId) {
@@ -86,28 +89,19 @@ export class Queue {
 }
 
 Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
+  console.log('subscribeFx', timerId);
   client.on('ready', () => {
-    client.subscribe(timerId, (_channel, data) => {
-      dispatch(onActivity(data));
+    console.log('subscribeFx', timerId, 'ready');
+    client.subscribe(timerId, (data) => {
+      console.log('subscribeFx', timerId, 'message', data);
+      dispatch(onActivity(timerId, data));
     });
   });
 
   return () => {
+    console.log('subscribeFx', timerId, 'cancel');
     client.unsubscribe(timerId);
   };
-};
-
-Queue.publishFx = (timerId, data, client) => {
-  return new Promise(resolve => {
-    client.on('ready', () => {
-      client
-        .publish(timerId, data)
-        .catch(err => {
-          console.error('Queue.publishFx', err);
-        })
-        .then(() => resolve(effects.none()));
-    });
-  });
 };
 
 Queue.forTesting = () => {
