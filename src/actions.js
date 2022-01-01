@@ -138,11 +138,6 @@ export const UpdateTimer = (timerId, message) => state => {
           }))
           .then(none),
       ),
-      // defer(
-      //   state.queue
-      //     .getTimer(timerId)
-      //     .then(timer => act(MessageTimer(timerId, JSON.stringify(timer)))),
-      // ),
       defer(
         state.queue
           .publishToTimer(timerId, message)
