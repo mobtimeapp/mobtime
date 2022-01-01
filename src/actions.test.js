@@ -89,7 +89,6 @@ test('MessageTimer relays a message from one connection to all other connections
   };
 
   const [state, effect] = Actions.MessageTimer(
-    [secondConnectionToTimer],
     timerId,
     message,
   )(originalState);

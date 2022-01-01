@@ -123,6 +123,7 @@ export const UpdateTimer = (timerId, message) => state => {
   const meta = {
     ...(type === 'timer:start' ? { timerStartedAt: Date.now() } : {}),
     ...(type === 'timer:complete' ? { timerStartedAt: null } : {}),
+    ...(type === 'timer:pause' ? { timerStartedAt: null } : {}),
   };
 
   return [
@@ -137,17 +138,22 @@ export const UpdateTimer = (timerId, message) => state => {
           }))
           .then(none),
       ),
+      // defer(
+      //   state.queue
+      //     .getTimer(timerId)
+      //     .then(timer => act(MessageTimer(timerId, JSON.stringify(timer)))),
+      // ),
       defer(
         state.queue
-          .getTimer(timerId)
-          .then(timer => act(MessageTimer(timerId, JSON.stringify(timer)))),
+          .publishToTimer(timerId, message)
+          .then(none)
       ),
       act(UpdateStatisticsFromMessage(timerId, message)),
     ]),
   ];
 };
 
-export const MessageTimer = (connections, timerId, message) => state => [
+export const MessageTimer = (timerId, message) => state => [
   state,
   effects.batch(
     state.connections

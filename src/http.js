@@ -16,7 +16,9 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   const wss = new ws.Server({ server });
 
   app.use(bodyParser.json());
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: false,
+  }));
 
   const router = new express.Router();
 
@@ -46,8 +48,7 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
 
     return response
       .status(200)
-      .send(html)
-      .end();
+      .send(html);
   });
 
   server.listen(port, host, () => {
