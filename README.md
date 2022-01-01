@@ -16,6 +16,12 @@ And your phone:
 
 ## Get up and running
 
+ - Install NodeJS (>= v14.x, but older versions should work, too)
+ - Install and run redis server
+     - OSX+homebrew: `brew install redis`
+     - Ubuntu: `sudo apt install redis-server`
+     - Or google for your operating system's install instructions
+
 ```bash
 yarn && yarn tailwind:dev && yarn start
 ```
@@ -26,15 +32,6 @@ yarn && yarn tailwind:dev && yarn start
 | --------------- | -------------------------------- | ------------------ |
 | PORT            | Port number to run the server on | 4321               |
 
-### Sharing from your local computer
-
-#### Using ngrok
-
-```bash
-yarn global add ngrok
-
-ngrok http 4321 # replace 4321 with the port you do
-```
 
 ## Contributing
 
