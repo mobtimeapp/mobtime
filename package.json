@@ -16,7 +16,6 @@
     "deploy": "node ./deploy/index.js",
     "test": "ava",
     "test:coverage": "nyc ava",
-    "postinstall": "husky install",
     "prepare": "husky install"
   },
   "dependencies": {
