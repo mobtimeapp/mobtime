@@ -12,7 +12,7 @@
     "tailwind:dev": "postcss ./src/styles/index.css -o ./public/styles/styles.css",
     "tailwind:prod": "cross-env NODE_ENV=production postcss ./src/styles/index.css -o ./public/styles/styles.css",
     "start": "node ./index.js",
-    "lint": "prettier-eslint .",
+    "lint": "prettier-eslint --write ./src/**/*.js ./public/**/*.js",
     "deploy": "node ./deploy/index.js",
     "test": "ava",
     "test:coverage": "nyc ava",
