@@ -68,11 +68,6 @@
     "bracketSpacing": true
   },
   "private": true,
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.js": "prettier-eslint --write"
   }
