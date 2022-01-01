@@ -48,6 +48,7 @@ const main = async (env) => {
   if (!target) {
     const available = Object.keys(targets);
     console.error(`Unable to deploy to ${process.env.TARGET}, must be one of ${available.join(', ')}.`);
+    console.log("To fix this, try:\nTARGET=<target> yarn deploy");
     return 1;
   };
 
