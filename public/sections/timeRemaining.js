@@ -18,7 +18,7 @@ export const timeRemaining = props => {
       'h2',
       {
         class: {
-          'text-lg': true,
+          'text-sm': true,
           'font-bold': true,
           "uppercase": true,
         },
@@ -53,7 +53,7 @@ export const timeRemaining = props => {
               {
                 class: {
                   'text-6xl': true,
-                  'font-extrabold': true,
+                  // 'font-extrabold': true,
                   'leading-none': true,
                 },
                 style: {
@@ -77,7 +77,7 @@ export const timeRemaining = props => {
           ],
         ),
 
-        !props.timerDuration && [
+        !props.timerDuration &&
           button(
             {
               class: {
@@ -103,9 +103,8 @@ export const timeRemaining = props => {
               text('Start Turn'),
             ],
           ),
-        ],
 
-        !!props.timerDuration && [
+        !!props.timerDuration &&
           button(
             {
               class: {
@@ -129,7 +128,6 @@ export const timeRemaining = props => {
               text(isPaused ? 'Resume' : 'Pause'),
             ],
           ),
-        ],
       ],
     ),
   ]);
