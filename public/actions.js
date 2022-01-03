@@ -203,20 +203,18 @@ export const EndTurn = (state, { documentElement, Notification }) => [
     timerStartedAt: null,
     timerDuration: 0,
   },
-  [
-    effects.UpdateTitleWithTime({
-      remainingTime: 0,
-      documentElement,
-    }),
-    effects.Notify({
-      notification: state.allowNotification,
-      sound: state.allowSound,
-      title: 'Mobtime',
-      text: 'The timer is up!',
-      Notification,
-      documentElement,
-    }),
-  ],
+  effects.UpdateTitleWithTime({
+    remainingTime: 0,
+    documentElement,
+  }),
+  effects.Notify({
+    notification: state.allowNotification,
+    sound: state.allowSound,
+    title: 'Mobtime',
+    text: 'The timer is up!',
+    Notification,
+    documentElement,
+  }),
 ];
 
 export const Completed = (
@@ -253,12 +251,10 @@ export const Completed = (
 
   return [
     nextState,
-    [
-      effects.CompleteTimer({
-        websocket: state.websocket,
-      }),
-      ...extraEffects,
-    ],
+    effects.CompleteTimer({
+      websocket: state.websocket,
+    }),
+    ...extraEffects,
   ];
 };
 

@@ -95,7 +95,7 @@ test('can end turn', t => {
     allowSound: true,
   };
 
-  const [state, effect] = actions.EndTurn(initialState, {
+  const [state, ...effect] = actions.EndTurn(initialState, {
     documentElement,
     Notification,
   });
