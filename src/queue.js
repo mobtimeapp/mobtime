@@ -91,10 +91,8 @@ export class Queue {
 }
 
 Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
-  client.on('ready', () => {
-    client.subscribe(timerId, data => {
-      dispatch(onActivity(timerId, data));
-    });
+  client.subscribe(timerId, data => {
+    dispatch(onActivity(timerId, data));
   });
 
   return () => {

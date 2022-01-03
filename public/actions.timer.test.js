@@ -15,7 +15,7 @@ test('can complete a timer', t => {
     websocket,
   };
 
-  const [state, effect] = actions.Completed(initialState, {
+  const [state, ...effect] = actions.Completed(initialState, {
     isEndOfTurn: true,
     documentElement,
     Notification,
