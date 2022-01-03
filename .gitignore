@@ -6,3 +6,4 @@ storage
 public/styles/*
 .idea/
 .yarn
+dump.rdb
