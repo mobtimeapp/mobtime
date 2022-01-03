@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { input, textarea } from '/components/input.js';
@@ -8,19 +8,16 @@ import { checkbox } from '/components/checkbox.js';
 import * as actions from '/actions.js';
 
 export const addGoal = props =>
-  h(section, null, [
+  section({}, [
     h(
       'form',
       {
         action: '#',
         method: 'get',
-        onsubmit: [
-          actions.AddGoals,
-          e => {
-            e.preventDefault();
-            return props.goal;
-          },
-        ],
+        onsubmit: (_, e) => {
+          e.preventDefault();
+          return [actions.AddGoals, props.goal];
+        },
         class: {
           "flex": true,
           'flex-col': true,
@@ -31,39 +28,27 @@ export const addGoal = props =>
         autocomplete: 'off',
       },
       [
-        !props.addMultiple && [
-          h(input, {
+        !props.addMultiple &&
+          input({
             value: props.goal,
-            oninput: [actions.UpdateGoalText, e => e.target.value],
+            oninput: (_, e) => [actions.UpdateGoalText, e.target.value],
             placeholder: 'Add Goal',
-
             class: {
-              'text-3xl': true,
-              'font-bold': true,
               'hover:border-indigo-300': true,
               'hover:border-b-solid': true,
-              'bg-indigo-600': true,
-              'text-white': true,
               'w-full': true,
             },
           }),
-        ],
 
-        props.addMultiple && [
-          h(textarea, {
-            onchange: [actions.UpdateGoalText, e => e.target.value],
+        props.addMultiple &&
+          textarea({
+            onchange: (_, e) => [actions.UpdateGoalText, e.target.value],
             value: props.goal,
-            placeholder:
-              'Add Goals\nOne goal per line\nAs many as you would like',
+            placeholder: 'Add Goals\nOne goal per line',
             class: {
-              'text-3xl': true,
-              'font-bold': true,
-              'bg-indigo-600': true,
-              'text-white': true,
               'w-full': true,
             },
           }),
-        ],
 
         h(
           'div',
@@ -77,26 +62,21 @@ export const addGoal = props =>
             },
           },
           [
-            h(
-              checkbox,
+            checkbox(
               {
                 id: 'goals-allow-multiple',
                 checked: props.addMultiple,
                 inputProps: {
-                  onchange: [
-                    actions.SetAddMultiple,
-                    e => {
-                      e.preventDefault();
-                      return e.target.checked;
-                    },
-                  ],
+                  onchange: (_, e) => {
+                    e.preventDefault();
+                    return [actions.SetAddMultiple, e.target.checked];
+                  },
                 },
               },
-              'Add multiple goals',
+              text('Add multiple goals'),
             ),
 
-            h(
-              button,
+            button(
               {
                 type: 'submit',
                 class: {
@@ -105,7 +85,7 @@ export const addGoal = props =>
                   'whitespace-no-wrap': true,
                 },
               },
-              [h('i', { class: 'fas fa-plus mr-3' }), 'Add'],
+              [h('i', { class: 'fas fa-plus mr-3' }), text('Add')],
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { button } from '/components/button.js';
@@ -10,7 +10,7 @@ export const removeCompletedGoals = props => {
   if (!anyCompletedGoals) {
     return null;
   }
-  return h(section, null, [
+  return section({}, [
     h(
       'form',
       {
@@ -44,8 +44,7 @@ export const removeCompletedGoals = props => {
             },
           },
           [
-            h(
-              button,
+            button(
               {
                 type: 'submit',
                 class: {
@@ -54,7 +53,10 @@ export const removeCompletedGoals = props => {
                   'whitespace-no-wrap': true,
                 },
               },
-              [h('i', { class: 'fas fa-trash mr-3' }), 'Clear completed goals'],
+              [
+                h('i', { class: 'fas fa-trash mr-3' }),
+                text('Clear completed goals'),
+              ],
             ),
           ],
         ),

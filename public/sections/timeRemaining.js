@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { button } from '/components/button.js';
@@ -13,7 +13,7 @@ export const timeRemaining = props => {
   const isPaused = props.timerStartedAt === null;
   const remainingTime = calculateTimeRemaining(props);
 
-  return h(section, null, [
+  return section({}, [
     h(
       'h2',
       {
@@ -23,7 +23,7 @@ export const timeRemaining = props => {
           "uppercase": true,
         },
       },
-      'Remaining Time',
+      text('Remaining Time'),
     ),
 
     h(
@@ -60,12 +60,12 @@ export const timeRemaining = props => {
                   fontFamily: "'Working Sans', sans-serif",
                 },
               },
-              timerRemainingDisplay(remainingTime),
+              text(timerRemainingDisplay(remainingTime)),
             ),
             remainingTime > 0 &&
-              h(deleteButton, {
+              deleteButton({
                 size: '24px',
-                onclick: [
+                onclick: () => [
                   actions.Completed,
                   {
                     isEndOfTurn: false,
@@ -78,19 +78,18 @@ export const timeRemaining = props => {
         ),
 
         !props.timerDuration && [
-          h(
-            button,
+          button(
             {
               class: {
                 'bg-green-600': true,
                 'text-white': true,
               },
-              onclick: [
+              onclick: () => [
                 actions.StartTimer,
-                () => ({
+                {
                   timerStartedAt: Date.now(),
                   timerDuration: props.settings.duration,
-                }),
+                },
               ],
             },
             [
@@ -101,14 +100,13 @@ export const timeRemaining = props => {
                   'mr-4': true,
                 },
               }),
-              'Start Turn',
+              text('Start Turn'),
             ],
           ),
         ],
 
         !!props.timerDuration && [
-          h(
-            button,
+          button(
             {
               class: {
                 'bg-white': true,
@@ -128,7 +126,7 @@ export const timeRemaining = props => {
                   'mr-4': true,
                 },
               }),
-              isPaused ? 'Resume' : 'Pause',
+              text(isPaused ? 'Resume' : 'Pause'),
             ],
           ),
         ],

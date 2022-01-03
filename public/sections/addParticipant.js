@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
@@ -7,19 +7,16 @@ import { button } from '/components/button.js';
 import * as actions from '/actions.js';
 
 export const addParticipant = props =>
-  h(section, null, [
+  section({}, [
     h(
       'form',
       {
         action: '#',
         method: 'get',
-        onsubmit: [
-          actions.AddNameToMob,
-          e => {
-            e.preventDefault();
-            return undefined;
-          },
-        ],
+        onsubmit: (_, e) => {
+          e.preventDefault();
+          return [actions.AddNameToMob, {}];
+        },
         class: {
           "flex": true,
           'flex-row': true,
@@ -34,40 +31,35 @@ export const addParticipant = props =>
           'div',
           {
             class: {
-              'flex-shrink': true,
+              'flex-grow': true,
               'overflow-hidden': true,
               'mr-4': true,
             },
           },
-          h(input, {
+          input({
             value: props.name,
-            oninput: [actions.UpdateName, e => e.target.value],
+            oninput: (_, e) => [actions.UpdateName, e.target.value],
             placeholder: 'Add Person',
 
             class: {
-              'text-3xl': true,
-              'font-bold': true,
-              'hover:border-indigo-300': true,
+              'hover:border-gray-400': true,
               'hover:border-b-solid': true,
-              'bg-indigo-600': true,
-              'text-white': true,
               'w-full': true,
             },
           }),
         ),
 
-        h(
-          button,
+        button(
           {
             type: 'submit',
             class: {
               'bg-green-600': true,
               'text-white': true,
-              'flex-grow': true,
+              'flex-shrink': true,
               'whitespace-no-wrap': true,
             },
           },
-          [h('i', { class: 'fas fa-plus mr-3' }), 'Add'],
+          [h('i', { class: 'fas fa-plus mr-3' }), text('Add')],
         ),
       ],
     ),

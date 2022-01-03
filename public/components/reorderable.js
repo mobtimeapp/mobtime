@@ -28,10 +28,10 @@ const dropTarget = (props, children) =>
       },
       class: {
         'border-2': true,
-        'border-white': true,
+        'border-gray-200': true,
         'border-dotted': true,
         'h-20': true,
-        'bg-gray-600': true,
+        'bg-gray-100': true,
         "rounded": true,
       },
     },
@@ -86,7 +86,7 @@ const dragContainer = (props, children) =>
               'flex-col': true,
               'items-center': true,
               'justify-between': true,
-              'py-8': true,
+              'py-4': true,
               'mr-2': true,
               'cursor-move': true,
             },
@@ -99,7 +99,7 @@ const dragContainer = (props, children) =>
             h('div', {
               class: {
                 'border-b': true,
-                'border-b-white': true,
+                'border-b-gray-800': true,
                 'my-1': true,
                 'w-6': true,
               },
@@ -118,12 +118,10 @@ const dragContainer = (props, children) =>
           },
         },
         [
-          h(
-            listButton,
+          listButton(
             {
               "class": {
-                'text-white': !!props.onMoveUp,
-                'text-gray-600': !props.onMoveUp,
+                'text-gray-500': !props.onMoveUp,
                 'border-2': true,
                 'border-white': true,
                 'mr-2': true,
@@ -135,12 +133,10 @@ const dragContainer = (props, children) =>
             [h('i', { class: 'fas fa-arrow-up' })],
           ),
 
-          h(
-            listButton,
+          listButton(
             {
               "class": {
-                'text-white': !!props.onMoveDown,
-                'text-gray-600': !props.onMoveDown,
+                'text-gray-500': !props.onMoveDown,
                 'border-2': true,
                 'border-white': true,
                 'mr-2': true,
@@ -153,11 +149,9 @@ const dragContainer = (props, children) =>
           ),
 
           props.onEdit &&
-            h(
-              listButton,
+            listButton(
               {
                 class: {
-                  'text-white': true,
                   'border-2': true,
                   'border-white': true,
                   'mr-2': true,
@@ -168,7 +162,7 @@ const dragContainer = (props, children) =>
             ),
 
           props.onDelete &&
-            h(deleteButton, {
+            deleteButton({
               onclick: props.onDelete,
               class: {
                 'mr-2': true,
@@ -179,11 +173,9 @@ const dragContainer = (props, children) =>
 
       props.item.id &&
         !props.disabled &&
-        h(
-          listButton,
+        listButton(
           {
             class: {
-              'text-white': true,
               'text-indigo-600': props.expandActions,
               'bg-white': props.expandActions,
               'border-2': true,
@@ -226,7 +218,6 @@ const draggingContainer = (props, children) =>
         "border": true,
         'border-green-600': true,
         "rounded": true,
-        'bg-indigo-600': true,
       },
     },
     [children],
@@ -240,58 +231,60 @@ export const reorderable = props => {
     props.expandedReorderable === props.getReorderableId(item);
 
   return h('div', {}, [
-    h(relativeContainer, {}, [
-      ...props.items.map((item, index) => [
-        isDraggingTo(index) &&
-          h(dropTarget, {
-            index,
-          }),
-        h(
-          dragContainer,
-          {
-            isDragging,
-            isDragFrom: isDraggingFrom(index),
-            index,
-            item,
-            dragType: props.dragType,
-            disabled: props.disabled,
-            onDelete:
-              props.onDelete && item.id ? [props.onDelete, item.id] : undefined,
-            onMoveUp:
-              props.onMove && item.id && index > 0
-                ? [props.onMove, { from: index, to: index - 1 }]
-                : undefined,
-            onMoveDown:
-              props.onMove && item.id && index < props.items.length - 1
-                ? [props.onMove, { from: index, to: index + 2 }]
-                : undefined,
-            expandActions: isExpanded(item),
-            onExpand: [
-              actions.ExpandReorderable,
-              {
-                expandedReorderable: isExpanded(item)
-                  ? null
-                  : props.getReorderableId(item),
-              },
-            ],
-            onEdit:
-              props.onEdit && item.id
-                ? [props.onEdit, { id: item.id }]
-                : undefined,
-          },
-          props.renderItem(item),
-        ),
-      ]),
+    relativeContainer({}, [
+      ...props.items.map((item, index) =>
+        h('div', {}, [
+          isDraggingTo(index) &&
+            dropTarget({
+              index,
+            }),
+          dragContainer(
+            {
+              isDragging,
+              isDragFrom: isDraggingFrom(index),
+              index,
+              item,
+              dragType: props.dragType,
+              disabled: props.disabled,
+              onDelete:
+                props.onDelete && item.id
+                  ? [props.onDelete, item.id]
+                  : undefined,
+              onMoveUp:
+                props.onMove && item.id && index > 0
+                  ? [props.onMove, { from: index, to: index - 1 }]
+                  : undefined,
+              onMoveDown:
+                props.onMove && item.id && index < props.items.length - 1
+                  ? [props.onMove, { from: index, to: index + 2 }]
+                  : undefined,
+              expandActions: isExpanded(item),
+              onExpand: [
+                actions.ExpandReorderable,
+                {
+                  expandedReorderable: isExpanded(item)
+                    ? null
+                    : props.getReorderableId(item),
+                },
+              ],
+              onEdit:
+                props.onEdit && item.id
+                  ? [props.onEdit, { id: item.id }]
+                  : undefined,
+            },
+            props.renderItem(item),
+          ),
+        ]),
+      ),
 
       isDraggingTo(props.items.length) &&
-        h(dropTarget, {
+        dropTarget({
           index: props.items.length,
         }),
     ]),
 
     isDragging &&
-      h(
-        draggingContainer,
+      draggingContainer(
         {
           drag: props.drag,
         },

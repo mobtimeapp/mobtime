@@ -12,19 +12,18 @@ export const modal = (props, children) =>
         'pt-12': true,
         'bg-gray-800': true,
         'bg-opacity-25': true,
-        ...props.class,
+        ...(props.class || {}),
       },
     },
     [
-      h(
-        card,
+      card(
         {
           class: {
             'bg-indigo-500': true,
             'text-white': true,
             'px-2': true,
             'max-w-full': true,
-            ...props.cardClass,
+            ...(props.cardClass || {}),
           },
         },
         children,
