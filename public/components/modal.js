@@ -1,11 +1,8 @@
-import { h } from '/vendor/hyperapp.js';
-
 import { overlay } from '/components/overlay.js';
 import { card } from '/components/card.js';
 
 export const modal = (props, children) =>
-  h(
-    overlay,
+  overlay(
     {
       ...props,
       class: {
@@ -19,8 +16,7 @@ export const modal = (props, children) =>
       card(
         {
           class: {
-            'bg-indigo-500': true,
-            'text-white': true,
+            'bg-white': true,
             'px-2': true,
             'max-w-full': true,
             ...(props.cardClass || {}),

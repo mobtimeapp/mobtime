@@ -6,7 +6,7 @@ import { tab } from '/components/tab.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
 import * as subscriptions from '/subscriptions.js';
-import { app, h } from '/vendor/hyperapp.js';
+import { app, h, text } from '/vendor/hyperapp.js';
 
 import { tabs, showTab } from '/tabs/index.js';
 
@@ -23,16 +23,13 @@ const connectionStatus = ({ websocket }) => {
 
 const websocketStatusClass = {
   'will-connect': {
-    'bg-transparent': true,
-    'text-gray-400': true,
+    'text-gray-500': true,
   },
   "connected": {
-    'bg-transparent': true,
-    'text-gray-400': true,
+    'text-gray-500': true,
   },
   'will-reconnect': {
     'bg-red-500': true,
-    'text-white': true,
   },
 };
 
@@ -81,46 +78,44 @@ app({
           },
           [
             header(),
-            // timeRemaining(state),
+            timeRemaining(state),
             tabs(state),
             showTab(state),
-            // h(
-            //   section,
-            //   {
-            //     class: {
-            //       'w-full': true,
-            //       ...websocketStatusClass[connectionStatus(state)],
-            //       'text-center': true,
-            //       'text-xs': true,
-            //     },
-            //   },
-            //   text(websocketStatusMessage[connectionStatus(state)]),
-            // ),
+            section(
+              {
+                class: {
+                  'w-full': true,
+                  ...websocketStatusClass[connectionStatus(state)],
+                  'text-center': true,
+                  'text-xs': true,
+                },
+              },
+              text(websocketStatusMessage[connectionStatus(state)]),
+            ),
 
-            // h(
-            //  'audio',
-            //  {
-            //    preload: 'auto',
-            //    id: 'timer-complete',
-            //  },
-            //  [
-            //    h('source', {
-            //      src: 'https://bigsoundbank.com/UPLOAD/mp3/1828.mp3',
-            //      type: 'audio/mp3',
-            //    }),
-            //    h('source', {
-            //      src: 'https://bigsoundbank.com/UPLOAD/wav/1828.wav',
-            //      type: 'audio/wav',
-            //    }),
-            //    h('source', {
-            //      src: 'https://bigsoundbank.com/UPLOAD/flac/1828.flac',
-            //      type: 'audio/flac',
-            //    }),
-            //  ],
-            // ),
+            h(
+              'audio',
+              {
+                preload: 'auto',
+                id: 'timer-complete',
+              },
+              [
+                h('source', {
+                  src: 'https://bigsoundbank.com/UPLOAD/mp3/1828.mp3',
+                  type: 'audio/mp3',
+                }),
+                h('source', {
+                  src: 'https://bigsoundbank.com/UPLOAD/wav/1828.wav',
+                  type: 'audio/wav',
+                }),
+                h('source', {
+                  src: 'https://bigsoundbank.com/UPLOAD/flac/1828.flac',
+                  type: 'audio/flac',
+                }),
+              ],
+            ),
 
-            // state.prompt.visible &&
-            //  appPrompt(state.prompt || {}),
+            state.prompt.visible && appPrompt(state.prompt || {}),
           ],
         ),
       ],

@@ -39,10 +39,12 @@ export class Queue {
   }
 
   getTimer(timerId) {
-    return this.client()
-      .then(c => c.get(`timer_${timerId}`)
-      .then(payload => payload || '{}')
-      .then(JSON.parse));
+    return this.client().then(c =>
+      c
+        .get(`timer_${timerId}`)
+        .then(payload => payload || '{}')
+        .then(JSON.parse),
+    );
   }
 
   setTimer(timerId, data) {
@@ -89,17 +91,13 @@ export class Queue {
 }
 
 Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
-  console.log('subscribeFx', timerId);
   client.on('ready', () => {
-    console.log('subscribeFx', timerId, 'ready');
-    client.subscribe(timerId, (data) => {
-      console.log('subscribeFx', timerId, 'message', data);
+    client.subscribe(timerId, data => {
       dispatch(onActivity(timerId, data));
     });
   });
 
   return () => {
-    console.log('subscribeFx', timerId, 'cancel');
     client.unsubscribe(timerId);
   };
 };
@@ -118,10 +116,10 @@ Queue.forTesting = () => {
       memory[key] = value;
       return Promise.resolve();
     },
-    get: (key) => Promise.resolve(memory[key]),
-    persist: (_key) => {},
+    get: key => Promise.resolve(memory[key]),
+    persist: _key => {},
     expireAt: (_key, _time) => {},
   });
 
   return new Queue(makeClient);
-}
+};

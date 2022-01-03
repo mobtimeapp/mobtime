@@ -1,4 +1,4 @@
-import { h } from '/vendor/hyperapp.js';
+import { h, text } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';
 
@@ -37,12 +37,10 @@ export const appPrompt = props =>
               for: 'mobtime-prompt',
               class: {
                 "block": true,
-                'text-extrabold': true,
-                'text-2xl': true,
                 'mb-2': true,
               },
             },
-            props.text,
+            text(props.text),
           ),
           input({
             id: 'mobtime-prompt',
@@ -52,8 +50,6 @@ export const appPrompt = props =>
             autocomplete: 'off',
             class: {
               "block": true,
-              'bg-indigo-500': true,
-              'text-3xl': true,
               'mb-4': true,
             },
           }),
@@ -71,7 +67,7 @@ export const appPrompt = props =>
                 {
                   onclick: actions.PromptCancel,
                 },
-                'Cancel',
+                text('Cancel'),
               ),
               button(
                 {
@@ -80,7 +76,7 @@ export const appPrompt = props =>
                     'bg-green-500': true,
                   },
                 },
-                'Ok',
+                text('Ok'),
               ),
             ],
           ),
