@@ -1,15 +1,14 @@
 import { h } from '/vendor/hyperapp.js';
 
-export const button = (props = {}, children) =>
+export const button = (props, children) =>
   h(
     'button',
     {
       type: 'button',
-      ...props,
+      ...(props || {}),
       class: {
-        'py-2': true,
-        'px-4': true,
-        'tracking-widest': true,
+        'py-1': true,
+        'px-2': true,
         "uppercase": true,
         ...(props.class || {}),
       },

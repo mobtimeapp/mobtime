@@ -6,15 +6,12 @@ export const tab = (props, children) =>
     {
       class: {
         'bg-indigo-400': props.selected,
-        'sm:bg-transparent': !props.selected,
-        'bg-indigo-700': !props.selected,
-        'hover:bg-indigo-500': !props.selected,
+        'text-white': props.selected,
+        'hover:bg-gray-200': !props.selected,
         'border-b': !props.selected,
         'border-indigo-300': true,
-        'text-white': true,
         'py-1': true,
         'px-3': true,
-        'text-lg': true,
         'flex-grow': true,
         "flex": true,
         'flex-row': true,

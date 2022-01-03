@@ -22,7 +22,7 @@ export const overviewHeading = (props, children) =>
         'h2',
         {
           class: {
-            'text-lg': true,
+            // 'text-lg': true,
             'font-bold': true,
             'py-1': true,
           },

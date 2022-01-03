@@ -1,5 +1,3 @@
-import { h } from '/vendor/hyperapp.js';
-
 import * as actions from '/actions.js';
 
 import { section } from '/components/section.js';
@@ -19,13 +17,13 @@ export const goalList = props => {
     padding > 0 ? temporaryGoals.slice(-padding) : [],
   );
 
-  return h(section, null, [
-    h(reorderable, {
+  return section({}, [
+    reorderable({
       dragType: 'goal',
       expandedReorderable: props.expandedReorderable,
       items,
       renderItem: item =>
-        h(goal, {
+        goal({
           ...item,
           truncate: getReorderableId(item) === props.expandedReorderable,
         }),

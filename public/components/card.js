@@ -1,7 +1,7 @@
 import { h } from '/vendor/hyperapp.js';
 
-export const card = (props, children) =>
-  h(
+export const card = (props, children) => {
+  return h(
     'div',
     {
       ...props,
@@ -16,3 +16,4 @@ export const card = (props, children) =>
     },
     children,
   );
+};

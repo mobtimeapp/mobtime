@@ -7,8 +7,7 @@ import { input } from '/components/input.js';
 import { button } from '/components/button.js';
 
 export const appPrompt = props =>
-  h(
-    modal,
+  modal(
     {
       ...props,
       cardClass: {
@@ -45,11 +44,11 @@ export const appPrompt = props =>
             },
             props.text,
           ),
-          h(input, {
+          input({
             id: 'mobtime-prompt',
             name: 'value',
             value: props.value,
-            oninput: [actions.PromptValueChange, e => e.target.value],
+            oninput: (_, e) => [actions.PromptValueChange, e.target.value],
             autocomplete: 'off',
             class: {
               "block": true,
@@ -68,15 +67,13 @@ export const appPrompt = props =>
               },
             },
             [
-              h(
-                button,
+              button(
                 {
                   onclick: actions.PromptCancel,
                 },
                 'Cancel',
               ),
-              h(
-                button,
+              button(
                 {
                   type: 'submit',
                   class: {
