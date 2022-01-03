@@ -6,7 +6,7 @@ set -e
 
 APP_NAME=appname
 APP_DIR="/var/www/$APP_NAME"
-GIT_URL="git://github.com/your-username/$APP_NAME.git"
+GIT_URL="git://github.com/mobtimeapp/mobtime.git"
 RESTART_ARGS=
 NODE_ENV=production
 
@@ -24,6 +24,7 @@ rm -rf $APP_DIR/next/.git
 echo Installing dependencies...
 cd $APP_DIR/next
 yarn --prod --non-interactive
+yarn tailwind
 
 echo Swapping fresh deploy with current code...
 rm -rf $APP_DIR/previous
