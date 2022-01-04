@@ -352,7 +352,7 @@ export const CycleMob = state => {
       ...state,
       mob,
     },
-    effectsToRun,
+    ...effectsToRun,
   ];
 };
 
