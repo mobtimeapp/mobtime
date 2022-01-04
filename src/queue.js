@@ -3,7 +3,9 @@ import { effects } from 'ferp';
 
 export class Queue {
   constructor(createClientFn = createClient) {
-    this._client = createClientFn();
+    this._client = createClientFn({
+      url: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`
+    });
     this._clientPromise = this._client.connect();
     this.subscriptions = {};
   }

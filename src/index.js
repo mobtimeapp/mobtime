@@ -5,6 +5,7 @@ import { Websocket } from './websocket';
 import { Queue } from './queue';
 
 const port = process.env.PORT || 1234;
+const host = process.env.HOST || 'localhost';
 
 app({
   init: Action.Init(new Queue()),
@@ -15,7 +16,7 @@ app({
     ).sort();
 
     return [
-      Http(Action, 'localhost', port),
+      Http(Action, host, port),
 
       ...state.connections.map((connection) => (
         Websocket(Action, connection, connection.timerId)
