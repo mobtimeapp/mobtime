@@ -40,7 +40,7 @@ test('can cycle a mob', t => {
     websocket,
   };
 
-  const [state, effect] = actions.CycleMob(initialState);
+  const [state, ...effect] = actions.CycleMob(initialState);
 
   t.deepEqual(state.mob, [
     initialState.mob[1],
@@ -78,7 +78,7 @@ test('can cycle a mob while a timer is running', t => {
     websocket,
   };
 
-  const [state, effect] = actions.CycleMob(initialState);
+  const [state, ...effect] = actions.CycleMob(initialState);
 
   t.deepEqual(state.mob, [
     initialState.mob[1],
