@@ -76,58 +76,96 @@ export const timeRemaining = props => {
               }),
           ],
         ),
-
-        !props.timerDuration &&
-          button(
-            {
-              class: {
-                'bg-green-600': true,
-                'text-white': true,
-              },
-              onclick: () => [
-                actions.StartTimer,
+        h(
+          'div',
+          {
+            class: {
+              "flex": true,
+              'flex-row': true,
+              'items-center': true,
+              'justify-end': true,
+            },
+          },
+          [
+            !props.timerDuration &&
+              button(
                 {
-                  timerStartedAt: Date.now(),
-                  timerDuration: props.settings.duration,
+                  class: {
+                    'bg-green-600': true,
+                    'text-white': true,
+                  },
+                  onclick: () => [
+                    actions.StartTimer,
+                    {
+                      timerStartedAt: Date.now(),
+                      timerDuration: props.settings.duration,
+                    },
+                  ],
                 },
-              ],
-            },
-            [
-              h('i', {
-                class: {
-                  "fas": true,
-                  'fa-play': true,
-                  'mr-4': true,
-                },
-              }),
-              text('Start Turn'),
-            ],
-          ),
+                [
+                  h('i', {
+                    class: {
+                      "fas": true,
+                      'fa-play': true,
+                      'mr-4': true,
+                    },
+                  }),
+                  text('Start Turn'),
+                ],
+              ),
 
-        !!props.timerDuration &&
-          button(
-            {
-              class: {
-                'bg-white': true,
-                'text-green-600': true,
-              },
-              disabled: !props.timerDuration,
-              onclick: isPaused
-                ? [actions.ResumeTimer, undefined]
-                : [actions.PauseTimer, undefined],
-            },
-            [
-              h('i', {
-                class: {
-                  "fas": true,
-                  'fa-pause': !isPaused,
-                  'fa-play': isPaused,
-                  'mr-4': true,
+            !!props.timerDuration &&
+              button(
+                {
+                  class: {
+                    'bg-white': true,
+                    'text-green-600': true,
+                  },
+                  disabled: !props.timerDuration,
+                  onclick: isPaused
+                    ? [actions.ResumeTimer, undefined]
+                    : [actions.PauseTimer, undefined],
                 },
-              }),
-              text(isPaused ? 'Resume' : 'Pause'),
-            ],
-          ),
+                [
+                  h('i', {
+                    class: {
+                      "fas": true,
+                      'fa-pause': !isPaused,
+                      'fa-play': isPaused,
+                      'mr-4': true,
+                    },
+                  }),
+                  text(isPaused ? 'Resume' : 'Pause'),
+                ],
+              ),
+
+            !!props.timerDuration &&
+              button(
+                {
+                  class: {
+                    'bg-white': true,
+                    'text-gray-600': true,
+                  },
+                  disabled: !props.timerDuration,
+                  onclick: () => [
+                    actions.Skip,
+                    {
+                      timerDuration: props.settings.duration,
+                    },
+                  ],
+                },
+                [
+                  text('Skip'),
+                  h('i', {
+                    class: {
+                      "fas": true,
+                      'fa-angle-double-right': true,
+                    },
+                  }),
+                ],
+              ),
+          ],
+        ),
       ],
     ),
   ]);

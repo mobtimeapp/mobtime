@@ -98,6 +98,35 @@ test('can cycle a mob while a timer is running', t => {
   ]);
 });
 
+test('can skip user, which cycles a mob while a timer is running', t => {
+  const websocket = {};
+
+  const initialState = {
+    timerStartedAt: 1,
+    mob: [makeMobber('One'), makeMobber('Two'), makeMobber('Three')],
+    websocket,
+  };
+  const timerStartedAt = Date.now();
+  const [state, ...effect] = actions.Skip(initialState, { timerDuration: 1, timerStartedAt});
+
+  t.deepEqual(effect, [
+    effects.CompleteTimer({
+      websocket: websocket
+    }),
+    effects.andThen({
+      action: actions.CycleMob,
+      props: { },
+    }),
+    effects.andThen({
+      action: actions.StartTimer,
+      props: { 
+        timerStartedAt,
+        timerDuration: 1
+      },
+    }),
+  ]);
+});
+
 test('can add in-memory name to mob', t => {
   const websocket = {};
   const nameToAdd = 'Bar';
