@@ -3,7 +3,8 @@ FROM node:lts-alpine
 WORKDIR /home/www
 
 ADD package.json ./package.json
-RUN npm install
+ADD package-lock.json ./package-lock.json
+RUN npm ci
 
 ADD . ./
 
