@@ -5,8 +5,10 @@ import { goalList } from '/sections/goalList.js';
 import { mobParticipants } from '/sections/mobParticipants.js';
 import { h, text } from '/vendor/hyperapp.js';
 
-export const overview = props =>
-  h('div', {}, [
+export const overview = props => {
+  const locale = props.locale.tabs.overview;
+
+  return h('div', {}, [
     overviewHeading(
       {
         rightAction: button(
@@ -14,10 +16,10 @@ export const overview = props =>
             type: 'button',
             onclick: () => [actions.SetTimerTab, 'mob'],
           },
-          text('Edit Mob'),
+          text(locale.editMob),
         ),
       },
-      text("Who's Up"),
+      text(locale.whosUp),
     ),
     mobParticipants({
       overview: true,
@@ -34,10 +36,10 @@ export const overview = props =>
             type: 'button',
             onclick: () => [actions.SetTimerTab, 'goals'],
           },
-          text('Edit Goals'),
+          text(locale.editGoals),
         ),
       },
-      text('Top Goals'),
+      text(locale.topGoals),
     ),
     goalList({
       overview: true,
@@ -46,3 +48,4 @@ export const overview = props =>
       goals: props.goals.filter(g => !g.completed).slice(0, 3),
     }),
   ]);
+};

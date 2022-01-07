@@ -35,7 +35,10 @@ const tabRenderer = (tabName, state) => (
   || text(`Unable to load ${tabName} tab`)
 );
 
-export const tabs = (props) => h(
+export const tabs = (props) => {
+  const locale = props.locale;
+
+  return h(
   'div',
   {
     class: {
@@ -53,7 +56,7 @@ export const tabs = (props) => h(
         selected: props.timerTab === 'overview',
         onclick: () => [actions.SetTimerTab, 'overview'],
       },
-      text('Overview'),
+      text(locale.tabs.overview.tab),
     ),
     tab(
       {
@@ -63,7 +66,7 @@ export const tabs = (props) => h(
           props.mob.length > 0 &&
           badge({}, text(props.mob.length.toString())),
       },
-      text('Mob'),
+      text(locale.tabs.mob.tab),
     ),
     tab(
       {
@@ -71,23 +74,24 @@ export const tabs = (props) => h(
         onclick: () => [actions.SetTimerTab, 'goals'],
         details: getGoalsDetails(props),
       },
-      text('Goals'),
+      text(locale.tabs.goals.tab),
     ),
     tab(
       {
         selected: props.timerTab === 'settings',
         onclick: () => [actions.SetTimerTab, 'settings'],
       },
-      text('Settings'),
+      text(locale.tabs.settings.tab),
     ),
     tab(
       {
         selected: props.timerTab === 'share',
         onclick: () => [actions.SetTimerTab, 'share'],
       },
-      text('Share'),
+      text(locale.tabs.share.tab),
     ),
   ],
 );
+}
 
 export const showTab = (props) => tabRenderer(props.timerTab, props);

@@ -2,8 +2,10 @@ import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 
-export const header = () =>
-  section(
+export const header = props => {
+  const {locale} = props;
+
+  return section(
     {
       class: {
         "flex": true,
@@ -25,7 +27,8 @@ export const header = () =>
             'text-2xl': true,
           },
         },
-        text('mobtime'),
+        text(locale.mobtime),
       ),
     ],
   );
+};

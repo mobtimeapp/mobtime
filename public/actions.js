@@ -1,5 +1,6 @@
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
+import { Localization } from './localization/index.js';
 
 let initialNotificationPermission = '';
 if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -39,30 +40,36 @@ const collectionMove = (collection, { from, to }) => {
   return newCollection;
 };
 
-export const Init = (_, timerId) => ({
-  timerStartedAt: null,
-  timerDuration: 0,
-  mob: [],
-  goals: [],
-  settings: {
-    mobOrder: 'Navigator,Driver',
-    duration: 5 * 60 * 1000,
-  },
-  expandedReorderable: null,
-  timerTab: 'overview',
-  drag: { ...emptyDrag },
-  prompt: { ...emptyPrompt },
-  timerId,
-  currentTime: null,
-  name: '',
-  goal: '',
-  addMultiple: false,
-  allowNotification: initialNotificationPermission === 'granted',
-  allowSound: false,
-  notificationPermissions: initialNotificationPermission,
-  pendingSettings: {},
-  websocket: null,
-});
+export const Init = (_, timerId) => {
+  // TODO: Read in the locale from browser
+  const locale = Localization('en-us');
+
+  return {
+    timerStartedAt: null,
+    timerDuration: 0,
+    mob: [],
+    goals: [],
+    settings: {
+      mobOrder: locale.mobOrder,
+      duration: 5 * 60 * 1000,
+    },
+    locale,
+    expandedReorderable: null,
+    timerTab: 'overview',
+    drag: { ...emptyDrag },
+    prompt: { ...emptyPrompt },
+    timerId,
+    currentTime: null,
+    name: '',
+    goal: '',
+    addMultiple: false,
+    allowNotification: initialNotificationPermission === 'granted',
+    allowSound: false,
+    notificationPermissions: initialNotificationPermission,
+    pendingSettings: {},
+    websocket: null,
+  };
+};
 
 export const SetAddMultiple = (state, addMultiple) => ({
   ...state,

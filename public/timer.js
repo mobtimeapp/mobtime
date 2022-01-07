@@ -77,7 +77,7 @@ app({
             },
           },
           [
-            header(),
+            header(state),
             timeRemaining(state),
             tabs(state),
             showTab(state),
