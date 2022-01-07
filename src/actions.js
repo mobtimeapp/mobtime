@@ -138,11 +138,7 @@ export const UpdateTimer = (timerId, message) => state => {
           }))
           .then(none),
       ),
-      defer(
-        state.queue
-          .publishToTimer(timerId, message)
-          .then(none)
-      ),
+      defer(state.queue.publishToTimer(timerId, message).then(none)),
       act(UpdateStatisticsFromMessage(timerId, message)),
     ]),
   ];
@@ -178,7 +174,12 @@ export const ShareTimerWith = (websocket, timerId) => state => [
         sync('mob');
         sync('goals');
 
-        if (timer.timerStartedAt) {
+        const timerIsRunning =
+          timer.timerStartedAt &&
+          timer.timerDuration &&
+          timer.timerDuration - (Date.now() - timer.timerStartedAt) > 0;
+
+        if (timerIsRunning) {
           websocket.send(
             JSON.stringify({
               type: 'timer:update',
