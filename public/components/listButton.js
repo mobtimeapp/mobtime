@@ -10,7 +10,7 @@ export const listButton = (props, children) =>
         'w-8': true,
         'h-8': true,
         'flex-shrink-0': true,
-        "flex": true,
+        flex: true,
         'items-center': true,
         'justify-center': true,
         ...(props.class || {}),

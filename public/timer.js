@@ -2,7 +2,6 @@ import * as actions from '/actions.js';
 import { card } from '/components/card.js';
 import { appPrompt } from '/components/prompt.js';
 import { section } from '/components/section.js';
-import { tab } from '/components/tab.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
 import * as subscriptions from '/subscriptions.js';
@@ -25,7 +24,7 @@ const websocketStatusClass = {
   'will-connect': {
     'text-gray-500': true,
   },
-  "connected": {
+  connected: {
     'text-gray-500': true,
   },
   'will-reconnect': {
@@ -35,19 +34,25 @@ const websocketStatusClass = {
 
 const websocketStatusMessage = {
   'will-connect': 'Websocket connecting...',
-  "connected": 'Websocket Connection established',
+  connected: 'Websocket Connection established',
   'will-reconnect': 'Websocket reconnecting...',
 };
 
 app({
-  init: actions.Init(null, initialTimerId),
+  init: actions.Init(null, {
+    timerId: initialTimerId,
+    externals: {
+      documentElement: window.document,
+      Notification: window.Notification,
+    },
+  }),
 
   view: state =>
     h(
       'div',
       {
         class: {
-          "flex": true,
+          flex: true,
           'items-start': true,
           'justify-center': true,
           'min-h-screen': true,
@@ -64,16 +69,16 @@ app({
               'sm:w-8/12': true,
               'md:w-10/12': true,
               'lg:w-6/12': true,
-              "shadow": false,
+              shadow: false,
               'sm:shadow-lg': true,
               'pt-2': false,
               'pt-0': true,
               'pb-12': true,
               'pb-1': false,
               'sm:mt-2': true,
-              "rounded": false,
+              rounded: false,
               'sm:rounded': true,
-              "relative": true,
+              relative: true,
             },
           },
           [

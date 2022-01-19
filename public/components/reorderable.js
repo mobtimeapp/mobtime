@@ -32,7 +32,7 @@ const dropTarget = (props, children) =>
         'border-dotted': true,
         'h-20': true,
         'bg-gray-100': true,
-        "rounded": true,
+        rounded: true,
       },
     },
     children,
@@ -41,7 +41,7 @@ const dropTarget = (props, children) =>
 const dropZoneTrigger = props =>
   h('div', {
     class: {
-      "absolute": true,
+      absolute: true,
       'w-full': true,
       'bg-transparent': true,
     },
@@ -65,10 +65,10 @@ const dragContainer = (props, children) =>
     'div',
     {
       class: {
-        "hidden": props.isDragFrom,
-        "relative": true,
+        hidden: props.isDragFrom,
+        relative: true,
         'select-none': true,
-        "flex": true,
+        flex: true,
         'flex-row': true,
         'items-center': true,
         'justify-start': true,
@@ -80,7 +80,7 @@ const dragContainer = (props, children) =>
           'div',
           {
             class: {
-              "hidden": true,
+              hidden: true,
               'sm:flex': true,
               'h-full': true,
               'flex-col': true,
@@ -120,14 +120,14 @@ const dragContainer = (props, children) =>
         [
           listButton(
             {
-              "class": {
+              class: {
                 'text-gray-500': !props.onMoveUp,
                 'border-2': true,
                 'border-white': true,
                 'mr-2': true,
               },
-              "onclick": props.onMoveUp,
-              "disabled": !props.onMoveUp,
+              onclick: props.onMoveUp,
+              disabled: !props.onMoveUp,
               'aria-label': `Move ${props.type} up`,
             },
             [h('i', { class: 'fas fa-arrow-up' })],
@@ -135,14 +135,14 @@ const dragContainer = (props, children) =>
 
           listButton(
             {
-              "class": {
+              class: {
                 'text-gray-500': !props.onMoveDown,
                 'border-2': true,
                 'border-white': true,
                 'mr-2': true,
               },
-              "onclick": props.onMoveDown,
-              "disabled": !props.onMoveDown,
+              onclick: props.onMoveDown,
+              disabled: !props.onMoveDown,
               'aria-label': `Move ${props.type} down`,
             },
             [h('i', { class: 'fas fa-arrow-down' })],
@@ -215,9 +215,9 @@ const draggingContainer = (props, children) =>
         'duration-75': true,
         'ease-in-out': true,
         'pointer-events-none': true,
-        "border": true,
+        border: true,
         'border-green-600': true,
-        "rounded": true,
+        rounded: true,
       },
     },
     [children],

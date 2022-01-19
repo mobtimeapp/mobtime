@@ -35,10 +35,7 @@ test('can complete a timer', t => {
     }),
     effects.andThen({
       action: actions.EndTurn,
-      props: {
-        documentElement,
-        Notification,
-      },
+      props: {},
     }),
     effects.andThen({
       action: actions.CycleMob,

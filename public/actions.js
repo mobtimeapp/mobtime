@@ -1,11 +1,6 @@
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
-let initialNotificationPermission = '';
-if (typeof window !== 'undefined' && 'Notification' in window) {
-  initialNotificationPermission = Notification.permission;
-}
-
 export const Noop = state => state;
 
 const emptyDrag = {
@@ -39,7 +34,7 @@ const collectionMove = (collection, { from, to }) => {
   return newCollection;
 };
 
-export const Init = (_, timerId) => ({
+export const Init = (_, { timerId, externals }) => ({
   timerStartedAt: null,
   timerDuration: 0,
   mob: [],
@@ -57,11 +52,11 @@ export const Init = (_, timerId) => ({
   name: '',
   goal: '',
   addMultiple: false,
-  allowNotification: initialNotificationPermission === 'granted',
+  allowNotification: externals.Notification.permission === 'granted',
   allowSound: false,
-  notificationPermissions: initialNotificationPermission,
   pendingSettings: {},
   websocket: null,
+  externals,
 });
 
 export const SetAddMultiple = (state, addMultiple) => ({
@@ -69,7 +64,7 @@ export const SetAddMultiple = (state, addMultiple) => ({
   addMultiple: Boolean(addMultiple),
 });
 
-export const SetCurrentTime = (state, { currentTime, documentElement }) => {
+export const SetCurrentTime = (state, { currentTime }) => {
   const nextState = {
     ...state,
     currentTime,
@@ -80,7 +75,7 @@ export const SetCurrentTime = (state, { currentTime, documentElement }) => {
     nextState,
     effects.UpdateTitleWithTime({
       remainingTime,
-      documentElement,
+      documentElement: state.externals.documentElement,
     }),
   ];
 };
@@ -197,7 +192,7 @@ export const DragCancel = state => ({
   drag: { ...emptyDrag },
 });
 
-export const EndTurn = (state, { documentElement, Notification }) => [
+export const EndTurn = state => [
   {
     ...state,
     timerStartedAt: null,
@@ -205,22 +200,19 @@ export const EndTurn = (state, { documentElement, Notification }) => [
   },
   effects.UpdateTitleWithTime({
     remainingTime: 0,
-    documentElement,
+    documentElement: state.externals.documentElement,
   }),
   effects.Notify({
     notification: state.allowNotification,
     sound: state.allowSound,
     title: 'Mobtime',
     text: 'The timer is up!',
-    Notification,
-    documentElement,
+    Notification: state.externals.Notification,
+    documentElement: state.externals.documentElement,
   }),
 ];
 
-export const Completed = (
-  state,
-  { isEndOfTurn, documentElement, Notification },
-) => {
+export const Completed = (state, { isEndOfTurn }) => {
   const nextState = {
     ...state,
     timerStartedAt: null,
@@ -232,10 +224,7 @@ export const Completed = (
     extraEffects.push(
       effects.andThen({
         action: EndTurn,
-        props: {
-          documentElement,
-          Notification,
-        },
+        props: {},
       }),
     );
   }
@@ -605,10 +594,7 @@ export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
   }),
 ];
 
-export const SetAllowNotification = (
-  state,
-  { allowNotification, Notification, documentElement },
-) => [
+export const SetAllowNotification = (state, { allowNotification }) => [
   {
     ...state,
     allowNotification,
@@ -618,39 +604,28 @@ export const SetAllowNotification = (
       title: 'Mobtime Config',
       text: 'You have allowed notifications',
       sound: false,
-      Notification,
-      documentElement,
+      Notification: state.externals.Notification,
+      documentElement: state.externals.documentElement,
     }),
 ];
 
-export const SetNotificationPermissions = (
-  state,
-  { notificationPermissions, Notification, documentElement },
-) => [
+export const UpdateNotificationPermissions = state => [
   {
     ...state,
-    notificationPermissions,
   },
-  notificationPermissions === 'granted' &&
+  state.externals.Notification.permission === 'granted' &&
     effects.andThen({
       action: SetAllowNotification,
-      props: {
-        allowNotification: true,
-        Notification,
-        documentElement,
-      },
+      props: { allowNotification: true },
     }),
 ];
 
-export const RequestNotificationPermission = (
-  state,
-  { Notification, documentElement },
-) => [
+export const RequestNotificationPermission = state => [
   state,
   effects.NotificationPermission({
-    SetNotificationPermissions,
-    Notification,
-    documentElement,
+    UpdateNotificationPermissions,
+    Notification: state.externals.Notification,
+    documentElement: state.externals.documentElement,
   }),
 ];
 
@@ -701,10 +676,7 @@ export const UpdateSettings = state => {
   ];
 };
 
-export const UpdateByWebsocketData = (
-  state,
-  { payload, documentElement, Notification },
-) => {
+export const UpdateByWebsocketData = (state, { payload }) => {
   const { type, ...data } = payload;
 
   switch (type) {
@@ -744,10 +716,7 @@ export const UpdateByWebsocketData = (
         state,
         effects.andThen({
           action: EndTurn,
-          props: {
-            Notification,
-            documentElement,
-          },
+          props: {},
         }),
       ];
 
@@ -764,7 +733,7 @@ export const UpdateByWebsocketData = (
       };
 
     default:
-      console.warn('Unknown websocket data', payload); // eslint-disable-line no-console
+      // console.warn('Unknown websocket data', payload); // eslint-disable-line no-console
       return state;
   }
 };

@@ -3,8 +3,6 @@ import test from 'ava';
 import * as actions from './actions';
 import * as effects from './effects';
 
-import { calculateTimeRemaining } from './lib/calculateTimeRemaining';
-
 test('can update settings from websocket message', t => {
   const settings = { foo: 'bar' };
   const state = actions.UpdateByWebsocketData(
@@ -115,10 +113,7 @@ test('can complete timer from websocket message', t => {
     effect,
     effects.andThen({
       action: actions.EndTurn,
-      props: {
-        documentElement,
-        Notification,
-      },
+      props: {},
     }),
   );
 });

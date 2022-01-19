@@ -4,7 +4,8 @@ import { effects } from 'ferp';
 export class Queue {
   constructor(createClientFn = createClient) {
     this._client = createClientFn({
-      url: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`
+      url: `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env
+        .REDIS_PORT || 6379}`,
     });
     this._clientPromise = this._client.connect();
     this.subscriptions = {};
@@ -102,8 +103,8 @@ Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
   };
 };
 
-Queue.forTesting = () => {
-  const memory = {};
+Queue.forTesting = (initialMemory = {}) => {
+  const memory = initialMemory;
   const makeClient = () => ({
     connect: () => Promise.resolve(),
     duplicate: () => makeClient(),

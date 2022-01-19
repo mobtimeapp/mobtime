@@ -26,16 +26,17 @@ test('can set timer tab', t => {
 test('can allow notifications', t => {
   const Notification = {};
   const documentElement = {};
-
-  const [state, fx] = actions.SetAllowNotification(
-    {},
-    {
-      allowNotification: true,
+  const initialState = {
+    externals: {
       Notification,
       documentElement,
     },
-  );
-  t.deepEqual(state, { allowNotification: true });
+  };
+
+  const [state, fx] = actions.SetAllowNotification(initialState, {
+    allowNotification: true,
+  });
+  t.deepEqual(state, { ...initialState, allowNotification: true });
   t.deepEqual(
     fx,
     effects.Notify({
@@ -64,17 +65,20 @@ test('can disallow notifications', t => {
 test('can set current time', t => {
   const currentTime = 47323743746;
   const documentElement = {};
-  const [state, effect] = actions.SetCurrentTime(
-    {},
-    {
-      currentTime,
-      documentElement,
-    },
-  );
+  const initialState = {
+    currentTime: 0,
+    externals: { documentElement },
+  };
+  const [state, effect] = actions.SetCurrentTime(initialState, {
+    currentTime,
+  });
 
   const remainingTime = calculateTimeRemaining(state);
 
-  t.deepEqual(state, { currentTime });
+  t.deepEqual(state, {
+    ...initialState,
+    currentTime,
+  });
   t.deepEqual(
     effect,
     effects.UpdateTitleWithTime({
@@ -93,12 +97,13 @@ test('can end turn', t => {
     timerDuration: 10,
     allowNotification: true,
     allowSound: true,
+    externals: {
+      documentElement,
+      Notification,
+    },
   };
 
-  const [state, ...effect] = actions.EndTurn(initialState, {
-    documentElement,
-    Notification,
-  });
+  const [state, ...effect] = actions.EndTurn(initialState, {});
 
   t.deepEqual(state, {
     ...initialState,

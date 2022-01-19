@@ -1,6 +1,6 @@
 import { effects } from 'ferp';
 
-const { none, thunk } = effects;
+const { none, thunk, batch, defer } = effects;
 
 const WebsocketSub = (dispatch, actions, connection, timerId) => {
   const { websocket } = connection;
@@ -28,11 +28,27 @@ export const CloseWebsocket = websocket =>
     websocket.close();
 
     return none();
-  });
+  }, 'CloseWebsocket');
 
 export const RelayMessage = (connection, message) =>
   thunk(() => {
     connection.websocket.send(message);
 
     return none();
-  });
+  }, 'RelayMessage');
+
+export const ShareMessage = (timerId, connections, message, queue) =>
+  defer(
+    queue.getTimer(timerId).then(timer => {
+      const { type } = JSON.parse(message);
+      if (type === 'timer:complete' && !timer.timerStartedAt) {
+        return none('ShareMessageNone');
+      }
+
+      return batch(
+        connections.map(c => RelayMessage(c, message)),
+        'ShareMessageBatch',
+      );
+    }),
+    'ShareMessage',
+  );

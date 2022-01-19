@@ -1,5 +1,5 @@
 import { effects } from 'ferp';
-import { CloseWebsocket, RelayMessage } from './websocket';
+import { CloseWebsocket, RelayMessage, ShareMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
 
@@ -32,7 +32,7 @@ const extractStatistics = message => {
 
 export const Init = (queue, nextId = id()) => [
   {
-    connections: [],
+    connections: {},
     queue,
     nextId,
   },
@@ -62,8 +62,7 @@ export const SetTimerTTL = (timerId, ttl) => state => [
 export const UpdateConnectionStatistics = timerId => state => [
   state,
   defer(resolve => {
-    const connections = state.connections.filter(c => c.timerId === timerId)
-      .length;
+    const connections = (state.connections[timerId] || []).length;
 
     if (connections === 0) {
       return state.queue
@@ -85,34 +84,48 @@ export const UpdateConnectionStatistics = timerId => state => [
   }),
 ];
 
-export const AddConnection = (websocket, timerId) => state => [
-  {
-    ...state,
-    connections: state.connections.concat(
-      Connection.make(state.nextId, websocket, timerId),
-    ),
-  },
-  batch([
-    GenerateIdEffect(SetNextId),
-    act(UpdateConnectionStatistics(timerId)),
-    act(ShareTimerWith(websocket, timerId)),
-    defer(state.queue.setTimerTtl(timerId, -1).then(none)),
-  ]),
-];
-
-export const RemoveConnection = (websocket, timerId) => state => {
-  const connections = state.connections.filter(c => c.websocket !== websocket);
+export const AddConnection = (websocket, timerId) => state => {
+  const connection = Connection.make(state.nextId, websocket, timerId);
   return [
     {
       ...state,
-      connections,
+      connections: {
+        ...state.connections,
+        [timerId]: (state.connections[timerId] || []).concat(connection),
+      },
+    },
+    batch([
+      GenerateIdEffect(SetNextId),
+      act(UpdateConnectionStatistics(timerId), 'UpdateConnectionStatistics'),
+      act(ShareTimerWith(connection, timerId), 'ShareTimerWith'),
+      defer(state.queue.setTimerTtl(timerId, -1).then(none), 'setTimerTtl'),
+    ]),
+  ];
+};
+
+export const RemoveConnection = (websocket, timerId) => state => {
+  const timerConnections = (state.connections[timerId] || []).filter(
+    c => c.websocket !== websocket,
+  );
+  const { [timerId]: current, ...others } = state.connections;
+
+  return [
+    {
+      ...state,
+      connections:
+        timerConnections.length > 0
+          ? { ...others, [timerId]: current }
+          : others,
     },
     batch([
       CloseWebsocket(websocket),
-      act(UpdateConnectionStatistics(timerId)),
-      connections.length > 0
+      act(UpdateConnectionStatistics(timerId), 'UpdateConnectionStatistics'),
+      timerConnections.length > 0
         ? none()
-        : defer(state.queue.setTimerTtl(timerId, 60 * 24 * 3).then(none)),
+        : defer(
+            state.queue.setTimerTtl(timerId, 60 * 24 * 3).then(none),
+            'setTimerTtl',
+          ),
     ]),
   ];
 };
@@ -144,51 +157,52 @@ export const UpdateTimer = (timerId, message) => state => {
   ];
 };
 
-export const MessageTimer = (timerId, message) => state => [
-  state,
-  effects.batch(
-    state.connections
-      .filter(c => c.timerId === timerId)
-      .map(c => RelayMessage(c, message)),
-  ),
-];
+export const MessageTimer = (timerId, message) => state => {
+  return [
+    state,
+    ShareMessage(
+      timerId,
+      state.connections[timerId] || [],
+      message,
+      state.queue,
+    ),
+  ];
+};
 
-export const ShareTimerWith = (websocket, timerId) => state => [
+export const ShareTimerWith = (connection, timerId) => state => [
   state,
   effects.defer(
-    state.queue
-      .getTimer(timerId)
-      .then(timer => {
-        if (!timer) return;
+    state.queue.getTimer(timerId).then(timer => {
+      if (!timer) return;
 
-        const sync = key => {
-          websocket.send(
-            JSON.stringify({
+      const sync = (key, payload) =>
+        RelayMessage(
+          connection,
+          JSON.stringify(
+            payload || {
               type: `${key}:update`,
               [key]: timer[key] || defaultTimer[key],
-            }),
-          );
-        };
+            },
+          ),
+        );
 
-        sync('settings');
-        sync('mob');
-        sync('goals');
+      const timerIsRunning =
+        timer.timerStartedAt &&
+        timer.timerDuration &&
+        timer.timerDuration - (Date.now() - timer.timerStartedAt) > 0;
 
-        const timerIsRunning =
-          timer.timerStartedAt &&
-          timer.timerDuration &&
-          timer.timerDuration - (Date.now() - timer.timerStartedAt) > 0;
-
-        if (timerIsRunning) {
-          websocket.send(
-            JSON.stringify({
-              type: 'timer:update',
-              timerStartedAt: timer.timerStartedAt,
-              timerDuration: timer.timerDuration,
-            }),
-          );
-        }
-      })
-      .then(none),
+      return batch(
+        [
+          sync('settings'),
+          sync('mob'),
+          sync('goals'),
+          sync('timer', {
+            type: 'timer:update',
+            timerStartedAt: timer.timerStartedAt,
+            timerDuration: timer.timerDuration,
+          }),
+        ].filter(Boolean),
+      );
+    }),
   ),
 ];

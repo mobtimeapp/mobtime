@@ -1,9 +1,8 @@
 import test from 'ava';
-import { effects } from 'ferp';
+import { effects, tester } from 'ferp';
 import * as Actions from './actions.js';
-import { CloseWebsocket, RelayMessage } from './websocket';
-import { GenerateIdEffect } from './id.js';
 import { Queue } from './queue.js';
+import { fakeSocket } from './support/fakeSocket.js';
 
 const fx = object => {
   switch (object.type.toString()) {
@@ -24,80 +23,128 @@ const fx = object => {
   }
 };
 
-const fakeSocket = () => ({ send: () => {} });
-
-test('Init resets connections and statistics, with no effect', t => {
+test('Init resets connections and statistics, with no effect', async t => {
   const nextId = 'foo';
   const queue = {};
-  const [state, effect] = Actions.Init(queue, nextId);
 
-  t.deepEqual(state, {
-    connections: [],
+  const { ok, state } = await tester().fromAction(() =>
+    Actions.Init(queue, nextId),
+  );
+
+  t.truthy(ok());
+
+  t.deepEqual(state(), {
+    connections: {},
     queue,
     nextId,
   });
-
-  t.deepEqual(fx(effect), fx(effects.none()));
 });
 
-test('AddConnection adds the connection', t => {
+test('AddConnection adds the connection', async t => {
   const timerId = 'foo';
-  const websocket = fakeSocket;
+  const websocket = fakeSocket();
   const nextId = 'testId';
   const queue = Queue.forTesting();
-  const originalState = { connections: [], nextId, queue };
 
-  const [state, _effect] = Actions.AddConnection(
-    websocket,
-    timerId,
-  )(originalState);
-
-  t.deepEqual(state, {
-    connections: [{ id: nextId, timerId, websocket }],
+  const { ok, state, failedOn } = await tester({
+    connections: {},
     nextId,
+    queue,
+  })
+    .willBatch()
+    .willAct('')
+    .willAct('UpdateConnectionStatistics')
+    .willAct('ShareTimerWith')
+    .willDefer('setTimerTtl')
+    .fromAction(Actions.AddConnection(websocket, timerId));
+
+  t.truthy(ok(), `Failed expecatations: ${failedOn().join(', ')}`);
+
+  t.deepEqual(state(), {
+    connections: {
+      [timerId]: [{ id: nextId, timerId, websocket }],
+    },
+    nextId: state().nextId,
     queue,
   });
 });
 
-test('RemoveConnection removes the connection', t => {
+test('RemoveConnection removes the connection', async t => {
   const timerId = 'foo';
   const websocket = fakeSocket();
   const connection = { id: 'test', timerId, websocket };
   const queue = Queue.forTesting();
-  const originalState = { connections: [connection], queue };
 
-  const [state, _effect] = Actions.RemoveConnection(
-    websocket,
-    timerId,
-  )(originalState);
+  const { ok, failedOn, state } = await tester({
+    connections: { [timerId]: [connection] },
+    queue,
+  })
+    .willBatch()
+    .willThunk('CloseWebsocket')
+    .willAct('UpdateConnectionStatistics')
+    .willDefer('setTimerTtl')
+    .fromAction(Actions.RemoveConnection(websocket, timerId));
 
-  t.deepEqual(state, {
-    connections: [],
+  t.truthy(ok(), `Failed expecatations: ${failedOn().join(', ')}`);
+
+  t.deepEqual(state(), {
+    connections: {},
     queue,
   });
 });
 
-test('MessageTimer relays a message from one connection to all other connections on the same timerId', t => {
+test('MessageTimer relays a message from one connection to all connections on the same timerId', async t => {
   const timerId = 'foo';
   const websocket = fakeSocket();
-  const message = 'hello world';
-  const otherConnection = { timerId: 'bar', websocket: fakeSocket() };
+  const message = JSON.stringify({ type: 'foo' });
   const connection = { timerId, websocket };
   const secondConnectionToTimer = { timerId, websocket: fakeSocket() };
-  const originalState = {
-    connections: [otherConnection, connection, secondConnectionToTimer],
+  const otherConnection = { timerId: 'bar', websocket: fakeSocket() };
+  const queue = Queue.forTesting();
+  const initialState = {
+    connections: {
+      bar: [otherConnection],
+      foo: [connection, secondConnectionToTimer],
+    },
+    queue,
   };
 
-  const [state, effect] = Actions.MessageTimer(
+  const { ok, state, failedOn, hit, missed } = await tester(initialState)
+    .willDefer('ShareMessage')
+    .fromAction(Actions.MessageTimer(timerId, message), 'MessageTimer');
+
+  t.log('hit', hit());
+  t.log('missed', missed());
+
+  t.truthy(ok(), `Failed expectations: ${failedOn().join(', ')}`);
+
+  t.deepEqual(state(), initialState);
+});
+
+test('ShareTimerWith sends settings, mob, and goals', async t => {
+  const timerId = 'foo';
+  const websocket = fakeSocket();
+  const connection = { timerId, websocket };
+  const timerState = {
+    settings: { one: '1' },
+    mob: [],
+    goals: [],
+  };
+  const queue = Queue.forTesting({
+    timer_foo: JSON.stringify(timerState),
+  });
+  const originalState = {
+    connections: [connection],
+    queue,
+  };
+
+  const [state, effect] = Actions.ShareTimerWith(
+    websocket,
     timerId,
-    message,
   )(originalState);
 
   t.is(state, originalState);
   t.deepEqual(state, originalState);
 
-  t.deepEqual(fx(effect), [
-    fx(RelayMessage(connection, message)),
-    fx(RelayMessage(secondConnectionToTimer, message)),
-  ]);
+  t.deepEqual(fx(effect), fx(effects.defer()));
 });

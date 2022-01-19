@@ -1,55 +1,30 @@
 import test from 'ava';
 import sinon from 'sinon';
-import { app, effects } from 'ferp';
+import { app, effects, tester } from 'ferp';
 import * as Actions from './actions.js';
 import { Queue } from './queue.js';
+import { fakeSocket } from './support/fakeSocket.js';
 
-const runApp = (init, observe) => {
-  const QuitApp = () => [null, effects.none()];
-
-  const dispatch = app({
-    init,
-    observe,
-  });
-
-  return () => dispatch(QuitApp);
-};
-
-const fakeWebsocket = () => {
-  const events = {};
-  const getEvents = name => events[name] || [];
-
-  const on = (name, cb) => {
-    events[name] = getEvents(name).concat(cb);
-  };
-  const trigger = (name, event) => getEvents(name).forEach(cb => cb(event));
-
-  return {
-    send: sinon.fake(),
-    close: sinon.fake(),
-    on,
-    trigger,
-  };
-};
-
-test('Adding two connections together does not duplicate id', t => {
-  let lastState = null;
+test('Adding two connections together does not duplicate id', async t => {
   const queue = Queue.forTesting();
 
-  const done = runApp(
-    [
-      { connections: [], statistics: {}, nextId: 'abc123', queue },
+  const testerInstance = await tester({
+    connections: {},
+    nextId: 'abc123',
+    queue,
+  })
+    .willBatch()
+    .willAct('AddConnection')
+    .willAct('AddConnection')
+    .fromEffect(
       effects.batch([
-        effects.act(Actions.AddConnection(fakeWebsocket(), 'foo')),
-        effects.act(Actions.AddConnection(fakeWebsocket(), 'bar')),
+        effects.act(Actions.AddConnection(fakeSocket(), 'foo')),
+        effects.act(Actions.AddConnection(fakeSocket(), 'bar')),
       ]),
-    ],
-    ([state]) => {
-      lastState = state || lastState;
-    },
+    );
+
+  t.not(
+    testerInstance.state().connections.foo[0].id,
+    testerInstance.state().connections.bar[0].id,
   );
-
-  done();
-
-  t.not(lastState.connections[0].id, lastState.connections[1].id);
 });

@@ -65,7 +65,7 @@ export const settings = props =>
     section(
       {
         class: {
-          "grid": true,
+          grid: true,
           'grid-cols-2': true,
           'gap-2': true,
         },

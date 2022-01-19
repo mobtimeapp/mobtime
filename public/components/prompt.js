@@ -36,7 +36,7 @@ export const appPrompt = props =>
             {
               for: 'mobtime-prompt',
               class: {
-                "block": true,
+                block: true,
                 'mb-2': true,
               },
             },
@@ -49,7 +49,7 @@ export const appPrompt = props =>
             oninput: (_, e) => [actions.PromptValueChange, e.target.value],
             autocomplete: 'off',
             class: {
-              "block": true,
+              block: true,
               'mb-4': true,
             },
           }),
@@ -57,7 +57,7 @@ export const appPrompt = props =>
             'div',
             {
               class: {
-                "flex": true,
+                flex: true,
                 'items-center': true,
                 'justify-end': true,
               },
