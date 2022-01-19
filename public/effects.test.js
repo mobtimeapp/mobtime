@@ -90,17 +90,17 @@ test('can send update mob message', t => {
 });
 
 test('cannot request notification permission when no notification object given', t => {
-  const SetNotificationPermissions = sinon.fake();
+  const UpdateNotificationPermissions = sinon.fake();
   const fakeState = {};
   const dispatch = (action, props) => action(fakeState, props);
 
   runEffect(
-    effects.NotificationPermission({ SetNotificationPermissions }),
+    effects.NotificationPermission({ UpdateNotificationPermissions }),
     dispatch,
   );
 
   t.truthy(
-    SetNotificationPermissions.calledOnceWithExactly(fakeState, {
+    UpdateNotificationPermissions.calledOnceWithExactly(fakeState, {
       notificationPermissions: 'denied',
       Notification: undefined,
       documentElement: undefined,
@@ -109,7 +109,7 @@ test('cannot request notification permission when no notification object given',
 });
 
 test('can request notification permission, and send value back to action', async t => {
-  const SetNotificationPermissions = sinon.fake();
+  const UpdateNotificationPermissions = sinon.fake();
   const Notification = {
     requestPermission: () => Promise.resolve('denied'),
   };
@@ -119,7 +119,7 @@ test('can request notification permission, and send value back to action', async
 
   runEffect(
     effects.NotificationPermission({
-      SetNotificationPermissions,
+      UpdateNotificationPermissions,
       Notification,
       documentElement,
     }),
@@ -129,7 +129,7 @@ test('can request notification permission, and send value back to action', async
   await new Promise(resolve => setTimeout(resolve, 0));
 
   t.truthy(
-    SetNotificationPermissions.calledOnceWithExactly(fakeState, {
+    UpdateNotificationPermissions.calledOnceWithExactly(fakeState, {
       notificationPermissions: 'denied',
       Notification,
       documentElement,
@@ -138,7 +138,7 @@ test('can request notification permission, and send value back to action', async
 });
 
 test('can request notification permission, and handle exception', async t => {
-  const SetNotificationPermissions = sinon.fake();
+  const UpdateNotificationPermissions = sinon.fake();
   const Notification = {
     requestPermission: () => Promise.reject(new Error('foo')),
   };
@@ -148,7 +148,7 @@ test('can request notification permission, and handle exception', async t => {
 
   runEffect(
     effects.NotificationPermission({
-      SetNotificationPermissions,
+      UpdateNotificationPermissions,
       Notification,
       documentElement,
     }),
@@ -157,9 +157,8 @@ test('can request notification permission, and handle exception', async t => {
 
   await new Promise(resolve => setTimeout(resolve, 0));
 
-  // t.truthy(SetNotificationPermissions.calledOnceWithExactly(fakeState, ''));
   t.truthy(
-    SetNotificationPermissions.calledOnceWithExactly(fakeState, {
+    UpdateNotificationPermissions.calledOnceWithExactly(fakeState, {
       notificationPermissions: 'denied',
       Notification,
       documentElement,

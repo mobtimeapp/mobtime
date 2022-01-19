@@ -23,7 +23,7 @@ export const removeCompletedGoals = props => {
           },
         ],
         class: {
-          "flex": true,
+          flex: true,
           'flex-col': true,
           'items-center': true,
           'justify-start': true,
@@ -36,7 +36,7 @@ export const removeCompletedGoals = props => {
           'div',
           {
             class: {
-              "flex": true,
+              flex: true,
               'items-center': true,
               'justify-end': true,
               'pt-2': true,

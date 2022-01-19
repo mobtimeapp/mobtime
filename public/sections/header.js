@@ -6,7 +6,7 @@ export const header = () =>
   section(
     {
       class: {
-        "flex": true,
+        flex: true,
         'flex-row': true,
         'items-center': true,
         'justify-start': true,
@@ -20,7 +20,7 @@ export const header = () =>
         'div',
         {
           class: {
-            "uppercase": true,
+            uppercase: true,
             'tracker-widest': true,
             'text-2xl': true,
           },

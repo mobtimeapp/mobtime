@@ -19,7 +19,7 @@ export const addGoal = props =>
           return [actions.AddGoals, props.goal];
         },
         class: {
-          "flex": true,
+          flex: true,
           'flex-col': true,
           'items-center': true,
           'justify-start': true,
@@ -54,7 +54,7 @@ export const addGoal = props =>
           'div',
           {
             class: {
-              "flex": true,
+              flex: true,
               'items-center': true,
               'justify-between': true,
               'pt-2': true,

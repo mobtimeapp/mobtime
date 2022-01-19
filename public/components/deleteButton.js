@@ -15,7 +15,7 @@ export const deleteButton = props =>
     [
       h('i', {
         class: {
-          "fas": true,
+          fas: true,
           'fa-times': true,
         },
       }),

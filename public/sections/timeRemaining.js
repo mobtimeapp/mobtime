@@ -20,7 +20,7 @@ export const timeRemaining = props => {
         class: {
           'text-sm': true,
           'font-bold': true,
-          "uppercase": true,
+          uppercase: true,
         },
       },
       text('Remaining Time'),
@@ -30,7 +30,7 @@ export const timeRemaining = props => {
       'div',
       {
         class: {
-          "flex": true,
+          flex: true,
           'flex-row': true,
           'items-center': true,
           'justify-between': true,
@@ -41,7 +41,7 @@ export const timeRemaining = props => {
           'h3',
           {
             class: {
-              "flex": true,
+              flex: true,
               'flex-row': true,
               'items-start': true,
               'justify-start': true,
@@ -95,7 +95,7 @@ export const timeRemaining = props => {
             [
               h('i', {
                 class: {
-                  "fas": true,
+                  fas: true,
                   'fa-play': true,
                   'mr-4': true,
                 },
@@ -119,7 +119,7 @@ export const timeRemaining = props => {
             [
               h('i', {
                 class: {
-                  "fas": true,
+                  fas: true,
                   'fa-pause': !isPaused,
                   'fa-play': isPaused,
                   'mr-4': true,

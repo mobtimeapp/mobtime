@@ -18,7 +18,7 @@ export const addParticipant = props =>
           return [actions.AddNameToMob, {}];
         },
         class: {
-          "flex": true,
+          flex: true,
           'flex-row': true,
           'items-center': true,
           'justify-between': true,

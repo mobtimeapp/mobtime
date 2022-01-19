@@ -6,7 +6,7 @@ export const qrShare = () =>
   section(
     {
       class: {
-        "flex": true,
+        flex: true,
         'flex-col': true,
         'items-center': true,
         'justify-center': true,

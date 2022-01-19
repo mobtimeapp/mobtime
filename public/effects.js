@@ -67,10 +67,10 @@ export const UpdateMob = fx(function UpdateMobFX(
 
 export const NotificationPermission = fx(function NotificationPermissionFX(
   dispatch,
-  { SetNotificationPermissions, Notification, documentElement },
+  { UpdateNotificationPermissions, Notification, documentElement },
 ) {
   const dispatchSetNotificationPermissions = notificationPermissions => {
-    dispatch(SetNotificationPermissions, {
+    dispatch(UpdateNotificationPermissions, {
       notificationPermissions,
       Notification,
       documentElement,
@@ -85,7 +85,6 @@ export const NotificationPermission = fx(function NotificationPermissionFX(
   Notification.requestPermission()
     .then(dispatchSetNotificationPermissions)
     .catch(() => {
-      // eslint-disable-next-line no-console
       dispatchSetNotificationPermissions('denied');
     });
 });

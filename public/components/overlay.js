@@ -6,9 +6,9 @@ export const overlay = (props = {}, children) =>
     {
       ...props,
       class: {
-        "absolute": true,
+        absolute: true,
         'inset-0': true,
-        "flex": true,
+        flex: true,
         'items-center': true,
         'justify-center': true,
         'z-40': true,

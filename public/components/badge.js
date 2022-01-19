@@ -10,7 +10,7 @@ export const badge = (props, children) =>
         'text-gray-200': true,
         'py-1': true,
         'px-2': true,
-        "rounded": true,
+        rounded: true,
         'bg-green-600': true,
       },
     },

@@ -7,14 +7,14 @@ export const goal = props =>
     'div',
     {
       class: {
-        "flex": true,
+        flex: true,
         'flex-row': true,
         'items-center': true,
         'justify-between': true,
         'mb-2': true,
         'w-full': true,
         'break-words': true,
-        "truncate": props.truncate,
+        truncate: props.truncate,
       },
     },
     [
@@ -70,7 +70,7 @@ export const goal = props =>
             'flex-grow': true,
             'leading-tight': true,
             'text-gray-500': props.id === null,
-            "truncate": props.truncate,
+            truncate: props.truncate,
           },
         },
         text(props.text),

@@ -6,14 +6,14 @@ export const mobber = props =>
   section(
     {
       class: {
-        "flex": true,
+        flex: true,
         'flex-row': true,
         'items-center': true,
         'justify-between': true,
         'mb-1': true,
         'h-full': true,
         'w-full': true,
-        "truncate": props.truncate,
+        truncate: props.truncate,
       },
     },
     [
@@ -29,7 +29,7 @@ export const mobber = props =>
             'div',
             {
               class: {
-                "uppercase": true,
+                uppercase: true,
                 'leading-none': true,
                 'mb-1': true,
               },
@@ -43,7 +43,7 @@ export const mobber = props =>
                 'text-gray-500': !props.name,
                 'font-bold': props.position !== 'mob',
                 'leading-none': true,
-                "truncate": props.truncate,
+                truncate: props.truncate,
               },
             },
             text(props.name || 'Empty'),

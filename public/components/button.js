@@ -9,7 +9,7 @@ export const button = (props, children) =>
       class: {
         'py-1': true,
         'px-2': true,
-        "uppercase": true,
+        uppercase: true,
         ...(props.class || {}),
       },
     },

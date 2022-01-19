@@ -16,9 +16,11 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   const wss = new ws.Server({ server });
 
   app.use(bodyParser.json());
-  app.use(helmet({
-    contentSecurityPolicy: false,
-  }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+    }),
+  );
 
   const router = new express.Router();
 
@@ -46,9 +48,7 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
     const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
     const html = await fs.promises.readFile(htmlPayload, { encoding: 'utf8' });
 
-    return response
-      .status(200)
-      .send(html);
+    return response.status(200).send(html);
   });
 
   server.listen(port, host, () => {

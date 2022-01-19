@@ -11,16 +11,17 @@ app({
   init: Action.Init(new Queue()),
 
   subscribe: state => {
-    const timerIds = Array.from(
-      new Set(state.connections.map(c => c.timerId))
-    ).sort();
+    const timerIds = Object.keys(state.connections).sort();
 
     return [
       Http(Action, host, port),
 
-      ...state.connections.map((connection) => (
-        Websocket(Action, connection, connection.timerId)
-      )),
+      ...timerIds.reduce((subs, timerId) => [
+        ...subs,
+        ...state.connections[timerId].map(connection => (
+          Websocket(Action, connection, connection.timerId)
+        )),
+      ], []),
 
       ...timerIds.map((timerId) => (
         state.queue.subscribeToTimer(

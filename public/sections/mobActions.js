@@ -9,7 +9,7 @@ export const mobActions = () =>
   section(
     {
       class: {
-        "flex": true,
+        flex: true,
         'flex-row': true,
         'items-center': true,
         'justify-between': true,
