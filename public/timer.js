@@ -4,6 +4,7 @@ import { appPrompt } from '/components/prompt.js';
 import { section } from '/components/section.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
+import { toasts } from '/sections/toasts.js';
 import * as subscriptions from '/subscriptions.js';
 import { app, h, text } from '/vendor/hyperapp.js';
 
@@ -123,6 +124,7 @@ app({
             state.prompt.visible && appPrompt(state.prompt || {}),
           ],
         ),
+        toasts(),
       ],
     ),
 
