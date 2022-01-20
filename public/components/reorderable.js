@@ -53,13 +53,6 @@ const dropZoneTrigger = props =>
     onmouseenter: [actions.DragTo, { to: props.index }],
   });
 
-const mouseDownDecoder = (type, from) => event => ({
-  type,
-  from,
-  clientX: event.clientX,
-  clientY: event.clientY,
-});
-
 const dragContainer = (props, children) =>
   h(
     'div',
@@ -90,9 +83,14 @@ const dragContainer = (props, children) =>
               'mr-2': true,
               'cursor-move': true,
             },
-            onmousedown: [
+            onmousedown: (_, event) => [
               actions.DragSelect,
-              mouseDownDecoder(props.dragType, props.index),
+              {
+                type: props.dragType,
+                from: props.index,
+                clientX: event.clientX,
+                clientY: event.clientY,
+              },
             ],
           },
           Array.from({ length: 3 }, () =>
@@ -187,16 +185,18 @@ const dragContainer = (props, children) =>
           [h('i', { class: 'fas fa-ellipsis-h' })],
         ),
 
-      props.isDragging && [
-        h(dropZoneTrigger, {
-          index: props.index,
-          top: 0,
-        }),
-        h(dropZoneTrigger, {
-          index: props.index + 1,
-          top: '50%',
-        }),
-      ],
+      ...(props.isDragging
+        ? [
+            dropZoneTrigger({
+              index: props.index,
+              top: 0,
+            }),
+            dropZoneTrigger({
+              index: props.index + 1,
+              top: '50%',
+            }),
+          ]
+        : []),
     ],
   );
 
