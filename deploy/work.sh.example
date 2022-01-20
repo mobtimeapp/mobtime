@@ -23,8 +23,8 @@ rm -rf $APP_DIR/next/.git
 
 echo Installing dependencies...
 cd $APP_DIR/next
-yarn --prod --non-interactive
-yarn tailwind
+npm ci --omit=dev --ignore-scripts
+npm run tailwind
 
 echo Swapping fresh deploy with current code...
 rm -rf $APP_DIR/previous
