@@ -45,6 +45,7 @@ app({
     externals: {
       documentElement: window.document,
       Notification: window.Notification,
+      storage: window.localStorage,
     },
   }),
 
@@ -124,7 +125,7 @@ app({
             state.prompt.visible && appPrompt(state.prompt || {}),
           ],
         ),
-        toasts(),
+        toasts(state),
       ],
     ),
 

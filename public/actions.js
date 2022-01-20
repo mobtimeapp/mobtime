@@ -1,4 +1,6 @@
 import * as effects from './effects.js';
+import { h, text } from '/vendor/hyperapp.js';
+import { button } from '/components/button.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
 export const Noop = state => state;
@@ -34,30 +36,37 @@ const collectionMove = (collection, { from, to }) => {
   return newCollection;
 };
 
-export const Init = (_, { timerId, externals }) => ({
-  timerStartedAt: null,
-  timerDuration: 0,
-  mob: [],
-  goals: [],
-  settings: {
-    mobOrder: 'Navigator,Driver',
-    duration: 5 * 60 * 1000,
+export const Init = (_, { timerId, externals }) => [
+  {
+    timerStartedAt: null,
+    timerDuration: 0,
+    mob: [],
+    goals: [],
+    settings: {
+      mobOrder: 'Navigator,Driver',
+      duration: 5 * 60 * 1000,
+    },
+    expandedReorderable: null,
+    timerTab: 'overview',
+    drag: { ...emptyDrag },
+    prompt: { ...emptyPrompt },
+    timerId,
+    currentTime: null,
+    name: '',
+    goal: '',
+    addMultiple: false,
+    allowNotification: externals.Notification.permission === 'granted',
+    allowSound: false,
+    pendingSettings: {},
+    websocket: null,
+    externals,
+    toasts: [],
   },
-  expandedReorderable: null,
-  timerTab: 'overview',
-  drag: { ...emptyDrag },
-  prompt: { ...emptyPrompt },
-  timerId,
-  currentTime: null,
-  name: '',
-  goal: '',
-  addMultiple: false,
-  allowNotification: externals.Notification.permission === 'granted',
-  allowSound: false,
-  pendingSettings: {},
-  websocket: null,
-  externals,
-});
+  effects.checkSound({
+    storage: externals.storage,
+    onLocalSoundEnabled: SoundToast,
+  }),
+];
 
 export const SetAddMultiple = (state, addMultiple) => ({
   ...state,
@@ -633,6 +642,95 @@ export const SetAllowSound = (state, allowSound) => [
   {
     ...state,
     allowSound,
+  },
+  effects.saveSound({
+    storage: state.externals.storage,
+    allowSound,
+  }),
+];
+
+export const RemoveToast = (state, id) => [
+  {
+    ...state,
+    toasts: state.toasts.filter(t => t.id !== id),
+  },
+];
+
+export const SoundToast = state => [
+  {
+    ...state,
+    toasts: [
+      ...state.toasts,
+      {
+        id: 'sound-effects',
+        title: text('Sound Effects'),
+        body: text(
+          'You previously enabled sound effects, do you want to enable this time, too?',
+        ),
+        footer: h(
+          'div',
+          {
+            class: 'flex align-center justify-start',
+          },
+          [
+            button(
+              {
+                class: {
+                  'bg-green-600': true,
+                  'text-white': true,
+                  'mr-1': true,
+                  uppercase: false,
+                },
+                onclick: state => [
+                  state,
+                  effects.andThen({ action: SetAllowSound, props: true }),
+                  effects.andThen({
+                    action: RemoveToast,
+                    props: 'sound-effects',
+                  }),
+                ],
+              },
+              text('Okay!'),
+            ),
+            button(
+              {
+                class: {
+                  'bg-slate-200': true,
+                  'text-gray-900': true,
+                  'mr-1': true,
+                  uppercase: false,
+                },
+                onclick: () => [RemoveToast, 'sound-effects'],
+              },
+              text('Not now'),
+            ),
+            h('div', { class: 'flex-grow' }),
+            button(
+              {
+                class: {
+                  'bg-red-600': true,
+                  'text-white': true,
+                  'mr-1': true,
+                  uppercase: false,
+                },
+                onclick: state => [
+                  state,
+                  effects.saveSound({
+                    storage: state.externals.storage,
+                    allowSound: false,
+                  }),
+                  effects.andThen({
+                    action: RemoveToast,
+                    props: 'sound-effects',
+                  }),
+                ],
+              },
+              text('Never'),
+            ),
+          ],
+        ),
+      },
+    ],
   },
 ];
 
