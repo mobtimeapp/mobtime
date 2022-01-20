@@ -135,7 +135,9 @@ export const UpdateTimer = (timerId, message) => state => {
 
   const meta = {
     ...(type === 'timer:start' ? { timerStartedAt: Date.now() } : {}),
-    ...(type === 'timer:complete' ? { timerStartedAt: null } : {}),
+    ...(type === 'timer:complete'
+      ? { timerStartedAt: null, timerDuration: 0 }
+      : {}),
     ...(type === 'timer:pause' ? { timerStartedAt: null } : {}),
   };
 
