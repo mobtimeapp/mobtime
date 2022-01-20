@@ -19,6 +19,8 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   app.use(
     helmet({
       contentSecurityPolicy: false,
+      crossOriginOpenerPolicy: 'unsafe-none',
+      crossOriginEmbedderPolicy: 'unsafe-none',
     }),
   );
 
