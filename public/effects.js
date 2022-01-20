@@ -125,3 +125,33 @@ export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
 export const andThen = fx(function andThenFX(dispatch, { action, props }) {
   dispatch(action, props);
 });
+
+export const checkSound = fx(function CheckSoundFX(
+  dispatch,
+  { storage, onLocalSoundEnabled },
+) {
+  let localSettings = storage.getItem('settings');
+  if (!localSettings) return;
+
+  localSettings = JSON.parse(localSettings);
+  if (localSettings.allowSound) {
+    dispatch(onLocalSoundEnabled);
+  }
+});
+
+export const saveSound = fx(function SaveSoundFX(
+  _dispatch,
+  { storage, allowSound },
+) {
+  let localSettings = storage.getItem('settings');
+  if (!localSettings) {
+    localSettings = '{}';
+  }
+
+  localSettings = {
+    ...JSON.parse(localSettings),
+    allowSound,
+  };
+
+  storage.setItem('settings', JSON.stringify(localSettings));
+});

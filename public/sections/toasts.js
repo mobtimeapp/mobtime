@@ -1,8 +1,8 @@
 import { h, text } from '/vendor/hyperapp.js';
-import { button } from '/components/button.js';
 import { deleteButton } from '/components/deleteButton.js';
+import { RemoveToast } from '/actions.js';
 
-export const toast = ({ title, body, footer }) =>
+export const toast = ({ id, title, body, footer }) =>
   h(
     'article',
     {
@@ -35,12 +35,14 @@ export const toast = ({ title, body, footer }) =>
         {
           class: 'absolute top-0 right-0',
         },
-        deleteButton({}),
+        deleteButton({
+          onclick: () => [RemoveToast, id],
+        }),
       ),
     ],
   );
 
-export const toasts = () =>
+export const toasts = props =>
   h(
     'div',
     {
@@ -52,54 +54,7 @@ export const toasts = () =>
       },
     },
     [
-      toast({
-        title: text('Sound Effects'),
-        body: text(
-          'You previously enabled sound effects, do you want to enable this time, too?',
-        ),
-        footer: h(
-          'div',
-          {
-            class: 'flex align-center justify-start',
-          },
-          [
-            button(
-              {
-                class: {
-                  'bg-green-600': true,
-                  'text-white': true,
-                  'mr-1': true,
-                  uppercase: false,
-                },
-              },
-              text('Okay!'),
-            ),
-            button(
-              {
-                class: {
-                  'bg-slate-200': true,
-                  'text-gray-900': true,
-                  'mr-1': true,
-                  uppercase: false,
-                },
-              },
-              text('Not now'),
-            ),
-            h('div', { class: 'flex-grow' }),
-            button(
-              {
-                class: {
-                  'bg-red-600': true,
-                  'text-white': true,
-                  'mr-1': true,
-                  uppercase: false,
-                },
-              },
-              text('Never'),
-            ),
-          ],
-        ),
-      }),
+      ...props.toasts.map(toast),
       toast({
         title: text('Bot Integration'),
         body: text(
