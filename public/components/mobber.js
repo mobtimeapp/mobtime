@@ -3,7 +3,8 @@ import { h, text } from '/vendor/hyperapp.js';
 import { section } from '/components/section.js';
 
 export const mobber = props =>
-  section(
+  h(
+    'div',
     {
       class: {
         flex: true,
@@ -14,6 +15,9 @@ export const mobber = props =>
         'h-full': true,
         'w-full': true,
         truncate: props.truncate,
+        'bg-indigo-50': props.position !== 'mob',
+        'py-2': true,
+        'pl-1': true,
       },
     },
     [
