@@ -198,11 +198,12 @@ export const ShareTimerWith = (connection, timerId) => state => [
           sync('settings'),
           sync('mob'),
           sync('goals'),
-          sync('timer', {
-            type: 'timer:update',
-            timerStartedAt: timer.timerStartedAt,
-            timerDuration: timer.timerDuration,
-          }),
+          timerIsRunning &&
+            sync('timer', {
+              type: 'timer:update',
+              timerStartedAt: timer.timerStartedAt,
+              timerDuration: timer.timerDuration,
+            }),
         ].filter(Boolean),
       );
     }),
