@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "nodemon --ignore public ./index.js",
+    "start:dev": "docker-compose up",
     "tailwind": "tailwindcss build -i ./src/styles/index.css -o ./public/styles/styles.css",
     "start": "node ./index.js",
     "lint": "prettier-eslint --write \"./src/**/*.js\" \"./public/**/*.js\"",
