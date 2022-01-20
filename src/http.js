@@ -21,6 +21,8 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
       contentSecurityPolicy: false,
       crossOriginOpenerPolicy: 'unsafe-none',
       crossOriginEmbedderPolicy: 'unsafe-none',
+      frameguard: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
 
