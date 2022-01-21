@@ -105,10 +105,11 @@ app({
               {
                 preload: 'auto',
                 id: 'timer-complete',
+                key: state.sound,
               },
               [
                 h('source', {
-                  src: '/audio/horn.wav',
+                  src: `/audio/${state.sound}.wav`,
                   type: 'audio/wav',
                 }),
               ],

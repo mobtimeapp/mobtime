@@ -55,6 +55,7 @@ export const Init = (_, { timerId, externals }) => [
     addMultiple: false,
     allowNotification: externals.Notification.permission === 'granted',
     allowSound: false,
+    sound: 'horn',
     pendingSettings: {},
     websocket: null,
     externals,
@@ -63,6 +64,14 @@ export const Init = (_, { timerId, externals }) => [
   effects.checkSound({
     storage: externals.storage,
     onLocalSoundEnabled: SoundToast,
+  }),
+];
+
+export const TestSound = state => [
+  state,
+  effects.PlaySound({
+    sound: true,
+    documentElement: state.externals.documentElement,
   }),
 ];
 
@@ -644,8 +653,24 @@ export const SetAllowSound = (state, allowSound) => [
   effects.saveSound({
     storage: state.externals.storage,
     allowSound,
+    sound: state.sound,
   }),
 ];
+
+export const SetSound = (state, noise) => {
+  const sound = noise.split('/')[0];
+  return [
+    {
+      ...state,
+      sound,
+    },
+    effects.saveSound({
+      storage: state.externals.storage,
+      allowSound: state.allowSound,
+      sound,
+    }),
+  ];
+};
 
 export const RemoveToast = (state, id) => [
   {
@@ -654,9 +679,10 @@ export const RemoveToast = (state, id) => [
   },
 ];
 
-export const SoundToast = state => [
+export const SoundToast = (state, { sound }) => [
   {
     ...state,
+    sound,
     toasts: [
       ...state.toasts,
       {

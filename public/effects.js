@@ -89,6 +89,14 @@ export const NotificationPermission = fx(function NotificationPermissionFX(
     });
 });
 
+function PlaySoundFX(_dispatch, { sound, documentElement }) {
+  if (sound && documentElement) {
+    const timerComplete = documentElement.querySelector('#timer-complete');
+    timerComplete.play();
+  }
+}
+export const PlaySound = fx(PlaySoundFX);
+
 export const Notify = fx(function NotifyFX(
   _dispatch,
   {
@@ -107,10 +115,7 @@ export const Notify = fx(function NotifyFX(
       vibrate: [100, 100, 100],
     });
   }
-  if (sound && documentElement) {
-    const timerComplete = documentElement.querySelector('#timer-complete');
-    timerComplete.play();
-  }
+  PlaySoundFX(_dispatch, { sound, documentElement });
 });
 
 export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
@@ -135,13 +140,15 @@ export const checkSound = fx(function CheckSoundFX(
 
   localSettings = JSON.parse(localSettings);
   if (localSettings.allowSound) {
-    dispatch(onLocalSoundEnabled);
+    dispatch(onLocalSoundEnabled, {
+      sound: localSettings.sound || '/audio/horn.wav',
+    });
   }
 });
 
 export const saveSound = fx(function SaveSoundFX(
   _dispatch,
-  { storage, allowSound },
+  { storage, allowSound, sound },
 ) {
   let localSettings = storage.getItem('settings');
   if (!localSettings) {
@@ -151,6 +158,7 @@ export const saveSound = fx(function SaveSoundFX(
   localSettings = {
     ...JSON.parse(localSettings),
     allowSound,
+    sound,
   };
 
   storage.setItem('settings', JSON.stringify(localSettings));
