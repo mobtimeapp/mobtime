@@ -1,6 +1,4 @@
 import * as effects from './effects.js';
-import { h, text } from '/vendor/hyperapp.js';
-import { button } from '/components/button.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
 export const Noop = state => state;
@@ -663,72 +661,41 @@ export const SoundToast = state => [
       ...state.toasts,
       {
         id: 'sound-effects',
-        title: text('Sound Effects'),
-        body: text(
+        title: 'Sound Effects',
+        body:
           'You previously enabled sound effects, do you want to enable this time, too?',
-        ),
-        footer: h(
-          'div',
-          {
-            class: 'flex align-center justify-start',
-          },
-          [
-            button(
-              {
-                class: {
-                  'bg-green-600': true,
-                  'text-white': true,
-                  'mr-1': true,
-                  uppercase: false,
-                },
-                onclick: state => [
-                  state,
-                  effects.andThen({ action: SetAllowSound, props: true }),
-                  effects.andThen({
-                    action: RemoveToast,
-                    props: 'sound-effects',
-                  }),
-                ],
-              },
-              text('Okay!'),
-            ),
-            button(
-              {
-                class: {
-                  'bg-slate-200': true,
-                  'text-gray-900': true,
-                  'mr-1': true,
-                  uppercase: false,
-                },
-                onclick: () => [RemoveToast, 'sound-effects'],
-              },
-              text('Not now'),
-            ),
-            h('div', { class: 'flex-grow' }),
-            button(
-              {
-                class: {
-                  'bg-red-600': true,
-                  'text-white': true,
-                  'mr-1': true,
-                  uppercase: false,
-                },
-                onclick: state => [
-                  state,
-                  effects.saveSound({
-                    storage: state.externals.storage,
-                    allowSound: false,
-                  }),
-                  effects.andThen({
-                    action: RemoveToast,
-                    props: 'sound-effects',
-                  }),
-                ],
-              },
-              text('Never'),
-            ),
+        buttons: {
+          left: [
+            {
+              text: 'Okay!',
+              class: ['bg-green-600', 'text-white', 'mr-1'],
+              actions: [{ action: SetAllowSound, props: true }],
+            },
+            {
+              text: 'Not now',
+              class: [],
+              actions: [],
+            },
           ],
-        ),
+          right: [
+            {
+              text: 'Never',
+              class: ['bg-red-600', 'text-white'],
+              actions: [
+                {
+                  action: s => [
+                    s,
+                    effects.saveSound({
+                      storage: s.externals.storage,
+                      allowSound: false,
+                    }),
+                  ],
+                  props: {},
+                },
+              ],
+            },
+          ],
+        },
       },
     ],
   },

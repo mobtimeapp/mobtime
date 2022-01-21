@@ -4,17 +4,22 @@ import * as actions from './actions';
 test('removes single user in larger group, ref https://github.com/mrozbarry/mobtime/issues/142', t => {
   const documentElement = {};
   const Notification = {};
+  const storage = {
+    getItem: () => null,
+    setItem: () => {},
+  };
 
   const addMobber = (state, name) => {
     const [nextState] = actions.AddNameToMob(actions.UpdateName(state, name));
     return nextState;
   };
 
-  let state = actions.Init(null, {
+  let [state] = actions.Init(null, {
     timerId: 'foo',
     externals: {
       documentElement,
       Notification,
+      storage,
     },
   });
   for (let mobber = 0; mobber < 12; mobber += 1) {
