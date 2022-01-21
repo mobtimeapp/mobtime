@@ -53,13 +53,5 @@ export const toasts = props =>
         width: '300px',
       },
     },
-    [
-      ...props.toasts.map(toast),
-      toast({
-        title: text('Bot Integration'),
-        body: text(
-          'Someone started syncing vehikl/repo issues with your goals',
-        ),
-      }),
-    ],
+    [...props.toasts.map(toast)],
   );
