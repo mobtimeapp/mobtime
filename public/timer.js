@@ -108,16 +108,8 @@ app({
               },
               [
                 h('source', {
-                  src: 'https://bigsoundbank.com/UPLOAD/mp3/1828.mp3',
-                  type: 'audio/mp3',
-                }),
-                h('source', {
-                  src: 'https://bigsoundbank.com/UPLOAD/wav/1828.wav',
+                  src: '/audio/horn.wav',
                   type: 'audio/wav',
-                }),
-                h('source', {
-                  src: 'https://bigsoundbank.com/UPLOAD/flac/1828.flac',
-                  type: 'audio/flac',
                 }),
               ],
             ),
