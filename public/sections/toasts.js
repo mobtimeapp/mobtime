@@ -1,8 +1,10 @@
 import { h, text } from '/vendor/hyperapp.js';
+import { button } from '/components/button.js';
 import { deleteButton } from '/components/deleteButton.js';
 import { RemoveToast } from '/actions.js';
+import * as effects from '/effects.js';
 
-export const toast = ({ id, title, body, footer }) =>
+export const toast = ({ id, title, body, buttons }) =>
   h(
     'article',
     {
@@ -15,10 +17,10 @@ export const toast = ({ id, title, body, footer }) =>
         {
           class: 'font-bold mr-16',
         },
-        title,
+        text(title),
       ),
-      body && h('section', {}, body),
-      footer &&
+      body && h('section', {}, typeof body === 'string' ? text(body) : body),
+      buttons &&
         h(
           'footer',
           {
@@ -26,9 +28,50 @@ export const toast = ({ id, title, body, footer }) =>
               'mt-2': true,
               'pt-2': true,
               'border-t': true,
+              flex: true,
+              'align-center': true,
+              'justify-start': true,
             },
           },
-          footer,
+          [
+            ...buttons.left.map(btn =>
+              button(
+                {
+                  class: btn.class.reduce(
+                    (obj, item) => ({ ...obj, [item]: true }),
+                    { 'mr-1': true },
+                  ),
+                  onclick: state => [
+                    state,
+                    ...btn.actions.map(actionProps =>
+                      effects.andThen(actionProps),
+                    ),
+                    effects.andThen({ action: RemoveToast, props: id }),
+                  ],
+                },
+                text(btn.text),
+              ),
+            ),
+            h('div', { class: 'flex-grow' }),
+            ...buttons.right.map(btn =>
+              button(
+                {
+                  class: btn.class.reduce(
+                    (obj, item) => ({ ...obj, [item]: true }),
+                    { 'ml-1': true },
+                  ),
+                  onclick: state => [
+                    state,
+                    ...btn.actions.map(actionProps =>
+                      effects.andThen(actionProps),
+                    ),
+                    effects.andThen({ action: RemoveToast, props: id }),
+                  ],
+                },
+                text(btn.text),
+              ),
+            ),
+          ],
         ),
       h(
         'div',
