@@ -4,6 +4,7 @@ import { checkbox } from '/components/checkbox.js';
 import { overviewHeading } from '/components/overviewHeading.js';
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
+import { TestSound, SetSound } from '/actions.js';
 import { h, text } from '/vendor/hyperapp.js';
 
 const isNumber = value => Number(value) == value; // eslint-disable-line eqeqeq
@@ -20,6 +21,15 @@ const toSeconds = value => {
 
 const value = (key, { pendingSettings, settings }) =>
   key in pendingSettings ? pendingSettings[key] : settings[key];
+
+const audioFiles = [
+  { value: 'horn', label: 'Pneumatic horn' },
+  { value: 'ding', label: 'Ding' },
+  { value: 'applause', label: 'Applause and Cheering' },
+  { value: 'bike-bell', label: 'Bike Bell' },
+  { value: 'gong', label: 'Gong' },
+  { value: 'excuse-me', label: 'Oops, excuse me' },
+];
 
 export const settings = props =>
   h('div', {}, [
@@ -140,7 +150,7 @@ export const settings = props =>
       h(
         'div',
         {
-          class: 'text-sm mb-2',
+          class: 'text-sm mb-2 flex align-center justify-start',
         },
         [
           checkbox(
@@ -154,8 +164,26 @@ export const settings = props =>
                 ],
               },
             },
-            h('span', {}, text('Enable timer sounds')),
+            h(
+              'select',
+              {
+                id: 'sound',
+                disabled: !props.allowSound,
+                onchange: (_, event) => [SetSound, event.target.value],
+              },
+              props.allowSound
+                ? audioFiles.map(({ value, label }) =>
+                    h(
+                      'option',
+                      { value, selected: props.sound === value },
+                      text(label),
+                    ),
+                  )
+                : [h('option', {}, text('Enable timer sounds'))],
+            ),
           ),
+          props.allowSound &&
+            button({ onclick: () => [TestSound, {}] }, text('Test')),
         ],
       ),
       h(
@@ -164,13 +192,13 @@ export const settings = props =>
           class: 'text-xs mb-2 ml-10',
         },
         [
-          text('Pneumatic horn sound provided by '),
+          text('Sounds provided by '),
           h(
             'a',
             {
-              href:
-                'https://bigsoundbank.com/detail-1828-pneumatic-horn-simple-2.html',
+              href: 'https://bigsoundbank.com',
               target: '_blank',
+              class: 'underline',
             },
             text('bigsoundbank.com'),
           ),
