@@ -18,6 +18,7 @@ export const mobParticipants = props => {
 
   const items = Array.from({ length }, (_, index) => ({
     ...(props.mob[index] || {}),
+    disabled: index >= props.mob.length,
     position: mobOrder[index] || 'mob',
   }));
 
@@ -29,6 +30,7 @@ export const mobParticipants = props => {
         dragType: 'mob',
         expandedReorderable: props.expandedReorderable,
         items,
+        disabled: props.mob.length === 0,
         renderItem: item =>
           mobber({
             ...item,

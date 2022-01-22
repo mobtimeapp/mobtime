@@ -16,6 +16,7 @@ export const mobber = props =>
         'w-full': true,
         truncate: props.truncate,
         'bg-indigo-50': props.position !== 'mob',
+        'dark:bg-indigo-800': props.position !== 'mob',
         'py-2': true,
         'pl-1': true,
       },

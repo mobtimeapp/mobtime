@@ -11,6 +11,16 @@ import { app, h, text } from '/vendor/hyperapp.js';
 import { tabs, showTab } from '/tabs/index.js';
 
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
+const flags = window.location.search
+  .slice(1)
+  .split('&')
+  .reduce((memo, option) => {
+    const [key, value] = option.split('=');
+    return {
+      ...memo,
+      [key]: value,
+    };
+  }, {});
 
 const connectionStatus = ({ websocket }) => {
   if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
@@ -46,7 +56,10 @@ app({
       documentElement: window.document,
       Notification: window.Notification,
       storage: window.localStorage,
+      location: window.location,
+      history: window.history,
     },
+    dark: 'dark' in flags,
   }),
 
   view: state =>

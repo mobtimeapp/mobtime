@@ -4,9 +4,10 @@ export const input = props =>
   h('input', {
     ...props,
     class: {
-      'border-b-4': true,
+      'border-b': true,
       'border-b-solid': true,
       'px-2': true,
+      'bg-transparent': true,
       ...(props.class || {}),
     },
   });
@@ -17,9 +18,10 @@ export const textarea = (props, children) =>
     {
       ...props,
       class: {
-        'border-b-4': true,
+        'border-b': true,
         'border-b-solid': true,
         'px-2': true,
+        'bg-transparent': true,
         ...(props.class || {}),
       },
     },

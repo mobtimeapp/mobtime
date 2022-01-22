@@ -98,6 +98,7 @@ const dragContainer = (props, children) =>
               class: {
                 'border-b': true,
                 'border-b-gray-800': true,
+                'dark:border-b-gray-200': true,
                 'my-1': true,
                 'w-6': true,
               },
@@ -245,7 +246,7 @@ export const reorderable = props => {
               index,
               item,
               dragType: props.dragType,
-              disabled: props.disabled,
+              disabled: props.disabled || item.disabled,
               onDelete:
                 props.onDelete && item.id
                   ? [props.onDelete, item.id]
