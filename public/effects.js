@@ -131,19 +131,42 @@ export const andThen = fx(function andThenFX(dispatch, { action, props }) {
   dispatch(action, props);
 });
 
-export const checkSound = fx(function CheckSoundFX(
+export const checkSettings = fx(function CheckSettingsFX(
   dispatch,
-  { storage, onLocalSoundEnabled },
+  { storage, onLocalSoundEnabled, onDarkEnabled },
 ) {
   let localSettings = storage.getItem('settings');
   if (!localSettings) return;
 
   localSettings = JSON.parse(localSettings);
-  if (localSettings.allowSound) {
+  console.log('settings', localSettings);
+  if (localSettings.allowSound && onLocalSoundEnabled) {
     dispatch(onLocalSoundEnabled, {
       sound: localSettings.sound || '/audio/horn.wav',
     });
   }
+  if (localSettings.dark && onDarkEnabled) {
+    dispatch(onDarkEnabled, {
+      dark: localSettings.dark,
+    });
+  }
+});
+
+export const saveSettings = fx(function SaveSettingsFX(
+  _dispatch,
+  { storage, data },
+) {
+  let localSettings = storage.getItem('settings');
+  if (!localSettings) {
+    localSettings = '{}';
+  }
+
+  localSettings = {
+    ...JSON.parse(localSettings),
+    ...data,
+  };
+
+  storage.setItem('settings', JSON.stringify(localSettings));
 });
 
 export const saveSound = fx(function SaveSoundFX(
@@ -162,4 +185,33 @@ export const saveSound = fx(function SaveSoundFX(
   };
 
   storage.setItem('settings', JSON.stringify(localSettings));
+});
+
+export const toggleDarkMode = fx(function ToggleDarkMode(
+  _dispatch,
+  { documentElement, dark },
+) {
+  console.log('toggleDarkMode', documentElement, dark);
+  if (typeof dark !== 'boolean') {
+    console.log('dark not set, skipping', dark);
+    return;
+  }
+  const classList = documentElement.querySelector('html').classList;
+  if (classList.contains('dark') && !dark) {
+    classList.remove('dark');
+  }
+  if (!classList.contains('dark') && dark) {
+    classList.add('dark');
+  }
+});
+
+export const removeQueryParameters = fx(function RemoveQueryParametersFX(
+  _dispatch,
+  { location, history, documentElement },
+) {
+  history.replaceState(
+    {},
+    documentElement.title,
+    location.toString().split('?')[0],
+  );
 });

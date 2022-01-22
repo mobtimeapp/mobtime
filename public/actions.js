@@ -34,7 +34,7 @@ const collectionMove = (collection, { from, to }) => {
   return newCollection;
 };
 
-export const Init = (_, { timerId, externals }) => [
+export const Init = (_, { timerId, externals, dark }) => [
   {
     timerStartedAt: null,
     timerDuration: 0,
@@ -60,10 +60,30 @@ export const Init = (_, { timerId, externals }) => [
     websocket: null,
     externals,
     toasts: [],
+    dark,
   },
-  effects.checkSound({
+  effects.checkSettings({
     storage: externals.storage,
     onLocalSoundEnabled: SoundToast,
+    onDarkEnabled: SetDark,
+  }),
+  dark &&
+    effects.andThen({
+      action: SetDark,
+      props: { dark },
+    }),
+  effects.removeQueryParameters(externals),
+];
+
+export const SetDark = (state, { dark }) => [
+  { ...state, dark },
+  effects.toggleDarkMode({
+    documentElement: state.externals.documentElement,
+    dark,
+  }),
+  effects.saveSettings({
+    storage: state.externals.storage,
+    data: { dark },
   }),
 ];
 
@@ -650,10 +670,12 @@ export const SetAllowSound = (state, allowSound) => [
     ...state,
     allowSound,
   },
-  effects.saveSound({
+  effects.saveSettings({
     storage: state.externals.storage,
-    allowSound,
-    sound: state.sound,
+    data: {
+      allowSound,
+      sound: state.sound,
+    },
   }),
 ];
 
@@ -664,10 +686,12 @@ export const SetSound = (state, noise) => {
       ...state,
       sound,
     },
-    effects.saveSound({
+    effects.saveSettings({
       storage: state.externals.storage,
-      allowSound: state.allowSound,
-      sound,
+      data: {
+        allowSound: state.allowSound,
+        sound,
+      },
     }),
   ];
 };
@@ -711,9 +735,11 @@ export const SoundToast = (state, { sound }) => [
                 {
                   action: s => [
                     s,
-                    effects.saveSound({
+                    effects.saveSettings({
                       storage: s.externals.storage,
-                      allowSound: false,
+                      data: {
+                        allowSound: false,
+                      },
                     }),
                   ],
                   props: {},

@@ -5,6 +5,7 @@ import { overviewHeading } from '/components/overviewHeading.js';
 import { section } from '/components/section.js';
 import { input } from '/components/input.js';
 import { TestSound, SetSound } from '/actions.js';
+import { toggleDarkMode } from '/effects.js';
 import { h, text } from '/vendor/hyperapp.js';
 
 const isNumber = value => Number(value) == value; // eslint-disable-line eqeqeq
@@ -144,7 +145,7 @@ export const settings = props =>
       ],
     ),
 
-    overviewHeading({}, text('Notifications')),
+    overviewHeading({}, text('Local Settings')),
 
     section({}, [
       h(
@@ -168,6 +169,15 @@ export const settings = props =>
               'select',
               {
                 id: 'sound',
+                class: {
+                  'bg-white': true,
+                  'text-black': true,
+                  'dark:bg-gray-700': true,
+                  'dark:text-gray-200': true,
+                  'p-1': true,
+                  'border-b': true,
+                  'rounded-none': true,
+                },
                 disabled: !props.allowSound,
                 onchange: (_, event) => [SetSound, event.target.value],
               },
@@ -249,5 +259,26 @@ export const settings = props =>
             },
             text('Request notification permission'),
           )),
+      h(
+        'div',
+        {
+          class: 'text-sm mb-2',
+        },
+        [
+          checkbox(
+            {
+              id: 'theme-darkmode',
+              checked: props.dark,
+              inputProps: {
+                onchange: (_, event) => [
+                  actions.SetDark,
+                  { dark: event.target.checked },
+                ],
+              },
+            },
+            h('span', {}, text('Enable dark mode')),
+          ),
+        ],
+      ),
     ]),
   ]);
