@@ -118,6 +118,30 @@ test('can complete timer from websocket message', t => {
   );
 });
 
+test('can complete a paused timer from websocket message', t => {
+  const initialState = {
+    timerStartedAt: null,
+    timerDuration: 5000,
+  };
+
+  const [state, effect] = actions.UpdateByWebsocketData(initialState, {
+    payload: {
+      type: 'timer:complete',
+    },
+    documentElement: {},
+    Notification: {},
+  });
+
+  t.is(state, initialState);
+  t.deepEqual(
+    effect,
+    effects.andThen({
+      action: actions.EndTurn,
+      props: {},
+    }),
+  );
+});
+
 test('can skip complete timer from websocket message if timer already over', t => {
   const initialState = {
     timerStartedAt: null,
