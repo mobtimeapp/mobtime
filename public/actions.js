@@ -795,7 +795,6 @@ export const UpdateSettings = state => {
 
 export const UpdateByWebsocketData = (state, { payload }) => {
   const { type, ...data } = payload;
-
   switch (type) {
     case 'settings:update':
       return {
@@ -825,7 +824,7 @@ export const UpdateByWebsocketData = (state, { payload }) => {
       };
 
     case 'timer:complete':
-      if (state.timerStartedAt === null) {
+      if (state.timerDuration === 0) {
         return state;
       }
 
