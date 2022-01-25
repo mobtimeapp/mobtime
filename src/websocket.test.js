@@ -68,7 +68,10 @@ test('ShareMessage prevents timer complete cascade', async t => {
   ];
   const timerId = 'foo';
   const queue = Queue.forTesting({
-    [`timer_${timerId}`]: JSON.stringify({ timerStartedAt: null }),
+    [`timer_${timerId}`]: JSON.stringify({
+      timerStartedAt: null,
+      timerDuration: 0,
+    }),
   });
 
   const { ok } = await tester()
