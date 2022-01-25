@@ -824,7 +824,7 @@ export const UpdateByWebsocketData = (state, { payload }) => {
       };
 
     case 'timer:complete':
-      if (state.timerDuration === 0) {
+      if (state.timerStartedAt === null && state.timerDuration === 0) {
         return state;
       }
 

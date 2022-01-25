@@ -41,7 +41,11 @@ export const ShareMessage = (timerId, connections, message, queue) =>
   defer(
     queue.getTimer(timerId).then(timer => {
       const { type } = JSON.parse(message);
-      if (type === 'timer:complete' && timer.timerDuration === 0) {
+      if (
+        type === 'timer:complete' &&
+        !timer.timerStartedAt &&
+        timer.timerDuration === 0
+      ) {
         return none('ShareMessageNone');
       }
 
