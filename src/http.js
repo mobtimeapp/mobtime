@@ -9,6 +9,7 @@ import { URL } from 'url';
 import path from 'path';
 import fs from 'fs';
 import apiStatistics from './api/statistics';
+import bots from './api/bots';
 
 const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   const app = express();
@@ -42,6 +43,7 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   });
 
   router.use(apiStatistics());
+  router.use('/bots', bots());
 
   app.use('/api', router);
 

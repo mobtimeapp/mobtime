@@ -91,6 +91,64 @@ export class Queue {
       }))
       .then(statistics => this.setStatistics(statistics));
   }
+
+  getBotTimerToken(timerId) {
+    if (!timerId) {
+      return Promise.reject(new Error('invalid timer id'));
+    }
+    return this.client()
+      .then(c => c.get(`bot_token_${timerId}`))
+      .then(payload => payload || null);
+  }
+
+  generateBotTimerToken(timerId, domain) {
+    return this.client().then(c => {
+      const token = Buffer.from(
+        JSON.stringify({
+          domain: domain || 'mobti.me',
+          key: Math.random()
+            .toString(36)
+            .slice(2),
+          createdAt: Date.now(),
+        }),
+      ).toString('base64');
+
+      const key = `bot_token_${timerId}`;
+      return c
+        .set(key, token)
+        .then(() => c.expireAt(key, parseInt(new Date() / 1000) + 6 * 60 * 60))
+        .then(() => token);
+    });
+  }
+
+  validateBotTimerToken(timerId, tokenFromRequest) {
+    return this.getBotTimerToken(timerId).then(tokenFromRedis => {
+      const internal = JSON.parse(
+        Buffer.from(tokenFromRedis, 'base64').toString('ascii'),
+      );
+
+      const external = JSON.parse(
+        Buffer.from(tokenFromRequest, 'base64').toString('ascii'),
+      );
+
+      if (internal.key !== external.key) {
+        throw new Error('key mismatch');
+      }
+      if (internal.domain !== external.domain) {
+        throw new Error('domain mismatch');
+      }
+      if (internal.createdAt !== external.createdAt) {
+        throw new Error('timstamp mismatch');
+      }
+
+      return this.client().then(c =>
+        c.expireAt(
+          `bot_token_${timerId}`,
+          parseInt(new Date() / 1000) + 6 * 60 * 60,
+        ),
+      );
+    });
+  }
 }
 
 Queue.subscribeFx = (dispatch, timerId, client, onActivity) => {
