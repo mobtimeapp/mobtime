@@ -18,6 +18,7 @@ services:
       REDIS_HOST: redis
       APP_HOST: 0.0.0.0
       APP_PORT: 1234
+      WORKERS: 2
     ports:
       - 0.0.0.0:1234:1234
     healthcheck:
