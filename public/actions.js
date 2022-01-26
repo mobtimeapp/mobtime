@@ -53,7 +53,8 @@ export const Init = (_, { timerId, externals, dark }) => [
     name: '',
     goal: '',
     addMultiple: false,
-    allowNotification: externals.Notification.permission === 'granted',
+    allowNotification:
+      externals.Notification && externals.Notification.permission === 'granted',
     allowSound: false,
     sound: 'horn',
     pendingSettings: {},
@@ -649,7 +650,8 @@ export const UpdateNotificationPermissions = state => [
   {
     ...state,
   },
-  state.externals.Notification.permission === 'granted' &&
+  state.externals.Notification &&
+    state.externals.Notification.permission === 'granted' &&
     effects.andThen({
       action: SetAllowNotification,
       props: { allowNotification: true },
