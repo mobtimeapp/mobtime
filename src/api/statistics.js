@@ -11,7 +11,10 @@ export default () => {
     const timerStatistics = timerIds.reduce(
       (counts, id) => ({
         connections: counts.connections + stats[id].connections,
-        mobbers: counts.mobbers + stats[id].connections,
+        mobbers:
+          stats[id].connections > 0
+            ? counts.mobbers + stats[id].mobbers
+            : counts.mobbers,
       }),
       { connections: 0, mobbers: 0 },
     );
