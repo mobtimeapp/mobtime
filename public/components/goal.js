@@ -70,6 +70,7 @@ export const goal = props =>
             'flex-grow': true,
             'leading-tight': true,
             'text-gray-500': props.id === null,
+            'break-all': true,
             truncate: props.truncate,
           },
         },
