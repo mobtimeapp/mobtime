@@ -19,6 +19,8 @@ services:
       APP_HOST: 0.0.0.0
       APP_PORT: 1234
       WORKERS: 2
+      NODE_ENV: development
+      TOKEN_KEY: "console:aT88jG"
     ports:
       - 0.0.0.0:1234:1234
     healthcheck:

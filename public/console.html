@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Mobtime Console</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@800&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/57cb566a11.js"
+      crossorigin="anonymous"
+    ></script>
+    <link href="/styles/styles.css" rel="stylesheet" />
+</head>
+<body class="bg-white text-black dark:bg-gray-800 dark:text-gray-300">
+
+  <main class="container mx-auto w-1/2">
+    <h1 class="text-xl my-2">Mobtime Console</h1>
+    <h2 class="text-lg my-2 border-b">Search</h2>
+    <form action="" method="get" class="pt-3 pb-1 grid grid-cols-[75px_minmax(0,_1fr)_75px] gap-2">
+      <label class="py-1" for="token">Token</label>
+      <input class="border p-1 col-span-2" autocomplete="off" type="password" name="token" id="token" />
+
+      <label class="py-1" for="search">Search</label>
+      <input class="border p-1" type="search" name="search" id="search" />
+      <button class="border bg-slate-100" type="submit">Search</button>
+    </form>
+
+    <h2 class="text-lg my-2 border-b">Results</h2>
+    <table class="table-auto w-full">
+      <thead>
+        <tr>
+          <th class="text-left">Timer</td>
+          <th class="text-left">Participants</td>
+          <th class="text-left">Connections</td>
+          <th class="text-left">Expires In</td>
+        </tr>
+      </thead>
+      <tbody id="results">
+      </tbody>
+    </table>
+  </main>
+
+  <script type="module">
+    const e = (tag, attrs, children) => {
+      const element = document.createElement(tag);
+      Object.keys(attrs).forEach((key) => {
+        element.setAttribute(key, attrs[key]);
+      });
+      [].concat(children).forEach((child) => element.appendChild(child));
+      return element;
+    };
+    const t = (text) => document.createTextNode(text);
+
+    const createRow = (data) => {
+      return e('tr', {}, [
+        e('td', {}, e('a', { href: `/${data.timerId}` }, t(data.timerId))),
+        e('td', {}, t(data.mobbers)),
+        e('td', {}, t(data.connections)),
+        e('td', {}, t(data.ttl)),
+      ]);
+    };
+
+    const empty = e('tr', {}, [
+      e('td', { colspan: '4', class: 'p-2 text-center italic' }, t('No results')),
+    ]);
+
+    const loading = e('tr', {}, [
+      e('td', { colspan: '4', class: 'p-2 text-center italic' }, t('Loading...')),
+    ]);
+
+    const showError = (message) => e('tr', {}, [
+      e('td', { colspan: '4', class: 'p-2 text-center italic bg-red-600 text-white' }, t(message)),
+    ]);
+
+    const swapContent = (children) => {
+      const tableBody = document.querySelector('tbody#results');
+      tableBody.innerHTML = '';
+
+      [].concat(children).forEach((child) => tableBody.appendChild(child));
+    };
+
+    const onSearch = (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const queryParameters = formData.has('search')
+        ? `?search=${formData.get('search')}`
+        : '';
+      fetch('/console/timers.json' + queryParameters, {
+        headers: {
+          'x-token': btoa(formData.get('token')),
+        }
+      })
+        .then(r => {
+          if (!r.ok) {
+            throw new Error(`Status code: ${r.status}`);
+          }
+          return r;
+        })
+        .then(r => r.json())
+        .then(data => data.length > 0
+          ? data.map(createRow)
+          : empty
+        )
+        .catch((err) => {
+          console.error(err);
+          return showError(err.toString())
+        })
+        .then((children) => {
+          swapContent(children)
+        });
+    };
+    document.querySelector('form').addEventListener('submit', onSearch);
+
+    swapContent(empty);
+  </script>
+
+</body>
+</html>

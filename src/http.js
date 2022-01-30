@@ -7,8 +7,9 @@ import http from 'http';
 import helmet from 'helmet';
 import { URL } from 'url';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
 import apiStatistics from './api/statistics';
+import apiConsole from './api/console';
 
 const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   const app = express();
@@ -26,9 +27,7 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
     }),
   );
 
-  const router = new express.Router();
-
-  router.use((_request, response, next) => {
+  const tryMiddleware = (_request, response, next) => {
     try {
       return next();
     } catch (err) {
@@ -39,18 +38,17 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
         .json({ message: err.toString() })
         .end();
     }
-  });
+  };
 
-  router.use(apiStatistics());
-
-  app.use('/api', router);
+  app.use('/api', tryMiddleware, apiStatistics());
+  app.use('/console', apiConsole());
 
   const rootPath = path.resolve(__dirname, '..');
   app.use(express.static(path.resolve(rootPath, 'public')));
 
   app.get('/:timerId', async (_request, response) => {
     const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
-    const html = await fs.promises.readFile(htmlPayload, { encoding: 'utf8' });
+    const html = await fs.readFile(htmlPayload, { encoding: 'utf8' });
 
     return response.status(200).send(html);
   });
