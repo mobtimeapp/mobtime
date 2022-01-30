@@ -1,5 +1,4 @@
 import { createClient } from 'redis';
-import { effects } from 'ferp';
 
 export class Queue {
   constructor(createClientFn = createClient) {
