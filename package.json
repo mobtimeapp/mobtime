@@ -12,6 +12,7 @@
     "start:dev": "docker-compose up",
     "tailwind": "tailwindcss build -i ./src/styles/index.css -o ./public/styles/styles.css",
     "start": "node ./index.js",
+    "start:cluster": "node ./index.cluster.js",
     "lint": "prettier-eslint --write \"./src/**/*.js\" \"./public/**/*.js\"",
     "deploy": "node ./deploy/index.js",
     "test": "ava",
