@@ -44,51 +44,27 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`;
 
-  let socket = null;
-  let cancel = false;
+  const socket = new WebSocket(websocketAddress);
 
-  const connect = async () => {
-    if (cancel) return;
+  socket.addEventListener('message', event => {
+    const payload = JSON.parse(event.data);
 
-    dispatch(actions.SetWebsocket, { websocket: null });
-    socket = new WebSocket(websocketAddress);
-
-    socket.addEventListener('open', () => {
-      dispatch(actions.SetWebsocket, { websocket: socket });
+    dispatch(actions.UpdateByWebsocketData, {
+      payload,
+      documentElement: document,
+      Notification: window.Notification,
     });
+  });
 
-    socket.addEventListener('message', event => {
-      const payload = JSON.parse(event.data);
+  socket.addEventListener('close', () => {
+    // disconnect and prompt user to connect
+  });
 
-      dispatch(actions.UpdateByWebsocketData, {
-        payload,
-        documentElement: document,
-        Notification: window.Notification,
-      });
-    });
-
-    socket.addEventListener('close', () => {
-      if (cancel) return;
-
-      setTimeout(connect, 1000);
-    });
-
-    socket.addEventListener('error', event => {
-      if (cancel) return;
-
-      console.warn('Socket error', event);
-    });
-  };
-
-  requestAnimationFrame(() => {
-    connect();
+  socket.addEventListener('error', event => {
+    console.warn('Socket error', event);
   });
 
   return () => {
-    cancel = true;
-
-    dispatch(actions.SetWebsocket, { websocket: null });
-
     socket.close();
     socket = null;
   };

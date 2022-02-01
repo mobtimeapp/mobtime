@@ -1,4 +1,5 @@
 import { effects } from 'ferp';
+import { WebSocket } from 'ws';
 import { CloseWebsocket, RelayMessage, ShareMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
@@ -104,9 +105,9 @@ export const AddConnection = (websocket, timerId) => state => {
 };
 
 export const RemoveConnection = (websocket, timerId) => state => {
-  const timerConnections = (state.connections[timerId] || []).filter(
-    c => c.websocket !== websocket,
-  );
+  const timerConnections = (state.connections[timerId] || [])
+    .filter(c => c.websocket !== websocket)
+    .filter(c => c.websocket.readyState !== WebSocket.CLOSED);
   const { [timerId]: current, ...others } = state.connections;
 
   return [
