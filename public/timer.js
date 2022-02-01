@@ -49,6 +49,9 @@ const websocketStatusMessage = {
   'will-reconnect': 'Websocket reconnecting...',
 };
 
+const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`;
+
 app({
   init: actions.Init(null, {
     timerId: initialTimerId,
@@ -136,7 +139,11 @@ app({
     ),
 
   subscriptions: state => {
-    const { timerId, drag } = state;
+    const {
+      timerId,
+      drag,
+      externals: { websocket },
+    } = state;
 
     return [
       timerId &&

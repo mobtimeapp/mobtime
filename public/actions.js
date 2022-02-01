@@ -58,7 +58,7 @@ export const Init = (_, { timerId, externals, dark }) => [
     allowSound: false,
     sound: 'horn',
     pendingSettings: {},
-    websocket: null,
+    websocketConnect: true,
     externals,
     toasts: [],
     dark,
@@ -116,11 +116,6 @@ export const SetCurrentTime = (state, { currentTime }) => {
     }),
   ];
 };
-
-export const SetWebsocket = (state, { websocket }) => ({
-  ...state,
-  websocket,
-});
 
 export const ExpandReorderable = (state, { expandedReorderable }) => ({
   ...state,
@@ -747,6 +742,33 @@ export const SoundToast = (state, { sound }) => [
                   props: {},
                 },
               ],
+            },
+          ],
+        },
+      },
+    ],
+  },
+];
+
+export const WebsocketReconnect = state => [];
+
+export const WebsocketDisconnected = state => [
+  {
+    ...state,
+    websocket: null,
+    toasts: [
+      ...state.toasts,
+      {
+        id: 'websocket-disconnected',
+        title: 'Lost Connection',
+        body: 'Oops, the websocket got disconnected!',
+        buttons: {
+          left: [],
+          right: [
+            {
+              text: 'Reconnect!',
+              class: ['bg-green-600', 'text-white', 'mr-1'],
+              actions: [{ action: WebsocketReconnect, props: {} }],
             },
           ],
         },
