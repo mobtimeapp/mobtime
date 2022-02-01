@@ -3,7 +3,6 @@ import * as Action from './actions';
 import { Http } from './http';
 import { Websocket } from './websocket';
 import { Queue } from './queue';
-import { cpus } from 'os';
 import process from 'process';
 
 const port = process.env.APP_PORT || 1234;
