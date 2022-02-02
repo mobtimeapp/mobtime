@@ -700,81 +700,97 @@ export const RemoveToast = (state, id) => [
   },
 ];
 
+export const AddToast = (state, toast) => {
+  const id =
+    toast.id ||
+    Math.random()
+      .toString(36)
+      .slice(2);
+  return [
+    {
+      ...state,
+      toasts: [...state.toasts.filter(t => t.id !== id), { ...toast, id }],
+    },
+  ];
+};
+
 export const SoundToast = (state, { sound }) => [
   {
     ...state,
     sound,
-    toasts: [
-      ...state.toasts,
-      {
-        id: 'sound-effects',
-        title: 'Sound Effects',
-        body:
-          'You previously enabled sound effects, do you want to enable this time, too?',
-        buttons: {
-          left: [
-            {
-              text: 'Okay!',
-              class: ['bg-green-600', 'text-white', 'mr-1'],
-              actions: [{ action: SetAllowSound, props: true }],
-            },
-            {
-              text: 'Not now',
-              class: [],
-              actions: [],
-            },
-          ],
-          right: [
-            {
-              text: 'Never',
-              class: ['bg-red-600', 'text-white'],
-              actions: [
-                {
-                  action: s => [
-                    s,
-                    effects.saveSettings({
-                      storage: s.externals.storage,
-                      data: {
-                        allowSound: false,
-                      },
-                    }),
-                  ],
-                  props: {},
-                },
-              ],
-            },
-          ],
-        },
-      },
-    ],
   },
+  effects.andThen({
+    action: AddToast,
+    props: {
+      id: 'sound-effects',
+      title: 'Sound Effects',
+      body:
+        'You previously enabled sound effects, do you want to enable this time, too?',
+      buttons: {
+        left: [
+          {
+            text: 'Okay!',
+            class: ['bg-green-600', 'text-white', 'mr-1'],
+            actions: [{ action: SetAllowSound, props: true }],
+          },
+          {
+            text: 'Not now',
+            class: [],
+            actions: [],
+          },
+        ],
+        right: [
+          {
+            text: 'Never',
+            class: ['bg-red-600', 'text-white'],
+            actions: [
+              {
+                action: s => [
+                  s,
+                  effects.saveSettings({
+                    storage: s.externals.storage,
+                    data: {
+                      allowSound: false,
+                    },
+                  }),
+                ],
+                props: {},
+              },
+            ],
+          },
+        ],
+      },
+    },
+  }),
 ];
 
-export const WebsocketReconnect = state => [];
+export const WebsocketReconnect = state => [
+  { ...state, websocketConnect: true },
+];
 
-export const WebsocketDisconnected = state => [
+export const WebsocketDisconnected = (state, error) => [
   {
     ...state,
-    websocket: null,
-    toasts: [
-      ...state.toasts,
-      {
-        id: 'websocket-disconnected',
-        title: 'Lost Connection',
-        body: 'Oops, the websocket got disconnected!',
-        buttons: {
-          left: [],
-          right: [
-            {
-              text: 'Reconnect!',
-              class: ['bg-green-600', 'text-white', 'mr-1'],
-              actions: [{ action: WebsocketReconnect, props: {} }],
-            },
-          ],
-        },
-      },
-    ],
+    websocketConnect: false,
   },
+  effects.andThen({
+    action: AddToast,
+    props: {
+      id: 'websocket-disconnected',
+      title: 'Lost Connection',
+      body: error,
+      buttons: {
+        left: [],
+        right: [
+          {
+            text: 'Reconnect!',
+            class: ['bg-green-600', 'text-white', 'mr-1'],
+            actions: [{ action: WebsocketReconnect, props: {} }],
+          },
+        ],
+      },
+    },
+  }),
 ];
 
 export const ShowNotification = (state, message) => [
