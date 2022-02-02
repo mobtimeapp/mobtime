@@ -1,23 +1,8 @@
 import test from 'ava';
 import { app, effects, tester } from 'ferp';
-import {
-  CloseWebsocket,
-  RelayMessage,
-  ShareMessage,
-  Websocket,
-} from './websocket.js';
+import { RelayMessage, ShareMessage, Websocket } from './websocket.js';
 import { fakeSocket } from './support/fakeSocket.js';
 import { Queue } from './queue.js';
-
-test('CloseWebsocket will close the websocket', async t => {
-  const websocket = fakeSocket();
-
-  await tester()
-    .willAct('CloseWebsocket')
-    .fromEffect(CloseWebsocket(websocket));
-
-  t.truthy(websocket.close.calledOnceWithExactly(), 'calls websocket.close');
-});
 
 test('RelayMessage sends the message to the connection', async t => {
   const connection = { websocket: fakeSocket() };

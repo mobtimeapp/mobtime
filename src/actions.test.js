@@ -80,7 +80,6 @@ test('RemoveConnection removes the connection', async t => {
     queue,
   })
     .willBatch()
-    .willThunk('CloseWebsocket')
     .willAct('UpdateConnectionStatistics')
     .willDefer('setTimerTtl')
     .fromAction(Actions.RemoveConnection(websocket, timerId));

@@ -48,6 +48,8 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
   let hasError = false;
 
   socket.addEventListener('message', event => {
+    console.log('websocket message', event.data);
+
     const payload = JSON.parse(event.data);
 
     dispatch(actions.UpdateByWebsocketData, {

@@ -14,7 +14,10 @@ import apiConsole from './api/console';
 const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   const app = express();
   const server = http.createServer(app);
-  const wss = new ws.Server({ server });
+  const wss = new ws.Server({
+    server,
+    clientTracking: false,
+  });
 
   app.use(bodyParser.json());
   app.use(
