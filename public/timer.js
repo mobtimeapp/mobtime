@@ -22,36 +22,6 @@ const flags = window.location.search
     };
   }, {});
 
-const connectionStatus = ({ websocket }) => {
-  if (!websocket || websocket.readyState === WebSocket.CONNECTING) {
-    return 'will-connect';
-  }
-  return websocket.readyState === WebSocket.OPEN
-    ? 'connected'
-    : 'will-reconnect';
-};
-
-const websocketStatusClass = {
-  'will-connect': {
-    'text-gray-500': true,
-  },
-  connected: {
-    'text-gray-500': true,
-  },
-  'will-reconnect': {
-    'bg-red-500': true,
-  },
-};
-
-const websocketStatusMessage = {
-  'will-connect': 'Websocket connecting...',
-  connected: 'Websocket Connection established',
-  'will-reconnect': 'Websocket reconnecting...',
-};
-
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`;
-
 app({
   init: actions.Init(null, {
     timerId: initialTimerId,
@@ -104,18 +74,6 @@ app({
             timeRemaining(state),
             tabs(state),
             showTab(state),
-            section(
-              {
-                class: {
-                  'w-full': true,
-                  ...websocketStatusClass[connectionStatus(state)],
-                  'text-center': true,
-                  'text-xs': true,
-                },
-              },
-              text(websocketStatusMessage[connectionStatus(state)]),
-            ),
-
             h(
               'audio',
               {
@@ -139,16 +97,13 @@ app({
     ),
 
   subscriptions: state => {
-    const {
-      timerId,
-      drag,
-      externals: { websocket },
-    } = state;
+    const { timerId, drag, websocketConnect, externals } = state;
 
     return [
-      timerId &&
+      websocketConnect &&
         subscriptions.Websocket({
           actions,
+          externals,
           timerId,
         }),
 

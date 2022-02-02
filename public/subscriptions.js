@@ -40,11 +40,12 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
 };
 export const Timer = props => [TimerFX, props];
 
-const WebsocketFX = (dispatch, { timerId, actions }) => {
-  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const websocketAddress = `${protocol}://${window.location.hostname}:${window.location.port}/${timerId}`;
+const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
+  const protocol = externals.location.protocol === 'https:' ? 'wss' : 'ws';
+  const websocketAddress = `${protocol}://${externals.location.hostname}:${externals.location.port}/${timerId}`;
 
   const socket = new WebSocket(websocketAddress);
+  let hasError = false;
 
   socket.addEventListener('message', event => {
     const payload = JSON.parse(event.data);
@@ -56,17 +57,20 @@ const WebsocketFX = (dispatch, { timerId, actions }) => {
     });
   });
 
-  socket.addEventListener('close', () => {
-    // disconnect and prompt user to connect
+  socket.addEventListener('close', event => {
+    if (hasError) return;
+    console.warn('Socket closed', event);
+    dispatch(actions.WebsocketDisconnected, 'Oops, the websocket disconnected');
   });
 
   socket.addEventListener('error', event => {
+    hasError = true;
     console.warn('Socket error', event);
+    dispatch(actions.WebsocketDisconnected, 'Websocket connection error');
   });
 
   return () => {
     socket.close();
-    socket = null;
   };
 };
 export const Websocket = props => [WebsocketFX, props];
