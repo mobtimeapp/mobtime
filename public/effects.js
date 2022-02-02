@@ -4,8 +4,8 @@ import formatTime from './formatTime.js';
 
 const fx = effect => props => [effect, props];
 
-const sendMessage = (websocket, type, json = {}) => {
-  websocket.send(
+const sendMessage = (socketEmitter, type, json = {}) => {
+  socketEmitter.emit(
     JSON.stringify({
       type,
       ...json,
@@ -15,54 +15,44 @@ const sendMessage = (websocket, type, json = {}) => {
 
 export const UpdateSettings = fx(function UpdateSettingsFX(
   _dispatch,
-  { websocket, settings },
+  { socketEmitter, settings },
 ) {
-  return sendMessage(websocket, 'settings:update', { settings });
+  return sendMessage(socketEmitter, 'settings:update', { settings });
 });
 
 export const StartTimer = fx(function StartTimerFX(
   _dispatch,
-  { websocket, timerDuration },
+  { socketEmitter, timerDuration },
 ) {
-  return sendMessage(websocket, 'timer:start', { timerDuration });
+  return sendMessage(socketEmitter, 'timer:start', { timerDuration });
 });
 
 export const PauseTimer = fx(function StartTimerFX(
   _dispatch,
-  { websocket, timerDuration },
+  { socketEmitter, timerDuration },
 ) {
-  return sendMessage(websocket, 'timer:pause', { timerDuration });
+  return sendMessage(socketEmitter, 'timer:pause', { timerDuration });
 });
 
 export const CompleteTimer = fx(function CompleteTimerFX(
   _dispatch,
-  { websocket },
+  { socketEmitter },
 ) {
-  return sendMessage(websocket, 'timer:complete');
+  return sendMessage(socketEmitter, 'timer:complete');
 });
 
 export const UpdateGoals = fx(function UpdateGoalsFX(
   _dispatch,
-  { websocket, goals },
+  { socketEmitter, goals },
 ) {
-  websocket.send(
-    JSON.stringify({
-      type: 'goals:update',
-      goals,
-    }),
-  );
+  sendMessage(socketEmitter, 'goals:update', { goals });
 });
 
 export const UpdateMob = fx(function UpdateMobFX(
   _dispatch,
-  { websocket, mob },
+  { socketEmitter, mob },
 ) {
-  websocket.send(
-    JSON.stringify({
-      type: 'mob:update',
-      mob,
-    }),
-  );
+  sendMessage(socketEmitter, 'mob:update', { mob });
 });
 
 export const NotificationPermission = fx(function NotificationPermissionFX(

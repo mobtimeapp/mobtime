@@ -55,7 +55,6 @@ test('AddConnection adds the connection', async t => {
     .willAct('')
     .willAct('UpdateConnectionStatistics')
     .willAct('ShareTimerWith')
-    .willDefer('setTimerTtl')
     .fromAction(Actions.AddConnection(websocket, timerId));
 
   t.truthy(ok(), `Failed expecatations: ${failedOn().join(', ')}`);
@@ -79,9 +78,7 @@ test('RemoveConnection removes the connection', async t => {
     connections: { [timerId]: [connection] },
     queue,
   })
-    .willBatch()
     .willAct('UpdateConnectionStatistics')
-    .willDefer('setTimerTtl')
     .fromAction(Actions.RemoveConnection(websocket, timerId));
 
   t.truthy(ok(), `Failed expecatations: ${failedOn().join(', ')}`);

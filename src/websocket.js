@@ -5,18 +5,16 @@ const { none, thunk, batch, defer } = effects;
 const WebsocketSub = (dispatch, actions, connection, timerId) => {
   const { websocket } = connection;
   let waitingForPong = false;
-  let isClosed = false;
 
   websocket.on('close', () => {
-    if (isClosed) return;
-    isClosed = true;
-
     dispatch(actions.RemoveConnection(websocket, timerId), 'RemoveConnection');
   });
 
   websocket.on('message', payload => {
-    if (isClosed) return;
-    return dispatch(actions.UpdateTimer(timerId, payload), 'UpdateTimer');
+    return dispatch(
+      actions.UpdateTimer(timerId, payload.toString()),
+      'UpdateTimer',
+    );
   });
 
   websocket.on('pong', () => {
@@ -36,7 +34,6 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
   return () => {
     websocket.close();
     clearInterval(intervalHandle);
-    isClosed = true;
   };
 };
 export const Websocket = (...props) => [WebsocketSub, ...props];

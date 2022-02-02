@@ -6,7 +6,7 @@ import * as effects from './effects';
 test('can update settings from pending settings', t => {
   const websocket = {};
   const initialState = {
-    websocket,
+    externals: { socketEmitter: {} },
     settings: {},
     pendingSettings: { foo: 'bar' },
   };
@@ -14,7 +14,7 @@ test('can update settings from pending settings', t => {
   const [state, effect] = actions.UpdateSettings(initialState);
 
   t.deepEqual(state, {
-    websocket,
+    externals: { socketEmitter: {} },
     settings: { foo: 'bar' },
     pendingSettings: {},
   });
@@ -22,7 +22,7 @@ test('can update settings from pending settings', t => {
   t.deepEqual(
     effect,
     effects.UpdateSettings({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       settings: state.settings,
     }),
   );

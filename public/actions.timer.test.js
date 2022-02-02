@@ -4,15 +4,16 @@ import * as actions from './actions';
 import * as effects from './effects';
 
 test('can complete a timer', t => {
-  const websocket = {};
+  const socketEmitter = {};
   const documentElement = {};
   const Notification = {};
+  const externals = { socketEmitter, documentElement, Notification };
   const initialState = {
     allowNotification: true,
     allowSound: false,
     timerStartedAt: Date.now(),
     timerDuration: 1,
-    websocket,
+    externals,
   };
 
   const [state, ...effect] = actions.Completed(initialState, {
@@ -26,12 +27,12 @@ test('can complete a timer', t => {
     allowSound: false,
     timerStartedAt: null,
     timerDuration: 0,
-    websocket,
+    externals,
   });
 
   t.deepEqual(effect, [
     effects.CompleteTimer({
-      websocket,
+      socketEmitter,
     }),
     effects.andThen({
       action: actions.EndTurn,
@@ -45,15 +46,15 @@ test('can complete a timer', t => {
 });
 
 test('can pause the timer', t => {
-  const websocket = {};
-
+  const socketEmitter = {};
+  const externals = { socketEmitter };
   const expectedTimerDuration = 1000;
   const now = Date.now();
   const timerStartedAt = now - expectedTimerDuration;
   const currentTime = now - 5;
 
   const initialState = {
-    websocket,
+    externals,
     timerStartedAt,
     currentTime,
     timerDuration: 2000,
@@ -62,7 +63,7 @@ test('can pause the timer', t => {
   const [state, effect] = actions.PauseTimer(initialState, now);
 
   t.deepEqual(state, {
-    websocket,
+    externals,
     timerStartedAt: null,
     currentTime: now,
     timerDuration: expectedTimerDuration,
@@ -71,7 +72,7 @@ test('can pause the timer', t => {
   t.deepEqual(
     effect,
     effects.PauseTimer({
-      websocket,
+      socketEmitter,
       timerDuration: expectedTimerDuration,
     }),
   );
@@ -80,10 +81,11 @@ test('can pause the timer', t => {
 test('can resume the timer', t => {
   const now = Date.now();
   const beforeNow = now - 100000;
-  const websocket = {};
+  const socketEmitter = {};
+  const externals = { socketEmitter };
 
   const initialState = {
-    websocket,
+    externals,
     timerStartedAt: beforeNow,
     currentTime: now,
     timerDuration: 1000000,
@@ -92,7 +94,7 @@ test('can resume the timer', t => {
   const [state, effect] = actions.ResumeTimer(initialState, now);
 
   t.deepEqual(state, {
-    websocket,
+    externals,
     timerStartedAt: now,
     currentTime: now,
     timerDuration: 1000000,
@@ -101,7 +103,7 @@ test('can resume the timer', t => {
   t.deepEqual(
     effect,
     effects.StartTimer({
-      websocket,
+      socketEmitter,
       timerDuration: 1000000,
     }),
   );
@@ -109,11 +111,12 @@ test('can resume the timer', t => {
 
 test('can start the timer', t => {
   const now = Date.now();
-  const websocket = {};
+  const socketEmitter = {};
+  const externals = { socketEmitter };
   const timerDuration = 10000;
 
   const initialState = {
-    websocket,
+    externals,
     settings: {
       duration: timerDuration,
     },
@@ -125,7 +128,7 @@ test('can start the timer', t => {
   });
 
   t.deepEqual(state, {
-    websocket,
+    externals,
     timerStartedAt: now,
     currentTime: now,
     timerDuration,
@@ -137,7 +140,7 @@ test('can start the timer', t => {
   t.deepEqual(
     effect,
     effects.StartTimer({
-      websocket,
+      socketEmitter,
       timerDuration,
     }),
   );

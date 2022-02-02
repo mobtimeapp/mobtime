@@ -17,7 +17,7 @@ test('can rename a user', t => {
 
   const initialState = {
     mob: [mobber],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const mob = [{ id: mobber.id, name: renameTo }];
@@ -29,12 +29,12 @@ test('can rename a user', t => {
 
   t.deepEqual(state, {
     mob: [{ id: mobber.id, name: renameTo }],
-    websocket,
+    externals: initialState.externals,
   });
   t.deepEqual(
     effect,
     effects.UpdateMob({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       mob,
     }),
   );

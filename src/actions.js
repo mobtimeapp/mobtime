@@ -55,11 +55,6 @@ export const UpdateStatisticsFromMessage = (timerId, message) => state => [
   ),
 ];
 
-export const SetTimerTTL = (timerId, ttl) => state => [
-  state,
-  defer(state.queue.setTimerTtl(timerId, ttl)),
-];
-
 export const UpdateConnectionStatistics = timerId => state => [
   state,
   defer(resolve => {
@@ -99,7 +94,6 @@ export const AddConnection = (websocket, timerId) => state => {
       GenerateIdEffect(SetNextId),
       act(UpdateConnectionStatistics(timerId), 'UpdateConnectionStatistics'),
       act(ShareTimerWith(connection, timerId), 'ShareTimerWith'),
-      defer(state.queue.setTimerTtl(timerId, -1).then(none), 'setTimerTtl'),
     ]),
   ];
 };
@@ -118,15 +112,7 @@ export const RemoveConnection = (websocket, timerId) => state => {
           ? { ...others, [timerId]: current }
           : others,
     },
-    batch([
-      act(UpdateConnectionStatistics(timerId), 'UpdateConnectionStatistics'),
-      timerConnections.length > 0
-        ? none()
-        : defer(
-            state.queue.setTimerTtl(timerId, 60 * 24 * 3).then(none),
-            'setTimerTtl',
-          ),
-    ]),
+    act(UpdateConnectionStatistics(timerId), 'UpdateConnectionStatistics'),
   ];
 };
 

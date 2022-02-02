@@ -273,7 +273,7 @@ export const Completed = (state, { isEndOfTurn }) => {
   return [
     nextState,
     effects.CompleteTimer({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
     }),
     ...extraEffects,
   ];
@@ -291,7 +291,7 @@ export const RenameUser = (state, { id, value }) => {
       mob,
     },
     effects.UpdateMob({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       mob,
     }),
   ];
@@ -337,7 +337,7 @@ export const ShuffleMob = state => {
       mob,
     },
     effects.UpdateMob({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       mob,
     }),
   ];
@@ -354,7 +354,7 @@ export const CycleMob = state => {
 
   const effectsToRun = [
     effects.UpdateMob({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       mob,
     }),
   ];
@@ -392,7 +392,7 @@ export const AddNameToMob = state => {
       name: '',
     },
     effects.UpdateMob({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       mob,
     }),
   ];
@@ -407,7 +407,7 @@ export const RemoveFromMob = (state, id) => {
       mob,
     },
     effects.UpdateMob({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       mob,
     }),
   ];
@@ -422,7 +422,7 @@ export const MoveMob = (state, { from, to }) => {
       mob,
     },
     effects.UpdateMob({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       mob,
     }),
   ];
@@ -444,7 +444,7 @@ export const AddGoal = state => {
       goal: '',
     },
     effects.UpdateGoals({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       goals,
     }),
   ];
@@ -471,7 +471,7 @@ export const AddGoals = (state, goals) => {
       goal: '',
     },
     effects.UpdateGoals({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       goals: allGoals,
     }),
   ];
@@ -489,7 +489,7 @@ export const CompleteGoal = (state, { id, completed }) => {
       goals,
     },
     effects.UpdateGoals({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       goals,
     }),
   ];
@@ -502,7 +502,7 @@ export const RemoveGoal = (state, id) => {
       goals,
     },
     effects.UpdateGoals({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       goals,
     }),
   ];
@@ -518,7 +518,7 @@ export const RemoveCompletedGoals = state => {
     },
     goalsAreRemoved
       ? effects.UpdateGoals({
-          websocket: state.websocket,
+          socketEmitter: state.externals.socketEmitter,
           goals: incompleteGoals,
         })
       : undefined,
@@ -534,7 +534,7 @@ export const MoveGoal = (state, { from, to }) => {
       goals,
     },
     effects.UpdateGoals({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       goals,
     }),
   ];
@@ -551,7 +551,7 @@ export const RenameGoal = (state, { id, value }) => {
       goals,
     },
     effects.UpdateGoals({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       goals,
     }),
   ];
@@ -595,7 +595,7 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
       currentTime,
     },
     effects.PauseTimer({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       timerDuration,
     }),
   ];
@@ -608,7 +608,7 @@ export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
     currentTime: timerStartedAt,
   },
   effects.StartTimer({
-    websocket: state.websocket,
+    socketEmitter: state.externals.socketEmitter,
     timerDuration: state.timerDuration,
   }),
 ];
@@ -621,7 +621,7 @@ export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
     timerDuration,
   },
   effects.StartTimer({
-    websocket: state.websocket,
+    socketEmitter: state.externals.socketEmitter,
     timerDuration,
   }),
 ];
@@ -827,7 +827,7 @@ export const UpdateSettings = state => {
       pendingSettings: {},
     },
     effects.UpdateSettings({
-      websocket: state.websocket,
+      socketEmitter: state.externals.socketEmitter,
       settings,
     }),
   ];
