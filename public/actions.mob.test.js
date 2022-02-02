@@ -11,11 +11,9 @@ const makeMobber = name => ({
 });
 
 test('can shuffle a mob', t => {
-  const websocket = {};
-
   const initialState = {
     mob: [makeMobber('One'), makeMobber('Two')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.ShuffleMob(initialState);
@@ -26,18 +24,16 @@ test('can shuffle a mob', t => {
   t.deepEqual(
     effect,
     effects.UpdateMob({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       mob: state.mob,
     }),
   );
 });
 
 test('can cycle a mob', t => {
-  const websocket = {};
-
   const initialState = {
     mob: [makeMobber('One'), makeMobber('Two'), makeMobber('Three')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, ...effect] = actions.CycleMob(initialState);
@@ -50,18 +46,16 @@ test('can cycle a mob', t => {
 
   t.deepEqual(effect, [
     effects.UpdateMob({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       mob: state.mob,
     }),
   ]);
 });
 
 test('cannot cycle an empty mob', t => {
-  const websocket = {};
-
   const initialState = {
     mob: [],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const state = actions.CycleMob(initialState);
@@ -70,12 +64,10 @@ test('cannot cycle an empty mob', t => {
 });
 
 test('can cycle a mob while a timer is running', t => {
-  const websocket = {};
-
   const initialState = {
     timerStartedAt: 1,
     mob: [makeMobber('One'), makeMobber('Two'), makeMobber('Three')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, ...effect] = actions.CycleMob(initialState);
@@ -88,7 +80,7 @@ test('can cycle a mob while a timer is running', t => {
 
   t.deepEqual(effect, [
     effects.UpdateMob({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       mob: state.mob,
     }),
     effects.andThen({
@@ -99,13 +91,12 @@ test('can cycle a mob while a timer is running', t => {
 });
 
 test('can add in-memory name to mob', t => {
-  const websocket = {};
   const nameToAdd = 'Bar';
 
   const initialState = {
     mob: [makeMobber('One')],
     name: nameToAdd,
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.AddNameToMob(initialState);
@@ -116,18 +107,16 @@ test('can add in-memory name to mob', t => {
   t.deepEqual(
     effect,
     effects.UpdateMob({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       mob: state.mob,
     }),
   );
 });
 
 test('can remove name to mob', t => {
-  const websocket = {};
-
   const initialState = {
     mob: [makeMobber('One')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.RemoveFromMob(
@@ -135,11 +124,11 @@ test('can remove name to mob', t => {
     initialState.mob[0].id,
   );
 
-  t.deepEqual(state, { mob: [], websocket });
+  t.deepEqual(state, { ...initialState, mob: [] });
   t.deepEqual(
     effect,
     effects.UpdateMob({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       mob: state.mob,
     }),
   );

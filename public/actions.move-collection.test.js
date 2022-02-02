@@ -3,6 +3,7 @@ import * as actions from './actions';
 
 test('moves mob member from top to bottom', t => {
   const initialState = {
+    externals: { socketEmitter: {} },
     mob: ['First', 'Second', 'Third', 'Fourth'],
   };
   const [state] = actions.MoveMob(initialState, {
@@ -15,6 +16,7 @@ test('moves mob member from top to bottom', t => {
 
 test('moves mob member from bottom to top', t => {
   const initialState = {
+    externals: { socketEmitter: {} },
     mob: ['First', 'Second', 'Third', 'Fourth'],
   };
   const [state] = actions.MoveMob(initialState, {
@@ -29,6 +31,7 @@ test('moves mob member from bottom to top', t => {
 
 test('moves goals member from top to bottom', t => {
   const initialState = {
+    externals: { socketEmitter: {} },
     goals: ['First', 'Second', 'Third', 'Fourth'],
   };
   const [state] = actions.MoveGoal(initialState, {
@@ -41,6 +44,7 @@ test('moves goals member from top to bottom', t => {
 
 test('moves goals member from bottom to top', t => {
   const initialState = {
+    externals: { socketEmitter: {} },
     goals: ['First', 'Second', 'Third', 'Fourth'],
   };
   const [state] = actions.MoveGoal(initialState, {

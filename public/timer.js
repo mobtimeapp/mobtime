@@ -7,6 +7,7 @@ import { timeRemaining } from '/sections/timeRemaining.js';
 import { toasts } from '/sections/toasts.js';
 import * as subscriptions from '/subscriptions.js';
 import { app, h, text } from '/vendor/hyperapp.js';
+import * as Emitter from '/lib/emitter.js';
 
 import { tabs, showTab } from '/tabs/index.js';
 
@@ -31,6 +32,7 @@ app({
       storage: window.localStorage,
       location: window.location,
       history: window.history,
+      socketEmitter: Emitter.make(),
     },
     dark: 'dark' in flags,
   }),

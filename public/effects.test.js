@@ -3,90 +3,88 @@ import sinon from 'sinon';
 
 import * as effects from './effects';
 
-const makeWebsocket = () => ({
-  send: sinon.fake(),
-});
-
 const runEffect = ([fn, props], dispatch = () => {}) => fn(dispatch, props);
+
+const makeEmitter = () => ({ emit: sinon.fake() });
 
 test('can send update settings message', t => {
   const payload = {
     type: 'settings:update',
     settings: { foo: 'bar' },
   };
-  const websocket = makeWebsocket();
+  const socketEmitter = makeEmitter();
   runEffect(
     effects.UpdateSettings({
-      websocket,
+      socketEmitter,
       settings: payload.settings,
     }),
   );
 
-  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+  t.truthy(socketEmitter.emit.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
 test('can send start timer message', t => {
   const payload = { type: 'timer:start', timerDuration: 1000 };
-  const websocket = makeWebsocket();
+  const socketEmitter = makeEmitter();
   runEffect(
     effects.StartTimer({
-      websocket,
+      socketEmitter,
       timerDuration: payload.timerDuration,
     }),
   );
 
-  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+  t.truthy(socketEmitter.emit.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
 test('can send pause timer message', t => {
   const payload = { type: 'timer:pause', timerDuration: 1000 };
-  const websocket = makeWebsocket();
+  const socketEmitter = makeEmitter();
   runEffect(
     effects.PauseTimer({
-      websocket,
+      socketEmitter,
       timerDuration: payload.timerDuration,
     }),
   );
 
-  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+  t.truthy(socketEmitter.emit.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
 test('can send complete timer message', t => {
   const payload = { type: 'timer:complete' };
-  const websocket = makeWebsocket();
+  const socketEmitter = makeEmitter();
   runEffect(
     effects.CompleteTimer({
-      websocket,
+      socketEmitter,
     }),
   );
 
-  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+  t.truthy(socketEmitter.emit.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
 test('can send update goals message', t => {
   const payload = { type: 'goals:update', goals: [] };
-  const websocket = makeWebsocket();
+  const socketEmitter = makeEmitter();
   runEffect(
     effects.UpdateGoals({
-      websocket,
+      socketEmitter,
       goals: payload.goals,
     }),
   );
 
-  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+  t.truthy(socketEmitter.emit.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
 test('can send update mob message', t => {
   const payload = { type: 'mob:update', mob: [] };
-  const websocket = makeWebsocket();
+  const socketEmitter = makeEmitter();
   runEffect(
     effects.UpdateMob({
-      websocket,
+      socketEmitter,
       mob: payload.mob,
     }),
   );
 
-  t.truthy(websocket.send.calledOnceWithExactly(JSON.stringify(payload)));
+  t.truthy(socketEmitter.emit.calledOnceWithExactly(JSON.stringify(payload)));
 });
 
 test('cannot request notification permission when no notification object given', t => {

@@ -48,8 +48,6 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
   let hasError = false;
 
   socket.addEventListener('message', event => {
-    console.log('websocket message', event.data);
-
     const payload = JSON.parse(event.data);
 
     dispatch(actions.UpdateByWebsocketData, {
@@ -61,7 +59,6 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
 
   socket.addEventListener('close', event => {
     if (hasError) return;
-    console.warn('Socket closed', event);
     dispatch(actions.WebsocketDisconnected, 'Oops, the websocket disconnected');
   });
 
@@ -71,7 +68,12 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
     dispatch(actions.WebsocketDisconnected, 'Websocket connection error');
   });
 
+  const cancel = externals.socketEmitter.listen(payload => {
+    socket.send(payload);
+  });
+
   return () => {
+    cancel();
     socket.close();
   };
 };

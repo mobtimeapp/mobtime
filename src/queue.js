@@ -51,15 +51,10 @@ export class Queue {
 
   setTimer(timerId, data) {
     return this.client().then(c =>
-      c.set(`timer_${timerId}`, JSON.stringify(data)),
-    );
-  }
-
-  setTimerTtl(timerId, ttl) {
-    return this.client().then(c =>
-      ttl > 0
-        ? c.expireAt(`timer_${timerId}`, parseInt(new Date() / 1000) + ttl)
-        : c.persist(`timer_${timerId}`),
+      Promise.all([
+        c.set(`timer_${timerId}`, JSON.stringify(data)),
+        c.expire(`timer_${timerId}`, 60 * 60 * 24 * 3),
+      ]),
     );
   }
 

@@ -19,12 +19,11 @@ const makeCompletedGoal = text => ({
 });
 
 test('can add goal', t => {
-  const websocket = {};
   const goalTextToAdd = 'foo';
   const initialState = {
     goals: [],
     goal: goalTextToAdd,
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.AddGoal(initialState);
@@ -37,7 +36,7 @@ test('can add goal', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
@@ -46,10 +45,9 @@ test('can add goal', t => {
 test('can add multiple goals at once', t => {
   const goalTextToAdd = 'foo\nbar\nwow';
   const expectedGoals = ['foo', 'bar', 'wow'];
-  const websocket = {};
   const initialState = {
     goals: [],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.AddGoals(initialState, goalTextToAdd);
@@ -62,7 +60,7 @@ test('can add multiple goals at once', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
@@ -71,10 +69,9 @@ test('can add multiple goals at once', t => {
 test('whitespace is trimmed when multiple goals added', t => {
   const goalTextToAdd = 'foo  \n bar \n wow \n ';
   const expectedGoals = ['foo', 'bar', 'wow'];
-  const websocket = {};
   const initialState = {
     goals: [],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.AddGoals(initialState, goalTextToAdd);
@@ -87,7 +84,7 @@ test('whitespace is trimmed when multiple goals added', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
@@ -96,10 +93,9 @@ test('whitespace is trimmed when multiple goals added', t => {
 test('empty goals do not get added when multiple goals added', t => {
   const goalTextToAdd = 'foo\n\nbar\n  \nwow\n\n\n\n\r\n';
   const expectedGoals = ['foo', 'bar', 'wow'];
-  const websocket = {};
   const initialState = {
     goals: [],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.AddGoals(initialState, goalTextToAdd);
@@ -112,18 +108,17 @@ test('empty goals do not get added when multiple goals added', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
 });
 
 test('can complete goal', t => {
-  const websocket = {};
   const goalTextToAdd = 'foo';
   const initialState = {
     goals: [makeGoal('foo')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.CompleteGoal(initialState, {
@@ -139,17 +134,16 @@ test('can complete goal', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
 });
 
 test('can remove goal', t => {
-  const websocket = {};
   const initialState = {
     goals: [makeGoal('foo')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.RemoveGoal(
@@ -162,17 +156,16 @@ test('can remove goal', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
 });
 
 test('keeps uncompleted goals after removing completed goals', t => {
-  const websocket = {};
   const initialState = {
     goals: [makeGoal('foo')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.RemoveCompletedGoals(initialState);
@@ -183,10 +176,9 @@ test('keeps uncompleted goals after removing completed goals', t => {
 });
 
 test('removes completed goals', t => {
-  const websocket = {};
   const initialState = {
     goals: [makeCompletedGoal('foo')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.RemoveCompletedGoals(initialState);
@@ -196,18 +188,17 @@ test('removes completed goals', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
 });
 
 test('can rename goal', t => {
-  const websocket = {};
   const renameGoalTo = 'bar';
   const initialState = {
     goals: [makeGoal('foo')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.RenameGoal(initialState, {
@@ -224,17 +215,16 @@ test('can rename goal', t => {
   t.deepEqual(
     effect,
     effects.UpdateGoals({
-      websocket,
+      socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
     }),
   );
 });
 
 test('can prompt to rename goal', t => {
-  const websocket = {};
   const initialState = {
     goals: [makeGoal('foo')],
-    websocket,
+    externals: { socketEmitter: {} },
   };
 
   const [state, effect] = actions.RenameGoalPrompt(initialState, {
