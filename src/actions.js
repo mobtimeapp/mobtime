@@ -1,6 +1,6 @@
 import { effects } from 'ferp';
 import { WebSocket } from 'ws';
-import { CloseWebsocket, RelayMessage, ShareMessage } from './websocket';
+import { RelayMessage, ShareMessage } from './websocket';
 import * as Connection from './connection';
 import { id, GenerateIdEffect } from './id';
 
@@ -119,7 +119,6 @@ export const RemoveConnection = (websocket, timerId) => state => {
           : others,
     },
     batch([
-      CloseWebsocket(websocket),
       act(UpdateConnectionStatistics(timerId), 'UpdateConnectionStatistics'),
       timerConnections.length > 0
         ? none()

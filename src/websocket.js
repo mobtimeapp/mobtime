@@ -4,8 +4,9 @@ const { none, thunk, batch, defer } = effects;
 
 const WebsocketSub = (dispatch, actions, connection, timerId) => {
   const { websocket } = connection;
-
+  let waitingForPong = false;
   let isClosed = false;
+
   websocket.on('close', () => {
     if (isClosed) return;
     isClosed = true;
@@ -14,21 +15,31 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
   });
 
   websocket.on('message', payload => {
+    if (isClosed) return;
     return dispatch(actions.UpdateTimer(timerId, payload), 'UpdateTimer');
   });
 
+  websocket.on('pong', () => {
+    waitingForPong = false;
+  });
+
+  const intervalHandle = setInterval(() => {
+    if (waitingForPong) {
+      clearInterval(intervalHandle);
+      websocket.close(0, 'Timeout');
+      return;
+    }
+    websocket.ping();
+    waitingForPong = true;
+  }, 60000);
+
   return () => {
+    websocket.close();
+    clearInterval(intervalHandle);
     isClosed = true;
   };
 };
 export const Websocket = (...props) => [WebsocketSub, ...props];
-
-export const CloseWebsocket = websocket =>
-  thunk(() => {
-    websocket.close();
-
-    return none();
-  }, 'CloseWebsocket');
 
 export const RelayMessage = (connection, message) =>
   thunk(() => {

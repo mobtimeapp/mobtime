@@ -5,12 +5,6 @@ import * as effects from './effects';
 
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
 
-test('can set websocket', t => {
-  const websocket = { send: () => {} };
-  const state = actions.SetWebsocket({}, { websocket });
-  t.deepEqual(state, { websocket });
-});
-
 test('can set expand reorderable', t => {
   const expandedReorderable = { foo: 'bar' };
   const state = actions.ExpandReorderable({}, { expandedReorderable });
