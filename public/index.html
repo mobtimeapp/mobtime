@@ -107,7 +107,7 @@
           fetch('/api/statistics')
             .then(response => response.json())
             .then(statistics => {
-              document.querySelector('#activityCount').innerText = statistics.connections.toString();
+              document.querySelector('#activityCount').innerText = statistics.mobbers.toString();
             })
             .catch((error) => {
               console.warn('Unable to update statistics', error);

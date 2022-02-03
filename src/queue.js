@@ -40,6 +40,14 @@ export class Queue {
       });
   }
 
+  listTimers() {
+    return this.client().then(c =>
+      c
+        .keys('timer_*')
+        .then(timers => timers.map(timerId => timerId.replace(/^timer_/, ''))),
+    );
+  }
+
   getTimer(timerId) {
     return this.client().then(c =>
       c

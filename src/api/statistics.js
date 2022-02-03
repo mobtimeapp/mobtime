@@ -15,18 +15,18 @@ export default () => {
     let timerStatistics = cache.value;
     if (Date.now() - cache.time > CACHE_TTL) {
       const stats = await queue.getStatistics();
-      const timerIds = Object.keys(stats || {});
+      const timerIds = await queue.listTimers();
+      console.log('timerIds', timerIds);
+      const getStats = (timerId, type) =>
+        (stats[timerId] && stats[timerId][type]) || 0;
       timerStatistics = timerIds.reduce(
         (counts, id) => ({
-          connections: counts.connections + stats[id].connections,
-          mobbers:
-            stats[id].connections > 0
-              ? counts.mobbers + stats[id].mobbers
-              : counts.mobbers,
+          connections: counts.connections + getStats(id, 'connections'),
+          mobbers: counts.mobbers + getStats(id, 'mobbers'),
+          timerIds: counts.timerIds + 1,
         }),
-        { connections: 0, mobbers: 0 },
+        { connections: 0, mobbers: 0, timerIds: 0 },
       );
-      timerStatistics.timerIds = timerIds.length;
       cache = {
         value: timerStatistics,
         time: Date.now(),
