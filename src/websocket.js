@@ -4,7 +4,10 @@ const { none, thunk, batch, defer } = effects;
 
 const WebsocketSub = (dispatch, actions, connection, timerId) => {
   const { websocket } = connection;
-  let waitingForPong = false;
+  let pingSentAt = null;
+
+  const log = (...data) =>
+    console.log(`[WebsocketSub]`, connection.id, ...data);
 
   websocket.on('close', () => {
     dispatch(actions.RemoveConnection(websocket, timerId), 'RemoveConnection');
@@ -18,17 +21,25 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
   });
 
   websocket.on('pong', () => {
+    const latency = Date.now() - pingSentAt;
+    log('>> pong', `(latency=${latency}ms)`);
+
     waitingForPong = false;
   });
 
   const intervalHandle = setInterval(() => {
-    if (waitingForPong) {
+    if (pingSentAt !== null) {
+      log(
+        '!! timeout',
+        'client was not able to respond to ping within 60 seconds',
+      );
       clearInterval(intervalHandle);
       websocket.close(0, 'Timeout');
       return;
     }
+    pingSentAt = Date.now();
     websocket.ping();
-    waitingForPong = true;
+    log('<< ping');
   }, 60000);
 
   return () => {
