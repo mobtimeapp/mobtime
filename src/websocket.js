@@ -22,9 +22,8 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
 
   websocket.on('pong', () => {
     const latency = Date.now() - pingSentAt;
+    pingSentAt = null;
     log('>> pong', `(latency=${latency}ms)`);
-
-    waitingForPong = false;
   });
 
   const intervalHandle = setInterval(() => {
@@ -34,7 +33,7 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
         'client was not able to respond to ping within 60 seconds',
       );
       clearInterval(intervalHandle);
-      websocket.close(0, 'Timeout');
+      websocket.close();
       return;
     }
     pingSentAt = Date.now();

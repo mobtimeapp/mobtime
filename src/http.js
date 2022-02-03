@@ -19,6 +19,8 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
     clientTracking: false,
   });
 
+  const log = (...data) => console.log('[Http]', ...data);
+
   app.use(bodyParser.json());
   app.use(
     helmet({
@@ -53,7 +55,7 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
     const htmlPayload = path.resolve(rootPath, 'public', 'timer.html');
     const html = await fs.readFile(htmlPayload, { encoding: 'utf8' });
 
-    console.log('timer.hit', request.params.timerId);
+    log('http.connect', request.params.timerId);
 
     return response.status(200).send(html);
   });
@@ -65,9 +67,9 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   wss.on('connection', async (client, request) => {
     const url = new URL(request.url, `http://${request.headers.host}`);
     const timerId = url.pathname.replace('/', '');
-    console.log('websocket.connect', timerId);
+    log('websocket.connect', timerId);
     client.on('close', () => {
-      console.log('websocket.disconnect', timerId);
+      log('websocket.disconnect', timerId);
     });
 
     await dispatch(action.AddConnection(client, timerId), 'AddConnection');
