@@ -10,7 +10,10 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
     console.log(`[WebsocketSub]`, connection.id, ...data);
 
   websocket.on('close', () => {
-    dispatch(actions.RemoveConnection(websocket, timerId), 'RemoveConnection');
+    dispatch(
+      actions.RemoveConnection(connection.id, timerId),
+      'RemoveConnection',
+    );
   });
 
   websocket.on('message', payload => {

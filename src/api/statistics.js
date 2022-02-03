@@ -15,7 +15,7 @@ export default () => {
     let timerStatistics = cache.value;
     if (Date.now() - cache.time > CACHE_TTL) {
       const stats = await queue.getStatistics();
-      timerIds = Object.keys(stats || {});
+      const timerIds = Object.keys(stats || {});
       timerStatistics = timerIds.reduce(
         (counts, id) => ({
           connections: counts.connections + stats[id].connections,

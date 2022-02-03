@@ -79,7 +79,7 @@ test('RemoveConnection removes the connection', async t => {
     queue,
   })
     .willAct('UpdateConnectionStatistics')
-    .fromAction(Actions.RemoveConnection(websocket, timerId));
+    .fromAction(Actions.RemoveConnection(connection.id, timerId));
 
   t.truthy(ok(), `Failed expecatations: ${failedOn().join(', ')}`);
 

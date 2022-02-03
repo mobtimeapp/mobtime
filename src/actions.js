@@ -98,9 +98,9 @@ export const AddConnection = (websocket, timerId) => state => {
   ];
 };
 
-export const RemoveConnection = (websocket, timerId) => state => {
+export const RemoveConnection = (connectionId, timerId) => state => {
   const timerConnections = (state.connections[timerId] || [])
-    .filter(c => c.websocket !== websocket)
+    .filter(c => c.id !== connectionId)
     .filter(c => c.websocket.readyState !== WebSocket.CLOSED);
   const { [timerId]: current, ...others } = state.connections;
 
