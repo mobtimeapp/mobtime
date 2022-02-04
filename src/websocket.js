@@ -7,7 +7,7 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
   let pingSentAt = null;
 
   const log = (...data) =>
-    console.log(`[WebsocketSub]`, connection.id, ...data);
+    console.log(`[WebsocketSub#${timerId}]`, connection.id, ...data);
 
   websocket.on('close', () => {
     dispatch(
