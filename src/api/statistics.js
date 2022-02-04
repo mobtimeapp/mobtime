@@ -16,7 +16,6 @@ export default () => {
     if (Date.now() - cache.time > CACHE_TTL) {
       const stats = await queue.getStatistics();
       const timerIds = await queue.listTimers();
-      console.log('timerIds', timerIds);
       const getStats = (timerId, type) =>
         (stats[timerId] && stats[timerId][type]) || 0;
       timerStatistics = timerIds.reduce(
