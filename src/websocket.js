@@ -2,6 +2,8 @@ import { effects } from 'ferp';
 
 const { none, thunk, batch, defer } = effects;
 
+const WEBSOCKET_TTL_SECONDS = 40;
+
 const WebsocketSub = (dispatch, actions, connection, timerId) => {
   const initTime = Date.now();
   const log = (...data) =>
@@ -38,6 +40,10 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
     log('>> pong', `(latency=${latency}ms)`);
   });
 
+  websocket.on('ping', () => {
+    websocket.pong();
+  });
+
   const intervalHandle = setInterval(() => {
     if (pingSentAt !== null) {
       log(
@@ -51,7 +57,7 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
     pingSentAt = Date.now();
     websocket.ping();
     log('<< ping');
-  }, 60000);
+  }, WEBSOCKET_TTL_SECONDS * 1000);
 
   return () => {
     const totalTime = Date.now() - initTime;

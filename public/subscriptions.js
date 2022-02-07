@@ -59,6 +59,7 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
 
   socket.addEventListener('close', event => {
     if (hasError) return;
+    console.log('Socket close', event);
     dispatch(actions.WebsocketDisconnected, 'Oops, the websocket disconnected');
   });
 
