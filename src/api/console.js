@@ -70,24 +70,25 @@ export default () => {
 
   router.get('/timers.json', async (request, response) => {
     const client = await query();
-    const statistics = JSON.parse(await client.get('statistics'));
 
     const MATCH = `timer_${request.query.search || '*'}`;
-    console.log(MATCH);
 
     let keys = [];
     for await (let key of client.scanIterator({ MATCH })) {
-      const timerId = key.replace(/^timer_/, '');
       keys.push(
-        client
-          .ttl(key)
-          .then(expireAt => ({ ...statistics[timerId], timerId, expireAt })),
+        Promise.all([client.get(key), client.ttl(key)]).then(
+          ([timer, expireAt]) => ({
+            timer: JSON.parse(timer || '{}'),
+            timerId: key.replace(/^timer_/, ''),
+            expireAt: Date.now() + expireAt * 1000,
+          }),
+        ),
       );
     }
 
     const timers = await Promise.all(keys);
 
-    return response.json(timers).end();
+    return response.json(timers.sort((a, b) => b.expireAt > a.expireAt)).end();
   });
 
   return router;

@@ -21,7 +21,7 @@
   <main class="container mx-auto w-1/2">
     <h1 class="text-xl my-2">Mobtime Console</h1>
     <h2 class="text-lg my-2 border-b">Search</h2>
-    <form action="" method="get" class="pt-3 pb-1 grid grid-cols-[75px_minmax(0,_1fr)_75px] gap-2">
+    <form action="#" method="post" class="pt-3 pb-1 grid grid-cols-[75px_minmax(0,_1fr)_75px] gap-2">
       <label class="py-1" for="token">Token</label>
       <input class="border p-1 col-span-2" autocomplete="off" type="password" name="token" id="token" />
 
@@ -35,8 +35,8 @@
       <thead>
         <tr>
           <th class="text-left">Timer</td>
-          <th class="text-left">Participants</td>
-          <th class="text-left">Connections</td>
+          <th class="text-left">Mob Size</td>
+          <th class="text-left">Goals</td>
           <th class="text-left">Expires In</td>
         </tr>
       </thead>
@@ -56,12 +56,19 @@
     };
     const t = (text) => document.createTextNode(text);
 
+    const toHumanDateString = (input) => {
+      const date = new Date(input);
+      const dateString = date.toDateString().split(' ').slice(1, -1).join(' ');
+      const timeString = date.toTimeString().split(':').slice(0, 2).join(':');
+      return `${dateString} at ${timeString}`;
+    };
+
     const createRow = (data) => {
       return e('tr', {}, [
         e('td', {}, e('a', { href: `/${data.timerId}` }, t(data.timerId))),
-        e('td', {}, t(data.mobbers)),
-        e('td', {}, t(data.connections)),
-        e('td', {}, t(data.ttl)),
+        e('td', {}, t((data.timer.mob || []).length)),
+        e('td', {}, t((data.timer.goals || []).length)),
+        e('td', {}, t(data.expireAt ? toHumanDateString(data.expireAt) : 'n/a')),
       ]);
     };
 

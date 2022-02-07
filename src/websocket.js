@@ -3,20 +3,29 @@ import { effects } from 'ferp';
 const { none, thunk, batch, defer } = effects;
 
 const WebsocketSub = (dispatch, actions, connection, timerId) => {
-  const { websocket } = connection;
-  let pingSentAt = null;
-
+  const initTime = Date.now();
   const log = (...data) =>
     console.log(`[WebsocketSub#${timerId}]`, connection.id, ...data);
 
+  const { websocket } = connection;
+  let pingSentAt = null;
+
+  log('++ new connection');
+
   websocket.on('close', () => {
+    log('closed');
     dispatch(
       actions.RemoveConnection(connection.id, timerId),
       'RemoveConnection',
     );
   });
 
+  websocket.on('error', () => {
+    log('error');
+  });
+
   websocket.on('message', payload => {
+    log('message', payload.toString());
     return dispatch(
       actions.UpdateTimer(timerId, payload.toString()),
       'UpdateTimer',
@@ -45,6 +54,10 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
   }, 60000);
 
   return () => {
+    const totalTime = Date.now() - initTime;
+    const hours = Math.floor(totalTime / 3600000);
+    const minutes = Math.floor((totalTime - hours * 3600000) / 60000);
+    log(`-- dropped connection after ${hours}h ${minutes}m`);
     websocket.close();
     clearInterval(intervalHandle);
   };
@@ -53,6 +66,7 @@ export const Websocket = (...props) => [WebsocketSub, ...props];
 
 export const RelayMessage = (connection, message) =>
   thunk(() => {
+    console.log(`[RelayMessage#${connection.timerId}]`, connection.id, message);
     connection.websocket.send(message);
 
     return none();
