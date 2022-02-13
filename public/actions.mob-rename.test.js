@@ -57,7 +57,7 @@ test('can prompt to rename a user', t => {
     effects.andThen({
       action: actions.PromptOpen,
       props: {
-        text: 'Rename Mob Member',
+        text: 'Rename Foo to...',
         defaultValue: 'Foo',
         OnValue: actions.RenameUser,
         context: {

@@ -238,7 +238,7 @@ test('can prompt to rename goal', t => {
     effects.andThen({
       action: actions.PromptOpen,
       props: {
-        text: 'Rename Goal',
+        text: 'Rename foo to...',
         defaultValue: initialState.goals[0].text,
         OnValue: actions.RenameGoal,
         context: {
