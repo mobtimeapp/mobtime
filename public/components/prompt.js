@@ -3,7 +3,7 @@ import { h, text } from '/vendor/hyperapp.js';
 import * as actions from '/actions.js';
 
 import { modal } from '/components/modal.js';
-import { input } from '/components/input.js';
+import { textarea } from '/components/input.js';
 import { button } from '/components/button.js';
 
 export const appPrompt = props =>
@@ -12,6 +12,7 @@ export const appPrompt = props =>
       ...props,
       cardClass: {
         'pb-4': true,
+        'w-1/2': true,
       },
     },
     [
@@ -29,6 +30,7 @@ export const appPrompt = props =>
               },
             ];
           },
+          class: 'w-full',
         },
         [
           h(
@@ -36,20 +38,21 @@ export const appPrompt = props =>
             {
               for: 'mobtime-prompt',
               class: {
-                block: true,
+                'block': true,
                 'mb-2': true,
               },
             },
             text(props.text),
           ),
-          input({
+          textarea({
             id: 'mobtime-prompt',
             name: 'value',
             value: props.value,
             oninput: (_, e) => [actions.PromptValueChange, e.target.value],
             autocomplete: 'off',
             class: {
-              block: true,
+              'block': true,
+              'w-full': true,
               'mb-4': true,
             },
           }),
@@ -57,7 +60,7 @@ export const appPrompt = props =>
             'div',
             {
               class: {
-                flex: true,
+                'flex': true,
                 'items-center': true,
                 'justify-end': true,
               },
