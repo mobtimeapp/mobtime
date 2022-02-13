@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-$(npm bin)/lint-staged
+# Waiting on prettier-eslint-cli to update away from CLIEngine in eslint
+# $(npm bin)/lint-staged
