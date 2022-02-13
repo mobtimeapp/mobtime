@@ -306,7 +306,7 @@ export const RenameUserPrompt = (state, { id }) => {
     effects.andThen({
       action: PromptOpen,
       props: {
-        text: 'Rename Mob Member',
+        text: `Rename ${user.name} to...`,
         defaultValue: user.name,
         OnValue: RenameUser,
         context: {
@@ -565,7 +565,9 @@ export const RenameGoalPrompt = (state, { id }) => {
     effects.andThen({
       action: PromptOpen,
       props: {
-        text: 'Rename Goal',
+        text: `Rename ${
+          goal.text.length > 32 ? goal.text.slice(0, 29) + '...' : goal.text
+        } to...`,
         defaultValue: goal.text,
         OnValue: RenameGoal,
         context: {
