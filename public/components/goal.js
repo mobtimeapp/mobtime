@@ -2,19 +2,25 @@ import { h, text } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';
 
+const textWithBreaks = goalText =>
+  goalText
+    .split('\n')
+    .reduce((result, t) => [...result, text(t), h('br', {})], [])
+    .slice(0, -1);
+
 export const goal = props =>
   h(
     'div',
     {
       class: {
-        flex: true,
+        'flex': true,
         'flex-row': true,
         'items-center': true,
         'justify-between': true,
         'mb-2': true,
         'w-full': true,
         'break-words': true,
-        truncate: props.truncate,
+        'truncate': props.truncate,
       },
     },
     [
@@ -70,11 +76,12 @@ export const goal = props =>
             'flex-grow': true,
             'leading-tight': true,
             'text-gray-500': props.id === null,
-            'break-all': true,
-            truncate: props.truncate,
+            'break-words': true,
+            'truncate': props.truncate,
+            'block': true,
           },
         },
-        text(props.text),
+        textWithBreaks(props.text),
       ),
     ],
   );
