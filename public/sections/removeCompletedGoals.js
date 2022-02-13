@@ -16,14 +16,12 @@ export const removeCompletedGoals = props => {
       {
         action: '#',
         method: 'get',
-        onsubmit: [
-          actions.RemoveCompletedGoals,
-          e => {
-            e.preventDefault();
-          },
-        ],
+        onsubmit: (_, e) => {
+          e.preventDefault();
+          return [actions.RemoveCompletedGoals, {}];
+        },
         class: {
-          flex: true,
+          'flex': true,
           'flex-col': true,
           'items-center': true,
           'justify-start': true,
@@ -36,7 +34,7 @@ export const removeCompletedGoals = props => {
           'div',
           {
             class: {
-              flex: true,
+              'flex': true,
               'items-center': true,
               'justify-end': true,
               'pt-2': true,
