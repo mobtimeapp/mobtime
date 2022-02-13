@@ -383,6 +383,9 @@ export const AddNameToMob = state => {
       .toString(36)
       .slice(2),
     name: state.name,
+    avatar: `https://avatars.dicebear.com/api/croodles-neutral/${encodeURIComponent(
+      state.name,
+    )}.svg?background=white`,
   });
 
   return [
