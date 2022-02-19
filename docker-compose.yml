@@ -12,6 +12,7 @@ services:
 
   app:
     build: .
+    container_name: mobtime-app
     environment:
       REDIS_HOST: redis
       APP_HOST: 0.0.0.0
@@ -22,6 +23,6 @@ services:
     ports:
       - 0.0.0.0:1234:1234
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "curl", "-f", "http://localhost:1234"]
     depends_on:
       - redis

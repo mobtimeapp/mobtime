@@ -4,6 +4,8 @@ WORKDIR /web
 
 ADD . ./
 
+RUN apk add curl
+
 RUN npm ci
 RUN npm run tailwind
 
