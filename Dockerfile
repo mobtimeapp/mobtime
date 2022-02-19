@@ -1,12 +1,7 @@
 FROM node:lts-alpine
 
-WORKDIR /web
-
-ADD . ./
-
 RUN apk add curl
 
-RUN npm ci
-RUN npm run tailwind
+WORKDIR /web
 
-CMD [ "npm", "start"]
+CMD [ "npm", "run", "dev"]

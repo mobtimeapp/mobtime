@@ -26,3 +26,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:1234"]
     depends_on:
       - redis
+    # Note: this volume mount is for development with nodemon.
+    # Unnecessay in case of production.
+    volumes:
+      - ./:/web
