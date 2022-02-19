@@ -7,4 +7,4 @@ ADD . ./
 RUN npm ci
 RUN npm run tailwind
 
-CMD [ "npm", "run", "dev"]
+CMD [ "npm", "start"]

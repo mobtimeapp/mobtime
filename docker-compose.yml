@@ -11,9 +11,7 @@ services:
       - ./docker/redis-volume:/data
 
   app:
-    image: node:lts-alpine
-    build: ./docker/app
-    working_dir: /web
+    build: .
     environment:
       REDIS_HOST: redis
       APP_HOST: 0.0.0.0
@@ -27,5 +25,3 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost"]
     depends_on:
       - redis
-    volumes:
-      - ./:/web
