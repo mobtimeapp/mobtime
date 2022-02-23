@@ -2,29 +2,15 @@ version: '3'
 
 services:
   redis:
-    image: redis
-    container_name: cache
-    command: bash -c "redis-server --appendonly yes"
-    expose:
-      - 6379
     volumes:
-      - /data
+      - mobtime-storage:/data
 
   app:
     build:
       context: .
       dockerfile: Dockerfile.production
-    container_name: mobtime-app
     environment:
-      REDIS_HOST: redis
-      APP_HOST: 0.0.0.0
-      APP_PORT: 1234
-      WORKERS: 2
       NODE_ENV: production
-      TOKEN_KEY: "console:aT88jG"
-    ports:
-      - 0.0.0.0:1234:1234
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:1234"]
-    depends_on:
-      - redis
+
+volumes:
+  mobtime-storage:

@@ -7,26 +7,19 @@ services:
     command: bash -c "redis-server --appendonly yes"
     expose:
       - 6379
-    volumes:
-      - ./docker/redis-volume:/data
 
   app:
     build: .
     container_name: mobtime-app
     environment:
       REDIS_HOST: redis
-      APP_HOST: 0.0.0.0
+      APP_HOST: ${APP_HOST:-0.0.0.0}
       APP_PORT: 1234
-      WORKERS: 2
-      NODE_ENV: development
-      TOKEN_KEY: "console:aT88jG"
+      WORKERS: ${WORKERS:-2}
+      TOKEN_KEY: ${TOKEN_KEY:-"console:aT88jG"}
     ports:
-      - 0.0.0.0:1234:1234
+      - 0.0.0.0:${SERVICE_PORT:-1234}:1234
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:1234"]
     depends_on:
       - redis
-    # Note: this volume mount is for development with nodemon.
-    # Unnecessay in case of production.
-    volumes:
-      - ./:/web

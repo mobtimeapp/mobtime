@@ -10,7 +10,6 @@ This is probably the preferred way, so you don't need to global install redis or
 
  - `npm install`
  - `npm run tailwind`
- - `docker-compose build`
  - `npm run start:dev`
 
 ### On your system
