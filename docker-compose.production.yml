@@ -8,17 +8,19 @@ services:
     expose:
       - 6379
     volumes:
-      - ./docker/redis-volume:/data
+      - /data
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.production
     container_name: mobtime-app
     environment:
       REDIS_HOST: redis
       APP_HOST: 0.0.0.0
       APP_PORT: 1234
       WORKERS: 2
-      NODE_ENV: development
+      NODE_ENV: production
       TOKEN_KEY: "console:aT88jG"
     ports:
       - 0.0.0.0:1234:1234
@@ -26,7 +28,3 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:1234"]
     depends_on:
       - redis
-    # Note: this volume mount is for development with nodemon.
-    # Unnecessay in case of production.
-    volumes:
-      - ./:/web

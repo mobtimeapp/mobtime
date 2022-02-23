@@ -4,9 +4,12 @@ RUN apk add curl
 
 WORKDIR /web
 
-COPY . ./
+COPY package*.json ./
 
-RUN npm ci
+RUN npm ci --only=production --ignore-scripts
+
+COPY . .
+
 RUN npm run tailwind
 
 CMD [ "npm", "start"]

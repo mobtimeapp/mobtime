@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "nodemon --ignore public ./index.js",
     "start:dev": "docker-compose up",
+    "start:prod": "docker-compose -f docker-compose.production.yml up",
     "tailwind": "tailwindcss build -i ./src/styles/index.css -o ./public/styles/styles.css",
     "start": "node ./index.js",
     "start:cluster": "node ./index.cluster.js",
@@ -26,7 +27,6 @@
     "express": "^4.17.2",
     "ferp": "^2.1.2",
     "helmet": "^4.6.0",
-    "nodemon": "^2.0.15",
     "postcss": "^8.4.5",
     "prettier-eslint-cli": "^5.0.1",
     "redis": "^4.0.1",
@@ -40,6 +40,7 @@
     "husky": "^7.0.0",
     "lint-staged": "12.3.3",
     "nyc": "^15.1.0",
+    "nodemon": "^2.0.15",
     "sinon": "^12.0.1"
   },
   "ava": {
