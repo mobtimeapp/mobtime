@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  redis:
+    volumes:
+      - mobtime-storage:/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    environment:
+      NODE_ENV: production
+
+volumes:
+  mobtime-storage:

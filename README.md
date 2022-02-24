@@ -6,9 +6,10 @@ A websocket powered, collaborative mobbing timer, for desktop and mobile.
 
 ### With Docker/Docker Compose
 
-This is probably the preferred way, so yo udon't need to global install redis or even a specific node version.
+This is probably the preferred way, so you don't need to global install redis or even a specific node version.
 
- - `docker-compose build`
+ - `npm install`
+ - `npm run tailwind`
  - `npm run start:dev`
 
 ### On your system

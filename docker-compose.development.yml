@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  redis:
+    volumes:
+      - ./docker/redis-volume:/data
+
+  app:
+    build: .
+    environment:
+      NODE_ENV: development
+    # Note: this volume mount is for development with nodemon.
+    volumes:
+      - ./:/web
