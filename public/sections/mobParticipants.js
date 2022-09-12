@@ -19,7 +19,7 @@ export const mobParticipants = props => {
   const items = Array.from({ length }, (_, index) => ({
     ...(props.mob[index] || {}),
     disabled: index >= props.mob.length,
-    position: mobOrder[index] || 'mob',
+    position: mobOrder[index] || props.lang.mob.fallback,
   }));
 
   return section({}, [

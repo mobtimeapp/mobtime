@@ -9,10 +9,12 @@ export const goals = props =>
       expandedReorderable: props.expandedReorderable,
       drag: props.drag.type === 'goal' ? props.drag : {},
       goals: props.goals,
+      lang: props.lang,
     }),
     addGoal({
       goal: props.goal,
       addMultiple: props.addMultiple,
+      lang: props.lang,
     }),
-    removeCompletedGoals({ goals: props.goals }),
+    removeCompletedGoals({ goals: props.goals, lang: props.lang }),
   ]);

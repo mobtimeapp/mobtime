@@ -18,7 +18,7 @@ export const addParticipant = props =>
           return [actions.AddNameToMob, {}];
         },
         class: {
-          flex: true,
+          'flex': true,
           'flex-row': true,
           'items-center': true,
           'justify-between': true,
@@ -39,7 +39,7 @@ export const addParticipant = props =>
           input({
             value: props.name,
             oninput: (_, e) => [actions.UpdateName, e.target.value],
-            placeholder: 'Add Person',
+            placeholder: props.lang.mob.addPerson,
 
             class: {
               'hover:border-gray-400': true,
@@ -59,7 +59,7 @@ export const addParticipant = props =>
               'whitespace-no-wrap': true,
             },
           },
-          [h('i', { class: 'fas fa-plus mr-3' }), text('Add')],
+          [h('i', { class: 'fas fa-plus mr-3' }), text(props.lang.mob.add)],
         ),
       ],
     ),

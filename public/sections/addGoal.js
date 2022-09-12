@@ -19,7 +19,7 @@ export const addGoal = props =>
           return [actions.AddGoals, props.goal];
         },
         class: {
-          flex: true,
+          'flex': true,
           'flex-col': true,
           'items-center': true,
           'justify-start': true,
@@ -32,7 +32,7 @@ export const addGoal = props =>
           input({
             value: props.goal,
             oninput: (_, e) => [actions.UpdateGoalText, e.target.value],
-            placeholder: 'Add Goal',
+            placeholder: props.lang.goals.addSingle,
             class: {
               'hover:border-indigo-300': true,
               'hover:border-b-solid': true,
@@ -44,7 +44,7 @@ export const addGoal = props =>
           textarea({
             onchange: (_, e) => [actions.UpdateGoalText, e.target.value],
             value: props.goal,
-            placeholder: 'Add Goals\nOne goal per line',
+            placeholder: props.lang.goals.addMultiline,
             class: {
               'w-full': true,
             },
@@ -54,7 +54,7 @@ export const addGoal = props =>
           'div',
           {
             class: {
-              flex: true,
+              'flex': true,
               'items-center': true,
               'justify-between': true,
               'pt-2': true,
@@ -73,7 +73,7 @@ export const addGoal = props =>
                   },
                 },
               },
-              text('Add multiple goals'),
+              text(props.lang.goals.addMultipleGoals),
             ),
 
             button(
@@ -85,7 +85,10 @@ export const addGoal = props =>
                   'whitespace-no-wrap': true,
                 },
               },
-              [h('i', { class: 'fas fa-plus mr-3' }), text('Add')],
+              [
+                h('i', { class: 'fas fa-plus mr-3' }),
+                text(props.lang.goals.add),
+              ],
             ),
           ],
         ),

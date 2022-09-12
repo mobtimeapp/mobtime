@@ -4,15 +4,15 @@ import { section } from '/components/section.js';
 import { goal } from '/components/goal.js';
 import { reorderable } from '/components/reorderable.js';
 
-const temporaryGoals = [
+const temporaryGoals = ({ lang }) => [
   {
-    text: 'A good day would be...',
+    text: lang.goals.goodDay,
     completed: false,
     id: null,
     disabled: true,
   },
   {
-    text: 'A great day would be...',
+    text: lang.goals.greatDay,
     completed: false,
     id: null,
     disabled: true,
@@ -22,9 +22,10 @@ const temporaryGoals = [
 const getReorderableId = item => `goal-${item.id}`;
 
 export const goalList = props => {
-  const padding = Math.max(0, temporaryGoals.length - props.goals.length);
+  const tempGoals = temporaryGoals(props);
+  const padding = Math.max(0, tempGoals.length - props.goals.length);
   const items = props.goals.concat(
-    padding > 0 ? temporaryGoals.slice(-padding) : [],
+    padding > 0 ? tempGoals.slice(-padding) : [],
   );
 
   return section({}, [
