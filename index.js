@@ -1,7 +1,7 @@
 require('dotenv/config');
-require = require("esm")(module/*, options*/)
+j = require = require('esm')(module /*, options*/);
 if (process.env.WORKERS > 1 || process.env.WORKERS === -1) {
-  module.exports = require("./src/index.cluster.js")
+  module.exports = require('./src/web/index.cluster.js');
 } else {
-  module.exports = require("./src/index.js")
+  module.exports = require('./src/web/index.js');
 }
