@@ -10,11 +10,15 @@ export const mob = props =>
       drag: props.drag.type === 'mob' ? props.drag : {},
       mob: props.mob,
       mobOrder: props.settings.mobOrder,
+      lang: props.lang,
     }),
 
     addParticipant({
       name: props.name,
+      lang: props.lang,
     }),
 
-    mobActions(),
+    mobActions({
+      lang: props.lang,
+    }),
   ]);

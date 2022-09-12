@@ -14,10 +14,10 @@ export const overview = props =>
             type: 'button',
             onclick: () => [actions.SetTimerTab, 'mob'],
           },
-          text('Edit Mob'),
+          text(props.lang.overview.editMob),
         ),
       },
-      text("Who's Up"),
+      text(props.lang.overview.whosUp),
     ),
     mobParticipants({
       overview: true,
@@ -25,6 +25,7 @@ export const overview = props =>
       drag: {},
       mob: props.mob.slice(0, props.settings.mobOrder.split(',').length || 2),
       mobOrder: props.settings.mobOrder,
+      lang: props.lang,
     }),
 
     overviewHeading(
@@ -34,15 +35,16 @@ export const overview = props =>
             type: 'button',
             onclick: () => [actions.SetTimerTab, 'goals'],
           },
-          text('Edit Goals'),
+          text(props.lang.overview.editGoals),
         ),
       },
-      text('Top Goals'),
+      text(props.lang.overview.topGoals),
     ),
     goalList({
       overview: true,
       expandedReorderable: props.expandedReorderable,
       drag: {},
       goals: props.goals.filter(g => !g.completed).slice(0, 3),
+      lang: props.lang,
     }),
   ]);

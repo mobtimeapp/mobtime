@@ -5,11 +5,11 @@ import { button } from '/components/button.js';
 
 import * as actions from '/actions.js';
 
-export const mobActions = () =>
+export const mobActions = props =>
   section(
     {
       class: {
-        flex: true,
+        'flex': true,
         'flex-row': true,
         'items-center': true,
         'justify-between': true,
@@ -26,7 +26,10 @@ export const mobActions = () =>
           },
           onclick: actions.CycleMob,
         },
-        [h('x-icon', { class: 'inline fas fa-sync-alt mr-1' }), text('Rotate')],
+        [
+          h('x-icon', { class: 'inline fas fa-sync-alt mr-1' }),
+          text(props.lang.mob.rotate),
+        ],
       ),
 
       button(
@@ -41,7 +44,7 @@ export const mobActions = () =>
         },
         [
           h('x-icon', { class: 'inline fas fa-random mr-1' }),
-          text('Randomize'),
+          text(props.lang.mob.randomize),
         ],
       ),
     ],

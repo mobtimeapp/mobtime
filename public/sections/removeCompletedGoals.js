@@ -53,7 +53,7 @@ export const removeCompletedGoals = props => {
               },
               [
                 h('i', { class: 'fas fa-trash mr-3' }),
-                text('Clear completed goals'),
+                text(props.lang.goals.clearCompleted),
               ],
             ),
           ],

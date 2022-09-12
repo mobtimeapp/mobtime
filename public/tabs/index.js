@@ -21,7 +21,6 @@ const getGoalsDetails = ({ goals }) => {
   return badge({}, text(`${completed}/${total}`));
 };
 
-
 const tabMap = {
   overview,
   mob,
@@ -30,64 +29,63 @@ const tabMap = {
   share: qrShare,
 };
 
-const tabRenderer = (tabName, state) => (
-  tabMap[tabName](state)
-  || text(`Unable to load ${tabName} tab`)
-);
+const tabRenderer = (tabName, state) =>
+  tabMap[tabName](state) || text(`Unable to load ${tabName} tab`);
 
-export const tabs = (props) => h(
-  'div',
-  {
-    class: {
-      "flex": true,
-      'flex-row': true,
-      'flex-wrap': true,
-      'px-2': true,
-      'py-4': true,
-      'sm:px-4': true,
+export const tabs = props =>
+  h(
+    'div',
+    {
+      class: {
+        'flex': true,
+        'flex-row': true,
+        'flex-wrap': true,
+        'px-2': true,
+        'py-4': true,
+        'sm:px-4': true,
+      },
     },
-  },
-  [
-    tab(
-      {
-        selected: props.timerTab === 'overview',
-        onclick: () => [actions.SetTimerTab, 'overview'],
-      },
-      text('Overview'),
-    ),
-    tab(
-      {
-        selected: props.timerTab === 'mob',
-        onclick: () => [actions.SetTimerTab, 'mob'],
-        details:
-          props.mob.length > 0 &&
-          badge({}, text(props.mob.length.toString())),
-      },
-      text('Mob'),
-    ),
-    tab(
-      {
-        selected: props.timerTab === 'goals',
-        onclick: () => [actions.SetTimerTab, 'goals'],
-        details: getGoalsDetails(props),
-      },
-      text('Goals'),
-    ),
-    tab(
-      {
-        selected: props.timerTab === 'settings',
-        onclick: () => [actions.SetTimerTab, 'settings'],
-      },
-      text('Settings'),
-    ),
-    tab(
-      {
-        selected: props.timerTab === 'share',
-        onclick: () => [actions.SetTimerTab, 'share'],
-      },
-      text('Share'),
-    ),
-  ],
-);
+    [
+      tab(
+        {
+          selected: props.timerTab === 'overview',
+          onclick: () => [actions.SetTimerTab, 'overview'],
+        },
+        text(props.lang.tabs.overview),
+      ),
+      tab(
+        {
+          selected: props.timerTab === 'mob',
+          onclick: () => [actions.SetTimerTab, 'mob'],
+          details:
+            props.mob.length > 0 &&
+            badge({}, text(props.mob.length.toString())),
+        },
+        text(props.lang.tabs.mob),
+      ),
+      tab(
+        {
+          selected: props.timerTab === 'goals',
+          onclick: () => [actions.SetTimerTab, 'goals'],
+          details: getGoalsDetails(props),
+        },
+        text(props.lang.tabs.goals),
+      ),
+      tab(
+        {
+          selected: props.timerTab === 'settings',
+          onclick: () => [actions.SetTimerTab, 'settings'],
+        },
+        text(props.lang.tabs.settings),
+      ),
+      tab(
+        {
+          selected: props.timerTab === 'share',
+          onclick: () => [actions.SetTimerTab, 'share'],
+        },
+        text(props.lang.tabs.share),
+      ),
+    ],
+  );
 
-export const showTab = (props) => tabRenderer(props.timerTab, props);
+export const showTab = props => tabRenderer(props.timerTab, props);

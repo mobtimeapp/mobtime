@@ -2,11 +2,11 @@ import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 
-export const header = () =>
+export const header = state =>
   section(
     {
       class: {
-        flex: true,
+        'flex': true,
         'flex-row': true,
         'items-center': true,
         'justify-start': true,
@@ -20,12 +20,12 @@ export const header = () =>
         'div',
         {
           class: {
-            uppercase: true,
+            'uppercase': true,
             'tracker-widest': true,
             'text-2xl': true,
           },
         },
-        text('mobtime'),
+        text(state.lang.header.product),
       ),
     ],
   );
