@@ -1,7 +1,5 @@
 import { h, text } from '/vendor/hyperapp.js';
 
-import { section } from '/components/section.js';
-
 export const mobber = props =>
   h(
     'div',
