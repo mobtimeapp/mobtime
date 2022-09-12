@@ -48,7 +48,7 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   app.use('/api', tryMiddleware, apiStatistics());
   app.use('/console', apiConsole());
 
-  const rootPath = path.resolve(__dirname, '..');
+  const rootPath = path.resolve(__dirname, '..', '..');
   app.use(express.static(path.resolve(rootPath, 'public')));
 
   app.get('/:timerId', async (request, response) => {
