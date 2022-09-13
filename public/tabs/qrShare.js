@@ -2,11 +2,11 @@ import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 
-export const qrShare = () =>
+export const qrShare = props =>
   section(
     {
       class: {
-        flex: true,
+        'flex': true,
         'flex-col': true,
         'items-center': true,
         'justify-center': true,
@@ -21,13 +21,15 @@ export const qrShare = () =>
             'mb-3': true,
           },
         },
-        text('Scan this code to get the timer on your phone'),
+        text(props.lang.share.scan),
       ),
       h('img', {
-        src: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${window.location}`,
+        src: props.qrImage.src,
         class: {
           'mb-3': true,
         },
       }),
+      h('p', {}, text(props.lang.share.mobtimePoweredByWebsockets)),
+      h('p', {}, text(props.lang.share.mobtimeCollaborate)),
     ],
   );

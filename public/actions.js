@@ -64,6 +64,7 @@ export const Init = (_, { timerId, externals, dark }) => [
     toasts: [],
     dark,
     lang,
+    qrImage: null,
   },
   effects.checkSettings({
     storage: externals.storage,
@@ -76,7 +77,13 @@ export const Init = (_, { timerId, externals, dark }) => [
       props: { dark },
     }),
   effects.removeQueryParameters(externals),
+  effects.PreloadImage({
+    src: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${externals.location}`,
+    onLoad: OnQrLoad,
+  }),
 ];
+
+export const OnQrLoad = (state, { img }) => [{ ...state, qrImage: img }];
 
 export const SetDark = (state, { dark }) => [
   { ...state, dark },

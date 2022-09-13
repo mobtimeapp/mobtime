@@ -13,6 +13,24 @@ const sendMessage = (socketEmitter, type, json = {}) => {
   );
 };
 
+export const PreloadImage = fx(function PreloadImageFX(
+  dispatch,
+  { src, onLoad },
+) {
+  const img = new Image();
+
+  img.onload = () => {
+    console.log('Preloaded', src);
+    dispatch(onLoad, { img });
+  };
+
+  img.onerror = event => {
+    console.warn('Unable to preload image', src, event);
+  };
+
+  img.src = src;
+});
+
 export const UpdateSettings = fx(function UpdateSettingsFX(
   _dispatch,
   { socketEmitter, settings },

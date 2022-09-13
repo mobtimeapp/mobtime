@@ -49,4 +49,11 @@ export const en_CA = {
     add: nominclature.create,
     clearCompleted: 'Clear completed goals',
   },
+
+  share: {
+    scan: 'Scan this code to get the timer on your phone',
+    mobtimePoweredByWebsockets: 'Mobtime is powered by websockets.',
+    mobtimeCollaborate:
+      'Share the URL to collaborate on the timer with your team',
+  },
 };
