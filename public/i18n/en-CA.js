@@ -5,6 +5,12 @@ const nominclature = {
   edit: 'Edit',
 };
 
+const properCase = text =>
+  text
+    .split(' ')
+    .map(word => word.slice(0, 1).toUpperCase() + word.slice(1))
+    .join(' ');
+
 export const en_CA = {
   header: {
     product: 'mobtime',
@@ -29,7 +35,7 @@ export const en_CA = {
     whosUp: "Who's up",
     editMob: `${nominclature.edit} ${nominclature.group}`,
     topGoals: 'Top Goals',
-    editGoals: '${nominclature.edit} Goals',
+    editGoals: `${nominclature.edit} Goals`,
   },
 
   mob: {
@@ -48,6 +54,23 @@ export const en_CA = {
     addMultipleGoals: `${nominclature.create} multiple goals`,
     add: nominclature.create,
     clearCompleted: 'Clear completed goals',
+  },
+
+  settings: {
+    cancel: 'Cancel',
+    save: 'Save',
+    saved: 'Saved',
+    sharedTimerSettings: 'Shared Timer Settings',
+    turnDurationInMinutes: 'Turn Duration (minutes)',
+    mobRolesOrder: `${properCase(nominclature.individual)} Roles/Order`,
+    positionHelpText: 'One or more comma separated list of positions',
+    localSettings: 'Local Settings',
+    enableTimerSounds: 'Enable timer sounds',
+    test: 'Test',
+    soundsProvidedBy: 'Sounds provided by',
+    enableBrowserNotifications: 'Enable browser notifications',
+    requestNotificationPermission: 'Request notification permission',
+    enableDarkMode: 'Enable dark mode',
   },
 
   share: {

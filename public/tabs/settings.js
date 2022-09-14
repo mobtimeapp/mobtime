@@ -39,7 +39,7 @@ export const settings = props =>
         rightAction:
           Object.keys(props.pendingSettings).length === 0
             ? h('div', {}, [
-                text('Saved '),
+                text(props.lang.settings.saved),
                 h('i', { class: 'fas fa-check text-green-500' }),
               ])
             : h('div', {}, [
@@ -53,7 +53,7 @@ export const settings = props =>
                     },
                     onclick: actions.PendingSettingsReset,
                   },
-                  text('Cancel'),
+                  text(props.lang.settings.cancel),
                 ),
                 button(
                   {
@@ -66,23 +66,23 @@ export const settings = props =>
                     disable: Object.keys(props.pendingSettings).length === 0,
                     onclick: actions.UpdateSettings,
                   },
-                  text('Save'),
+                  text(props.lang.settings.save),
                 ),
               ]),
       },
-      text('Shared Timer Settings'),
+      text(props.lang.settings.sharedTimerSettings),
     ),
 
     section(
       {
         class: {
-          grid: true,
+          'grid': true,
           'grid-cols-2': true,
           'gap-2': true,
         },
       },
       [
-        h('div', {}, text('Turn Duration (minutes)')),
+        h('div', {}, text(props.lang.settings.turnDurationInMinutes)),
         input({
           name: 'setLength',
           maxlength: 2,
@@ -106,7 +106,7 @@ export const settings = props =>
           },
         }),
 
-        h('div', {}, text('Mob Roles/Order')),
+        h('div', {}, text(props.lang.settings.mobRolesOrder)),
         h(
           'div',
           {
@@ -138,14 +138,14 @@ export const settings = props =>
               {
                 class: 'text-sm',
               },
-              text('One or more comma separated list of positions'),
+              text(props.lang.settings.positionHelpText),
             ),
           ],
         ),
       ],
     ),
 
-    overviewHeading({}, text('Local Settings')),
+    overviewHeading({}, text(props.lang.settings.localSettings)),
 
     section({}, [
       h(
@@ -189,11 +189,20 @@ export const settings = props =>
                       text(label),
                     ),
                   )
-                : [h('option', {}, text('Enable timer sounds'))],
+                : [
+                    h(
+                      'option',
+                      {},
+                      text(props.lang.settings.enableTimerSounds),
+                    ),
+                  ],
             ),
           ),
           props.allowSound &&
-            button({ onclick: () => [TestSound, {}] }, text('Test')),
+            button(
+              { onclick: () => [TestSound, {}] },
+              text(props.lang.settings.test),
+            ),
         ],
       ),
       h(
@@ -202,7 +211,8 @@ export const settings = props =>
           class: 'text-xs mb-2 ml-10',
         },
         [
-          text('Sounds provided by '),
+          text(props.lang.settings.soundsProvidedBy),
+          text(' '),
           h(
             'a',
             {
@@ -235,7 +245,7 @@ export const settings = props =>
                 ],
               },
             },
-            h('span', {}, text('Enable browser notifications')),
+            h('span', {}, text(props.lang.settings.enableBrowserNotifications)),
           ),
         ],
       ),
@@ -257,7 +267,7 @@ export const settings = props =>
                 },
               ],
             },
-            text('Request notification permission'),
+            text(props.lang.settings.requestNotificationPermission),
           )),
       h(
         'div',
@@ -276,7 +286,7 @@ export const settings = props =>
                 ],
               },
             },
-            h('span', {}, text('Enable dark mode')),
+            h('span', {}, text(props.lang.settings.enableDarkMode)),
           ),
         ],
       ),
