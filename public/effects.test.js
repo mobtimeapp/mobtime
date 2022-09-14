@@ -1,7 +1,7 @@
 import test from 'ava';
 import sinon from 'sinon';
 
-import * as effects from './effects';
+import * as effects from './effects.js';
 
 const runEffect = ([fn, props], dispatch = () => {}) => fn(dispatch, props);
 

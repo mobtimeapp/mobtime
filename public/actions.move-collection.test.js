@@ -1,5 +1,5 @@
 import test from 'ava';
-import * as actions from './actions';
+import * as actions from './actions.js';
 
 test('moves mob member from top to bottom', t => {
   const initialState = {

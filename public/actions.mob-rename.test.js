@@ -1,7 +1,7 @@
 import test from 'ava';
 
-import * as actions from './actions';
-import * as effects from './effects';
+import * as actions from './actions.js';
+import * as effects from './effects.js';
 
 const makeUser = name => ({
   id: Math.random()

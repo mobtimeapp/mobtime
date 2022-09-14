@@ -1,8 +1,8 @@
 import { effects } from 'ferp';
 import { WebSocket } from 'ws';
-import { RelayMessage, ShareMessage } from './websocket';
-import * as Connection from './connection';
-import { id, GenerateIdEffect } from './id';
+import { RelayMessage, ShareMessage } from './websocket.js';
+import * as Connection from './connection.js';
+import { id, GenerateIdEffect } from './id.js';
 
 const { none, act, batch, defer } = effects;
 

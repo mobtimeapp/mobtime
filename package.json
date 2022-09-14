@@ -2,6 +2,7 @@
   "name": "mobtime",
   "version": "1.4.0",
   "main": "index.js",
+  "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -23,7 +24,6 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "dotenv": "^15.0.0",
-    "esm": "^3.2.25",
     "express": "^4.17.2",
     "ferp": "^2.1.2",
     "helmet": "^4.6.0",
@@ -50,10 +50,7 @@
     ],
     "concurrency": 8,
     "failFast": true,
-    "failWithoutAssertions": true,
-    "require": [
-      "esm"
-    ]
+    "failWithoutAssertions": true
   },
   "prettier": {
     "tabWidth": 2,

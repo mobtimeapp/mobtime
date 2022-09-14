@@ -1,5 +1,5 @@
 import test from 'ava';
-import formatTime from './formatTime';
+import formatTime from './formatTime.js';
 
 test('displays 00:00 with empty milliseconds', t => {
   const expectedTime = '00:00';

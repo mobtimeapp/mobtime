@@ -1,5 +1,5 @@
 import express from 'express';
-import { Queue } from '../queue';
+import { Queue } from '../queue.js';
 
 const CACHE_TTL = 1000 * 60;
 
