@@ -2,19 +2,20 @@
 
 import express from 'express';
 import bodyParser from 'body-parser';
-import ws from 'ws';
+import * as ws from 'ws';
 import http from 'http';
 import helmet from 'helmet';
 import { URL } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
-import apiStatistics from './api/statistics';
-import apiConsole from './api/console';
+import process from 'process';
+import apiStatistics from './api/statistics.js';
+import apiConsole from './api/console.js';
 
 const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   const app = express();
   const server = http.createServer(app);
-  const wss = new ws.Server({
+  const wss = new ws.WebSocketServer({
     server,
     clientTracking: false,
   });
@@ -48,7 +49,7 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
   app.use('/api', tryMiddleware, apiStatistics());
   app.use('/console', apiConsole());
 
-  const rootPath = path.resolve(__dirname, '..', '..');
+  const rootPath = path.resolve(process.cwd());
   app.use(express.static(path.resolve(rootPath, 'public')));
 
   app.get('/:timerId', async (request, response) => {

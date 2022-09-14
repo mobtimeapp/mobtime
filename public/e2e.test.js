@@ -1,5 +1,5 @@
 import test from 'ava';
-import * as actions from './actions';
+import * as actions from './actions.js';
 
 test('removes single user in larger group, ref https://github.com/mrozbarry/mobtime/issues/142', t => {
   const documentElement = {};

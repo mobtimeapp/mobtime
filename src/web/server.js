@@ -1,8 +1,8 @@
 import { app } from 'ferp';
-import * as Action from './actions';
-import { Http } from './http';
-import { Websocket } from './websocket';
-import { Queue } from './queue';
+import * as Action from './actions.js';
+import { Http } from './http.js';
+import { Websocket } from './websocket.js';
+import { Queue } from './queue.js';
 import process from 'process';
 
 const port = process.env.APP_PORT || 1234;
