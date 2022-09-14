@@ -12,7 +12,7 @@
     "dev": "nodemon --ignore public ./index.js",
     "start:dev": "docker-compose -f docker-compose.yml -f docker-compose.development.yml up",
     "start:prod": "docker-compose -f docker-compose.yml -f docker-compose.production.yml up",
-    "tailwind": "tailwindcss build -i ./src/web/styles/index.css -o ./public/styles/styles.css",
+    "tailwind": "tailwindcss build -i ./src/web/styles/index.css -o ./public/styles/styles.css -c ./tailwind.config.cjs",
     "start": "node ./index.js",
     "start:cluster": "node ./index.cluster.js",
     "lint": "prettier-eslint --write \"./src/**/*.js\" \"./public/**/*.js\"",
@@ -30,7 +30,7 @@
     "postcss": "^8.4.5",
     "prettier-eslint-cli": "^5.0.1",
     "redis": "^4.0.1",
-    "tailwindcss": "^3.0.15",
+    "tailwindcss": "^3.1.8",
     "ws": "^8.4.0"
   },
   "devDependencies": {
