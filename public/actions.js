@@ -1,6 +1,6 @@
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
-import { en_CA as lang } from './i18n/en-CA.js';
+import * as i18n from './i18n/index.js';
 
 export const Noop = state => state;
 
@@ -35,7 +35,7 @@ const collectionMove = (collection, { from, to }) => {
   return newCollection;
 };
 
-export const Init = (_, { timerId, externals, dark }) => [
+export const Init = (_, { timerId, externals, dark, lang }) => [
   {
     timerStartedAt: null,
     timerDuration: 0,
@@ -63,7 +63,7 @@ export const Init = (_, { timerId, externals, dark }) => [
     externals,
     toasts: [],
     dark,
-    lang,
+    lang: i18n[lang] || i18n.en_CA,
     qrImage: null,
   },
   effects.checkSettings({

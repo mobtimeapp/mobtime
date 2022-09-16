@@ -217,9 +217,18 @@ export const removeQueryParameters = fx(function RemoveQueryParametersFX(
   _dispatch,
   { location, history, documentElement },
 ) {
+  const paramsToKeep = ['lang'];
+  const params = location
+    .toString()
+    .split('?')[1]
+    .split('&')
+    .filter(keyValue =>
+      paramsToKeep.some(toKeep => keyValue.startsWith(`${toKeep}=`)),
+    )
+    .join('&');
   history.replaceState(
     {},
     documentElement.title,
-    location.toString().split('?')[0],
+    [location.toString().split('?')[0], params].filter(Boolean).join('?'),
   );
 });
