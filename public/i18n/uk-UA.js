@@ -11,7 +11,7 @@ const nominclature = {
       .map(word => word.slice(0, 1).toUpperCase() + word.slice(1))
       .join(' ');
   
-  export const en_CA = {
+  export const uk_UA = {
     header: {
       product: 'mobtime',
     },
