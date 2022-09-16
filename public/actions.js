@@ -63,7 +63,7 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     externals,
     toasts: [],
     dark,
-    lang: i18n[lang] || i18n.en_CA,
+    lang: i18n.withMissing(i18n[lang]) || i18n.en_CA,
     qrImage: null,
   },
   effects.checkSettings({
@@ -734,25 +734,24 @@ export const SoundToast = (state, { sound }) => [
     action: AddToast,
     props: {
       id: 'sound-effects',
-      title: 'Sound Effects',
-      body:
-        'You previously enabled sound effects, do you want to enable this time, too?',
+      title: state.lang.toasts.soundEffects.title,
+      body: state.lang.toasts.soundEffects.body,
       buttons: {
         left: [
           {
-            text: 'Okay!',
+            text: state.lang.toasts.soundEffects.okay,
             class: ['bg-green-600', 'text-white', 'mr-1'],
             actions: [{ action: SetAllowSound, props: true }],
           },
           {
-            text: 'Not now',
+            text: state.lang.toasts.soundEffects.notNow,
             class: [],
             actions: [],
           },
         ],
         right: [
           {
-            text: 'Never',
+            text: state.lang.toasts.soundEffects.never,
             class: ['bg-red-600', 'text-white'],
             actions: [
               {
@@ -788,13 +787,13 @@ export const WebsocketDisconnected = (state, error) => [
     action: AddToast,
     props: {
       id: 'websocket-disconnected',
-      title: 'Lost Connection',
+      title: state.lang.toasts.websocketDisconnect.title,
       body: error,
       buttons: {
         left: [],
         right: [
           {
-            text: 'Reconnect!',
+            text: state.lang.toasts.websocketDisconnect.reconnect,
             class: ['bg-green-600', 'text-white', 'mr-1'],
             actions: [{ action: WebsocketReconnect, props: {} }],
           },
@@ -804,13 +803,13 @@ export const WebsocketDisconnected = (state, error) => [
   }),
 ];
 
-export const ShowNotification = (state, message) => [
-  state,
-  effects.DisplayNotification({
-    title: 'Cycle Complete',
-    text: message,
-  }),
-];
+// export const ShowNotification = (state, message) => [
+//   state,
+//   effects.DisplayNotification({
+//     title: 'Cycle Complete',
+//     text: message,
+//   }),
+// ];
 
 export const PendingSettingsReset = state => ({
   ...state,

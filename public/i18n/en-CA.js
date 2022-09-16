@@ -79,4 +79,19 @@ export const en_CA = {
     mobtimeCollaborate:
       'Share the URL to collaborate on the timer with your team',
   },
+
+  toasts: {
+    soundEffects: {
+      title: 'Sound Effects',
+      body:
+        'You previously enabled sound effects, do you want to enable this time, too?',
+      okay: 'Okay!',
+      notNow: 'Not now',
+      never: 'Never',
+    },
+    websocketDisconnect: {
+      title: 'Lost Connection',
+      reconnect: 'Reconnect!',
+    },
+  },
 };

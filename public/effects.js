@@ -147,7 +147,6 @@ export const checkSettings = fx(function CheckSettingsFX(
   if (!localSettings) return;
 
   localSettings = JSON.parse(localSettings);
-  console.log('settings', localSettings);
   if (localSettings.allowSound && onLocalSoundEnabled) {
     dispatch(onLocalSoundEnabled, {
       sound: localSettings.sound || '/audio/horn.wav',
