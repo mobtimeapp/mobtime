@@ -29,7 +29,7 @@ test('can set custom language', t => {
     },
   );
 
-  t.deepEqual(state.lang, i18n.uk_UA);
+  t.deepEqual(state.lang, i18n.withMissing(i18n.uk_UA));
 });
 
 test('defaults to en_CA if lang is not found', t => {
