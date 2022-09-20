@@ -803,14 +803,6 @@ export const WebsocketDisconnected = (state, error) => [
   }),
 ];
 
-// export const ShowNotification = (state, message) => [
-//   state,
-//   effects.DisplayNotification({
-//     title: 'Cycle Complete',
-//     text: message,
-//   }),
-// ];
-
 export const PendingSettingsReset = state => ({
   ...state,
   pendingSettings: {},
