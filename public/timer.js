@@ -33,6 +33,7 @@ app({
       history: window.history,
       socketEmitter: Emitter.make(),
     },
+    lang: flags.lang || 'en_CA',
     dark: 'dark' in flags,
   }),
 

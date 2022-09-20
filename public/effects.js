@@ -147,7 +147,6 @@ export const checkSettings = fx(function CheckSettingsFX(
   if (!localSettings) return;
 
   localSettings = JSON.parse(localSettings);
-  console.log('settings', localSettings);
   if (localSettings.allowSound && onLocalSoundEnabled) {
     dispatch(onLocalSoundEnabled, {
       sound: localSettings.sound || '/audio/horn.wav',
@@ -217,9 +216,18 @@ export const removeQueryParameters = fx(function RemoveQueryParametersFX(
   _dispatch,
   { location, history, documentElement },
 ) {
+  const paramsToKeep = ['lang'];
+  const params = location
+    .toString()
+    .split('?')[1]
+    .split('&')
+    .filter(keyValue =>
+      paramsToKeep.some(toKeep => keyValue.startsWith(`${toKeep}=`)),
+    )
+    .join('&');
   history.replaceState(
     {},
     documentElement.title,
-    location.toString().split('?')[0],
+    [location.toString().split('?')[0], params].filter(Boolean).join('?'),
   );
 });
