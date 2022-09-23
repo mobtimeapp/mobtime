@@ -3,6 +3,7 @@ import * as defaultLang from './en-CA.js';
 export const en_CA = defaultLang.en_CA;
 
 export { uk_UA } from './uk-UA.js';
+export { af_ZA } from './af-ZA.js';
 
 const mergeMissing = (source, dest) => {
   return Object.keys(source).reduce((filled, key) => {
