@@ -24,7 +24,7 @@ export const qrShare = props =>
         text(props.lang.share.scan),
       ),
       h('img', {
-        src: props.qrImage.src,
+        src: props.qrImage ? props.qrImage.src : '',
         class: {
           'mb-3': true,
         },
