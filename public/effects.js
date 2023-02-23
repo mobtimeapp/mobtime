@@ -135,8 +135,10 @@ export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
     remainingTime > 0 ? `${formatTime(remainingTime)} - mobtime` : 'mobtime';
 });
 
-export const andThen = fx(function andThenFX(dispatch, { action, props }) {
-  dispatch(action, props);
+export const andThen = fx(function andThenFX(dispatch, { action, props, delay }) {
+  setTimeout(() => {
+    dispatch(action, props);
+  }, delay || 0);
 });
 
 export const checkSettings = fx(function CheckSettingsFX(

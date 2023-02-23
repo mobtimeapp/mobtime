@@ -69,6 +69,10 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
     dispatch(actions.WebsocketDisconnected, 'Websocket connection error');
   });
 
+  socket.addEventListener('open', () => {
+    console.info('Socket open');
+  });
+
   const cancel = externals.socketEmitter.listen(payload => {
     socket.send(payload);
   });

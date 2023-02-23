@@ -72,10 +72,10 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     onDarkEnabled: SetDark,
   }),
   dark &&
-    effects.andThen({
-      action: SetDark,
-      props: { dark },
-    }),
+  effects.andThen({
+    action: SetDark,
+    props: { dark },
+  }),
   effects.removeQueryParameters(externals),
   effects.PreloadImage({
     src: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${externals.location}`,
@@ -527,9 +527,9 @@ export const RemoveCompletedGoals = state => {
     },
     goalsAreRemoved
       ? effects.UpdateGoals({
-          socketEmitter: state.externals.socketEmitter,
-          goals: incompleteGoals,
-        })
+        socketEmitter: state.externals.socketEmitter,
+        goals: incompleteGoals,
+      })
       : undefined,
   ];
 };
@@ -574,9 +574,8 @@ export const RenameGoalPrompt = (state, { id }) => {
     effects.andThen({
       action: PromptOpen,
       props: {
-        text: `Rename ${
-          goal.text.length > 32 ? goal.text.slice(0, 29) + '...' : goal.text
-        } to...`,
+        text: `Rename ${goal.text.length > 32 ? goal.text.slice(0, 29) + '...' : goal.text
+          } to...`,
         defaultValue: goal.text,
         OnValue: RenameGoal,
         context: {
@@ -643,13 +642,13 @@ export const SetAllowNotification = (state, { allowNotification }) => [
     allowNotification,
   },
   allowNotification &&
-    effects.Notify({
-      title: 'Mobtime Config',
-      text: 'You have allowed notifications',
-      sound: false,
-      Notification: state.externals.Notification,
-      documentElement: state.externals.documentElement,
-    }),
+  effects.Notify({
+    title: 'Mobtime Config',
+    text: 'You have allowed notifications',
+    sound: false,
+    Notification: state.externals.Notification,
+    documentElement: state.externals.documentElement,
+  }),
 ];
 
 export const UpdateNotificationPermissions = state => [
@@ -657,11 +656,11 @@ export const UpdateNotificationPermissions = state => [
     ...state,
   },
   state.externals.Notification &&
-    state.externals.Notification.permission === 'granted' &&
-    effects.andThen({
-      action: SetAllowNotification,
-      props: { allowNotification: true },
-    }),
+  state.externals.Notification.permission === 'granted' &&
+  effects.andThen({
+    action: SetAllowNotification,
+    props: { allowNotification: true },
+  }),
 ];
 
 export const RequestNotificationPermission = state => [
@@ -774,7 +773,7 @@ export const SoundToast = (state, { sound }) => [
   }),
 ];
 
-export const WebsocketReconnect = state => [
+export const WebsocketReconnect = (state, _error) => [
   { ...state, websocketConnect: true },
 ];
 
@@ -784,23 +783,28 @@ export const WebsocketDisconnected = (state, error) => [
     websocketConnect: false,
   },
   effects.andThen({
-    action: AddToast,
-    props: {
-      id: 'websocket-disconnected',
-      title: state.lang.toasts.websocketDisconnect.title,
-      body: error,
-      buttons: {
-        left: [],
-        right: [
-          {
-            text: state.lang.toasts.websocketDisconnect.reconnect,
-            class: ['bg-green-600', 'text-white', 'mr-1'],
-            actions: [{ action: WebsocketReconnect, props: {} }],
-          },
-        ],
-      },
-    },
+    action: WebsocketReconnect,
+    props: error,
+    delay: 1000,
   }),
+  // effects.andThen({
+  //   action: AddToast,
+  //   props: {
+  //     id: 'websocket-disconnected',
+  //     title: state.lang.toasts.websocketDisconnect.title,
+  //     body: error,
+  //     buttons: {
+  //       left: [],
+  //       right: [
+  //         {
+  //           text: state.lang.toasts.websocketDisconnect.reconnect,
+  //           class: ['bg-green-600', 'text-white', 'mr-1'],
+  //           actions: [{ action: WebsocketReconnect, props: {} }],
+  //         },
+  //       ],
+  //     },
+  //   },
+  // }),
 ];
 
 export const PendingSettingsReset = state => ({
