@@ -3,7 +3,7 @@ import sinon from 'sinon';
 
 import * as effects from './effects.js';
 
-const runEffect = ([fn, props], dispatch = () => {}) => fn(dispatch, props);
+const runEffect = ([fn, props], dispatch = () => { }) => fn(dispatch, props);
 
 const makeEmitter = () => ({ emit: sinon.fake() });
 
@@ -263,8 +263,9 @@ test('can update the document title with no remaining time', t => {
 });
 
 test('can schedule the next action', t => {
+  const clock = sinon.useFakeTimers();
   const dispatch = sinon.fake();
-  const action = () => {};
+  const action = () => { };
   const props = {};
 
   runEffect(
@@ -274,6 +275,8 @@ test('can schedule the next action', t => {
     }),
     dispatch,
   );
+
+  clock.tick(1);
 
   t.truthy(dispatch.calledOnceWithExactly(action, props));
 });
