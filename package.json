@@ -13,6 +13,7 @@
     "start:dev": "docker-compose -f docker-compose.yml -f docker-compose.development.yml up",
     "start:prod": "docker-compose -f docker-compose.yml -f docker-compose.production.yml up",
     "tailwind": "tailwindcss build -i ./src/web/styles/index.css -o ./public/styles/styles.css -c ./tailwind.config.cjs",
+    "tailwind:watch": "tailwindcss --watch -i ./src/web/styles/index.css -o ./public/styles/styles.css -c ./tailwind.config.cjs",
     "start": "node ./index.js",
     "start:cluster": "node ./index.cluster.js",
     "deploy": "node ./deploy/index.js",

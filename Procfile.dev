@@ -1,0 +1,3 @@
+tailwind: npm run tailwind:watch
+redis: redis-server
+node: sleep 2 && npm run dev
