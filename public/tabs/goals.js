@@ -3,8 +3,8 @@ import { goalList } from '/sections/goalList.js';
 import { h } from '/vendor/hyperapp.js';
 import { removeCompletedGoals } from '/sections/removeCompletedGoals.js';
 
-export const goals = props =>
-  h('div', {}, [
+export const goals = props => {
+  return h('div', {}, [
     goalList({
       expandedReorderable: props.expandedReorderable,
       drag: props.drag.type === 'goal' ? props.drag : {},
@@ -17,4 +17,5 @@ export const goals = props =>
       lang: props.lang,
     }),
     removeCompletedGoals({ goals: props.goals, lang: props.lang }),
-  ]);
+    ]);
+};
