@@ -21,7 +21,7 @@ const emptyPrompt = {
   visible: false,
 };
 
-const collectionMove = (collection, { from, to }) => {
+export const collectionMove = (collection, { from, to }) => {
   const newCollection = collection.reduce((memo, item, index) => {
     if (index === from) return memo;
     if (index === to) {
@@ -32,7 +32,7 @@ const collectionMove = (collection, { from, to }) => {
   if (to >= newCollection.length) {
     newCollection.push(collection[from]);
   }
-  return newCollection;
+  return newCollection.filter(item => item !== null);
 };
 
 export const Init = (_, { timerId, externals, dark, lang }) => [
