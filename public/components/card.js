@@ -1,6 +1,8 @@
 import { h } from '/vendor/hyperapp.js';
 
 export const card = (props, children) => {
+  return h('div', {}, children);
+
   return h(
     'div',
     {

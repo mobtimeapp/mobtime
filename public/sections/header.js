@@ -10,6 +10,10 @@ export const header = state =>
         'flex-row': true,
         'items-center': true,
         'justify-start': true,
+        'w-full': true,
+        'md:col-span-2': true,
+        'text-black': true,
+        'dark:text-white': true,
       },
     },
     [

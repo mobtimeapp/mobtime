@@ -19,9 +19,10 @@ export const mobActions = props =>
       button(
         {
           class: {
-            'bg-green-600': true,
-            'text-white': true,
-            'flex-grow': true,
+            // 'border': true,
+            // 'border-green-600': true,
+            'dark:text-white': true,
+            // 'flex-grow': true,
             'mr-1': true,
           },
           onclick: actions.CycleMob,
@@ -35,9 +36,9 @@ export const mobActions = props =>
       button(
         {
           class: {
-            'bg-green-600': true,
-            'text-white': true,
-            'flex-grow': true,
+            //'bg-green-600': true,
+            'dark:text-white': true,
+            // 'flex-grow': true,
             'ml-1': true,
           },
           onclick: actions.ShuffleMob,

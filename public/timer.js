@@ -1,14 +1,20 @@
 import * as actions from '/actions.js';
 import { card } from '/components/card.js';
 import { appPrompt } from '/components/prompt.js';
+import { grid } from '/components/grid.js';
+import { mob } from '/tabs/mob.js';
+import { goals } from '/tabs/goals.js';
+import { settings } from '/tabs/settings.js';
+import { qrShare } from '/tabs/qrShare.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
 import { toasts } from '/sections/toasts.js';
 import * as subscriptions from '/subscriptions.js';
-import { app, h } from '/vendor/hyperapp.js';
+import { drawer } from '/components/drawer.js';
+import { app, h, text, memo } from '/vendor/hyperapp.js';
 import * as Emitter from '/lib/emitter.js';
 
-import { tabs, showTab } from '/tabs/index.js';
+const stateWithoutFrequentChanges = ({ timerStartedAt, timerDuration, currentTime, mob, goals, ...state }) => state;
 
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 const flags = window.location.search
@@ -42,40 +48,42 @@ app({
       'div',
       {
         class: {
-          'flex': true,
-          'items-start': true,
-          'justify-center': true,
+          'relative': true,
+          'w-full': true,
           'min-h-screen': true,
         },
       },
       [
-        card(
+        h(
+          'div',
           {
             class: {
-              'box-border': true,
+              'container': true,
+              'mx-auto': true,
+              'flex': true,
+              'flex-col': true,
+              'items-center': true,
+              'justify-start': true,
               'min-h-screen': true,
-              'sm:min-h-0': true,
               'w-full': true,
-              'sm:w-8/12': true,
-              'md:w-10/12': true,
-              'lg:w-6/12': true,
-              'shadow': false,
-              'sm:shadow-lg': true,
-              'pt-2': false,
-              'pt-0': true,
-              'pb-12': true,
-              'pb-1': false,
-              'sm:mt-2': true,
-              'rounded': false,
-              'sm:rounded': true,
-              'relative': true,
             },
           },
           [
-            header(state),
-            timeRemaining(state),
-            tabs(state),
-            showTab(state),
+            grid([
+              header(state),
+              timeRemaining(state),
+              mob(state),
+              goals(state),
+              h('details', {}, [
+                h('summary', {}, text('Configure your timer')),
+                settings(state),
+              ]),
+              h('details', {}, [
+                h('summary', {}, text('Share timer via QR Code')),
+                qrShare(state),
+              ]),
+            ]),
+
             h(
               'audio',
               {
@@ -94,6 +102,7 @@ app({
             state.prompt.visible && appPrompt(state.prompt || {}),
           ],
         ),
+        memo(drawer, stateWithoutFrequentChanges(state)),
         toasts(state),
       ],
     ),
@@ -103,11 +112,11 @@ app({
 
     return [
       websocketConnect &&
-        subscriptions.Websocket({
-          actions,
-          externals,
-          timerId,
-        }),
+      subscriptions.Websocket({
+        actions,
+        externals,
+        timerId,
+      }),
 
       subscriptions.Timer({
         timerStartedAt: state.timerStartedAt,
@@ -116,12 +125,12 @@ app({
       }),
 
       drag.type &&
-        subscriptions.DragAndDrop({
-          active: drag.active,
-          DragMove: actions.DragMove,
-          DragEnd: actions.DragEnd,
-          DragCancel: actions.DragCancel,
-        }),
+      subscriptions.DragAndDrop({
+        active: drag.active,
+        DragMove: actions.DragMove,
+        DragEnd: actions.DragEnd,
+        DragCancel: actions.DragCancel,
+      }),
     ];
   },
 

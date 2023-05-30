@@ -73,8 +73,9 @@ const dragContainer = (props, children) =>
         'div',
         {
           class: {
-            'hidden': true,
-            'sm:flex': true,
+            'flex': true,
+            // 'hidden': true,
+            // 'sm:flex': true,
             'h-full': true,
             'flex-col': true,
             'items-center': true,
@@ -96,7 +97,7 @@ const dragContainer = (props, children) =>
                   },
                 ],
         },
-        Array.from({ length: 3 }, () =>
+        Array.from({ length: 3 }, (_, index) =>
           h('div', {
             class: {
               'border-b': true,
@@ -104,8 +105,8 @@ const dragContainer = (props, children) =>
               'border-b-gray-400': props.disabled,
               'dark:border-b-gray-200': !props.disabled,
               'dark:border-b-gray-400': props.disabled,
-              'my-1': true,
-              'w-6': true,
+              'mt-1': index > 0,
+              'w-1': true,
             },
           }),
         ),
@@ -126,9 +127,7 @@ const dragContainer = (props, children) =>
             {
               'class': {
                 'text-gray-500': !props.onMoveUp,
-                'border-2': true,
-                'border-white': true,
-                'mr-2': true,
+                'mr-1': true,
               },
               'onclick': props.onMoveUp,
               'disabled': !props.onMoveUp,
@@ -141,9 +140,7 @@ const dragContainer = (props, children) =>
             {
               'class': {
                 'text-gray-500': !props.onMoveDown,
-                'border-2': true,
-                'border-white': true,
-                'mr-2': true,
+                'mr-1': true,
               },
               'onclick': props.onMoveDown,
               'disabled': !props.onMoveDown,
@@ -156,8 +153,6 @@ const dragContainer = (props, children) =>
             listButton(
               {
                 class: {
-                  'border-2': true,
-                  'border-white': true,
                   'mr-2': true,
                 },
                 onclick: props.onEdit,
@@ -169,7 +164,7 @@ const dragContainer = (props, children) =>
             deleteButton({
               onclick: props.onDelete,
               class: {
-                'mr-2': true,
+                'mr-1': true,
               },
             }),
         ],
@@ -182,14 +177,11 @@ const dragContainer = (props, children) =>
             class: {
               'text-indigo-600': props.expandActions,
               'bg-white': props.expandActions,
-              'border-2': true,
-              'border-transparent': !props.expandActions,
-              'border-white': props.expandActions,
-              'mr-2': true,
+              'mr-1': true,
             },
             onclick: props.onExpand,
           },
-          [h('i', { class: 'fas fa-ellipsis-h' })],
+          [h('i', { class: 'fas fa-ellipsis-v' })],
         ),
 
       ...(props.isDragging
@@ -222,9 +214,9 @@ const draggingContainer = (props, child) =>
         'duration-75': true,
         'ease-in-out': true,
         'pointer-events-none': true,
-        'border': true,
-        'border-green-600': true,
-        'rounded': true,
+        //'border': true,
+        //'border-green-600': true,
+        //'rounded': true,
       },
     },
     child,

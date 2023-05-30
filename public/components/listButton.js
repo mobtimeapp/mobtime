@@ -7,8 +7,9 @@ export const listButton = (props, children) =>
       ...props,
       class: {
         'box-border': true,
-        'w-8': true,
-        'h-8': true,
+        'w-6': true,
+        'h-6': true,
+        'text-sm': true,
         'flex-shrink-0': true,
         flex: true,
         'items-center': true,

@@ -53,8 +53,8 @@ export const addParticipant = props =>
           {
             type: 'submit',
             class: {
-              'bg-green-600': true,
-              'text-white': true,
+              //'bg-green-600': true,
+              'dark:text-white': true,
               'flex-shrink': true,
               'whitespace-no-wrap': true,
             },
