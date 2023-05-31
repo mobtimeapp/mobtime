@@ -3,6 +3,11 @@ import test from 'ava';
 import * as actions from './actions.js';
 import * as effects from './effects.js';
 
+test('collectionMove prevents nulls from existing', t => {
+  const collection = actions.collectionMove([null, { foo: 'bar' }, { fizz: 'buzz'}], { from: 0, to: 3 });
+  t.deepEqual(collection, [{ foo: 'bar'}, { fizz: 'buzz' }]);
+})
+
 test('can start a drag', t => {
   const state = actions.DragSelect(
     {},

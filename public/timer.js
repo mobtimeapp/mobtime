@@ -10,6 +10,13 @@ import * as Emitter from '/lib/emitter.js';
 
 import { tabs, showTab } from '/tabs/index.js';
 
+const cleanState = state => ({
+  ...state,
+  goals: state.goals.filter(goal => {
+    return goal !== null;
+  }),
+})
+
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 const flags = window.location.search
   .slice(1)
@@ -74,8 +81,8 @@ app({
           [
             header(state),
             timeRemaining(state),
-            tabs(state),
-            showTab(state),
+            tabs(cleanState(state)),
+            showTab(cleanState(state)),
             h(
               'audio',
               {
