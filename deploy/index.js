@@ -71,24 +71,36 @@ const prepareDeploy = ([sshConfig, target]) => {
 const deploy = (script) => ({ ssh, env }) => {
   const client = new Client();
   const exec = (command) => new Promise((resolve, reject) => {
-    const cmd = Object.keys(env)
+    let cmd = Object.keys(env)
       .reduce((memo, envKey) => {
         return memo.replaceAll(`$${envKey}`, env[envKey]);
       }, command);
 
-    client.exec(cmd, { pty: true }, (err, stream) => {
-      if (err) {
-        stream.pipe(process.stderr);
+    let promise = Promise.resolve(cmd)
+
+    if (cmd.startsWith('sudo')) {
+      cmd = cmd.replace('sudo ', 'sudo -S ');
+
+      promise = passwordPrompt(`'${cmd}' requires sudo, please pipe password: `, { method: 'hide' })
+        .then((pwd) => `echo -e "${pwd}\n" | ${cmd}`);
+
+    }
+
+    promise.then((execCmd) => {
+      client.exec(execCmd, { pty: true }, (err, stream) => {
+        if (err) {
+          stream.pipe(process.stderr);
+          stream.on('finish', () => {
+            reject(err);
+          });
+          return;
+        }
+        stream.pipe(process.stdout);
         stream.on('finish', () => {
-          reject(err);
+          resolve();
         });
-        return;
-      }
-      stream.pipe(process.stdout);
-      stream.on('finish', () => {
-        resolve();
       });
-    })
+    });
   });
 
   return new Promise((resolve, reject) => {
@@ -120,6 +132,10 @@ Promise.all([
 ])
   .then(prepareDeploy)
   .then(deploy(readFileSync(deployScript).toString()))
+  .then((code) => {
+    console.log('Deploy complete');
+    return code;
+  })
   .catch((err) => {
     console.error(err);
     return 1;
