@@ -1,118 +1,136 @@
 import * as child_process from 'child_process';
 import * as path from 'path';
 import * as process from 'process';
+import { homedir } from 'os';
+import { readFileSync, createReadStream } from 'fs';
+
+import passwordPrompt from 'password-prompt';
+
+import { Client } from 'ssh2';
+import sshconfStream from 'sshconf-stream';
 
 import { appName, targets } from './config.js';
-import { abort } from 'process';
 
 const deployScript = path.resolve(process.cwd(), 'deploy', 'work.sh');
 
-const exec = (cmd, args = [], prefix = 'CMD') =>
-  new Promise((resolve, reject) => {
-    const command = `${cmd} ${args.join(' ')}`;
-    console.log(`Running \`${command}\`...`);
-
-    const proc = child_process.spawn(cmd, args, {
-      env: process.env,
-      stdio: ['inherit', 'pipe', 'pipe'],
-      encoding: 'utf8',
-      shell: true,
-    });
-
-    const formatMessage = (from, data) => {
-      const message = data.toString().trim();
-      if (!message) {
-        return [];
-      }
-
-      return message
-        .split(/(\r|\n)+/)
-        .map(line => line.trim())
-        .filter(line => !!line)
-        .map(line => `[${prefix}|${from}] ${line}`);
-    };
-
-    proc.stdout.on('data', data => {
-      formatMessage('stdout', data).forEach(line =>
-        process.stdout.write(`${line}\n`),
-      );
-    });
-
-    proc.stderr.on('data', data => {
-      formatMessage('stderr', data).forEach(line =>
-        process.stderr.write(`${line}\n`),
-      );
-    });
-
-    proc.on('close', code => {
-      return code === 0 ? resolve() : reject(code);
-    });
+const readSshConf = (sshConfPath) => {
+  return new Promise((resolve, reject) => {
+    let sshConfig = {};
+    createReadStream(sshConfPath || path.join(homedir(), '.ssh/config'), 'utf8')
+      .pipe(sshconfStream.createParseStream())
+      .on('data', (host) => {
+        const data = host.keywords;
+        const attrs =  {
+          host: data.HostName[0],
+          username: data.User[0],
+          privateKey: data.IdentityFile[0],
+          forwardAgent: data.ForwardAgent[0] === 'yes',
+        };
+        const key = data.Host[0];
+        sshConfig[key] = attrs;
+      })
+      .on('end', () => {
+        return resolve(sshConfig);
+      })
   });
+}
 
-const main = async env => {
-  const target = targets[env.TARGET];
-
-  if (!target) {
-    const available = Object.keys(targets);
-    console.error(
-      `Unable to deploy to ${
-        process.env.TARGET
-      }, must be one of ${available.join(', ')}.`,
-    );
-    console.log('To fix this, try:\nTARGET=<target> yarn deploy');
-    return 1;
-  }
-
-  const now = Date.now();
-  const remotePath = `/tmp/deploy_${appName}_${now}.sh`;
-
-  const sshTarget =
-    typeof target.ssh === 'string'
-      ? target.ssh
-      : `${target.ssh.user}@${target.ssh.host}`;
-
-  console.log('Starting deploy');
-  console.log('=======================');
-  console.log(JSON.stringify(target, null, 2));
-  console.log('=======================');
-
-  console.log('Initializing deploy script...');
-  await exec(
-    'scp',
-    [
-      ...(target.rsa ? [`-i ${target.rsa}`] : []),
-      deployScript,
-      `${sshTarget}:${remotePath}`,
-    ],
-    `scp ${sshTarget}`,
-  );
-  console.log('Initializing deploy script...done');
-
-  console.log('');
-
-  console.log(`Deploying to ${target.ssh.host}...`);
-  await exec(
-    'ssh',
-    [
-      ...(target.rsa ? [`-i ${target.rsa}`] : []),
-      sshTarget,
-      ...Object.keys(target.env || {}).reduce(
-        (envs, key) => [...envs, `${key}=${target.env[key]}`],
-        [],
-      ),
-      'bash',
-      remotePath,
-    ],
-    `ssh ${sshTarget}`,
-  );
-  console.log(`Deploying to ${target.ssh.host}...done`);
-
-  return 0;
+const getTarget = () => {
+  return new Promise((resolve, reject) => {
+    const target = process.env.TARGET;
+    return target && (target in targets)
+      ? resolve(targets[target])
+      : reject(`${target || 'undefined'} is not a valid deploy target`);
+      
+  });
 };
 
-main(process.env)
-  .catch(err => {
+const promptPassphrase = (target) => {
+  return target.ssh.passphrase === true
+    ? passwordPrompt('Identity file passphrase: ', { method: 'hide' })
+    : Promise.resolve(undefined);
+};
+
+const prepareDeploy = ([sshConfig, target]) => {
+  console.log('prepareDeploy', { sshConfig, target });
+  const ssh = target.ssh.host && (target.ssh.host in sshConfig)
+    ? sshConfig[target.ssh.host]
+    : target.ssh;
+
+  return promptPassphrase(target)
+    .then((passphrase) => ({
+      ssh: {
+        ...ssh,
+        privateKey: readFileSync(ssh.privateKey),
+        passphrase,
+      },
+      env: target.env,
+    }));
+};
+
+const deploy = (script) => ({ ssh, env }) => {
+  const client = new Client();
+  const exec = (command) => new Promise((resolve, reject) => {
+    const cmd = Object.keys(env)
+      .reduce((memo, envKey) => {
+        return memo.replaceAll(`$${envKey}`, env[envKey]);
+      }, command);
+
+    client.exec(cmd, { pty: true }, (err, stream) => {
+      if (err) {
+        stream.pipe(process.stderr);
+        stream.on('finish', () => {
+          reject(err);
+        });
+        return;
+      }
+      stream.pipe(process.stdout);
+      stream.on('finish', () => {
+        resolve();
+      });
+    })
+  });
+
+  return new Promise((resolve, reject) => {
+    client 
+      .on('ready', () => {
+        console.log('ssh ready');
+        script
+          .split('\n')
+          .map(line => line.trim())
+          .filter(Boolean)
+          .filter(line => !line.startsWith('#'))
+          .reduce((promise, line) => {
+            return promise.then(() => exec(line));
+          }, Promise.resolve())
+          .then(() => resolve(0));
+      })
+      .on('error', (err) => {
+        console.error('ssh failed');
+        reject(err);
+      })
+      .connect({ ...ssh, agentForward: false, tryKeyboard: true });
+  })
+    .finally(() => client.end());
+};
+
+Promise.all([
+  readSshConf(),
+  getTarget(),
+])
+  .then(prepareDeploy)
+  .then(deploy(readFileSync(deployScript).toString()))
+  .catch((err) => {
     console.error(err);
     return 1;
   })
-  .then(process.exit);
+  .then((code) => process.exit(code));
+
+
+
+// main(process.env)
+//   .catch(err => {
+//     console.error(err);
+//     return 1;
+//   })
+//   .then(process.exit);
