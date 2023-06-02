@@ -40,7 +40,7 @@ export const settings = props =>
           Object.keys(props.pendingSettings).length === 0
             ? h('div', {}, [
                 text(props.lang.settings.saved),
-                h('i', { class: 'fas fa-check text-green-500' }),
+                //h('i', { class: 'fas fa-check text-green-500' }),
               ])
             : h('div', {}, [
                 button(
