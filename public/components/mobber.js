@@ -48,8 +48,8 @@ export const mobber = props =>
             'div',
             {
               class: {
-                'text-gray-500': !props.name && !props.hasPosition,
-                'dark:text-gray-800': !props.name && !props.hasPosition,
+                'text-gray-500': !props.name,
+                'dark:text-gray-600': !props.name,
                 'font-lg': true,
                 'font-bold': props.hasPosition && props.name,
                 'leading-none': true,
