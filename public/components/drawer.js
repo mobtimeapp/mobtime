@@ -1,5 +1,6 @@
 import { h, text } from '/vendor/hyperapp.js';
 import { timerSettings } from '/sections/timerSettings.js';
+import * as actions from '/actions.js';
 
 export const drawer = (props) => {
   return h('aside', {
@@ -25,7 +26,11 @@ export const drawer = (props) => {
     h('header', { class: 'my-2 px-2 w-full flex justify-between items-start' }, [
       h('h1', { class: 'text-lg' }, text('Timer Configuration')),
 
-      h('button', { innerHTML: '&times;' }),
+      h('button', {
+        type: 'button',
+        innerHTML: '&times;',
+        onclick: [actions.ToggleDrawer, { showDrawer: false }],
+      }),
     ]),
 
     h('details', { class: 'm-2' }, [

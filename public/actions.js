@@ -57,6 +57,7 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     allowNotification:
       externals.Notification && externals.Notification.permission === 'granted',
     allowSound: false,
+    showDrawer: false,
     sound: 'horn',
     pendingSettings: {},
     websocketConnect: true,
@@ -82,6 +83,8 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     onLoad: OnQrLoad,
   }),
 ];
+
+export const ToggleDrawer = (state, { showDrawer }) => [{ ...state, showDrawer: Boolean(showDrawer) }];
 
 export const OnQrLoad = (state, { img }) => [{ ...state, qrImage: img }];
 

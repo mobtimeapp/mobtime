@@ -74,14 +74,14 @@ app({
               timeRemaining(state),
               mob(state),
               goals(state),
-              h('details', {}, [
-                h('summary', {}, text('Configure your timer')),
-                settings(state),
-              ]),
-              h('details', {}, [
-                h('summary', {}, text('Share timer via QR Code')),
-                qrShare(state),
-              ]),
+              // h('details', {}, [
+              //   h('summary', {}, text('Configure your timer')),
+              //   settings(state),
+              // ]),
+              // h('details', {}, [
+              //   h('summary', {}, text('Share timer via QR Code')),
+              //   qrShare(state),
+              // ]),
             ]),
 
             h(
@@ -102,7 +102,7 @@ app({
             state.prompt.visible && appPrompt(state.prompt || {}),
           ],
         ),
-        memo(drawer, stateWithoutFrequentChanges(state)),
+        state.showDrawer && memo(drawer, stateWithoutFrequentChanges(state)),
         toasts(state),
       ],
     ),
