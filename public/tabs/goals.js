@@ -16,6 +16,15 @@ export const goals = props =>
       goals: props.goals,
       lang: props.lang,
     }),
+
+    h('form', { class: 'ml-3 mt-2' }, [
+      h('details', {}, [
+        h('summary', { class: 'text-slate-500 text-xs' }, text('Show goal form')),
+
+        h('label', { class: 'mt-3 uppercase leading-none mb-1 text-xs block' }, text('Add goal')),
+        h('input', { type: 'text', class: 'bg-transparent border-b border-b-white w-full', placeholder: 'Name' }),
+      ]),
+    ]),
     // addGoal({
     //   goal: props.goal,
     //   addMultiple: props.addMultiple,
