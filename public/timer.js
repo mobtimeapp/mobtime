@@ -8,6 +8,7 @@ import { settings } from '/tabs/settings.js';
 import { qrShare } from '/tabs/qrShare.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
+import { timeSection } from '/sections/timeSection.js';
 import { toasts } from '/sections/toasts.js';
 import * as subscriptions from '/subscriptions.js';
 import { drawer } from '/components/drawer.js';
@@ -72,6 +73,7 @@ app({
             grid([
               header(state),
               timeRemaining(state),
+              timeSection(state),
               mob(state),
               goals(state),
               // h('details', {}, [

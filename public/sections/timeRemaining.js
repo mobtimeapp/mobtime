@@ -31,7 +31,7 @@ export const timeRemaining = props => {
   // border-l-slate-500
 
   return section({
-    class: { 'md:col-span-2': true },
+    // class: { 'md:col-span-2': true },
   }, [
 
     h(
@@ -59,7 +59,7 @@ export const timeRemaining = props => {
           'w-52': true,
           'h-52': true,
           'rounded-full': true,
-          'mx-auto': true,
+          // 'mx-auto': true,
           'mb-8': true,
           'transition-all': true,
           'duration-1000': true,
