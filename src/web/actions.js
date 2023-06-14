@@ -3,6 +3,7 @@ import { WebSocket } from 'ws';
 import { RelayMessage, ShareMessage } from './websocket.js';
 import * as Connection from './connection.js';
 import { id, GenerateIdEffect } from './id.js';
+import { composable, select, selectArray, replace } from 'composable-state';
 
 const { none, act, batch, defer } = effects;
 
@@ -33,10 +34,25 @@ const extractStatistics = message => {
 
 export const Init = (queue, nextId = id()) => [
   {
+    completeTokens: {},
     connections: {},
     queue,
     nextId,
   },
+  none(),
+];
+
+export const SetCompleteToken = (timerId, token) => state => [
+  composable(state, selectArray(['completeTokens', timerId], replace(token))),
+  none(),
+];
+
+export const RemoveCompleteToken = timerId => state => [
+  composable(state, select('completeTokens', replace((old) => {
+    const clone = { ...old };
+    delete clone[timerId];
+    return clone;
+  }))),
   none(),
 ];
 
@@ -141,6 +157,22 @@ export const UpdateTimer = (timerId, message) => state => {
       ),
       defer(state.queue.publishToTimer(timerId, message).then(none)),
       act(UpdateStatisticsFromMessage(timerId, message)),
+    ]),
+  ];
+};
+
+export const CompleteTimer = (timerId, token) => state => {
+  if (state.completeTokens[timerId] !== token) {
+    console.log('CompleteTimer', timerId, 'token mismatch', { state: state.completeTokens[timerId], param: token });
+    return [state, none()];
+  }
+  console.log('CompleteTimer', timerId, 'all good');
+
+  return [
+    state,
+    batch([
+      defer(state.queue.publishToTimer(timerId, JSON.stringify({ type: 'timer:complete' })).then(none)),
+      act(RemoveCompleteToken(timerId)),
     ]),
   ];
 };
