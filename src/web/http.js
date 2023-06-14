@@ -63,19 +63,29 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
 
   app.post('/:timerId/timer/start', async (request, response) => {
     const { timerId } = request.params;
+
+    const completeToken = Math.random().toString(36).slice(-6);
+    await dispatch(action.SetCompleteToken(timerId, completeToken), 'SetCompleteToken');
+
     const message = JSON.stringify({
       type: 'timer:start',
       timerDuration: request.body.duration,
+      completeToken,
     });
 
-    const token = Math.random().toString(36).slice(-6);
-
-    await dispatch(action.SetCompleteToken(timerId, token), 'SetCompleteToken');
     await dispatch(action.UpdateTimer(timerId, message), 'UpdateTimer');
 
-    return response.status(200).json({
-      complete: `/${timerId}/timer/cancel/${token}`,
-    });
+    return response.status(202).json({ completeToken });
+  });
+
+  app.post('/:timerId/timer/pause', async (request, response) => {
+    const { timerId } = request.params;
+    const { token, duration } = request.body;
+
+    console.log('http timer pause', { timerId, token, duration }, request.body);
+
+    await dispatch(action.PauseTimer(timerId, token, duration), 'PauseTimer');
+    return response.status(202).json({});
   });
 
   app.post('/:timerId/timer/complete', async (request, response) => {

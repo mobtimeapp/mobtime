@@ -140,7 +140,6 @@ export const UpdateTimer = (timerId, message) => state => {
     ...(type === 'timer:complete'
       ? { timerStartedAt: null, timerDuration: 0 }
       : {}),
-    ...(type === 'timer:pause' ? { timerStartedAt: null } : {}),
   };
 
   return [
@@ -163,16 +162,30 @@ export const UpdateTimer = (timerId, message) => state => {
 
 export const CompleteTimer = (timerId, token) => state => {
   if (state.completeTokens[timerId] !== token) {
-    console.log('CompleteTimer', timerId, 'token mismatch', { state: state.completeTokens[timerId], param: token });
     return [state, none()];
   }
-  console.log('CompleteTimer', timerId, 'all good');
 
   return [
     state,
     batch([
-      defer(state.queue.publishToTimer(timerId, JSON.stringify({ type: 'timer:complete' })).then(none)),
+      // defer(state.queue.publishToTimer(timerId, JSON.stringify({ type: 'timer:complete' })).then(none)),
       act(RemoveCompleteToken(timerId)),
+      act(UpdateTimer(timerId, JSON.stringify({ type: 'timer:complete' }))),
+    ]),
+  ];
+};
+
+export const PauseTimer = (timerId, token, duration) => state => {
+  if (state.completeTokens[timerId] !== token) {
+    return [state, none()];
+  }
+
+  return [
+    state,
+    batch([
+      //defer(state.queue.publishToTimer(timerId, JSON.stringify({ type: 'timer:pause', timerDuration: duration })).then(none)),
+      act(RemoveCompleteToken(timerId)),
+      act(UpdateTimer(timerId, JSON.stringify({ type: 'timer:pause', timerStartedAt: null, timerDuration: duration }))),
     ]),
   ];
 };
@@ -206,24 +219,17 @@ export const ShareTimerWith = (connection, timerId) => state => [
           ),
         );
 
-      const timerIsRunning =
-        timer.timerStartedAt &&
-        timer.timerDuration &&
-        timer.timerDuration - (Date.now() - timer.timerStartedAt) > 0;
-
-      return batch(
-        [
-          sync('settings'),
-          sync('mob'),
-          sync('goals'),
-          timerIsRunning &&
-            sync('timer', {
-              type: 'timer:update',
-              timerStartedAt: timer.timerStartedAt,
-              timerDuration: timer.timerDuration,
-            }),
-        ].filter(Boolean),
-      );
+      return batch([
+        sync('settings'),
+        sync('mob'),
+        sync('goals'),
+        sync('timer', {
+          type: 'timer:update',
+          timerStartedAt: timer.timerStartedAt,
+          timerDuration: timer.timerDuration,
+          completeToken: state.completeTokens[timerId] || null,
+        }),
+      ]);
     }),
   ),
 ];
