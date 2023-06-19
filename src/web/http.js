@@ -92,8 +92,11 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
     const { timerId } = request.params;
     const { token } = request.body;
 
-    await dispatch(action.CompleteTimer(timerId, token), 'CompleteTimer');
-    return response.status(202).json({});
+    const responder = (success) => {
+      return response.status(success ? 202 : 410).json({});
+    };
+
+    await dispatch(action.CompleteTimer(timerId, token, responder), 'CompleteTimer');
   });
 
   app.post('/:timerId/timer/settings', async (request, response) => {

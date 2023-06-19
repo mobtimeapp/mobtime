@@ -36,6 +36,7 @@ export const goalList = props => {
       renderItem: item =>
         goal({
           ...item,
+          highlight: props.forms.goal.id === item.id,
           truncate: getReorderableId(item) === props.expandedReorderable,
         }),
       drag: props.drag,

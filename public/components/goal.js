@@ -8,8 +8,15 @@ const textWithBreaks = goalText =>
     .reduce((result, t) => [...result, text(t), h('br', {})], [])
     .slice(0, -1);
 
-export const goal = props =>
-  h(
+const indentRegex = () => /^[- ]+/;
+const shouldIndent = (text) => indentRegex().test(text);
+const normalizeText = (text) => text.replace(indentRegex(), '');
+
+export const goal = props => {
+  const indent = shouldIndent(props.text);
+  const text = normalizeText(props.text);
+
+  return h(
     'div',
     {
       class: {
@@ -21,6 +28,9 @@ export const goal = props =>
         'w-full': true,
         'break-words': true,
         'truncate': props.truncate,
+        'outline': props.highlight,
+        'outline-blue-300': true,
+        'ml-6': indent,
       },
     },
     [
@@ -36,9 +46,9 @@ export const goal = props =>
       h(
         'label',
         {
-          for: `goal-${props.id}`,
+          // for: `goal-${props.id}`,
           class: {
-            'ml-1': true,
+            'ml-2': true,
             'pr-1': true,
             'flex-grow': true,
             'leading-tight': true,
@@ -46,9 +56,17 @@ export const goal = props =>
             'break-words': true,
             'truncate': props.truncate,
             'block': true,
+            'border-b': true,
+            'border-dotted': true,
+            'border-transparent': true,
+            'hover:border-slate-400': props.id,
+          },
+          ondblclick: (_props, _event) => {
+            return [actions.SetFormId, { form: 'goal', id: props.id, input: props.text }];
           },
         },
-        textWithBreaks(props.text),
+        textWithBreaks(text || ''),
       ),
     ],
   );
+};

@@ -5,7 +5,7 @@ import * as Connection from './connection.js';
 import { id, GenerateIdEffect } from './id.js';
 import { composable, select, selectArray, replace } from 'composable-state';
 
-const { none, act, batch, defer } = effects;
+const { none, act, batch, defer, thunk } = effects;
 
 const defaultStatistics = {
   connections: 0,
@@ -160,8 +160,9 @@ export const UpdateTimer = (timerId, message) => state => {
   ];
 };
 
-export const CompleteTimer = (timerId, token) => state => {
+export const CompleteTimer = (timerId, token, statusCallback) => state => {
   if (state.completeTokens[timerId] !== token) {
+    statusCallback(false);
     return [state, none()];
   }
 
@@ -171,6 +172,10 @@ export const CompleteTimer = (timerId, token) => state => {
       // defer(state.queue.publishToTimer(timerId, JSON.stringify({ type: 'timer:complete' })).then(none)),
       act(RemoveCompleteToken(timerId)),
       act(UpdateTimer(timerId, JSON.stringify({ type: 'timer:complete' }))),
+      thunk(() => {
+        statusCallback(true);
+        return none();
+      }),
     ]),
   ];
 };

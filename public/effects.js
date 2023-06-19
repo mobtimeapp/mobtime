@@ -263,10 +263,15 @@ export const apiTimerPause = fx(function ApiTimerPause (
 });
 
 export const apiTimerComplete = fx(function CompleteTimer (
-  _dispatch,
-  { timerId, completeToken, fetch: fetchFn },
+  dispatch,
+  { timerId, completeToken, fetch: fetchFn, onSuccess },
 ) {
   timerApi(fetchFn, timerId, '/complete', { token: completeToken })
+    .then((response) => {
+      return response.ok && onSuccess
+        ? dispatch(onSuccess.action, onSuccess.props)
+        : null;
+    })
     .catch((err) => {
       console.error('Unable to complete timer', { timerId, completeToken }, err);
     });

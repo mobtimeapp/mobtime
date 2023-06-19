@@ -58,7 +58,7 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
         id: '',
         input: '',
       },
-      goals: {
+      goal: {
         open: false,
         valid: true,
         id: '',
@@ -336,6 +336,10 @@ export const TimeComplete = (state) => {
       timerId: state.timerId,
       completeToken: state.completeToken,
       fetch: state.externals.fetch,
+      onSuccess: {
+        action: CycleMob,
+        props: {},
+      },
     }),
     effects.UpdateTitleWithTime({
       remainingTime: 0,
@@ -1035,10 +1039,10 @@ export const UpdateByWebsocketData = (state, { payload }) => {
           action: EndTurn,
           props: {},
         }),
-        effects.andThen({
-          action: CycleMob,
-          props: {},
-        }),
+        // effects.andThen({
+        //   action: CycleMob,
+        //   props: {},
+        // }),
       ];
 
     case 'goals:update':
