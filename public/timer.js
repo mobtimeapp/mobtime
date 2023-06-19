@@ -1,17 +1,14 @@
 import * as actions from '/actions.js';
-import { card } from '/components/card.js';
-import { appPrompt } from '/components/prompt.js';
 import { grid } from '/components/grid.js';
+import { column } from '/components/column.js';
 import { mob } from '/tabs/mob.js';
 import { goals } from '/tabs/goals.js';
-import { settings } from '/tabs/settings.js';
-import { qrShare } from '/tabs/qrShare.js';
 import { header } from '/sections/header.js';
 import { timeRemaining } from '/sections/timeRemaining.js';
-import { timeSection } from '/sections/timeSection.js';
-import { toasts } from '/sections/toasts.js';
+import { summary } from '/sections/summary.js';
+import { localSettings } from '/tabs/localSettings.js';
+import { timerSettings } from '/tabs/timerSettings.js';
 import * as subscriptions from '/subscriptions.js';
-import { drawer } from '/components/drawer.js';
 import { app, h, text, memo } from '/vendor/hyperapp.js';
 import * as Emitter from '/lib/emitter.js';
 
@@ -33,6 +30,7 @@ app({
   init: actions.Init(null, {
     timerId: initialTimerId,
     externals: {
+      fetch: window.fetch,
       documentElement: window.document,
       Notification: window.Notification,
       storage: window.localStorage,
@@ -44,70 +42,50 @@ app({
     dark: 'dark' in flags,
   }),
 
-  view: state =>
+  view: state => grid({ class: 'relative pb-12' }, [
+    column.fixed(2, header(state)),
+    h('div', { class: 'flex flex-row items-center justify-center' }, [
+      timeRemaining(state),
+    ]),
+    summary(state),
+    column.fixed(2, [
+      h('details', {}, [
+        h('summary', { class: 'text-xs text-slate-500' }, [
+          text('Your Session'),
+        ]),
+        grid({}, [
+          column(2, { sm: 1 }, mob(state)),
+          column(2, { sm: 1 }, goals(state)),
+        ]),
+      ]),
+    ]),
+    column.fixed(2, [
+      h('details', {}, [
+        h('summary', { class: 'text-xs text-slate-500' }, [
+          text('Advanced Settings'),
+        ]),
+        grid({}, [
+          column(2, { sm: 1 }, memo(localSettings, stateWithoutFrequentChanges(state))),
+          column(2, { sm: 1 }, memo(timerSettings, stateWithoutFrequentChanges(state))),
+        ]),
+      ]),
+    ]),
+
     h(
-      'div',
+      'audio',
       {
-        class: {
-          'relative': true,
-          'w-full': true,
-          'min-h-screen': true,
-        },
+        preload: 'auto',
+        id: 'timer-complete',
+        key: state.sound,
       },
       [
-        h(
-          'div',
-          {
-            class: {
-              'container': true,
-              'mx-auto': true,
-              'flex': true,
-              'flex-col': true,
-              'items-center': true,
-              'justify-start': true,
-              'min-h-screen': true,
-              'w-full': true,
-            },
-          },
-          [
-            grid([
-              header(state),
-              timeRemaining(state),
-              timeSection(state),
-              mob(state),
-              goals(state),
-              // h('details', {}, [
-              //   h('summary', {}, text('Configure your timer')),
-              //   settings(state),
-              // ]),
-              // h('details', {}, [
-              //   h('summary', {}, text('Share timer via QR Code')),
-              //   qrShare(state),
-              // ]),
-            ]),
-
-            h(
-              'audio',
-              {
-                preload: 'auto',
-                id: 'timer-complete',
-                key: state.sound,
-              },
-              [
-                h('source', {
-                  src: `/audio/${state.sound}.wav`,
-                  type: 'audio/wav',
-                }),
-              ],
-            ),
-
-            state.prompt.visible && appPrompt(state.prompt || {}),
-          ],
-        ),
-        state.showDrawer && memo(drawer, stateWithoutFrequentChanges(state)),
-        toasts(state),
+        h('source', {
+          src: `/audio/${state.sound}.wav`,
+          type: 'audio/wav',
+        }),
       ],
     ),
+  ]),
 
   subscriptions: state => {
     const { timerId, drag, websocketConnect, externals } = state;
