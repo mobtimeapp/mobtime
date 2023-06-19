@@ -165,7 +165,7 @@ test('can request notification permission, and handle exception', async t => {
 });
 
 test('can create a notification', t => {
-  const Notification = sinon.fake(function _Notification(title, options) {
+  const Notification = sinon.fake(function _Notification (title, options) {
     this.title = title;
     this.options = options;
     return this;
@@ -192,7 +192,7 @@ test('can create a notification', t => {
 });
 
 test('can skip a notification when notification is false', t => {
-  const Notification = sinon.fake(function _Notification(title, options) {
+  const Notification = sinon.fake(function _Notification (title, options) {
     this.title = title;
     this.options = options;
     return this;

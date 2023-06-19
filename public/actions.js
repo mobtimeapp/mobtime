@@ -1,5 +1,6 @@
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
+import { formatTime } from './lib/formatTime.js';
 import * as i18n from './i18n/index.js';
 
 export const Noop = state => state;
@@ -35,6 +36,11 @@ const collectionMove = (collection, { from, to }) => {
   return newCollection;
 };
 
+const defaults = {
+  timerMobOrder: 'Navigator,Driver',
+  timerDuration: 5 * 60 * 1000,
+};
+
 export const Init = (_, { timerId, externals, dark, lang }) => [
   {
     timerStartedAt: null,
@@ -42,8 +48,34 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     mob: [],
     goals: [],
     settings: {
-      mobOrder: 'Navigator,Driver',
-      duration: 5 * 60 * 1000,
+      mobOrder: defaults.timerMobOrder,
+      duration: defaults.timerDuration,
+    },
+    forms: {
+      mob: {
+        open: false,
+        valid: true,
+        id: '',
+        input: '',
+      },
+      goals: {
+        open: false,
+        valid: true,
+        id: '',
+        input: '',
+      },
+      timerDuration: {
+        open: false,
+        valid: true,
+        id: '',
+        input: formatTime(defaults.timerDuration),
+      },
+      timerMobOrder: {
+        open: false,
+        valid: true,
+        id: '',
+        input: defaults.timerMobOrder,
+      },
     },
     expandedReorderable: null,
     timerTab: 'overview',
@@ -83,6 +115,42 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     onLoad: OnQrLoad,
   }),
 ];
+
+export const SetFormId = (state, { form, id, input }) => ({
+  ...state,
+  forms: {
+    ...state.forms,
+    [form]: {
+      ...state.forms[form],
+      id: state.forms[form].id === id ? '' : id,
+      input: state.forms[form].id === id ? '' : input || '',
+      open: Boolean(id),
+    },
+  },
+});
+
+export const SetFormInput = (state, { form, input, valid }) => ({
+  ...state,
+  forms: {
+    ...state.forms,
+    [form]: {
+      ...state.forms[form],
+      input,
+      valid: valid === undefined ? true : Boolean(valid),
+    },
+  },
+});
+
+export const OpenForm = (state, { form, open }) => ({
+  ...state,
+  forms: {
+    ...state.forms,
+    [form]: {
+      ...state.forms[form],
+      open: Boolean(open),
+    },
+  },
+});
 
 export const ToggleDrawer = (state, { showDrawer }) => [{ ...state, showDrawer: Boolean(showDrawer) }];
 
@@ -256,6 +324,26 @@ export const EndTurn = state => [
   }),
 ];
 
+export const TimeComplete = (state) => {
+  const nextState = {
+    ...state,
+    timerStartedAt: null,
+    timerDuration: 0,
+  };
+  return [
+    nextState,
+    effects.apiTimerComplete({
+      timerId: state.timerId,
+      completeToken: state.completeToken,
+      fetch: state.externals.fetch,
+    }),
+    effects.UpdateTitleWithTime({
+      remainingTime: 0,
+      documentElement: state.externals.documentElement,
+    }),
+  ];
+};
+
 export const Completed = (state, { isEndOfTurn }) => {
   const nextState = {
     ...state,
@@ -389,17 +477,26 @@ export const CycleMob = state => {
   ];
 };
 
-export const AddNameToMob = state => {
+export const AddNameToMob = (state, { name }) => {
+  if (!name) return state;
+
   const mob = state.mob.concat({
     id: Math.random()
       .toString(36)
       .slice(2),
-    name: state.name,
+    name,
   });
 
   return [
     {
       ...state,
+      forms: {
+        ...state.forms,
+        mob: {
+          ...state.forms.mob,
+          input: '',
+        },
+      },
       mob,
       name: '',
     },
@@ -607,10 +704,16 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
       timerDuration,
       currentTime,
     },
-    effects.PauseTimer({
-      socketEmitter: state.externals.socketEmitter,
+    effects.apiTimerPause({
+      timerId: state.timerId,
       timerDuration,
+      completeToken: state.completeToken,
+      fetch: state.externals.fetch,
     }),
+    // effects.PauseTimer({
+    //   socketEmitter: state.externals.socketEmitter,
+    //   timerDuration,
+    // }),
   ];
 };
 
@@ -620,9 +723,14 @@ export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
     timerStartedAt,
     currentTime: timerStartedAt,
   },
-  effects.StartTimer({
-    socketEmitter: state.externals.socketEmitter,
-    timerDuration: state.timerDuration,
+  // effects.StartTimer({
+  //   socketEmitter: state.externals.socketEmitter,
+  //   timerDuration: state.timerDuration,
+  // }),
+  effects.apiTimerStart({
+    timerId: state.timerId,
+    duration: state.timerDuration,
+    fetch: state.externals.fetch,
   }),
 ];
 
@@ -633,9 +741,14 @@ export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
     currentTime: timerStartedAt,
     timerDuration,
   },
-  effects.StartTimer({
-    socketEmitter: state.externals.socketEmitter,
-    timerDuration,
+  // effects.StartTimer({
+  //   socketEmitter: state.externals.socketEmitter,
+  //   timerDuration,
+  // }),
+  effects.apiTimerStart({
+    timerId: state.timerId,
+    duration: timerDuration,
+    fetch: state.externals.fetch,
   }),
 ];
 
@@ -649,6 +762,17 @@ export const SetAllowNotification = (state, { allowNotification }) => [
     title: 'Mobtime Config',
     text: 'You have allowed notifications',
     sound: false,
+    Notification: state.externals.Notification,
+    documentElement: state.externals.documentElement,
+  }),
+];
+
+export const TestNotification = state => [
+  state,
+  effects.Notify({
+    title: 'Mobtime Config',
+    text: 'This is a test notification',
+    sound: state.allowSound,
     Notification: state.externals.Notification,
     documentElement: state.externals.documentElement,
   }),
@@ -823,6 +947,18 @@ export const PendingSettingsSet = (state, { key, value }) => ({
   },
 });
 
+export const SubmitSettings = (state, settings) => [
+  state,
+  effects.apiUpdateSettings({
+    timerId: state.timerId,
+    settings: {
+      ...state.settings,
+      ...settings,
+    },
+    fetch: state.externals.fetch,
+  }),
+];
+
 export const UpdateSettings = state => {
   const settings = {
     ...state.settings,
@@ -842,13 +978,31 @@ export const UpdateSettings = state => {
   ];
 };
 
+export const RevertSettings = state => {
+  return {
+    ...state,
+    forms: {
+      ...state.forms,
+      timerDuration: {
+        ...state.forms.timerDuration,
+        input: formatTime(state.settings.duration),
+      },
+    },
+  };
+};
+
 export const UpdateByWebsocketData = (state, { payload }) => {
   const { type, ...data } = payload;
+  console.log('UpdateByWebsocketData', payload);
   switch (type) {
     case 'settings:update':
+      console.log('--', { old: state.settings, new: data.settings });
       return {
         ...state,
-        settings: data.settings,
+        settings: {
+          ...state.settings,
+          ...data.settings,
+        },
       };
 
     case 'timer:start':
@@ -856,6 +1010,7 @@ export const UpdateByWebsocketData = (state, { payload }) => {
         ...state,
         timerStartedAt: Date.now(),
         timerDuration: data.timerDuration,
+        completeToken: data.completeToken,
       };
 
     case 'timer:pause':
@@ -870,17 +1025,18 @@ export const UpdateByWebsocketData = (state, { payload }) => {
         ...state,
         timerStartedAt: data.timerStartedAt,
         timerDuration: data.timerDuration,
+        completeToken: data.completeToken,
       };
 
     case 'timer:complete':
-      if (state.timerStartedAt === null && state.timerDuration === 0) {
-        return state;
-      }
-
       return [
         state,
         effects.andThen({
           action: EndTurn,
+          props: {},
+        }),
+        effects.andThen({
+          action: CycleMob,
           props: {},
         }),
       ];

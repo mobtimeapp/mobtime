@@ -219,16 +219,25 @@ export const ShareTimerWith = (connection, timerId) => state => [
           ),
         );
 
+      const timerData = {
+        type: 'timer:update',
+        timerStartedAt: timer.timerStartedAt,
+        timerDuration: timer.timerDuration,
+        completeToken: state.completeTokens[timerId] || null,
+      };
+
+      const timerEndsAt = timer.timerStartedAt + timer.timerDuration;
+      if (Date.now() > timerEndsAt) {
+        timerData.timerStartedAt = null;
+        timerData.timerDuration = 0;
+        timerData.completeToken = null;
+      }
+
       return batch([
         sync('settings'),
         sync('mob'),
         sync('goals'),
-        sync('timer', {
-          type: 'timer:update',
-          timerStartedAt: timer.timerStartedAt,
-          timerDuration: timer.timerDuration,
-          completeToken: state.completeTokens[timerId] || null,
-        }),
+        sync('timer', timerData),
       ]);
     }),
   ),
