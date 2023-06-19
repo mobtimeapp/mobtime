@@ -1,17 +1,16 @@
 import { h, text } from '/vendor/hyperapp.js';
-
-import { section } from '/components/section.js';
+import * as actions from '/actions.js';
 
 export const mobber = props =>
   h(
     'div',
     {
       class: {
-        flex: true,
+        'flex': true,
         'flex-row': true,
         'items-center': true,
         'justify-between': true,
-        //'mb-1': true,
+        // 'mb-1': true,
         'h-full': true,
         'w-full': true,
         'text-black': props.hasPosition,
@@ -20,6 +19,8 @@ export const mobber = props =>
         // 'dark:bg-indigo-800': props.position !== 'mob',
         'py-1': true,
         'pl-1': true,
+        'outline': props.highlight,
+        'outline-blue-300': true,
       },
     },
     [
@@ -27,15 +28,23 @@ export const mobber = props =>
         'div',
         {
           class: {
-            truncate: props.selected,
+            'truncate': props.selected,
+            'border-b': true,
+            'border-dotted': true,
+            'border-transparent': true,
+            'hover:border-slate-400': props.name,
           },
+          ondblclick: (_props, _event) => {
+            return [actions.SetFormId, { form: 'mob', id: props.id, input: props.name }];
+          },
+          title: 'Double click to edit',
         },
         [
           h(
             'div',
             {
               class: {
-                uppercase: true,
+                'uppercase': true,
                 'leading-none': true,
                 'mb-1': true,
                 'break-all': true,
@@ -54,7 +63,7 @@ export const mobber = props =>
                 'font-bold': props.hasPosition && props.name,
                 'leading-none': true,
                 'break-all': true,
-                truncate: props.selected,
+                'truncate': props.selected,
               },
             },
             text(props.name || 'Empty'),

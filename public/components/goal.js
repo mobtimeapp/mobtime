@@ -32,46 +32,13 @@ export const goal = props =>
           actions.CompleteGoal,
           { id: props.id, completed: e.target.checked },
         ],
-        class: {
-          'sr-only': true,
-        },
       }),
-      h(
-        'button',
-        {
-          disabled: props.id === null,
-          onclick:
-            props.id !== null
-              ? () => [
-                  actions.CompleteGoal,
-                  { id: props.id, completed: !props.completed },
-                ]
-              : undefined,
-          class: {
-            'text-gray-500': props.id === null,
-          },
-        },
-        [
-          h(
-            'span',
-            {
-              class: {
-                'fa-stack': true,
-              },
-            },
-            [
-              h('i', { class: 'far fa-circle fa-stack-1x' }),
-              props.completed &&
-                h('i', { class: 'fas fa-check fa-stack-1x text-green-500' }),
-            ],
-          ),
-        ],
-      ),
       h(
         'label',
         {
           for: `goal-${props.id}`,
           class: {
+            'ml-1': true,
             'pr-1': true,
             'flex-grow': true,
             'leading-tight': true,

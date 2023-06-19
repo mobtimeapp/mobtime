@@ -11,7 +11,7 @@ export const listButton = (props, children) =>
         'h-6': true,
         'text-sm': true,
         'flex-shrink-0': true,
-        flex: true,
+        'flex': true,
         'items-center': true,
         'justify-center': true,
         ...(props.class || {}),

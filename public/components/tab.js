@@ -16,7 +16,7 @@ export const tab = (props, children) =>
         'py-1': true,
         'px-3': true,
         'flex-grow': true,
-        flex: true,
+        'flex': true,
         'flex-row': true,
         'items-center': true,
         'justify-between': true,

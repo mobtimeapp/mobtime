@@ -5,7 +5,7 @@ export const checkbox = (props, children) =>
     'div',
     {
       class: {
-        flex: true,
+        'flex': true,
         'flex-row': true,
         'items-center': true,
         'justify-center': true,
@@ -31,7 +31,7 @@ export const checkbox = (props, children) =>
             class: {
               'flex-grow': true,
               'leading-tight': true,
-              flex: true,
+              'flex': true,
               'flex-row': true,
               'items-center': true,
             },
