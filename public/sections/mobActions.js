@@ -36,7 +36,7 @@ export const mobActions = props =>
       button(
         {
           class: {
-            //'bg-green-600': true,
+            // 'bg-green-600': true,
             'dark:text-white': true,
             // 'flex-grow': true,
             'ml-1': true,

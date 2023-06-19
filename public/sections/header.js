@@ -2,8 +2,6 @@ import { h, text } from '/vendor/hyperapp.js';
 
 import { section } from '/components/section.js';
 
-import * as actions from '/actions.js';
-
 export const header = state =>
   section(
     {
@@ -13,14 +11,14 @@ export const header = state =>
         'items-center': true,
         'justify-start': true,
         'w-full': true,
-        'md:col-span-2': true,
         'text-black': true,
         'dark:text-white': true,
       },
     },
     [
       h('div', {
-        class: 'fas fa-clock text-4xl mr-3',
+        innerHTML: '🕐',
+        class: 'text-4xl mr-3',
       }),
       h(
         'div',
@@ -34,16 +32,6 @@ export const header = state =>
         },
         text(state.lang.header.product),
       ),
-
-      h('button', {
-        type: 'button',
-        class: {
-          'text-xs': true,
-          'text-slate-600': true,
-        },
-        onclick: [actions.ToggleDrawer, { showDrawer: true }],
-
-      }, text('Show Advanced Settings')),
 
     ],
   );

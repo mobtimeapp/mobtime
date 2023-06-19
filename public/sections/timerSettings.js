@@ -27,36 +27,36 @@ export const timerSettings = props =>
         rightAction:
           Object.keys(props.pendingSettings).length === 0
             ? h('div', {}, [
-                text(props.lang.settings.saved),
-                h('i', { class: 'fas fa-check text-green-500' }),
-              ])
+              text(props.lang.settings.saved),
+              h('i', { class: 'fas fa-check text-green-500' }),
+            ])
             : h('div', {}, [
-                button(
-                  {
-                    class: {
-                      'bg-indigo-500': true,
-                      'hover:bg-indigo-400': true,
-                      'text-white': true,
-                      'mr-1': true,
-                    },
-                    onclick: actions.PendingSettingsReset,
+              button(
+                {
+                  class: {
+                    'bg-indigo-500': true,
+                    'hover:bg-indigo-400': true,
+                    'text-white': true,
+                    'mr-1': true,
                   },
-                  text(props.lang.settings.cancel),
-                ),
-                button(
-                  {
-                    type: 'button',
-                    class: {
-                      'bg-green-600': true,
-                      'hover:bg-green-500': true,
-                      'text-white': true,
-                    },
-                    disable: Object.keys(props.pendingSettings).length === 0,
-                    onclick: actions.UpdateSettings,
+                  onclick: actions.PendingSettingsReset,
+                },
+                text(props.lang.settings.cancel),
+              ),
+              button(
+                {
+                  type: 'button',
+                  class: {
+                    'bg-green-600': true,
+                    'hover:bg-green-500': true,
+                    'text-white': true,
                   },
-                  text(props.lang.settings.save),
-                ),
-              ]),
+                  disable: Object.keys(props.pendingSettings).length === 0,
+                  onclick: actions.UpdateSettings,
+                },
+                text(props.lang.settings.save),
+              ),
+            ]),
       },
       text(props.lang.settings.sharedTimerSettings),
     ),
@@ -133,4 +133,3 @@ export const timerSettings = props =>
       ],
     ),
   ]);
-

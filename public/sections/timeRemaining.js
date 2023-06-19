@@ -1,13 +1,9 @@
 import { h, text } from '/vendor/hyperapp.js';
-
 import { section } from '/components/section.js';
-import { button } from '/components/button.js';
-import { deleteButton } from '/components/deleteButton.js';
 
 import { calculateTimeRemaining } from '/lib/calculateTimeRemaining.js';
 
 import timerRemainingDisplay from '/formatTime.js';
-import * as actions from '/actions.js';
 
 export const timeRemaining = props => {
   const isPaused = props.timerStartedAt === null;
@@ -20,10 +16,6 @@ export const timeRemaining = props => {
     ? (elapsed / props.timerDuration) * 4
     : 0;
   const pulse = (Math.floor(elapsed / 1000) % 2) === 0;
-
-  if (elapsed > 0) {
-    console.log({ elapsed, percent, duration: props.timerDuration, pulse });
-  }
 
   // border-t-slate-500
   // border-r-slate-500
@@ -104,18 +96,18 @@ export const timeRemaining = props => {
               },
               text(timerRemainingDisplay(remainingTime)),
             ),
-            remainingTime > 0 &&
-              deleteButton({
-                size: '24px',
-                onclick: () => [
-                  actions.Completed,
-                  {
-                    isEndOfTurn: false,
-                    documentElement: document,
-                    Notification: window.Notification,
-                  },
-                ],
-              }),
+            // remainingTime > 0 &&
+            //   deleteButton({
+            //     size: '24px',
+            //     onclick: () => [
+            //       actions.Completed,
+            //       {
+            //         isEndOfTurn: false,
+            //         documentElement: document,
+            //         Notification: window.Notification,
+            //       },
+            //     ],
+            //   }),
           ],
         ),
       ],
@@ -131,66 +123,66 @@ export const timeRemaining = props => {
           'justify-center': true,
         },
       },
-      [
+      // [
 
-        //
+      //   //
 
-        !props.timerDuration &&
-          button(
-            {
-              class: {
-                'bg-green-600': true,
-                'text-white': true,
-              },
-              onclick: () => [
-                actions.StartTimer,
-                {
-                  timerStartedAt: Date.now(),
-                  timerDuration: props.settings.duration,
-                },
-              ],
-            },
-            [
-              h('i', {
-                class: {
-                  'fas': true,
-                  'fa-play': true,
-                  'mr-4': true,
-                },
-              }),
-              text(props.lang.timeRemaining.startTurn),
-            ],
-          ),
+      //   !props.timerDuration &&
+      //     button(
+      //       {
+      //         class: {
+      //           'bg-green-600': true,
+      //           'text-white': true,
+      //         },
+      //         onclick: () => [
+      //           actions.StartTimer,
+      //           {
+      //             timerStartedAt: Date.now(),
+      //             timerDuration: props.settings.duration,
+      //           },
+      //         ],
+      //       },
+      //       [
+      //         h('i', {
+      //           class: {
+      //             'fas': true,
+      //             'fa-play': true,
+      //             'mr-4': true,
+      //           },
+      //         }),
+      //         text(props.lang.timeRemaining.startTurn),
+      //       ],
+      //     ),
 
-        !!props.timerDuration &&
-          button(
-            {
-              class: {
-                'bg-white': true,
-                'text-green-600': true,
-              },
-              disabled: !props.timerDuration,
-              onclick: isPaused
-                ? [actions.ResumeTimer, undefined]
-                : [actions.PauseTimer, undefined],
-            },
-            [
-              h('i', {
-                class: {
-                  'fas': true,
-                  'fa-pause': !isPaused,
-                  'fa-play': isPaused,
-                  'mr-4': true,
-                },
-              }),
-              text(
-                isPaused
-                  ? props.lang.timeRemaining.resume
-                  : props.lang.timeRemaining.pause,
-              ),
-            ],
-          ),
-      ],
+      //   !!props.timerDuration &&
+      //     button(
+      //       {
+      //         class: {
+      //           'bg-white': true,
+      //           'text-green-600': true,
+      //         },
+      //         disabled: !props.timerDuration,
+      //         onclick: isPaused
+      //           ? [actions.ResumeTimer, undefined]
+      //           : [actions.PauseTimer, undefined],
+      //       },
+      //       [
+      //         h('i', {
+      //           class: {
+      //             'fas': true,
+      //             'fa-pause': !isPaused,
+      //             'fa-play': isPaused,
+      //             'mr-4': true,
+      //           },
+      //         }),
+      //         text(
+      //           isPaused
+      //             ? props.lang.timeRemaining.resume
+      //             : props.lang.timeRemaining.pause,
+      //         ),
+      //       ],
+      //     ),
+      // ],
     ),
   ]);
 };
