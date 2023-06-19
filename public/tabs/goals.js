@@ -1,7 +1,6 @@
-import { addGoal } from '/sections/addGoal.js';
 import { goalList } from '/sections/goalList.js';
 import { h, text } from '/vendor/hyperapp.js';
-import { removeCompletedGoals } from '/sections/removeCompletedGoals.js';
+import * as actions from '/actions.js';
 
 export const goals = props =>
   h('div', {}, [
@@ -17,18 +16,25 @@ export const goals = props =>
       lang: props.lang,
     }),
 
-    h('form', { class: 'ml-3 mt-2' }, [
+    h('form', {
+      class: 'ml-3 mt-2',
+      method: 'get',
+      onsubmit: (_, e) => {
+        e.preventDefault();
+        return [actions.AddGoals, props.goal];
+      },
+    }, [
       h('details', {}, [
         h('summary', { class: 'text-slate-500 text-xs' }, text('Show goal form')),
 
         h('label', { class: 'mt-3 uppercase leading-none mb-1 text-xs block' }, text('Add goal')),
-        h('input', { type: 'text', class: 'bg-transparent border-b border-b-white w-full', placeholder: 'Name' }),
+        h('input', {
+          type: 'text',
+          class: 'bg-transparent border-b border-b-white w-full',
+          placeholder: 'Name',
+          value: props.goal,
+          oninput: (_, e) => [actions.UpdateGoalText, e.target.value],
+        }),
       ]),
     ]),
-    // addGoal({
-    //   goal: props.goal,
-    //   addMultiple: props.addMultiple,
-    //   lang: props.lang,
-    // }),
-    // removeCompletedGoals({ goals: props.goals, lang: props.lang }),
   ]);
