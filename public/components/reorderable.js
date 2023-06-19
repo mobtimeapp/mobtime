@@ -97,19 +97,20 @@ const dragContainer = (props, children) =>
                   },
                 ],
         },
-        Array.from({ length: 3 }, (_, index) =>
-          h('div', {
-            class: {
-              'border-b': true,
-              'border-b-gray-800': !props.disabled,
-              'border-b-gray-400': props.disabled,
-              'dark:border-b-gray-200': !props.disabled,
-              'dark:border-b-gray-400': props.disabled,
-              'mt-1': index > 0,
-              'w-1': true,
-            },
-          }),
-        ),
+        h('div', { innerHTML: '&#8286;&#8286;&#8286;' }),
+        // Array.from({ length: 3 }, (_, index) =>
+        //   h('div', {
+        //     class: {
+        //       'border-b': true,
+        //       'border-b-gray-800': !props.disabled,
+        //       'border-b-gray-400': props.disabled,
+        //       'dark:border-b-gray-200': !props.disabled,
+        //       'dark:border-b-gray-400': props.disabled,
+        //       'mt-1': index > 0,
+        //       'w-1': true,
+        //     },
+        //   }),
+        // ),
       ),
 
       children,
@@ -133,7 +134,7 @@ const dragContainer = (props, children) =>
               'disabled': !props.onMoveUp,
               'aria-label': `Move ${props.type} up`,
             },
-            [h('i', { class: 'fas fa-arrow-up' })],
+            [h('span', { class: 'text-bold', innerHTML: '&uarr;' })],
           ),
 
           listButton(
@@ -146,7 +147,7 @@ const dragContainer = (props, children) =>
               'disabled': !props.onMoveDown,
               'aria-label': `Move ${props.type} down`,
             },
-            [h('i', { class: 'fas fa-arrow-down' })],
+            [h('span', { class: 'text-bold', innerHTML: '&darr;' })],
           ),
 
           props.onEdit &&
@@ -157,7 +158,7 @@ const dragContainer = (props, children) =>
                 },
                 onclick: props.onEdit,
               },
-              [h('i', { class: 'fas fa-pencil-alt' })],
+              [h('span', { class: 'text-bold', innerHTML: '&#x270E;' })],
             ),
 
           props.onDelete &&
@@ -181,7 +182,7 @@ const dragContainer = (props, children) =>
             },
             onclick: props.onExpand,
           },
-          [h('i', { class: 'fas fa-ellipsis-v' })],
+          [h('span', { class: 'text-bold', innerHTML: '&vellip;' })],
         ),
 
       ...(props.isDragging
@@ -214,9 +215,9 @@ const draggingContainer = (props, child) =>
         'duration-75': true,
         'ease-in-out': true,
         'pointer-events-none': true,
-        //'border': true,
-        //'border-green-600': true,
-        //'rounded': true,
+        // 'border': true,
+        // 'border-green-600': true,
+        // 'rounded': true,
       },
     },
     child,
