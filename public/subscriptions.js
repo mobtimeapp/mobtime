@@ -21,11 +21,7 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
 
     if (elapsed >= timerDuration) {
       cleanup();
-      dispatch(actions.Completed, {
-        isEndOfTurn: true,
-        documentElement: document,
-        Notification: window.Notification,
-      });
+      dispatch(actions.TimeComplete, {});
       return;
     }
 
