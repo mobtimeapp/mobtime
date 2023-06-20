@@ -135,7 +135,11 @@ export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX (
     remainingTime > 0 ? `${formatTime(remainingTime)} - mobtime` : 'mobtime';
 });
 
-export const andThen = fx(function andThenFX (dispatch, { action, props, delay }) {
+export const andThen = fx(function andThenFX (dispatch, { action, props, delay, ...otherProps }) {
+  if (!action) {
+    console.error('Unable to chain action using andThen', { action, props, delay, otherProps });
+    return;
+  }
   setTimeout(() => {
     dispatch(action, props);
   }, delay || 0);
