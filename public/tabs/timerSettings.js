@@ -31,6 +31,7 @@ export const timerSettings = (props) => {
       h('h1', { class: 'text-lg font-bold flex-grow' }, text('Timer settings')),
       isDirty && h('button', {
         type: 'button',
+        onclick: [actions.RevertSettings, {}],
       }, text('Revert Changes')),
     ]),
     h(
