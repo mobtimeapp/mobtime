@@ -243,6 +243,10 @@ export const ShareTimerWith = (connection, timerId) => state => [
         sync('mob'),
         sync('goals'),
         sync('timer', timerData),
+        sync('connections', {
+          type: 'connections:update',
+          count: state.connections[timerId].length,
+        }),
       ]);
     }),
   ),

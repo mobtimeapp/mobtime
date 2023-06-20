@@ -51,6 +51,11 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
       mobOrder: defaults.timerMobOrder,
       duration: defaults.timerDuration,
     },
+    loading: {
+      total: 5,
+      messages: ['settings:update', 'mob:update', 'goals:update', 'timer:update', 'connections:update'],
+      isFirstConnection: false,
+    },
     forms: {
       mob: {
         open: false,
@@ -76,6 +81,14 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
         id: '',
         input: defaults.timerMobOrder,
       },
+    },
+    details: {
+      summary: false,
+      mobForm: false,
+      goalForm: false,
+      advancedSettings: false,
+      localSettings: false,
+      timerSettings: false,
     },
     expandedReorderable: null,
     timerTab: 'overview',
@@ -115,6 +128,23 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     onLoad: OnQrLoad,
   }),
 ];
+
+export const DetailsToggle = (state, { which, open }) => ({
+  ...state,
+  details: {
+    ...state.details,
+    [which]: Boolean(open),
+  },
+});
+
+export const FirstConnection = state => ({
+  ...state,
+  details: {
+    ...state.details,
+    summary: true,
+    advancedSettings: true,
+  },
+});
 
 export const SetFormId = (state, { form, id, input }) => ({
   ...state,
@@ -995,42 +1025,93 @@ export const RevertSettings = state => {
   };
 };
 
+export const LoadingMessagesPop = (state, { type, ...others }) => {
+  const messages = state.loading.messages.filter(m => m !== type);
+  const first = type === 'connections:update'
+    ? { isFirstConnection: others.count === 1 }
+    : {};
+
+  const loading = {
+    ...state.loading,
+    ...first,
+    messages,
+  };
+
+  return [
+    {
+      ...state,
+      loading,
+    },
+    messages.length === 0 && effects.andThen({
+      action: RevertSettings,
+      props: {},
+    }),
+    messages.length === 0 && loading.isFirstConnection && effects.andThen({
+      action: FirstConnection,
+      props: {},
+    }),
+  ];
+};
+
 export const UpdateByWebsocketData = (state, { payload }) => {
   const { type, ...data } = payload;
   console.log('UpdateByWebsocketData', payload);
   switch (type) {
+    case 'connections:update':
+      return [
+        state,
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: payload,
+        }),
+      ];
     case 'settings:update':
-      console.log('--', { old: state.settings, new: data.settings });
-      return {
-        ...state,
-        settings: {
-          ...state.settings,
-          ...data.settings,
+      return [
+        {
+          ...state,
+          settings: {
+            ...state.settings,
+            ...data.settings,
+          },
         },
-      };
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     case 'timer:start':
-      return {
-        ...state,
-        timerStartedAt: Date.now(),
-        timerDuration: data.timerDuration,
-        completeToken: data.completeToken,
-      };
+      return [
+        {
+          ...state,
+          timerStartedAt: Date.now(),
+          timerDuration: data.timerDuration,
+          completeToken: data.completeToken,
+        },
+      ];
 
     case 'timer:pause':
-      return {
-        ...state,
-        timerStartedAt: null,
-        timerDuration: data.timerDuration,
-      };
+      return [
+        {
+          ...state,
+          timerStartedAt: null,
+          timerDuration: data.timerDuration,
+        },
+      ];
 
     case 'timer:update':
-      return {
-        ...state,
-        timerStartedAt: data.timerStartedAt,
-        timerDuration: data.timerDuration,
-        completeToken: data.completeToken,
-      };
+      return [
+        {
+          ...state,
+          timerStartedAt: data.timerStartedAt,
+          timerDuration: data.timerDuration,
+          completeToken: data.completeToken,
+        },
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     case 'timer:complete':
       return [
@@ -1039,23 +1120,31 @@ export const UpdateByWebsocketData = (state, { payload }) => {
           action: EndTurn,
           props: {},
         }),
-        // effects.andThen({
-        //   action: CycleMob,
-        //   props: {},
-        // }),
       ];
 
     case 'goals:update':
-      return {
-        ...state,
-        goals: data.goals,
-      };
+      return [
+        {
+          ...state,
+          goals: data.goals,
+        },
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     case 'mob:update':
-      return {
-        ...state,
-        mob: data.mob,
-      };
+      return [
+        {
+          ...state,
+          mob: data.mob,
+        },
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     default:
       // console.warn('Unknown websocket data', payload); // eslint-disable-line no-console

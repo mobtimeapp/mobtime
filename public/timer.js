@@ -42,50 +42,59 @@ app({
     dark: 'dark' in flags,
   }),
 
-  view: state => grid({ class: 'relative pb-12' }, [
-    column.fixed(2, header(state)),
-    h('div', { class: 'flex flex-row items-center justify-center' }, [
-      timeRemaining(state),
-    ]),
-    summary(state),
-    column.fixed(2, [
-      h('details', {}, [
-        h('summary', { class: 'text-xs text-slate-500' }, [
-          text('Your Session'),
-        ]),
-        grid({}, [
-          column(2, { sm: 1 }, mob(state)),
-          column(2, { sm: 1 }, goals(state)),
-        ]),
-      ]),
-    ]),
-    column.fixed(2, [
-      h('details', {}, [
-        h('summary', { class: 'text-xs text-slate-500' }, [
-          text('Advanced Settings'),
-        ]),
-        grid({}, [
-          column(2, { sm: 1 }, memo(localSettings, stateWithoutFrequentChanges(state))),
-          column(2, { sm: 1 }, memo(timerSettings, stateWithoutFrequentChanges(state))),
-        ]),
-      ]),
-    ]),
+  view: state => {
+    const loadingPercent = (state.loading.total - state.loading.messages.length);
+    const isLoading = loadingPercent < state.loading.total;
 
-    h(
-      'audio',
-      {
-        preload: 'auto',
-        id: 'timer-complete',
-        key: state.sound,
-      },
-      [
-        h('source', {
-          src: `/audio/${state.sound}.wav`,
-          type: 'audio/wav',
-        }),
-      ],
-    ),
-  ]),
+    return grid({ class: 'relative pb-12' }, [
+      h('div', {}, text(state.loading.messages.join(', '))),
+      column.fixed(2, header(state)),
+      h('div', { class: 'flex flex-row items-center justify-center' }, [
+        timeRemaining(state),
+      ]),
+      summary(state),
+      isLoading && column.fixed(2, [
+        h('progress', { max: 4, value: loadingPercent, class: 'w-full', style: { height: '2px' } }),
+      ]),
+      !isLoading && column.fixed(2, [
+        h('details', { open: state.details.summary, ontoggle: (_, event) => [actions.DetailsToggle, { which: 'summary', open: event.target.open }] }, [
+          h('summary', { class: 'text-xs text-slate-500' }, [
+            text('Your Session'),
+          ]),
+          grid({}, [
+            column(2, { sm: 1 }, mob(state)),
+            column(2, { sm: 1 }, goals(state)),
+          ]),
+        ]),
+      ]),
+      !isLoading && column.fixed(2, [
+        h('details', { open: state.details.advancedSettings, ontoggle: (_, event) => [actions.DetailsToggle, { which: 'advancedSettings', open: event.target.open }] }, [
+          h('summary', { class: 'text-xs text-slate-500' }, [
+            text('Advanced Settings'),
+          ]),
+          grid({}, [
+            column(2, { sm: 1 }, memo(localSettings, stateWithoutFrequentChanges(state))),
+            column(2, { sm: 1 }, memo(timerSettings, stateWithoutFrequentChanges(state))),
+          ]),
+        ]),
+      ]),
+
+      h(
+        'audio',
+        {
+          preload: 'auto',
+          id: 'timer-complete',
+          key: state.sound,
+        },
+        [
+          h('source', {
+            src: `/audio/${state.sound}.wav`,
+            type: 'audio/wav',
+          }),
+        ],
+      ),
+    ]);
+  },
 
   subscriptions: state => {
     const { timerId, drag, websocketConnect, externals } = state;
