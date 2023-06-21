@@ -40,7 +40,7 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
   const protocol = externals.location.protocol === 'https:' ? 'wss' : 'ws';
   const websocketAddress = `${protocol}://${externals.location.hostname}:${externals.location.port}/${timerId}`;
 
-  const socket = new WebSocket(websocketAddress);
+  let socket = new WebSocket(websocketAddress);
   let hasError = false;
 
   socket.addEventListener('message', event => {
@@ -76,6 +76,7 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
   return () => {
     cancel();
     socket.close();
+    socket = null;
   };
 };
 export const Websocket = props => [WebsocketFX, props];
