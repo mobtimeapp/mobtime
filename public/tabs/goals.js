@@ -4,11 +4,12 @@ import * as actions from '/actions.js';
 
 export const goals = props => {
   const isEdittingGoal = props.forms.goal.id && props.goals.some(g => g.id == props.forms.goal.id);
+  const anyGoalsIncomplete = props.goals.some(g => !g.completed);
 
   return h('div', {}, [
     h('header', { class: 'flex justify-start items-center border-b border-gray-400 mb-2' }, [
       h('h1', { class: 'text-lg font-bold flex-grow' }, text('Goals')),
-      h('button', { class: 'ml-2 dark:text-white text-black underline' }, text('Clear Completed')),
+      anyGoalsIncomplete && h('button', { class: 'ml-2 dark:text-white text-black underline' }, text('Clear Completed')),
     ]),
 
     goalList({
