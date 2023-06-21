@@ -51,6 +51,9 @@ export const goals = props => {
               value: props.forms.goal.input,
               required: true,
               oninput: (_, e) => [actions.SetFormInput, { form: 'goal', input: e.target.value }],
+              onkeydown: (_, e) => {
+                console.log(e.which, e.key);
+              },
             }),
           ]),
           !isEdittingGoal && h('button', { type: 'submit', name: 'action', value: 'add', class: 'ml-1 px-2 py-1 border border-slate-700' }, text('Add')),
