@@ -7,22 +7,19 @@ import * as actions from '/actions.js';
 
 export const timerSettings = (props) => {
   const isDirty = (
-    props.settings.duration !== formattedTimeToMilliseconds(props.forms.timerDuration.input)
+    props.settings.duration !== formattedTimeToMilliseconds(props.forms.timerDuration.input) ||
+    props.settings.mobOrder !== props.forms.mobOrder.input
   );
 
   return h('form', {
     onsubmit: (_, event) => {
       event.preventDefault();
-
       if (!event.target.reportValidity()) {
-        console.log('skipping submit, form invalid');
         return [s => s];
       }
 
       const settings = formData(event.target);
       settings.duration = formattedTimeToMilliseconds(settings.duration);
-
-      console.log('form.submit', settings, event.target);
 
       return [actions.SubmitSettings, settings];
     },
@@ -32,7 +29,12 @@ export const timerSettings = (props) => {
       isDirty && h('button', {
         type: 'button',
         onclick: [actions.RevertSettings, {}],
+        class: 'ml-1',
       }, text('Revert Changes')),
+      isDirty && h('button', {
+        type: 'submit',
+        class: 'ml-1',
+      }, text('Save')),
     ]),
     h(
       'div',
@@ -54,10 +56,6 @@ export const timerSettings = (props) => {
             ].filter(Boolean).join(' '),
             oninput: (_, event) => {
               const seconds = formattedTimeToMilliseconds(event.target.value) / 1000;
-              console.log('settings.change', event.target.value, formattedTimeToMilliseconds(event.target.value));
-              // let [minutes, seconds] = event.target.value.split(':');
-              // minutes ||= 0;
-              // seconds = (seconds || 0) + (minutes * 60);
               const valid = event.target.checkValidity() && seconds > 0;
 
               return [actions.SetFormInput, { form: 'timerDuration', input: event.target.value, valid }];
@@ -67,6 +65,25 @@ export const timerSettings = (props) => {
             name: 'duration',
           }),
           text('minutes'),
+        ]),
+
+        h('div', {}, text('Positions')),
+        h('div', { class: 'flex' }, [
+          h('input', {
+            type: 'text',
+            pattern: '([^,]+,?)+',
+            class: [
+              'mr-2 border-b border-slate-600 dark:bg-transparent dark:text-gray-200 block w-full',
+              !props.forms.mobOrder.valid && 'outline outline-red-400',
+            ].filter(Boolean).join(' '),
+            oninput: (_, event) => {
+              return [actions.SetFormInput, { form: 'mobOrder', input: event.target.value, valid: true }];
+            },
+            placeholder: 'navigator,driver',
+            value: props.forms.mobOrder.input,
+            name: 'mobOrder',
+            title: 'Comma separated list of position names',
+          }),
         ]),
       ],
     ),

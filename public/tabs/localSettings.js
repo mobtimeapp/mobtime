@@ -1,5 +1,7 @@
 import { h, text } from '/vendor/hyperapp.js';
 
+import { checkbox } from '/components/checkbox.js';
+
 import * as actions from '/actions.js';
 
 const audioFiles = [
@@ -15,29 +17,18 @@ export const localSettings = (props) => {
   return h('div', {}, [
     h('header', { class: 'flex justify-start items-center border-b border-gray-400 mb-2' }, [
       h('h1', { class: 'text-lg font-bold flex-grow' }, text('Local settings')),
-      // h('button', {
-      //   type: 'button',
-      //   class: 'ml-2 dark:text-white text-black underline',
-      //   onclick: actions.ShuffleMob,
-      // }, text('Shuffle')),
-      // h('button', {
-      //   type: 'button',
-      //   class: 'ml-2 dark:text-white text-black underline',
-      //   onclick: actions.CycleMob,
-      // }, text('Rotate')),
     ]),
     h(
       'div',
       {
         class: 'grid gap-2',
         style: {
-          'grid-template-columns': '3fr 1fr',
+          'grid-template-columns': '1fr 26px',
         },
       },
       [
         h('div', {}, text('Dark mode')),
-        h('input', {
-          type: 'checkbox',
+        checkbox({
           checked: props.dark,
           oninput: (_, e) => [actions.SetDark, { dark: e.target.checked }],
         }),
@@ -46,8 +37,7 @@ export const localSettings = (props) => {
           text('Notifications'),
           h('button', { type: 'button', class: 'px-2', onclick: () => [actions.TestNotification, {}] }, text('Test')),
         ]),
-        h('input', {
-          type: 'checkbox',
+        checkbox({
           checked: props.allowNotification,
           oninput: (_, e) => (
             e.target.checked
@@ -72,8 +62,7 @@ export const localSettings = (props) => {
           ]),
           h('button', { type: 'button', class: 'px-2', onclick: [actions.TestSound, undefined] }, text('Test')),
         ]),
-        h('input', {
-          type: 'checkbox',
+        checkbox({
           checked: props.allowSound,
           oninput: (_, e) => [actions.SetAllowSound, e.target.checked],
         }),

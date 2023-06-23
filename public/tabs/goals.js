@@ -42,17 +42,25 @@ export const goals = props => {
 
         h('div', { class: 'flex items-end justify-items-start' }, [
           h('fieldset', { class: 'flex-grow' }, [
-            h('label', { class: 'mt-3 uppercase leading-none mb-1 text-xs block' }, text('team member')),
+            h('label', { class: 'mt-3 uppercase leading-none mb-1 text-xs block' }, text('A good day would be...')),
             h('input', {
               type: 'text',
               class: 'bg-transparent border-b border-b-white w-full',
-              placeholder: 'A great day would be....',
+              placeholder: 'Finish feature X',
               name: 'text',
               value: props.forms.goal.input,
               required: true,
               oninput: (_, e) => [actions.SetFormInput, { form: 'goal', input: e.target.value }],
               onkeydown: (_, e) => {
-                console.log(e.which, e.key);
+                if (e.key === 'Enter' && !isEdittingGoal) {
+                  e.preventDefault();
+                  return [actions.AddGoals, e.target.value];
+                }
+                if (e.key === 'Enter' && isEdittingGoal) {
+                  e.preventDefault();
+                  return [actions.RenameGoal, { id: props.forms.goal.id, value: e.target.value }];
+                }
+                return [s => s];
               },
             }),
           ]),

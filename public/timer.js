@@ -46,13 +46,18 @@ app({
     const loadingPercent = (state.loading.total - state.loading.messages.length);
     const isLoading = loadingPercent < state.loading.total;
 
-    return grid({ class: 'relative pb-12' }, [
+    return grid({ class: 'relative pb-12 px-2' }, [
       h('div', {}, text(state.loading.messages.join(', '))),
       column.fixed(2, header(state)),
-      h('div', { class: 'flex flex-row items-center justify-center' }, [
-        timeRemaining(state),
+
+      column(2, { md: 1 }, [
+        h('div', { class: 'flex flex-row items-center justify-center' }, [
+          timeRemaining(state),
+        ]),
       ]),
-      summary(state),
+      column(2, { md: 1 }, [
+        summary(state),
+      ]),
       isLoading && column.fixed(2, [
         h('progress', { max: 4, value: loadingPercent, class: 'w-full', style: { height: '2px' } }),
       ]),
@@ -62,8 +67,8 @@ app({
             text('Your Session'),
           ]),
           grid({}, [
-            column(2, { sm: 1 }, mob(state)),
-            column(2, { sm: 1 }, goals(state)),
+            column(2, { md: 1 }, mob(state)),
+            column(2, { md: 1 }, goals(state)),
           ]),
         ]),
       ]),
@@ -73,8 +78,8 @@ app({
             text('Advanced Settings'),
           ]),
           grid({}, [
-            column(2, { sm: 1 }, memo(localSettings, stateWithoutFrequentChanges(state))),
-            column(2, { sm: 1 }, memo(timerSettings, stateWithoutFrequentChanges(state))),
+            column(2, { md: 1 }, memo(localSettings, stateWithoutFrequentChanges(state))),
+            column(2, { md: 1 }, memo(timerSettings, stateWithoutFrequentChanges(state))),
           ]),
         ]),
       ]),

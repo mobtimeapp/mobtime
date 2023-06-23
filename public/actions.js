@@ -75,7 +75,7 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
         id: '',
         input: formatTime(defaults.timerDuration),
       },
-      timerMobOrder: {
+      mobOrder: {
         open: false,
         valid: true,
         id: '',
@@ -1020,6 +1020,10 @@ export const RevertSettings = state => {
       timerDuration: {
         ...state.forms.timerDuration,
         input: formatTime(state.settings.duration),
+      },
+      mobOrder: {
+        ...state.forms.mobOrder,
+        input: state.settings.mobOrder,
       },
     },
   };

@@ -1,5 +1,7 @@
 import { h, text } from '/vendor/hyperapp.js';
 
+import { checkbox } from '/components/checkbox.js';
+
 import * as actions from '/actions.js';
 
 const textWithBreaks = goalText =>
@@ -21,7 +23,6 @@ export const goal = props => {
     {
       class: {
         'flex': true,
-        'flex-row': true,
         'items-center': true,
         'justify-between': true,
         'mb-2': true,
@@ -34,10 +35,10 @@ export const goal = props => {
       },
     },
     [
-      h('input', {
+      checkbox({
         id: `goal-${props.id}`,
-        type: 'checkbox',
         checked: props.completed,
+        disabled: !props.id,
         onchange: (_, e) => [
           actions.CompleteGoal,
           { id: props.id, completed: e.target.checked },
