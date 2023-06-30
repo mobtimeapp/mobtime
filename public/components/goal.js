@@ -62,9 +62,7 @@ export const goal = props => {
             'border-transparent': true,
             'hover:border-slate-400': props.id,
           },
-          ondblclick: (_props, _event) => {
-            return [actions.SetFormId, { form: 'goal', id: props.id, input: props.text }];
-          },
+          ondblclick: [actions.GoalDoubleClick, { id: props.id }],
         },
         textWithBreaks(text || ''),
       ),

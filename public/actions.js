@@ -33,6 +33,11 @@ const defaults = {
   timerDuration: 5 * 60 * 1000,
 };
 
+export const CombineActions = (init, actions) => actions.reduce(([state, ...effects], action) => {
+  const [nextState, ...otherEffects] = [].concat(Array.isArray(action) ? action[0](state, action[1]) : action(state));
+  return [nextState, ...effects, ...otherEffects];
+}, [].concat(init));
+
 export const Init = (_, { timerId, externals, dark, lang }) => [
   {
     timerStartedAt: null,
@@ -138,6 +143,20 @@ export const FirstConnection = state => ({
   },
 });
 
+export const GoalDoubleClick = (state, { id }) => {
+  return CombineActions(state, [
+    [SetFormId, { form: 'goal', id, input: state.goals.find(g => g.id === id)?.text }],
+    [DetailsToggle, { which: 'goalForm', open: true }],
+  ]);
+};
+
+export const MobDoubleClick = (state, { id }) => {
+  return CombineActions(state, [
+    [SetFormId, { form: 'mob', id, input: state.mob.find(m => m.id === id)?.name }],
+    [DetailsToggle, { which: 'mobForm', open: true }],
+  ]);
+};
+
 export const SetFormId = (state, { form, id, input }) => ({
   ...state,
   forms: {
@@ -161,17 +180,6 @@ export const SetFormInput = (state, { form, input, valid }) => ({
     },
   },
 });
-
-// export const OpenForm = (state, { form, open }) => ({
-//   ...state,
-//   forms: {
-//     ...state.forms,
-//     [form]: {
-//       ...state.forms[form],
-//       open: Boolean(open),
-//     },
-//   },
-// });
 
 export const OnQrLoad = (state, { img }) => [{ ...state, qrImage: img }];
 

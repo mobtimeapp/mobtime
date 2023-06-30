@@ -34,9 +34,7 @@ export const mobber = props =>
             'border-transparent': true,
             'hover:border-slate-400': props.name,
           },
-          ondblclick: (_props, _event) => {
-            return [actions.SetFormId, { form: 'mob', id: props.id, input: props.name }];
-          },
+          ondblclick: [actions.MobDoubleClick, { id: props.id }],
           title: 'Double click to edit',
         },
         [
