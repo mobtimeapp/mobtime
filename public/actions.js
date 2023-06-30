@@ -50,25 +50,21 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     },
     forms: {
       mob: {
-        open: false,
         valid: true,
         id: '',
         input: '',
       },
       goal: {
-        open: false,
         valid: true,
         id: '',
         input: '',
       },
       timerDuration: {
-        open: false,
         valid: true,
         id: '',
         input: formatTime(defaults.timerDuration),
       },
       mobOrder: {
-        open: false,
         valid: true,
         id: '',
         input: defaults.timerMobOrder,
@@ -150,7 +146,6 @@ export const SetFormId = (state, { form, id, input }) => ({
       ...state.forms[form],
       id: state.forms[form].id === id ? '' : id,
       input: state.forms[form].id === id ? '' : input || '',
-      open: Boolean(id),
     },
   },
 });
@@ -167,16 +162,16 @@ export const SetFormInput = (state, { form, input, valid }) => ({
   },
 });
 
-export const OpenForm = (state, { form, open }) => ({
-  ...state,
-  forms: {
-    ...state.forms,
-    [form]: {
-      ...state.forms[form],
-      open: Boolean(open),
-    },
-  },
-});
+// export const OpenForm = (state, { form, open }) => ({
+//   ...state,
+//   forms: {
+//     ...state.forms,
+//     [form]: {
+//       ...state.forms[form],
+//       open: Boolean(open),
+//     },
+//   },
+// });
 
 export const OnQrLoad = (state, { img }) => [{ ...state, qrImage: img }];
 
