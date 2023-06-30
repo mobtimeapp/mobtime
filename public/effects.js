@@ -147,17 +147,21 @@ export const andThen = fx(function andThenFX (dispatch, { action, props, delay, 
 
 export const checkSettings = fx(function CheckSettingsFX (
   dispatch,
-  { storage, onLocalSoundEnabled, onDarkEnabled },
+  { storage, onAllowSound, onLocalSoundEnabled, onDarkEnabled },
 ) {
   let localSettings = storage.getItem('settings');
   if (!localSettings) return;
 
   localSettings = JSON.parse(localSettings);
+
+  dispatch(onAllowSound, localSettings.allowSound || false);
+
   if (localSettings.allowSound && onLocalSoundEnabled) {
     dispatch(onLocalSoundEnabled, {
       sound: localSettings.sound || '/audio/horn.wav',
     });
   }
+
   if (localSettings.dark && onDarkEnabled) {
     dispatch(onDarkEnabled, {
       dark: localSettings.dark,

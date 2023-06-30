@@ -137,9 +137,7 @@ export const UpdateTimer = (timerId, message) => state => {
 
   const meta = {
     ...(type === 'timer:start' ? { timerStartedAt: Date.now() } : {}),
-    ...(type === 'timer:complete'
-      ? { timerStartedAt: null, timerDuration: 0 }
-      : {}),
+    ...(type === 'timer:complete' ? { timerStartedAt: null, timerDuration: 0 } : {}),
   };
 
   return [
@@ -169,7 +167,6 @@ export const CompleteTimer = (timerId, token, statusCallback) => state => {
   return [
     state,
     batch([
-      // defer(state.queue.publishToTimer(timerId, JSON.stringify({ type: 'timer:complete' })).then(none)),
       act(RemoveCompleteToken(timerId)),
       act(UpdateTimer(timerId, JSON.stringify({ type: 'timer:complete' }))),
       thunk(() => {

@@ -1,5 +1,6 @@
 import { h, text } from '/vendor/hyperapp.js';
 import { mobParticipants } from '/sections/mobParticipants.js';
+import { details } from '/components/details.js';
 import * as actions from '/actions.js';
 
 export const mob = props => {
@@ -44,8 +45,7 @@ export const mob = props => {
       },
     }, [
       h('input', { type: 'hidden', name: 'id', value: props.forms.mob.id }),
-      h('details', { open: props.forms.mob.open, toggle: (_, event) => [actions.OpenForm, { form: 'mob', open: event.target.open }] }, [
-        h('summary', { class: 'text-slate-500 text-xs' }, text('Show member form')),
+      details({ which: 'mobForm', details: props.details, summary: 'Show member form' }, [
 
         h('div', { class: 'flex items-end justify-items-start' }, [
           h('fieldset', { class: 'flex-grow' }, [
@@ -67,14 +67,5 @@ export const mob = props => {
         ]),
       ]),
     ]),
-
-    // addParticipant({
-    //   name: props.name,
-    //   lang: props.lang,
-    // }),
-
-    // mobActions({
-    //   lang: props.lang,
-    // }),
   ]);
 };

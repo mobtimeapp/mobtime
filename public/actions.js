@@ -14,14 +14,6 @@ const emptyDrag = {
   clientY: null,
 };
 
-const emptyPrompt = {
-  text: '',
-  value: '',
-  context: null,
-  OnValue: Noop,
-  visible: false,
-};
-
 const collectionMove = (collection, { from, to }) => {
   const newCollection = collection.reduce((memo, item, index) => {
     if (index === from) return memo;
@@ -93,16 +85,14 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     expandedReorderable: null,
     timerTab: 'overview',
     drag: { ...emptyDrag },
-    prompt: { ...emptyPrompt },
+    // prompt: { ...emptyPrompt },
     timerId,
     currentTime: null,
     name: '',
     goal: '',
-    addMultiple: false,
     allowNotification:
       externals.Notification && externals.Notification.permission === 'granted',
     allowSound: false,
-    showDrawer: false,
     sound: 'horn',
     pendingSettings: {},
     websocketConnect: true,
@@ -111,14 +101,15 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     dark,
     lang: i18n.withMissing(i18n[lang]) || i18n.en_CA,
     qrImage: null,
+    hasInteractedWithPage: false,
   },
   effects.checkSettings({
     storage: externals.storage,
+    onAllowSound: SetAllowSound,
     onLocalSoundEnabled: SoundToast,
     onDarkEnabled: SetDark,
   }),
-  dark &&
-  effects.andThen({
+  dark && effects.andThen({
     action: SetDark,
     props: { dark },
   }),
@@ -128,6 +119,11 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     onLoad: OnQrLoad,
   }),
 ];
+
+export const SetPageInteraction = (state, _props) => ({
+  ...state,
+  hasInteractedWithPage: true,
+});
 
 export const DetailsToggle = (state, { which, open }) => ({
   ...state,
@@ -182,8 +178,6 @@ export const OpenForm = (state, { form, open }) => ({
   },
 });
 
-export const ToggleDrawer = (state, { showDrawer }) => [{ ...state, showDrawer: Boolean(showDrawer) }];
-
 export const OnQrLoad = (state, { img }) => [{ ...state, qrImage: img }];
 
 export const SetDark = (state, { dark }) => [
@@ -206,11 +200,6 @@ export const TestSound = state => [
   }),
 ];
 
-export const SetAddMultiple = (state, addMultiple) => ({
-  ...state,
-  addMultiple: Boolean(addMultiple),
-});
-
 export const SetCurrentTime = (state, { currentTime }) => {
   const nextState = {
     ...state,
@@ -232,51 +221,51 @@ export const ExpandReorderable = (state, { expandedReorderable }) => ({
   expandedReorderable,
 });
 
-export const PromptOpen = (
-  state,
-  { text, defaultValue, OnValue, context },
-) => ({
-  ...state,
-  prompt: {
-    text,
-    value: defaultValue,
-    OnValue,
-    context,
-    visible: true,
-  },
-});
-
-export const PromptValueChange = (state, value) => ({
-  ...state,
-  prompt: {
-    ...state.prompt,
-    value,
-  },
-});
-
-export const PromptOK = state => [
-  {
-    ...state,
-    prompt: { ...emptyPrompt },
-  },
-  effects.andThen({
-    action: state.prompt.OnValue,
-    props: {
-      ...state.prompt.context,
-      value: state.prompt.value,
-    },
-  }),
-];
-
-export const PromptCancel = state => ({
-  ...state,
-  prompt: { ...emptyPrompt },
-});
-
-export const SetTimerTab = (state, timerTab) => ({
-  ...state,
-  timerTab,
-});
+// export const PromptOpen = (
+//   state,
+//   { text, defaultValue, OnValue, context },
+// ) => ({
+//   ...state,
+//   prompt: {
+//     text,
+//     value: defaultValue,
+//     OnValue,
+//     context,
+//     visible: true,
+//   },
+// });
+// 
+// export const PromptValueChange = (state, value) => ({
+//   ...state,
+//   prompt: {
+//     ...state.prompt,
+//     value,
+//   },
+// });
+// 
+// export const PromptOK = state => [
+//   {
+//     ...state,
+//     prompt: { ...emptyPrompt },
+//   },
+//   effects.andThen({
+//     action: state.prompt.OnValue,
+//     props: {
+//       ...state.prompt.context,
+//       value: state.prompt.value,
+//     },
+//   }),
+// ];
+// 
+// export const PromptCancel = state => ({
+//   ...state,
+//   prompt: { ...emptyPrompt },
+// });
+// 
+// export const SetTimerTab = (state, timerTab) => ({
+//   ...state,
+//   timerTab,
+// });
 
 export const DragSelect = (state, { type, from, clientX, clientY }) => ({
   ...state,
@@ -431,25 +420,25 @@ export const RenameUser = (state, { id, value }) => {
   ];
 };
 
-export const RenameUserPrompt = (state, { id }) => {
-  const user = state.mob.find(m => m.id === id);
-  if (!user) return state;
-
-  return [
-    state,
-    effects.andThen({
-      action: PromptOpen,
-      props: {
-        text: `Rename ${user.name} to...`,
-        defaultValue: user.name,
-        OnValue: RenameUser,
-        context: {
-          id,
-        },
-      },
-    }),
-  ];
-};
+// export const RenameUserPrompt = (state, { id }) => {
+//   const user = state.mob.find(m => m.id === id);
+//   if (!user) return state;
+// 
+//   return [
+//     state,
+//     effects.andThen({
+//       action: PromptOpen,
+//       props: {
+//         text: `Rename ${user.name} to...`,
+//         defaultValue: user.name,
+//         OnValue: RenameUser,
+//         context: {
+//           id,
+//         },
+//       },
+//     }),
+//   ];
+// };
 
 export const UpdateName = (state, name) => ({
   ...state,
@@ -584,7 +573,13 @@ export const AddGoal = state => {
     {
       ...state,
       goals,
-      goal: '',
+      forms: {
+        ...state.forms,
+        goal: {
+          ...state.goal,
+          input: '',
+        },
+      },
     },
     effects.UpdateGoals({
       socketEmitter: state.externals.socketEmitter,
@@ -611,7 +606,13 @@ export const AddGoals = (state, goals) => {
     {
       ...state,
       goals: allGoals,
-      goal: '',
+      forms: {
+        ...state.forms,
+        goal: {
+          ...state.goal,
+          input: '',
+        },
+      },
     },
     effects.UpdateGoals({
       socketEmitter: state.externals.socketEmitter,
@@ -699,26 +700,26 @@ export const RenameGoal = (state, { id, value }) => {
     }),
   ];
 };
-export const RenameGoalPrompt = (state, { id }) => {
-  const goal = state.goals.find(g => g.id === id);
-  if (!goal) return state;
-
-  return [
-    state,
-    effects.andThen({
-      action: PromptOpen,
-      props: {
-        text: `Rename ${goal.text.length > 32 ? goal.text.slice(0, 29) + '...' : goal.text
-          } to...`,
-        defaultValue: goal.text,
-        OnValue: RenameGoal,
-        context: {
-          id,
-        },
-      },
-    }),
-  ];
-};
+// export const RenameGoalPrompt = (state, { id }) => {
+//   const goal = state.goals.find(g => g.id === id);
+//   if (!goal) return state;
+// 
+//   return [
+//     state,
+//     effects.andThen({
+//       action: PromptOpen,
+//       props: {
+//         text: `Rename ${goal.text.length > 32 ? goal.text.slice(0, 29) + '...' : goal.text
+//           } to...`,
+//         defaultValue: goal.text,
+//         OnValue: RenameGoal,
+//         context: {
+//           id,
+//         },
+//       },
+//     }),
+//   ];
+// };
 
 export const UpdateGoalText = (state, goal) => [
   {
@@ -744,10 +745,6 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
       completeToken: state.completeToken,
       fetch: state.externals.fetch,
     }),
-    // effects.PauseTimer({
-    //   socketEmitter: state.externals.socketEmitter,
-    //   timerDuration,
-    // }),
   ];
 };
 
@@ -757,10 +754,6 @@ export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
     timerStartedAt,
     currentTime: timerStartedAt,
   },
-  // effects.StartTimer({
-  //   socketEmitter: state.externals.socketEmitter,
-  //   timerDuration: state.timerDuration,
-  // }),
   effects.apiTimerStart({
     timerId: state.timerId,
     duration: state.timerDuration,
@@ -775,10 +768,6 @@ export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
     currentTime: timerStartedAt,
     timerDuration,
   },
-  // effects.StartTimer({
-  //   socketEmitter: state.externals.socketEmitter,
-  //   timerDuration,
-  // }),
   effects.apiTimerStart({
     timerId: state.timerId,
     duration: timerDuration,
@@ -1059,7 +1048,6 @@ export const LoadingMessagesPop = (state, { type, ...others }) => {
 
 export const UpdateByWebsocketData = (state, { payload }) => {
   const { type, ...data } = payload;
-  console.log('UpdateByWebsocketData', payload);
   switch (type) {
     case 'connections:update':
       return [

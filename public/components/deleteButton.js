@@ -11,13 +11,6 @@ export const deleteButton = props =>
         'bg-red-500': true,
         ...(props.class || {}),
       },
+      innerHTML: '&times;',
     },
-    [
-      h('i', {
-        class: {
-          'fas': true,
-          'fa-times': true,
-        },
-      }),
-    ],
   );

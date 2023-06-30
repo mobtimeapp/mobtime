@@ -1,6 +1,7 @@
 import * as actions from '/actions.js';
 import { grid } from '/components/grid.js';
 import { column } from '/components/column.js';
+import { details } from '/components/details.js';
 import { mob } from '/tabs/mob.js';
 import { goals } from '/tabs/goals.js';
 import { header } from '/sections/header.js';
@@ -26,6 +27,9 @@ const flags = window.location.search
     };
   }, {});
 
+const darkDefault = ('dark' in flags) ||
+  window.matchMedia('(prefers-color-scheme: dark)').matches;
+
 app({
   init: actions.Init(null, {
     timerId: initialTimerId,
@@ -39,65 +43,67 @@ app({
       socketEmitter: Emitter.make(),
     },
     lang: flags.lang || 'en_CA',
-    dark: 'dark' in flags,
+    dark: darkDefault,
   }),
 
   view: state => {
     const loadingPercent = (state.loading.total - state.loading.messages.length);
     const isLoading = loadingPercent < state.loading.total;
 
-    return grid({ class: 'relative pb-12 px-2' }, [
-      h('div', {}, text(state.loading.messages.join(', '))),
-      column.fixed(2, header(state)),
+    return h('div', {}, [
+      state.allowSound && !state.hasInteractedWithPage && h('div', { class: 'text-center px-2 bg-amber-400 text-white' }, [
+        h('div', {}, text('You have enabled sound, but never interacted with the page. Click or touch on this page to remove this warning.')),
+        h('a', { href: 'https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide', target: 'mdn-auto-play', class: 'border-b border-blue-500' }, [
+          text('See this MDN article on auto-play for more information'),
+          h('span', { class: 'ml-1', innerHTML: '&#10697;' }),
+        ]),
+      ]),
+      grid({ class: 'relative pb-12 px-2' }, [
+        column.fixed(2, header(state)),
 
-      column(2, { md: 1 }, [
-        h('div', { class: 'flex flex-row items-center justify-center' }, [
-          timeRemaining(state),
-        ]),
-      ]),
-      column(2, { md: 1 }, [
-        summary(state),
-      ]),
-      isLoading && column.fixed(2, [
-        h('progress', { max: 4, value: loadingPercent, class: 'w-full', style: { height: '2px' } }),
-      ]),
-      !isLoading && column.fixed(2, [
-        h('details', { open: state.details.summary, ontoggle: (_, event) => [actions.DetailsToggle, { which: 'summary', open: event.target.open }] }, [
-          h('summary', { class: 'text-xs text-slate-500' }, [
-            text('Your Session'),
-          ]),
-          grid({}, [
-            column(2, { md: 1 }, mob(state)),
-            column(2, { md: 1 }, goals(state)),
+        column(2, { md: 1 }, [
+          h('div', { class: 'flex flex-row items-center justify-center' }, [
+            timeRemaining(state),
           ]),
         ]),
-      ]),
-      !isLoading && column.fixed(2, [
-        h('details', { open: state.details.advancedSettings, ontoggle: (_, event) => [actions.DetailsToggle, { which: 'advancedSettings', open: event.target.open }] }, [
-          h('summary', { class: 'text-xs text-slate-500' }, [
-            text('Advanced Settings'),
-          ]),
-          grid({}, [
-            column(2, { md: 1 }, memo(localSettings, stateWithoutFrequentChanges(state))),
-            column(2, { md: 1 }, memo(timerSettings, stateWithoutFrequentChanges(state))),
+        column(2, { md: 1 }, [
+          summary(state),
+        ]),
+        isLoading && column.fixed(2, [
+          h('progress', { max: 4, value: loadingPercent, class: 'w-full', style: { height: '2px' } }),
+        ]),
+        !isLoading && column.fixed(2, [
+          details({ which: 'summary', details: state.details, summary: 'Your Session' }, [
+            grid({}, [
+              column(2, { md: 1 }, mob(state)),
+              column(2, { md: 1 }, goals(state)),
+            ]),
           ]),
         ]),
-      ]),
+        !isLoading && column.fixed(2, [
+          details({ which: 'advancedSettings', details: state.details, summary: 'Advanced Settings' }, [
+            grid({}, [
+              column(2, { md: 1 }, memo(localSettings, stateWithoutFrequentChanges(state))),
+              column(2, { md: 1 }, memo(timerSettings, stateWithoutFrequentChanges(state))),
+            ]),
+          ]),
+        ]),
 
-      h(
-        'audio',
-        {
-          preload: 'auto',
-          id: 'timer-complete',
-          key: state.sound,
-        },
-        [
-          h('source', {
-            src: `/audio/${state.sound}.wav`,
-            type: 'audio/wav',
-          }),
-        ],
-      ),
+        h(
+          'audio',
+          {
+            preload: 'auto',
+            id: 'timer-complete',
+            key: state.sound,
+          },
+          [
+            h('source', {
+              src: `/audio/${state.sound}.wav`,
+              type: 'audio/wav',
+            }),
+          ],
+        ),
+      ]),
     ]);
   },
 
@@ -124,6 +130,12 @@ app({
         DragMove: actions.DragMove,
         DragEnd: actions.DragEnd,
         DragCancel: actions.DragCancel,
+      }),
+
+      !state.hasInteractedWithPage &&
+      subscriptions.PageInteraction({
+        onInteraction: actions.SetPageInteraction,
+        document: state.externals.documentElement,
       }),
     ];
   },

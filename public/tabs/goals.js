@@ -1,15 +1,19 @@
-import { goalList } from '/sections/goalList.js';
 import { h, text } from '/vendor/hyperapp.js';
+import { goalList } from '/sections/goalList.js';
+import { details } from '/components/details.js';
 import * as actions from '/actions.js';
 
 export const goals = props => {
-  const isEdittingGoal = props.forms.goal.id && props.goals.some(g => g.id == props.forms.goal.id);
-  const anyGoalsIncomplete = props.goals.some(g => !g.completed);
+  const isEdittingGoal = props.forms.goal.id && props.goals.some(g => g.id === props.forms.goal.id);
+  const anyGoalsComplete = props.goals.some(g => g.completed);
 
   return h('div', {}, [
     h('header', { class: 'flex justify-start items-center border-b border-gray-400 mb-2' }, [
       h('h1', { class: 'text-lg font-bold flex-grow' }, text('Goals')),
-      anyGoalsIncomplete && h('button', { class: 'ml-2 dark:text-white text-black underline' }, text('Clear Completed')),
+      anyGoalsComplete && h('button', {
+        class: 'ml-2 dark:text-white text-black underline',
+        onclick: actions.RemoveCompletedGoals,
+      }, text('Clear Completed')),
     ]),
 
     goalList({
@@ -37,8 +41,7 @@ export const goals = props => {
       },
     }, [
       h('input', { type: 'hidden', name: 'id', value: props.forms.goal.id }),
-      h('details', { open: props.forms.goal.open, toggle: (_, event) => [actions.OpenForm, { form: 'goal', open: event.target.open }] }, [
-        h('summary', { class: 'text-slate-500 text-xs' }, text('Show goal form')),
+      details({ which: 'goalForm', details: props.details, summary: 'Show goal form' }, [
 
         h('div', { class: 'flex items-end justify-items-start' }, [
           h('fieldset', { class: 'flex-grow' }, [
@@ -67,7 +70,7 @@ export const goals = props => {
           !isEdittingGoal && h('button', { type: 'submit', name: 'action', value: 'add', class: 'ml-1 px-2 py-1 border border-slate-700' }, text('Add')),
           isEdittingGoal && h('button', { type: 'submit', name: 'action', value: 'update', class: 'ml-1 px-2 py-1 border border-slate-700' }, text('Update')),
           isEdittingGoal && h('button', { type: 'submit', name: 'action', value: 'remove', class: 'ml-1 px-2 py-1 border border-slate-700' }, text('Remove')),
-          isEdittingGoal && h('button', { type: 'button', name: 'action', value: 'cancel', class: 'ml-1 px-2 py-1 border border-slate-700', onclick: () => [actions.SetFormId, { form: 'mob', id: '' }] }, text('Cancel')),
+          isEdittingGoal && h('button', { type: 'button', name: 'action', value: 'cancel', class: 'ml-1 px-2 py-1 border border-slate-700', onclick: () => [actions.SetFormId, { form: 'goal', id: '' }] }, text('Cancel')),
         ]),
       ]),
     ]),

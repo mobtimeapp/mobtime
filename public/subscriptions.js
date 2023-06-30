@@ -114,3 +114,20 @@ const DragAndDropFX = (dispatch, props) => {
   };
 };
 export const DragAndDrop = props => [DragAndDropFX, props];
+
+const PageInteractionFx = (dispatch, props) => {
+  const onInteraction = () => {
+    dispatch(props.onInteraction);
+  };
+
+  props.document.addEventListener('mouseup', onInteraction);
+  props.document.addEventListener('keyup', onInteraction);
+  props.document.addEventListener('touchstart', onInteraction);
+
+  return () => {
+    props.document.removeEventListener('mouseup', onInteraction);
+    props.document.removeEventListener('keyup', onInteraction);
+    props.document.removeEventListener('touchstart', onInteraction);
+  };
+};
+export const PageInteraction = props => [PageInteractionFx, props];

@@ -56,7 +56,7 @@ export const localSettings = (props) => {
               },
             }, audioFiles.map(a => h(
               'option',
-              { value: a.value },
+              { value: a.value, selected: props.sound === a.value },
               text(a.label),
             ))),
           ]),
