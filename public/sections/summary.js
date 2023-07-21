@@ -2,8 +2,30 @@ import { h, text } from '/vendor/hyperapp.js';
 
 import * as actions from '/actions.js';
 
+const subGoalRegex = () => /^[- \t]+/;
+
+const isSubGoal = (g) => {
+  if (!g) return false;
+  return subGoalRegex().test(g.text);
+};
+
 export const summary = (props) => {
-  const firstIncompleteGoal = props.goals.filter(g => !g.completed)[0];
+  const index = props.goals.findIndex(g => !g.completed);
+  const incomplete = {
+    goal: null,
+    subGoal: null,
+  };
+  if (index >= 0) {
+    incomplete.goal = props.goals[index];
+    if (!isSubGoal(incomplete.goal)) {
+      for (let i = index + 1; i < props.goals.length && isSubGoal(props.goals[i]) && !incomplete.subGoal; i++) {
+        const g = props.goals[i];
+        if (!g.completed) {
+          incomplete.subGoal = g;
+        }
+      }
+    }
+  }
 
   return h('div', {
     // class: 'flex items-center justify-start',
@@ -16,11 +38,12 @@ export const summary = (props) => {
         ]);
       }),
     ]),
-    firstIncompleteGoal && h('div', { class: 'mb-2' }, [
+    incomplete.goal && h('div', { class: 'mb-2' }, [
       h('hr', { class: 'mb-2' }),
       h('div', { class: 'text-xs leading-none uppercase text-slate-600' }, text('Current Goal')),
       h('div', { class: '' }, [
-        text(firstIncompleteGoal.text),
+        text(incomplete.goal.text),
+        incomplete.subGoal && h('div', { class: 'ml-2' }, text(incomplete.subGoal.text.replace(subGoalRegex(), ''))),
       ]),
     ]),
     h('div', {}, [

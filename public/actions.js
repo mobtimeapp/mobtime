@@ -1033,6 +1033,8 @@ export const LoadingMessagesPop = (state, { type, ...others }) => {
     messages,
   };
 
+  console.log('Loaded', type, loading);
+
   return [
     {
       ...state,
