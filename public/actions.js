@@ -25,7 +25,7 @@ const collectionMove = (collection, { from, to }) => {
   if (to >= newCollection.length) {
     newCollection.push(collection[from]);
   }
-  return newCollection;
+  return newCollection.filter(item => item !== null);
 };
 
 const defaults = {

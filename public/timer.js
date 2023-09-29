@@ -15,6 +15,13 @@ import * as Emitter from '/lib/emitter.js';
 
 const stateWithoutFrequentChanges = ({ timerStartedAt, timerDuration, currentTime, mob, goals, ...state }) => state;
 
+const cleanState = state => ({
+  ...state,
+  goals: state.goals.filter(goal => {
+    return goal !== null;
+  }),
+})
+
 const [initialTimerId] = window.location.pathname.split('/').filter(Boolean);
 const flags = window.location.search
   .slice(1)
