@@ -1,5 +1,6 @@
 import * as effects from './effects.js';
 import { calculateTimeRemaining } from './lib/calculateTimeRemaining.js';
+import { formatTime } from './lib/formatTime.js';
 import * as i18n from './i18n/index.js';
 
 export const Noop = state => state;
@@ -13,15 +14,7 @@ const emptyDrag = {
   clientY: null,
 };
 
-const emptyPrompt = {
-  text: '',
-  value: '',
-  context: null,
-  OnValue: Noop,
-  visible: false,
-};
-
-export const collectionMove = (collection, { from, to }) => {
+const collectionMove = (collection, { from, to }) => {
   const newCollection = collection.reduce((memo, item, index) => {
     if (index === from) return memo;
     if (index === to) {
@@ -35,6 +28,16 @@ export const collectionMove = (collection, { from, to }) => {
   return newCollection.filter(item => item !== null);
 };
 
+const defaults = {
+  timerMobOrder: 'Navigator,Driver',
+  timerDuration: 5 * 60 * 1000,
+};
+
+export const CombineActions = (init, actions) => actions.reduce(([state, ...effects], action) => {
+  const [nextState, ...otherEffects] = [].concat(Array.isArray(action) ? action[0](state, action[1]) : action(state));
+  return [nextState, ...effects, ...otherEffects];
+}, [].concat(init));
+
 export const Init = (_, { timerId, externals, dark, lang }) => [
   {
     timerStartedAt: null,
@@ -42,18 +45,52 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     mob: [],
     goals: [],
     settings: {
-      mobOrder: 'Navigator,Driver',
-      duration: 5 * 60 * 1000,
+      mobOrder: defaults.timerMobOrder,
+      duration: defaults.timerDuration,
+    },
+    loading: {
+      total: 5,
+      messages: ['settings:update', 'mob:update', 'goals:update', 'timer:update', 'connections:update'],
+      isFirstConnection: false,
+    },
+    forms: {
+      mob: {
+        valid: true,
+        id: '',
+        input: '',
+      },
+      goal: {
+        valid: true,
+        id: '',
+        input: '',
+      },
+      timerDuration: {
+        valid: true,
+        id: '',
+        input: formatTime(defaults.timerDuration),
+      },
+      mobOrder: {
+        valid: true,
+        id: '',
+        input: defaults.timerMobOrder,
+      },
+    },
+    details: {
+      summary: false,
+      mobForm: false,
+      goalForm: false,
+      advancedSettings: false,
+      localSettings: false,
+      timerSettings: false,
     },
     expandedReorderable: null,
     timerTab: 'overview',
     drag: { ...emptyDrag },
-    prompt: { ...emptyPrompt },
+    // prompt: { ...emptyPrompt },
     timerId,
     currentTime: null,
     name: '',
     goal: '',
-    addMultiple: false,
     allowNotification:
       externals.Notification && externals.Notification.permission === 'granted',
     allowSound: false,
@@ -65,14 +102,15 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     dark,
     lang: i18n.withMissing(i18n[lang]) || i18n.en_CA,
     qrImage: null,
+    hasInteractedWithPage: false,
   },
   effects.checkSettings({
     storage: externals.storage,
+    onAllowSound: SetAllowSound,
     onLocalSoundEnabled: SoundToast,
     onDarkEnabled: SetDark,
   }),
-  dark &&
-  effects.andThen({
+  dark && effects.andThen({
     action: SetDark,
     props: { dark },
   }),
@@ -82,6 +120,66 @@ export const Init = (_, { timerId, externals, dark, lang }) => [
     onLoad: OnQrLoad,
   }),
 ];
+
+export const SetPageInteraction = (state, _props) => ({
+  ...state,
+  hasInteractedWithPage: true,
+});
+
+export const DetailsToggle = (state, { which, open }) => ({
+  ...state,
+  details: {
+    ...state.details,
+    [which]: Boolean(open),
+  },
+});
+
+export const FirstConnection = state => ({
+  ...state,
+  details: {
+    ...state.details,
+    summary: true,
+    advancedSettings: true,
+  },
+});
+
+export const GoalDoubleClick = (state, { id }) => {
+  return CombineActions(state, [
+    [SetFormId, { form: 'goal', id, input: state.goals.find(g => g.id === id)?.text }],
+    [DetailsToggle, { which: 'goalForm', open: true }],
+  ]);
+};
+
+export const MobDoubleClick = (state, { id }) => {
+  return CombineActions(state, [
+    [SetFormId, { form: 'mob', id, input: state.mob.find(m => m.id === id)?.name }],
+    [DetailsToggle, { which: 'mobForm', open: true }],
+  ]);
+};
+
+export const SetFormId = (state, { form, id, input }) => ({
+  ...state,
+  forms: {
+    ...state.forms,
+    [form]: {
+      ...state.forms[form],
+      id: state.forms[form].id === id ? '' : id,
+      input: state.forms[form].id === id ? '' : input || '',
+    },
+  },
+});
+
+export const SetFormInput = (state, { form, input, valid }) => ({
+  ...state,
+  forms: {
+    ...state.forms,
+    [form]: {
+      ...state.forms[form],
+      input,
+      valid: valid === undefined ? true : Boolean(valid),
+    },
+  },
+});
 
 export const OnQrLoad = (state, { img }) => [{ ...state, qrImage: img }];
 
@@ -105,11 +203,6 @@ export const TestSound = state => [
   }),
 ];
 
-export const SetAddMultiple = (state, addMultiple) => ({
-  ...state,
-  addMultiple: Boolean(addMultiple),
-});
-
 export const SetCurrentTime = (state, { currentTime }) => {
   const nextState = {
     ...state,
@@ -131,51 +224,51 @@ export const ExpandReorderable = (state, { expandedReorderable }) => ({
   expandedReorderable,
 });
 
-export const PromptOpen = (
-  state,
-  { text, defaultValue, OnValue, context },
-) => ({
-  ...state,
-  prompt: {
-    text,
-    value: defaultValue,
-    OnValue,
-    context,
-    visible: true,
-  },
-});
-
-export const PromptValueChange = (state, value) => ({
-  ...state,
-  prompt: {
-    ...state.prompt,
-    value,
-  },
-});
-
-export const PromptOK = state => [
-  {
-    ...state,
-    prompt: { ...emptyPrompt },
-  },
-  effects.andThen({
-    action: state.prompt.OnValue,
-    props: {
-      ...state.prompt.context,
-      value: state.prompt.value,
-    },
-  }),
-];
-
-export const PromptCancel = state => ({
-  ...state,
-  prompt: { ...emptyPrompt },
-});
-
-export const SetTimerTab = (state, timerTab) => ({
-  ...state,
-  timerTab,
-});
+// export const PromptOpen = (
+//   state,
+//   { text, defaultValue, OnValue, context },
+// ) => ({
+//   ...state,
+//   prompt: {
+//     text,
+//     value: defaultValue,
+//     OnValue,
+//     context,
+//     visible: true,
+//   },
+// });
+// 
+// export const PromptValueChange = (state, value) => ({
+//   ...state,
+//   prompt: {
+//     ...state.prompt,
+//     value,
+//   },
+// });
+// 
+// export const PromptOK = state => [
+//   {
+//     ...state,
+//     prompt: { ...emptyPrompt },
+//   },
+//   effects.andThen({
+//     action: state.prompt.OnValue,
+//     props: {
+//       ...state.prompt.context,
+//       value: state.prompt.value,
+//     },
+//   }),
+// ];
+// 
+// export const PromptCancel = state => ({
+//   ...state,
+//   prompt: { ...emptyPrompt },
+// });
+// 
+// export const SetTimerTab = (state, timerTab) => ({
+//   ...state,
+//   timerTab,
+// });
 
 export const DragSelect = (state, { type, from, clientX, clientY }) => ({
   ...state,
@@ -253,6 +346,30 @@ export const EndTurn = state => [
   }),
 ];
 
+export const TimeComplete = (state) => {
+  const nextState = {
+    ...state,
+    timerStartedAt: null,
+    timerDuration: 0,
+  };
+  return [
+    nextState,
+    effects.apiTimerComplete({
+      timerId: state.timerId,
+      completeToken: state.completeToken,
+      fetch: state.externals.fetch,
+      onSuccess: {
+        action: CycleMob,
+        props: {},
+      },
+    }),
+    effects.UpdateTitleWithTime({
+      remainingTime: 0,
+      documentElement: state.externals.documentElement,
+    }),
+  ];
+};
+
 export const Completed = (state, { isEndOfTurn }) => {
   const nextState = {
     ...state,
@@ -306,25 +423,25 @@ export const RenameUser = (state, { id, value }) => {
   ];
 };
 
-export const RenameUserPrompt = (state, { id }) => {
-  const user = state.mob.find(m => m.id === id);
-  if (!user) return state;
-
-  return [
-    state,
-    effects.andThen({
-      action: PromptOpen,
-      props: {
-        text: `Rename ${user.name} to...`,
-        defaultValue: user.name,
-        OnValue: RenameUser,
-        context: {
-          id,
-        },
-      },
-    }),
-  ];
-};
+// export const RenameUserPrompt = (state, { id }) => {
+//   const user = state.mob.find(m => m.id === id);
+//   if (!user) return state;
+// 
+//   return [
+//     state,
+//     effects.andThen({
+//       action: PromptOpen,
+//       props: {
+//         text: `Rename ${user.name} to...`,
+//         defaultValue: user.name,
+//         OnValue: RenameUser,
+//         context: {
+//           id,
+//         },
+//       },
+//     }),
+//   ];
+// };
 
 export const UpdateName = (state, name) => ({
   ...state,
@@ -386,17 +503,26 @@ export const CycleMob = state => {
   ];
 };
 
-export const AddNameToMob = state => {
+export const AddNameToMob = (state, { name }) => {
+  if (!name) return state;
+
   const mob = state.mob.concat({
     id: Math.random()
       .toString(36)
       .slice(2),
-    name: state.name,
+    name,
   });
 
   return [
     {
       ...state,
+      forms: {
+        ...state.forms,
+        mob: {
+          ...state.forms.mob,
+          input: '',
+        },
+      },
       mob,
       name: '',
     },
@@ -450,7 +576,13 @@ export const AddGoal = state => {
     {
       ...state,
       goals,
-      goal: '',
+      forms: {
+        ...state.forms,
+        goal: {
+          ...state.goal,
+          input: '',
+        },
+      },
     },
     effects.UpdateGoals({
       socketEmitter: state.externals.socketEmitter,
@@ -477,7 +609,13 @@ export const AddGoals = (state, goals) => {
     {
       ...state,
       goals: allGoals,
-      goal: '',
+      forms: {
+        ...state.forms,
+        goal: {
+          ...state.goal,
+          input: '',
+        },
+      },
     },
     effects.UpdateGoals({
       socketEmitter: state.externals.socketEmitter,
@@ -565,26 +703,26 @@ export const RenameGoal = (state, { id, value }) => {
     }),
   ];
 };
-export const RenameGoalPrompt = (state, { id }) => {
-  const goal = state.goals.find(g => g.id === id);
-  if (!goal) return state;
-
-  return [
-    state,
-    effects.andThen({
-      action: PromptOpen,
-      props: {
-        text: `Rename ${goal.text.length > 32 ? goal.text.slice(0, 29) + '...' : goal.text
-          } to...`,
-        defaultValue: goal.text,
-        OnValue: RenameGoal,
-        context: {
-          id,
-        },
-      },
-    }),
-  ];
-};
+// export const RenameGoalPrompt = (state, { id }) => {
+//   const goal = state.goals.find(g => g.id === id);
+//   if (!goal) return state;
+// 
+//   return [
+//     state,
+//     effects.andThen({
+//       action: PromptOpen,
+//       props: {
+//         text: `Rename ${goal.text.length > 32 ? goal.text.slice(0, 29) + '...' : goal.text
+//           } to...`,
+//         defaultValue: goal.text,
+//         OnValue: RenameGoal,
+//         context: {
+//           id,
+//         },
+//       },
+//     }),
+//   ];
+// };
 
 export const UpdateGoalText = (state, goal) => [
   {
@@ -604,9 +742,11 @@ export const PauseTimer = (state, currentTime = Date.now()) => {
       timerDuration,
       currentTime,
     },
-    effects.PauseTimer({
-      socketEmitter: state.externals.socketEmitter,
+    effects.apiTimerPause({
+      timerId: state.timerId,
       timerDuration,
+      completeToken: state.completeToken,
+      fetch: state.externals.fetch,
     }),
   ];
 };
@@ -617,9 +757,10 @@ export const ResumeTimer = (state, timerStartedAt = Date.now()) => [
     timerStartedAt,
     currentTime: timerStartedAt,
   },
-  effects.StartTimer({
-    socketEmitter: state.externals.socketEmitter,
-    timerDuration: state.timerDuration,
+  effects.apiTimerStart({
+    timerId: state.timerId,
+    duration: state.timerDuration,
+    fetch: state.externals.fetch,
   }),
 ];
 
@@ -630,9 +771,10 @@ export const StartTimer = (state, { timerStartedAt, timerDuration }) => [
     currentTime: timerStartedAt,
     timerDuration,
   },
-  effects.StartTimer({
-    socketEmitter: state.externals.socketEmitter,
-    timerDuration,
+  effects.apiTimerStart({
+    timerId: state.timerId,
+    duration: timerDuration,
+    fetch: state.externals.fetch,
   }),
 ];
 
@@ -646,6 +788,17 @@ export const SetAllowNotification = (state, { allowNotification }) => [
     title: 'Mobtime Config',
     text: 'You have allowed notifications',
     sound: false,
+    Notification: state.externals.Notification,
+    documentElement: state.externals.documentElement,
+  }),
+];
+
+export const TestNotification = state => [
+  state,
+  effects.Notify({
+    title: 'Mobtime Config',
+    text: 'This is a test notification',
+    sound: state.allowSound,
     Notification: state.externals.Notification,
     documentElement: state.externals.documentElement,
   }),
@@ -820,6 +973,18 @@ export const PendingSettingsSet = (state, { key, value }) => ({
   },
 });
 
+export const SubmitSettings = (state, settings) => [
+  state,
+  effects.apiUpdateSettings({
+    timerId: state.timerId,
+    settings: {
+      ...state.settings,
+      ...settings,
+    },
+    fetch: state.externals.fetch,
+  }),
+];
+
 export const UpdateSettings = state => {
   const settings = {
     ...state.settings,
@@ -839,41 +1004,113 @@ export const UpdateSettings = state => {
   ];
 };
 
+export const RevertSettings = state => {
+  return {
+    ...state,
+    forms: {
+      ...state.forms,
+      timerDuration: {
+        ...state.forms.timerDuration,
+        input: formatTime(state.settings.duration),
+      },
+      mobOrder: {
+        ...state.forms.mobOrder,
+        input: state.settings.mobOrder,
+      },
+    },
+  };
+};
+
+export const LoadingMessagesPop = (state, { type, ...others }) => {
+  const messages = state.loading.messages.filter(m => m !== type);
+  const first = type === 'connections:update'
+    ? { isFirstConnection: others.count === 1 }
+    : {};
+
+  const loading = {
+    ...state.loading,
+    ...first,
+    messages,
+  };
+
+  console.log('Loaded', type, loading);
+
+  return [
+    {
+      ...state,
+      loading,
+    },
+    messages.length === 0 && effects.andThen({
+      action: RevertSettings,
+      props: {},
+    }),
+    messages.length === 0 && loading.isFirstConnection && effects.andThen({
+      action: FirstConnection,
+      props: {},
+    }),
+  ];
+};
+
 export const UpdateByWebsocketData = (state, { payload }) => {
   const { type, ...data } = payload;
   switch (type) {
+    case 'connections:update':
+      return [
+        state,
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: payload,
+        }),
+      ];
     case 'settings:update':
-      return {
-        ...state,
-        settings: data.settings,
-      };
+      return [
+        {
+          ...state,
+          settings: {
+            ...state.settings,
+            ...data.settings,
+          },
+        },
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     case 'timer:start':
-      return {
-        ...state,
-        timerStartedAt: Date.now(),
-        timerDuration: data.timerDuration,
-      };
+      return [
+        {
+          ...state,
+          timerStartedAt: Date.now(),
+          timerDuration: data.timerDuration,
+          completeToken: data.completeToken,
+        },
+      ];
 
     case 'timer:pause':
-      return {
-        ...state,
-        timerStartedAt: null,
-        timerDuration: data.timerDuration,
-      };
+      return [
+        {
+          ...state,
+          timerStartedAt: null,
+          timerDuration: data.timerDuration,
+        },
+      ];
 
     case 'timer:update':
-      return {
-        ...state,
-        timerStartedAt: data.timerStartedAt,
-        timerDuration: data.timerDuration,
-      };
+      return [
+        {
+          ...state,
+          timerStartedAt: data.timerStartedAt,
+          timerDuration: data.timerDuration,
+          completeToken: data.completeToken,
+        },
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     case 'timer:complete':
-      if (state.timerStartedAt === null && state.timerDuration === 0) {
-        return state;
-      }
-
       return [
         state,
         effects.andThen({
@@ -883,16 +1120,28 @@ export const UpdateByWebsocketData = (state, { payload }) => {
       ];
 
     case 'goals:update':
-      return {
-        ...state,
-        goals: data.goals,
-      };
+      return [
+        {
+          ...state,
+          goals: data.goals,
+        },
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     case 'mob:update':
-      return {
-        ...state,
-        mob: data.mob,
-      };
+      return [
+        {
+          ...state,
+          mob: data.mob,
+        },
+        state.loading.messages.length > 0 && effects.andThen({
+          action: LoadingMessagesPop,
+          props: { type },
+        }),
+      ];
 
     default:
       // console.warn('Unknown websocket data', payload); // eslint-disable-line no-console

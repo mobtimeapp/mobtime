@@ -10,11 +10,15 @@ export const header = state =>
         'flex-row': true,
         'items-center': true,
         'justify-start': true,
+        'w-full': true,
+        'text-black': true,
+        'dark:text-white': true,
       },
     },
     [
       h('div', {
-        class: 'fas fa-clock text-4xl mr-3',
+        innerHTML: '🕐',
+        class: 'text-4xl mr-3',
       }),
       h(
         'div',
@@ -23,9 +27,11 @@ export const header = state =>
             'uppercase': true,
             'tracker-widest': true,
             'text-2xl': true,
+            'flex-grow': true,
           },
         },
         text(state.lang.header.product),
       ),
+
     ],
   );

@@ -13,7 +13,7 @@ const sendMessage = (socketEmitter, type, json = {}) => {
   );
 };
 
-export const PreloadImage = fx(function PreloadImageFX(
+export const PreloadImage = fx(function PreloadImageFX (
   dispatch,
   { src, onLoad },
 ) {
@@ -31,49 +31,49 @@ export const PreloadImage = fx(function PreloadImageFX(
   img.src = src;
 });
 
-export const UpdateSettings = fx(function UpdateSettingsFX(
+export const UpdateSettings = fx(function UpdateSettingsFX (
   _dispatch,
   { socketEmitter, settings },
 ) {
   return sendMessage(socketEmitter, 'settings:update', { settings });
 });
 
-export const StartTimer = fx(function StartTimerFX(
+export const StartTimer = fx(function StartTimerFX (
   _dispatch,
   { socketEmitter, timerDuration },
 ) {
   return sendMessage(socketEmitter, 'timer:start', { timerDuration });
 });
 
-export const PauseTimer = fx(function StartTimerFX(
+export const PauseTimer = fx(function StartTimerFX (
   _dispatch,
   { socketEmitter, timerDuration },
 ) {
   return sendMessage(socketEmitter, 'timer:pause', { timerDuration });
 });
 
-export const CompleteTimer = fx(function CompleteTimerFX(
+export const CompleteTimer = fx(function CompleteTimerFX (
   _dispatch,
   { socketEmitter },
 ) {
   return sendMessage(socketEmitter, 'timer:complete');
 });
 
-export const UpdateGoals = fx(function UpdateGoalsFX(
+export const UpdateGoals = fx(function UpdateGoalsFX (
   _dispatch,
   { socketEmitter, goals },
 ) {
   sendMessage(socketEmitter, 'goals:update', { goals });
 });
 
-export const UpdateMob = fx(function UpdateMobFX(
+export const UpdateMob = fx(function UpdateMobFX (
   _dispatch,
   { socketEmitter, mob },
 ) {
   sendMessage(socketEmitter, 'mob:update', { mob });
 });
 
-export const NotificationPermission = fx(function NotificationPermissionFX(
+export const NotificationPermission = fx(function NotificationPermissionFX (
   dispatch,
   { UpdateNotificationPermissions, Notification, documentElement },
 ) {
@@ -97,7 +97,7 @@ export const NotificationPermission = fx(function NotificationPermissionFX(
     });
 });
 
-function PlaySoundFX(_dispatch, { sound, documentElement }) {
+function PlaySoundFX (_dispatch, { sound, documentElement }) {
   if (sound && documentElement) {
     const timerComplete = documentElement.querySelector('#timer-complete');
     timerComplete.play();
@@ -105,7 +105,7 @@ function PlaySoundFX(_dispatch, { sound, documentElement }) {
 }
 export const PlaySound = fx(PlaySoundFX);
 
-export const Notify = fx(function NotifyFX(
+export const Notify = fx(function NotifyFX (
   _dispatch,
   {
     title,
@@ -120,13 +120,13 @@ export const Notify = fx(function NotifyFX(
     // eslint-disable-next-line no-new
     new Notification(title, {
       body: text,
-      vibrate: [100, 100, 100],
+      silent: !sound,
     });
   }
   PlaySoundFX(_dispatch, { sound, documentElement });
 });
 
-export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
+export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX (
   _dispatch,
   { remainingTime, documentElement },
 ) {
@@ -135,25 +135,33 @@ export const UpdateTitleWithTime = fx(function UpdateTitleWithTimeFX(
     remainingTime > 0 ? `${formatTime(remainingTime)} - mobtime` : 'mobtime';
 });
 
-export const andThen = fx(function andThenFX(dispatch, { action, props, delay }) {
+export const andThen = fx(function andThenFX (dispatch, { action, props, delay, ...otherProps }) {
+  if (!action) {
+    console.error('Unable to chain action using andThen', { action, props, delay, otherProps });
+    return;
+  }
   setTimeout(() => {
     dispatch(action, props);
   }, delay || 0);
 });
 
-export const checkSettings = fx(function CheckSettingsFX(
+export const checkSettings = fx(function CheckSettingsFX (
   dispatch,
-  { storage, onLocalSoundEnabled, onDarkEnabled },
+  { storage, onAllowSound, onLocalSoundEnabled, onDarkEnabled },
 ) {
   let localSettings = storage.getItem('settings');
   if (!localSettings) return;
 
   localSettings = JSON.parse(localSettings);
+
+  dispatch(onAllowSound, localSettings.allowSound || false);
+
   if (localSettings.allowSound && onLocalSoundEnabled) {
     dispatch(onLocalSoundEnabled, {
       sound: localSettings.sound || '/audio/horn.wav',
     });
   }
+
   if (localSettings.dark && onDarkEnabled) {
     dispatch(onDarkEnabled, {
       dark: localSettings.dark,
@@ -161,7 +169,7 @@ export const checkSettings = fx(function CheckSettingsFX(
   }
 });
 
-export const saveSettings = fx(function SaveSettingsFX(
+export const saveSettings = fx(function SaveSettingsFX (
   _dispatch,
   { storage, data },
 ) {
@@ -178,7 +186,7 @@ export const saveSettings = fx(function SaveSettingsFX(
   storage.setItem('settings', JSON.stringify(localSettings));
 });
 
-export const saveSound = fx(function SaveSoundFX(
+export const saveSound = fx(function SaveSoundFX (
   _dispatch,
   { storage, allowSound, sound },
 ) {
@@ -196,11 +204,10 @@ export const saveSound = fx(function SaveSoundFX(
   storage.setItem('settings', JSON.stringify(localSettings));
 });
 
-export const toggleDarkMode = fx(function ToggleDarkMode(
+export const toggleDarkMode = fx(function ToggleDarkMode (
   _dispatch,
   { documentElement, dark },
 ) {
-  console.log('toggleDarkMode', documentElement, dark);
   if (typeof dark !== 'boolean') {
     console.log('dark not set, skipping', dark);
     return;
@@ -214,7 +221,7 @@ export const toggleDarkMode = fx(function ToggleDarkMode(
   }
 });
 
-export const removeQueryParameters = fx(function RemoveQueryParametersFX(
+export const removeQueryParameters = fx(function RemoveQueryParametersFX (
   _dispatch,
   { location, history, documentElement },
 ) {
@@ -230,4 +237,60 @@ export const removeQueryParameters = fx(function RemoveQueryParametersFX(
     documentElement.title,
     [location.toString().split('?')[0], params].filter(Boolean).join('?'),
   );
+});
+
+const timerApi = (fetchFn, timerId, endpoint, body = {}) => fetchFn(
+  `/${timerId}/timer${endpoint}`,
+  {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  },
+);
+
+export const apiTimerStart = fx(function ApiTimerStart (
+  _dispatch,
+  { timerId, duration, fetch: fetchFn },
+) {
+  timerApi(fetchFn, timerId, '/start', { duration })
+    .catch((err) => {
+      console.error('Unable to start timer', { timerId }, err);
+    });
+});
+
+export const apiTimerPause = fx(function ApiTimerPause (
+  _dispatch,
+  { timerId, completeToken, timerDuration, fetch: fetchFn },
+) {
+  timerApi(fetchFn, timerId, '/pause', { token: completeToken, duration: timerDuration })
+    .catch((err) => {
+      console.error('Unable to start timer', { timerId }, err);
+    });
+});
+
+export const apiTimerComplete = fx(function CompleteTimer (
+  dispatch,
+  { timerId, completeToken, fetch: fetchFn, onSuccess },
+) {
+  timerApi(fetchFn, timerId, '/complete', { token: completeToken })
+    .then((response) => {
+      return response.ok && onSuccess
+        ? dispatch(onSuccess.action, onSuccess.props)
+        : null;
+    })
+    .catch((err) => {
+      console.error('Unable to complete timer', { timerId, completeToken }, err);
+    });
+});
+
+export const apiUpdateSettings = fx(function UpdateTimer (
+  _dispatch,
+  { timerId, settings, fetch: fetchFn },
+) {
+  timerApi(fetchFn, timerId, '/settings', { settings })
+    .catch((err) => {
+      console.error('Unable to update timer settings', { timerId, settings }, err);
+    });
 });

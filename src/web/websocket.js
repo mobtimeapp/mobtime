@@ -26,8 +26,18 @@ const WebsocketSub = (dispatch, actions, connection, timerId) => {
     log('error');
   });
 
+  const ignoredMessageTypes = [
+    'timer:start',
+    'timer:pause',
+    'timer:complete',
+  ];
   websocket.on('message', payload => {
     log('message', payload.toString());
+    const { type } = JSON.parse(payload.toString());
+    if (ignoredMessageTypes.includes(type)) {
+      log('WARN', 'socket sent ignored instruction', type);
+      return;
+    }
     return dispatch(
       actions.UpdateTimer(timerId, payload.toString()),
       'UpdateTimer',

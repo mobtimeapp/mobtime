@@ -1,4 +1,3 @@
-console.log('tailwind loaded config');
 module.exports = {
   darkMode: 'class',
   content: [

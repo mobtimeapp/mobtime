@@ -21,11 +21,7 @@ const TimerFX = (dispatch, { timerStartedAt, timerDuration, actions }) => {
 
     if (elapsed >= timerDuration) {
       cleanup();
-      dispatch(actions.Completed, {
-        isEndOfTurn: true,
-        documentElement: document,
-        Notification: window.Notification,
-      });
+      dispatch(actions.TimeComplete, {});
       return;
     }
 
@@ -44,7 +40,7 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
   const protocol = externals.location.protocol === 'https:' ? 'wss' : 'ws';
   const websocketAddress = `${protocol}://${externals.location.hostname}:${externals.location.port}/${timerId}`;
 
-  const socket = new WebSocket(websocketAddress);
+  let socket = new WebSocket(websocketAddress);
   let hasError = false;
 
   socket.addEventListener('message', event => {
@@ -80,6 +76,7 @@ const WebsocketFX = (dispatch, { timerId, externals, actions }) => {
   return () => {
     cancel();
     socket.close();
+    socket = null;
   };
 };
 export const Websocket = props => [WebsocketFX, props];
@@ -117,3 +114,20 @@ const DragAndDropFX = (dispatch, props) => {
   };
 };
 export const DragAndDrop = props => [DragAndDropFX, props];
+
+const PageInteractionFx = (dispatch, props) => {
+  const onInteraction = () => {
+    dispatch(props.onInteraction);
+  };
+
+  props.document.addEventListener('mouseup', onInteraction);
+  props.document.addEventListener('keyup', onInteraction);
+  props.document.addEventListener('touchstart', onInteraction);
+
+  return () => {
+    props.document.removeEventListener('mouseup', onInteraction);
+    props.document.removeEventListener('keyup', onInteraction);
+    props.document.removeEventListener('touchstart', onInteraction);
+  };
+};
+export const PageInteraction = props => [PageInteractionFx, props];
