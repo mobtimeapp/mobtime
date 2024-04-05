@@ -14,7 +14,7 @@ const emptyDrag = {
   clientY: null,
 };
 
-const collectionMove = (collection, { from, to }) => {
+export const collectionMove = (collection, { from, to }) => {
   const newCollection = collection.reduce((memo, item, index) => {
     if (index === from) return memo;
     if (index === to) {

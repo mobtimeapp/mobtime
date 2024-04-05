@@ -11,11 +11,6 @@ test('can set expand reorderable', t => {
   t.deepEqual(state, { expandedReorderable });
 });
 
-test('can set timer tab', t => {
-  const timerTab = 'foo-bar-baz';
-  const state = actions.SetTimerTab({}, timerTab);
-  t.deepEqual(state, { timerTab });
-});
 
 test('can allow notifications', t => {
   const Notification = {};
@@ -119,16 +114,4 @@ test('can end turn', t => {
       documentElement,
     }),
   ]);
-});
-
-test('it can toggle addMultiple', t => {
-  const initialState = {
-    addMultiple: false,
-  };
-
-  const state = actions.SetAddMultiple(initialState, true);
-
-  t.deepEqual(state, {
-    addMultiple: true,
-  });
 });

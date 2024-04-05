@@ -97,9 +97,12 @@ test('can add in-memory name to mob', t => {
     mob: [makeMobber('One')],
     name: nameToAdd,
     externals: { socketEmitter: {} },
+    forms: {
+      mob: {},
+    },
   };
 
-  const [state, effect] = actions.AddNameToMob(initialState);
+  const [state, effect] = actions.AddNameToMob(initialState, { name: nameToAdd });
 
   t.is(state.mob.length, initialState.mob.length + 1);
   t.like(state.mob[1], { name: nameToAdd });

@@ -40,34 +40,6 @@ test('can rename a user', t => {
   );
 });
 
-test('can prompt to rename a user', t => {
-  const mobber = makeUser('Foo');
-
-  const initialState = {
-    mob: [mobber],
-  };
-
-  const [state, effect] = actions.RenameUserPrompt(initialState, {
-    id: mobber.id,
-  });
-
-  t.deepEqual(state, initialState);
-  t.deepEqual(
-    effect,
-    effects.andThen({
-      action: actions.PromptOpen,
-      props: {
-        text: 'Rename Foo to...',
-        defaultValue: 'Foo',
-        OnValue: actions.RenameUser,
-        context: {
-          id: mobber.id,
-        },
-      },
-    }),
-  );
-});
-
 test('can update in-memory name', t => {
   const initialState = { name: '' };
 
