@@ -8,3 +8,4 @@ public/styles/*
 .yarn
 dump.rdb
 docker/redis-volume/*
+.env
