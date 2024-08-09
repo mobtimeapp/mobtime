@@ -158,7 +158,7 @@ export const checkSettings = fx(function CheckSettingsFX (
 
   if (localSettings.allowSound && onLocalSoundEnabled) {
     dispatch(onLocalSoundEnabled, {
-      sound: localSettings.sound || '/audio/horn.wav',
+      sound: localSettings.sound || '/audio/ding.wav',
     });
   }
 
