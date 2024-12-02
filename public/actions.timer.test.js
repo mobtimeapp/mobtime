@@ -71,9 +71,11 @@ test('can pause the timer', t => {
 
   t.deepEqual(
     effect,
-    effects.PauseTimer({
-      socketEmitter,
+    effects.apiTimerPause({
+      completeToken: undefined,
+      fetch: undefined,
       timerDuration: expectedTimerDuration,
+      timerId: undefined,
     }),
   );
 });
@@ -102,9 +104,10 @@ test('can resume the timer', t => {
 
   t.deepEqual(
     effect,
-    effects.StartTimer({
-      socketEmitter,
-      timerDuration: 1000000,
+    effects.apiTimerStart({
+      duration: 1000000,
+      fetch: undefined,
+      timerId: undefined,
     }),
   );
 });
@@ -139,9 +142,10 @@ test('can start the timer', t => {
 
   t.deepEqual(
     effect,
-    effects.StartTimer({
-      socketEmitter,
-      timerDuration,
+    effects.apiTimerStart({
+      duration: timerDuration,
+      fetch: undefined,
+      timerId: undefined,
     }),
   );
 });

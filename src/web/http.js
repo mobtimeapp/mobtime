@@ -61,6 +61,52 @@ const HttpSub = (dispatch, action, host = 'localhost', port = 4321) => {
     return response.status(200).send(html);
   });
 
+  app.post('/:timerId/timer/start', async (request, response) => {
+    const { timerId } = request.params;
+
+    const completeToken = Math.random().toString(36).slice(-6);
+    await dispatch(action.SetCompleteToken(timerId, completeToken), 'SetCompleteToken');
+
+    const message = JSON.stringify({
+      type: 'timer:start',
+      timerDuration: request.body.duration,
+      completeToken,
+    });
+
+    await dispatch(action.UpdateTimer(timerId, message), 'UpdateTimer');
+
+    return response.status(202).json({ completeToken });
+  });
+
+  app.post('/:timerId/timer/pause', async (request, response) => {
+    const { timerId } = request.params;
+    const { token, duration } = request.body;
+
+    console.log('http timer pause', { timerId, token, duration }, request.body);
+
+    await dispatch(action.PauseTimer(timerId, token, duration), 'PauseTimer');
+    return response.status(202).json({});
+  });
+
+  app.post('/:timerId/timer/complete', async (request, response) => {
+    const { timerId } = request.params;
+    const { token } = request.body;
+
+    const responder = (success) => {
+      return response.status(success ? 202 : 410).json({});
+    };
+
+    await dispatch(action.CompleteTimer(timerId, token, responder), 'CompleteTimer');
+  });
+
+  app.post('/:timerId/timer/settings', async (request, response) => {
+    const { timerId } = request.params;
+    const { settings } = request.body;
+
+    await dispatch(action.UpdateTimer(timerId, JSON.stringify({ type: 'settings:update', settings })), 'UpdateTimer');
+    return response.status(202).json({});
+  });
+
   server.listen(port, host, () => {
     console.log(`Local server up: http://${host}:${port}`);
   });

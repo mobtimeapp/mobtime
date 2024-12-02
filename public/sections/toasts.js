@@ -28,7 +28,7 @@ export const toast = ({ id, title, body, buttons }) =>
               'mt-2': true,
               'pt-2': true,
               'border-t': true,
-              flex: true,
+              'flex': true,
               'align-center': true,
               'justify-start': true,
             },
@@ -93,7 +93,7 @@ export const toasts = props =>
         'absolute top-0 right-0 sm:right-20 pt-2 mx-2 flex flex-col align-center justify-end',
       style: {
         'max-height': '50vh',
-        width: '300px',
+        'width': '300px',
       },
     },
     [...props.toasts.map(toast)],

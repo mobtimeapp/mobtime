@@ -34,6 +34,7 @@ test('Init resets connections and statistics, with no effect', async t => {
   t.truthy(ok());
 
   t.deepEqual(state(), {
+    completeTokens: {},
     connections: {},
     queue,
     nextId,

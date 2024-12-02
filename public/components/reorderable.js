@@ -73,8 +73,9 @@ const dragContainer = (props, children) =>
         'div',
         {
           class: {
-            'hidden': true,
-            'sm:flex': true,
+            'flex': true,
+            // 'hidden': true,
+            // 'sm:flex': true,
             'h-full': true,
             'flex-col': true,
             'items-center': true,
@@ -96,19 +97,20 @@ const dragContainer = (props, children) =>
                   },
                 ],
         },
-        Array.from({ length: 3 }, () =>
-          h('div', {
-            class: {
-              'border-b': true,
-              'border-b-gray-800': !props.disabled,
-              'border-b-gray-400': props.disabled,
-              'dark:border-b-gray-200': !props.disabled,
-              'dark:border-b-gray-400': props.disabled,
-              'my-1': true,
-              'w-6': true,
-            },
-          }),
-        ),
+        h('div', { innerHTML: '&#8286;&#8286;&#8286;' }),
+        // Array.from({ length: 3 }, (_, index) =>
+        //   h('div', {
+        //     class: {
+        //       'border-b': true,
+        //       'border-b-gray-800': !props.disabled,
+        //       'border-b-gray-400': props.disabled,
+        //       'dark:border-b-gray-200': !props.disabled,
+        //       'dark:border-b-gray-400': props.disabled,
+        //       'mt-1': index > 0,
+        //       'w-1': true,
+        //     },
+        //   }),
+        // ),
       ),
 
       children,
@@ -126,50 +128,44 @@ const dragContainer = (props, children) =>
             {
               'class': {
                 'text-gray-500': !props.onMoveUp,
-                'border-2': true,
-                'border-white': true,
-                'mr-2': true,
+                'mr-1': true,
               },
               'onclick': props.onMoveUp,
               'disabled': !props.onMoveUp,
               'aria-label': `Move ${props.type} up`,
             },
-            [h('i', { class: 'fas fa-arrow-up' })],
+            [h('span', { class: 'text-bold', innerHTML: '&uarr;' })],
           ),
 
           listButton(
             {
               'class': {
                 'text-gray-500': !props.onMoveDown,
-                'border-2': true,
-                'border-white': true,
-                'mr-2': true,
+                'mr-1': true,
               },
               'onclick': props.onMoveDown,
               'disabled': !props.onMoveDown,
               'aria-label': `Move ${props.type} down`,
             },
-            [h('i', { class: 'fas fa-arrow-down' })],
+            [h('span', { class: 'text-bold', innerHTML: '&darr;' })],
           ),
 
           props.onEdit &&
             listButton(
               {
                 class: {
-                  'border-2': true,
-                  'border-white': true,
                   'mr-2': true,
                 },
                 onclick: props.onEdit,
               },
-              [h('i', { class: 'fas fa-pencil-alt' })],
+              [h('span', { class: 'text-bold', innerHTML: '&#x270E;' })],
             ),
 
           props.onDelete &&
             deleteButton({
               onclick: props.onDelete,
               class: {
-                'mr-2': true,
+                'mr-1': true,
               },
             }),
         ],
@@ -182,14 +178,11 @@ const dragContainer = (props, children) =>
             class: {
               'text-indigo-600': props.expandActions,
               'bg-white': props.expandActions,
-              'border-2': true,
-              'border-transparent': !props.expandActions,
-              'border-white': props.expandActions,
-              'mr-2': true,
+              'mr-1': true,
             },
             onclick: props.onExpand,
           },
-          [h('i', { class: 'fas fa-ellipsis-h' })],
+          [h('span', { class: 'text-bold', innerHTML: '&vellip;' })],
         ),
 
       ...(props.isDragging
@@ -222,9 +215,9 @@ const draggingContainer = (props, child) =>
         'duration-75': true,
         'ease-in-out': true,
         'pointer-events-none': true,
-        'border': true,
-        'border-green-600': true,
-        'rounded': true,
+        // 'border': true,
+        // 'border-green-600': true,
+        // 'rounded': true,
       },
     },
     child,

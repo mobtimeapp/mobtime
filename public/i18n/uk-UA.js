@@ -62,7 +62,7 @@ export const uk_UA = {
     saved: 'Збережено',
     sharedTimerSettings: 'Налаштування таймеру',
     turnDurationInMinutes: 'Довжина ротації (у хвилинах)',
-    mobRolesOrder: `Ролі/Порядок учасників`,
+    mobRolesOrder: 'Ролі/Порядок учасників',
     positionHelpText: 'Одна або більше ролей розділених комами',
     localSettings: 'Локальні налаштування',
     enableTimerSounds: 'Увімкнути звуки таймеру',

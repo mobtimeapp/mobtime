@@ -1,18 +1,12 @@
-export default {
-  root: true,
+module.exports = {
   env: {
     browser: true,
-    es6: true,
+    es2021: true,
     node: true,
   },
-  extends: ['eslint:recommended', 'prettier'],
-  plugins: ['import'],
-  globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
-  },
+  extends: 'standard',
   parserOptions: {
-    ecmaVersion: 2018,
+    ecmaVersion: 'latest',
     sourceType: 'module',
   },
   rules: {
@@ -22,5 +16,7 @@ export default {
     'no-restricted-syntax': ['off'],
     'no-continue': ['off'],
     'quote-props': ['warn', 'consistent-as-needed'],
+    'semi': ['warn', 'always'],
+    'comma-dangle': ['warn', 'always-multiline'],
   },
 };

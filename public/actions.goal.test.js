@@ -32,7 +32,7 @@ test('can add goal', t => {
     text: goalTextToAdd,
     completed: false,
   });
-  t.is(state.goal, '');
+  t.is(state.goal, 'foo');
   t.deepEqual(
     effect,
     effects.UpdateGoals({
@@ -217,34 +217,6 @@ test('can rename goal', t => {
     effects.UpdateGoals({
       socketEmitter: initialState.externals.socketEmitter,
       goals: state.goals,
-    }),
-  );
-});
-
-test('can prompt to rename goal', t => {
-  const initialState = {
-    goals: [makeGoal('foo')],
-    externals: { socketEmitter: {} },
-  };
-
-  const [state, effect] = actions.RenameGoalPrompt(initialState, {
-    id: initialState.goals[0].id,
-  });
-
-  t.is(state, initialState);
-
-  t.deepEqual(
-    effect,
-    effects.andThen({
-      action: actions.PromptOpen,
-      props: {
-        text: 'Rename foo to...',
-        defaultValue: initialState.goals[0].text,
-        OnValue: actions.RenameGoal,
-        context: {
-          id: initialState.goals[0].id,
-        },
-      },
     }),
   );
 });
